@@ -1,6 +1,6 @@
-import 'package:analyzer/dart/element/element.dart';
-import 'package:build/build.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:analyzer/dart/element/element2.dart';
+import 'package:build/build.dart'; // For Resolver
+// import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'; // Removing as type check is by string
 
 class ProcessedClassInfo {
   final String className;
@@ -15,7 +15,7 @@ class ProcessedClassInfo {
 }
 
 class GlobalResourceProcessor {
-  final ClassElement classElement;
+  final ClassElement2 classElement; // Updated to ClassElement2
   final Resolver resolver;
 
   GlobalResourceProcessor(this.classElement, this.resolver);
@@ -25,37 +25,32 @@ class GlobalResourceProcessor {
       return null;
     }
 
-    final String className = classElement.name;
+    final String className = classElement.displayName; // Changed to .displayName
     final List<Map<String, dynamic>> constructorsInfo = [];
     final List<Map<String, String>> fieldsInfo = [];
 
     // Extract constructor details
-    for (final constructorElement in classElement.constructors) {
-      // We are interested in public, non-factory constructors
-      if (!constructorElement.isFactory && constructorElement.isPublic) {
-        final List<Map<String, String>> parametersInfo = [];
-        for (final parameterElement in constructorElement.parameters) {
-          parametersInfo.add({
-            'name': parameterElement.name,
-            'type': parameterElement.type.getDisplayString(withNullability: true),
-          });
-        }
-        constructorsInfo.add({
-          'name': constructorElement.name.isEmpty ? '' : constructorElement.name, // Default constructor has empty name
-          'parameters': parametersInfo,
+    for (final constructorElement in classElement.constructors2.where((c) => !c.isFactory && c.isPublic)) {
+      final List<Map<String, String>> parametersInfo = [];
+      // Changing to .parameters2 for ConstructorElement2
+      for (final parameterElement in constructorElement.parameters2) { 
+        parametersInfo.add({
+          'name': parameterElement.name, // Assuming .name is correct for ParameterElement2
+          'type': parameterElement.type.getDisplayString(),
         });
       }
+      constructorsInfo.add({
+        'name': constructorElement.displayName.isEmpty ? '' : constructorElement.displayName, // Changed to .displayName
+        'parameters': parametersInfo,
+      });
     }
 
     // Extract field details
-    for (final fieldElement in classElement.fields) {
-       // We are interested in public, non-static fields
-      if (!fieldElement.isStatic && fieldElement.isPublic) {
-        fieldsInfo.add({
-          'name': fieldElement.name,
-          'type': fieldElement.type.getDisplayString(withNullability: true),
-        });
-      }
+    for (final fieldElement in classElement.fields2.where((f) => !f.isStatic && f.isPublic)) {
+      fieldsInfo.add({
+        'name': fieldElement.displayName, // Changed to .displayName
+        'type': fieldElement.type.getDisplayString(),
+      });
     }
 
     return ProcessedClassInfo(
@@ -65,10 +60,11 @@ class GlobalResourceProcessor {
     );
   }
 
-  bool _hasRdfGlobalResourceAnnotation(ClassElement element) {
-    for (final metadata in element.metadata) {
-      final annotation = metadata.computeConstantValue();
-      if (annotation != null && annotation.type?.displayName == 'RdfGlobalResource') {
+  bool _hasRdfGlobalResourceAnnotation(ClassElement2 element) {
+    // Changing to element.annotations for ClassElement2
+    for (final annotationNode in element.annotations) { 
+      final annotationValue = annotationNode.computeConstantValue();
+      if (annotationValue != null && annotationValue.type?.getDisplayString() == 'RdfGlobalResource') {
         return true;
       }
     }

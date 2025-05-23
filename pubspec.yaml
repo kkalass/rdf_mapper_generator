@@ -27,8 +27,11 @@ dependencies:
   rdf_mapper_annotations: ^0.1.0
 
 dev_dependencies:
-  build_runner: ^2.4.15
-  build_test: ^2.2.3
-  lints: ^5.1.1
-  source_gen_test: ^1.0.0 # Or the latest version
-  test: ^1.26.2
+  build_runner: ^2.4.15 # Consider updating if compatible with other deps
+  build_test: ^2.2.3   # Consider updating
+  lints: ^5.1.1       # Consider updating to 6.0.0 or newer if appropriate
+  source_gen_test: ^1.1.1 # Updated as per previous pub get
+  test: ^1.26.2        # Consider updating
+  path: ^1.8.0
+  yaml: ^3.1.0
+  glob: ^2.1.2 # Explicitly add glob
