@@ -281,6 +281,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.9.0"
+  lints:
+    dependency: "direct dev"
+    description:
+      name: lints
+      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.1"
   logging:
     dependency: "direct main"
     description:
@@ -380,10 +388,11 @@ packages:
   rdf_mapper_annotations:
     dependency: "direct main"
     description:
-      path: "../rdf_mapper_annotations"
-      relative: true
-    source: path
-    version: "0.1.0-dev"
+      name: rdf_mapper_annotations
+      sha256: "4f0574e83e5be2511a252224c894a2040996163736282c2c042969d86c6b4697"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   rdf_vocabularies:
     dependency: transitive
     description:
