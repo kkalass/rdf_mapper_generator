@@ -4,8 +4,6 @@ This document provides a step-by-step guide for implementing the `rdf_mapper_gen
 
 Provide the LLM with the files in doc/technical_documentation and with a reference to rdf_mapper_annotations project so it can read the actual annotation source code files and examples as context.
 
-> You find the rdf_mapper_annotations sourcecode with examples etc on github: https://github.com/kkalass/rdf_mapper_annotations. Please always write docs and code in english.
-
 ## Phase 1: Project Setup
 
 ### Task 1.1: Create Basic Package Structure
