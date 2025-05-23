@@ -5,6 +5,7 @@
 [![codecov](https://codecov.io/gh/kkalass/rdf_mapper_generator/branch/main/graph/badge.svg)](https://codecov.io/gh/kkalass/rdf_mapper_generator)
 [![license](https://img.shields.io/github/license/kkalass/rdf_mapper_generator.svg)](https://github.com/kkalass/rdf_mapper_generator/blob/main/LICENSE)
 
+A code generation tool for creating type-safe, boilerplate-free RDF mappers in Dart. Automatically converts between Dart objects and RDF (Resource Description Framework) data by processing annotations from rdf_mapper_annotations. Supports global and local resources, IRI templates, custom type mappings, collections, and complex object graphs while maintaining high performance and type safety.
 
 ## Overview
 

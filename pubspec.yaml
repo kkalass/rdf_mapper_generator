@@ -14,8 +14,7 @@ changelog: CHANGELOG.md
 license: LICENSE
 maintainers:
   - "Klas Kalaß <habbatical@gmail.com>"
-description: >
-  Generator for generating Mappers from rdf_mapper_annotations .
+description: Generate type-safe RDF mappers from annotated Dart classes.
 
 environment:
   sdk: '^3.6.0'
