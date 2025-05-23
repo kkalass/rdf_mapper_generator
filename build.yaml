@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      rdf_mapper_generator|rdf_mapper_generator:
+        generate_for:
+          - lib/**.dart
+builders:
+  rdf_mapper_generator:
+    import: 'package:rdf_mapper_generator/builder.dart'
+    builder_factories: ['rdfMapperBuilder']
+    build_extensions: { '.dart': ['.g.dart'] }
+    build_to: source
+    auto_apply: dependents
+    applies_builders: ['source_gen|combining_builder']
