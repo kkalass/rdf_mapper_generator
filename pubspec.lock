@@ -378,7 +378,7 @@ packages:
     source: hosted
     version: "0.9.2"
   rdf_mapper:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: rdf_mapper
       sha256: "7c67d7cc224f2044c85a8e4d4e01a4b2adbd9347fbd8b31def88a975f164be56"

@@ -1,7 +1,13 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/parse_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 
 /// Processes class elements to extract RDF global resource information.
@@ -16,112 +22,24 @@ class GlobalResourceProcessor {
       return null;
     }
 
-    final typeIri = _getTypeIri(annotation);
-    final registerGlobally = _getRegisterGlobally(annotation);
-
     final className = classElement.displayName;
     final constructors = _extractConstructors(classElement);
     final fields = _extractFields(classElement);
 
+    // Create the RdfGlobalResource instance from the annotation
+    final rdfGlobalResource = _createRdfGlobalResource(annotation);
+
     return GlobalResourceInfo(
       className: className,
-      typeIri: typeIri,
-      registerGlobally: registerGlobally,
+      annotation: rdfGlobalResource,
       constructors: constructors,
       fields: fields,
     );
   }
 
   static DartObject? _getRdfGlobalResourceAnnotation(
-      ClassElement2 classElement) {
-    try {
-      // Get metadata from the class element
-      ;
-      for (final elementAnnotation in classElement.metadata2.annotations) {
-        try {
-          final annotation = elementAnnotation.computeConstantValue();
-          if (annotation != null) {
-            final name = annotation.type?.element3?.name3;
-            if (name == 'RdfGlobalResource') {
-              return annotation;
-            }
-          }
-        } catch (_) {
-          // Ignore errors for individual annotations
-          continue;
-        }
-      }
-    } catch (_) {
-      // Ignore errors during annotation processing
-      return null;
-    }
-
-    return null;
-  }
-
-  static String _getTypeIri(DartObject annotation) {
-    // First try to get the classIri field directly
-    final classIriValue = annotation.getField('classIri');
-    if (classIriValue != null && !classIriValue.isNull) {
-      // The classIri is an IriTerm object, get its 'iri' field
-      final iriValue = classIriValue.getField('iri');
-      if (iriValue != null && !iriValue.isNull) {
-        final value = iriValue.toStringValue();
-        if (value != null) {
-          return value;
-        }
-      }
-
-      // If we can't get the iri field, try to get the string representation
-      final stringValue = classIriValue.toStringValue();
-      if (stringValue != null) {
-        return stringValue;
-      }
-    }
-
-    // Try to get the first positional argument
-    final positionalArgs = _getPositionalArguments(annotation);
-    if (positionalArgs.isNotEmpty) {
-      final firstArg = positionalArgs.first;
-      if (!firstArg.isNull) {
-        // Check if it's an IriTerm
-        final iriValue = firstArg.getField('iri');
-        if (iriValue != null && !iriValue.isNull) {
-          final value = iriValue.toStringValue();
-          if (value != null) {
-            return value;
-          }
-        }
-
-        // Try direct string value
-        final stringValue = firstArg.toStringValue();
-        if (stringValue != null) {
-          return stringValue;
-        }
-      }
-    }
-
-    // Try to get the type field directly
-    final typeValue = annotation.getField('type');
-    if (typeValue != null && !typeValue.isNull) {
-      final stringValue = typeValue.toStringValue();
-      if (stringValue != null) {
-        return stringValue;
-      }
-    }
-
-    // Finally, try the typeIri field as a fallback
-    final typeIriValue = annotation.getField('typeIri');
-    if (typeIriValue != null && !typeIriValue.isNull) {
-      final value = typeIriValue.toStringValue();
-      if (value != null) {
-        return value;
-      }
-    }
-
-    // If we get here, we couldn't find a type IRI
-    throw StateError('Could not determine type IRI from annotation');
-  }
+          ClassElement2 classElement) =>
+      getAnnotation(classElement, 'RdfGlobalResource');
 
   static List<DartObject> _getPositionalArguments(DartObject annotation) {
     try {
@@ -156,17 +74,78 @@ class GlobalResourceProcessor {
     }
   }
 
-  static bool _getRegisterGlobally(DartObject annotation) {
+  static RdfGlobalResourceInfo _createRdfGlobalResource(DartObject annotation) {
     try {
-      final value = annotation.getField('registerGlobally');
-      if (value != null && !value.isNull) {
-        return value.toBoolValue() ?? true;
+      // Get the classIri from the annotation
+      final classIri = _getClassIri(annotation);
+
+      if (classIri == null) {
+        throw StateError('Could not determine class IRI from annotation');
       }
-      return true;
-    } catch (_) {
-      // Default to true if there's an error
-      return true;
+
+      // Get the iriStrategy from the annotation
+      final iriStrategy = _getIriStrategy(annotation);
+
+      // Get the registerGlobally flag
+      final registerGlobally = isRegisterGlobally(annotation);
+
+      final mapper = getMapperRefInfo<GlobalResourceMapper>(annotation);
+
+      // Create and return the RdfGlobalResource instance
+      return RdfGlobalResourceInfo(
+        classIri: classIri,
+        iri: iriStrategy,
+        registerGlobally: registerGlobally,
+        mapper: mapper,
+      );
+    } catch (e) {
+      print('Error creating RdfGlobalResource: $e');
+      rethrow;
     }
+  }
+
+  static IriTerm? _getClassIri(DartObject annotation) {
+    try {
+      final classIri = getIriTerm(annotation, 'classIri');
+      if (classIri != null) {
+        return classIri;
+      }
+
+      // Try to get from positional arguments (first argument is classIri)
+      final positionalArgs = _getPositionalArguments(annotation);
+      if (positionalArgs.isNotEmpty) {
+        final firstArg = positionalArgs.first;
+        if (!firstArg.isNull) {
+          // Check if it's an IriTerm with an 'iri' field
+          final iriValue = firstArg.getField('iri')?.toStringValue();
+          if (iriValue != null) {
+            return IriTerm(iriValue);
+          }
+
+          // Try direct string value
+          final stringValue = firstArg.toStringValue();
+          if (stringValue != null) {
+            return IriTerm(stringValue);
+          }
+        }
+      }
+
+      return null;
+    } catch (e) {
+      print('Error getting class IRI: $e');
+      return null;
+    }
+  }
+
+  static IriStrategyInfo _getIriStrategy(DartObject annotation) {
+    // Check if we have an iri field (for the standard constructor)
+    final iriValue = annotation.getField('iri');
+    if (iriValue == null || iriValue.isNull) {
+      throw ParseException('Missing iri field');
+    }
+    final template = iriValue.getField('template')?.toStringValue();
+    final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
+    return IriStrategyInfo(mapper: mapper, template: template);
   }
 
   static List<ConstructorInfo> _extractConstructors(

@@ -32,6 +32,9 @@ class Person {
   Person({required this.id});
 }
 
+@RdfGlobalResource(SchemaPerson.classIri, IriStrategy())
+class ClassWithEmptyIriStrategy {}
+
 // This class is not annotated with @RdfGlobalResource
 class NotAnnotated {
   final String name;

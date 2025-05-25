@@ -24,6 +24,23 @@ This library is part of a comprehensive ecosystem for working with RDF in Dart:
 * [rdf_xml](https://github.com/kkalass/rdf_xml) - RDF/XML format support
 * [rdf_vocabulary_to_dart](https://github.com/kkalass/rdf_vocabulary_to_dart) - Generate constants for custom vocabularies
 
+## Recent Changes
+
+### Model Class Refactoring
+
+We've refactored the model classes to store complete annotation instances instead of individual fields. This change provides several benefits:
+
+- **Better encapsulation**: The complete annotation data is preserved
+- **Future-proof**: New annotation properties are automatically available
+- **Consistency**: Uniform access to all annotation data
+
+#### Key Changes:
+
+1. **GlobalResourceInfo** now stores the complete `RdfGlobalResource` annotation
+2. **PropertyInfo** now stores the complete `RdfProperty` annotation
+3. Added computed getters for backward compatibility
+4. Updated processors to create and handle complete annotation instances
+
 ## 🤝 Contributing
 
 Contributions, bug reports, and feature requests are welcome!
