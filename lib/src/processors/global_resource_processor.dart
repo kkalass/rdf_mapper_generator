@@ -1,5 +1,5 @@
 import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
@@ -10,16 +10,16 @@ class GlobalResourceProcessor {
   ///
   /// Returns a [GlobalResourceInfo] containing the processed information if the class is annotated
   /// with `@RdfGlobalResource`, otherwise returns `null`.
-  static GlobalResourceInfo? processClass(ClassElement classElement) {
+  static GlobalResourceInfo? processClass(ClassElement2 classElement) {
     final annotation = _getRdfGlobalResourceAnnotation(classElement);
     if (annotation == null) {
       return null;
     }
-    
+
     final typeIri = _getTypeIri(annotation);
     final registerGlobally = _getRegisterGlobally(annotation);
-    
-    final className = classElement.name;
+
+    final className = classElement.displayName;
     final constructors = _extractConstructors(classElement);
     final fields = _extractFields(classElement);
 
@@ -32,14 +32,16 @@ class GlobalResourceProcessor {
     );
   }
 
-  static DartObject? _getRdfGlobalResourceAnnotation(ClassElement classElement) {
+  static DartObject? _getRdfGlobalResourceAnnotation(
+      ClassElement2 classElement) {
     try {
       // Get metadata from the class element
-      for (final metadata in classElement.metadata) {
+      ;
+      for (final elementAnnotation in classElement.metadata2.annotations) {
         try {
-          final annotation = metadata.computeConstantValue();
+          final annotation = elementAnnotation.computeConstantValue();
           if (annotation != null) {
-            final name = annotation.type?.name;
+            final name = annotation.type?.element3?.name3;
             if (name == 'RdfGlobalResource') {
               return annotation;
             }
@@ -53,7 +55,7 @@ class GlobalResourceProcessor {
       // Ignore errors during annotation processing
       return null;
     }
-    
+
     return null;
   }
 
@@ -69,14 +71,14 @@ class GlobalResourceProcessor {
           return value;
         }
       }
-      
+
       // If we can't get the iri field, try to get the string representation
       final stringValue = classIriValue.toStringValue();
       if (stringValue != null) {
         return stringValue;
       }
     }
-    
+
     // Try to get the first positional argument
     final positionalArgs = _getPositionalArguments(annotation);
     if (positionalArgs.isNotEmpty) {
@@ -90,7 +92,7 @@ class GlobalResourceProcessor {
             return value;
           }
         }
-        
+
         // Try direct string value
         final stringValue = firstArg.toStringValue();
         if (stringValue != null) {
@@ -98,7 +100,7 @@ class GlobalResourceProcessor {
         }
       }
     }
-    
+
     // Try to get the type field directly
     final typeValue = annotation.getField('type');
     if (typeValue != null && !typeValue.isNull) {
@@ -107,7 +109,7 @@ class GlobalResourceProcessor {
         return stringValue;
       }
     }
-    
+
     // Finally, try the typeIri field as a fallback
     final typeIriValue = annotation.getField('typeIri');
     if (typeIriValue != null && !typeIriValue.isNull) {
@@ -116,22 +118,23 @@ class GlobalResourceProcessor {
         return value;
       }
     }
-    
+
     // If we get here, we couldn't find a type IRI
     throw StateError('Could not determine type IRI from annotation');
   }
-  
+
   static List<DartObject> _getPositionalArguments(DartObject annotation) {
     try {
       // Try to access the positional arguments through the annotation's fields
       final type = annotation.type;
       if (type != null) {
-        final element = type.element;
-        if (element is ClassElement) {
+        final element = type.element3;
+        if (element is ClassElement2) {
           // Look for a field that might contain the positional arguments
-          for (final field in element.fields) {
-            if (field.name == '_positionalArguments' || field.name == 'values') {
-              final value = annotation.getField(field.name);
+          for (final field in element.fields2) {
+            if (field.name3 == '_positionalArguments' ||
+                field.name3 == 'values') {
+              final value = annotation.getField(field.name3!);
               if (value != null && !value.isNull) {
                 return value.toListValue() ?? [];
               }
@@ -139,13 +142,13 @@ class GlobalResourceProcessor {
           }
         }
       }
-      
+
       // As a fallback, try to get the first positional argument directly
       final value = annotation.getField('value');
       if (value != null && !value.isNull) {
         return [value];
       }
-      
+
       return [];
     } catch (e) {
       print('Error getting positional arguments: $e');
@@ -166,15 +169,16 @@ class GlobalResourceProcessor {
     }
   }
 
-  static List<ConstructorInfo> _extractConstructors(ClassElement classElement) {
+  static List<ConstructorInfo> _extractConstructors(
+      ClassElement2 classElement) {
     final constructors = <ConstructorInfo>[];
     try {
-      for (final constructor in classElement.constructors) {
+      for (final constructor in classElement.constructors2) {
         final parameters = <ParameterInfo>[];
-        
-        for (final parameter in constructor.parameters) {
+
+        for (final parameter in constructor.formalParameters) {
           parameters.add(ParameterInfo(
-            name: parameter.name,
+            name: parameter.name3!,
             type: parameter.type.getDisplayString(),
             isRequired: parameter.isRequired,
             isNamed: parameter.isNamed,
@@ -182,36 +186,37 @@ class GlobalResourceProcessor {
             isOptional: parameter.isOptional,
           ));
         }
-        
+
         constructors.add(ConstructorInfo(
-          name: constructor.name,
+          name: constructor.displayName,
           isFactory: constructor.isFactory,
           isConst: constructor.isConst,
-          isDefaultConstructor: constructor.name == '',
+          isDefaultConstructor: constructor.isDefaultConstructor,
           parameters: parameters,
         ));
       }
     } catch (e) {
       print('Error extracting constructors: $e');
     }
-    
+
     return constructors;
   }
 
-  static List<FieldInfo> _extractFields(ClassElement classElement) {
+  static List<FieldInfo> _extractFields(ClassElement2 classElement) {
     final fields = <FieldInfo>[];
-    final typeSystem = classElement.library.typeSystem;
-    
-    for (final field in classElement.fields) {
+    final typeSystem = classElement.library2.typeSystem;
+
+    for (final field in classElement.fields2) {
       if (field.isStatic) continue;
-      
+
       final propertyInfo = PropertyProcessor.processField(field);
-      final isNullable = field.type.isDartCoreNull || 
-          (field.type is InterfaceType && (field.type as InterfaceType).isDartCoreNull) ||
+      final isNullable = field.type.isDartCoreNull ||
+          (field.type is InterfaceType &&
+              (field.type as InterfaceType).isDartCoreNull) ||
           typeSystem.isNullable(field.type);
-      
+
       fields.add(FieldInfo(
-        name: field.name,
+        name: field.name3!,
         type: field.type.getDisplayString(),
         isFinal: field.isFinal,
         isLate: field.isLate,
@@ -221,7 +226,7 @@ class GlobalResourceProcessor {
         isRequired: propertyInfo?.isRequired ?? !isNullable,
       ));
     }
-    
+
     return fields;
   }
 }

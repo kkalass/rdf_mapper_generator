@@ -1,19 +1,19 @@
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
-import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:path/path.dart' as p;
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late ClassElement bookClass;
-  late ClassElement personClass;
+  late ClassElement2 bookClass;
+  late ClassElement2 personClass;
 
   setUpAll(() async {
     // Set up the analysis context with absolute paths
     final fixturesPath = p.join(p.current, 'test', 'fixtures');
     final testModelsPath = p.join(fixturesPath, 'test_models.dart');
-    
+
     final collection = AnalysisContextCollection(
       includedPaths: [p.absolute(fixturesPath)],
     );
@@ -25,11 +25,11 @@ void main() {
     ) as ResolvedUnitResult;
 
     // Find the test classes in the library's top-level elements
-    for (final element in result.libraryElement.topLevelElements) {
-      if (element is ClassElement) {
-        if (element.name == 'Book') {
+    for (final element in result.libraryElement2.children2) {
+      if (element is ClassElement2) {
+        if (element.name3 == 'Book') {
           bookClass = element;
-        } else if (element.name == 'Person') {
+        } else if (element.name3 == 'Person') {
           personClass = element;
         }
       }
@@ -39,11 +39,12 @@ void main() {
   group('PropertyProcessor', () {
     test('should process field with @RdfProperty annotation', () {
       // Find the title field in the Book class
-      final titleField = bookClass.fields.firstWhere((f) => f.name == 'title');
-      
+      final titleField =
+          bookClass.fields2.firstWhere((f) => f.name3 == 'title');
+
       // Act
       final result = PropertyProcessor.processField(titleField);
-      
+
       // Assert
       expect(result, isNotNull);
       expect(result!.name, 'title');
@@ -55,11 +56,12 @@ void main() {
 
     test('should process field with @RdfProperty and IriMapping', () {
       // Find the authorId field in the Book class
-      final authorField = bookClass.fields.firstWhere((f) => f.name == 'authorId');
-      
+      final authorField =
+          bookClass.fields2.firstWhere((f) => f.name3 == 'authorId');
+
       // Act
       final result = PropertyProcessor.processField(authorField);
-      
+
       // Assert
       expect(result, isNotNull);
       expect(result!.name, 'authorId');
@@ -72,11 +74,11 @@ void main() {
 
     test('should return null for field without @RdfProperty annotation', () {
       // Find the id field in the Person class (has @RdfIriPart but not @RdfProperty)
-      final idField = personClass.fields.firstWhere((f) => f.name == 'id');
-      
+      final idField = personClass.fields2.firstWhere((f) => f.name3 == 'id');
+
       // Act
       final result = PropertyProcessor.processField(idField);
-      
+
       // Assert
       expect(result, isNull);
     });
