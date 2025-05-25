@@ -1,7 +1,6 @@
-import 'package:rdf_mapper_generator/builder.dart';
-import 'package:rdf_mapper_generator/src/builders/resource_builder.dart';
-import 'package:test/test.dart';
 import 'package:build/build.dart';
+import 'package:rdf_mapper_generator/builder.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('Builder Tests', () {

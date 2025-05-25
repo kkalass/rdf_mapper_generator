@@ -394,7 +394,7 @@ packages:
     source: hosted
     version: "0.1.0"
   rdf_vocabularies:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: rdf_vocabularies
       sha256: "33c102a1c287f9ff91f150596155070fcc22b21de508dbdb82ec3e4ac856db85"
