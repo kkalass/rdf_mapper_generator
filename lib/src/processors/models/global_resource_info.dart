@@ -1,6 +1,5 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_annotation_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 
@@ -26,6 +25,21 @@ class GlobalResourceInfo {
   });
 
   @override
+  int get hashCode =>
+      Object.hashAll([className, annotation, constructors, fields]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! GlobalResourceInfo) {
+      return false;
+    }
+    return className == other.className &&
+        annotation == other.annotation &&
+        constructors == other.constructors &&
+        fields == other.fields;
+  }
+
+  @override
   String toString() {
     return 'GlobalResourceInfo{\n'
         '  className: $className,\n'
@@ -40,6 +54,17 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   final String? template;
 
   IriStrategyInfo({required super.mapper, required this.template});
+
+  @override
+  int get hashCode => Object.hashAll([mapper, template]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! IriStrategyInfo) {
+      return false;
+    }
+    return mapper == other.mapper && template == other.template;
+  }
 }
 
 class RdfGlobalResourceInfo
@@ -51,6 +76,20 @@ class RdfGlobalResourceInfo
       required this.iri,
       required super.registerGlobally,
       required super.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([classIri, iri, registerGlobally, mapper]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfGlobalResourceInfo) {
+      return false;
+    }
+    return classIri == other.classIri &&
+        iri == other.iri &&
+        registerGlobally == other.registerGlobally &&
+        mapper == other.mapper;
+  }
 }
 
 /// Information about a constructor
@@ -77,6 +116,22 @@ class ConstructorInfo {
     required this.isDefaultConstructor,
     required this.parameters,
   });
+
+  @override
+  int get hashCode => Object.hashAll(
+      [name, isFactory, isConst, isDefaultConstructor, parameters]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! ConstructorInfo) {
+      return false;
+    }
+    return name == other.name &&
+        isFactory == other.isFactory &&
+        isConst == other.isConst &&
+        isDefaultConstructor == other.isDefaultConstructor &&
+        parameters == other.parameters;
+  }
 
   @override
   String toString() {
@@ -118,6 +173,23 @@ class ParameterInfo {
     required this.isPositional,
     required this.isOptional,
   });
+
+  @override
+  int get hashCode => Object.hashAll(
+      [name, type, isRequired, isNamed, isPositional, isOptional]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! ParameterInfo) {
+      return false;
+    }
+    return name == other.name &&
+        type == other.type &&
+        isRequired == other.isRequired &&
+        isNamed == other.isNamed &&
+        isPositional == other.isPositional &&
+        isOptional == other.isOptional;
+  }
 
   @override
   String toString() {
@@ -168,6 +240,24 @@ class FieldInfo {
     this.propertyIri,
     this.isRequired = false,
   });
+
+  @override
+  int get hashCode => Object.hashAll(
+      [name, type, isFinal, isLate, isStatic, isSynthetic, propertyIri]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! FieldInfo) {
+      return false;
+    }
+    return name == other.name &&
+        type == other.type &&
+        isFinal == other.isFinal &&
+        isLate == other.isLate &&
+        isStatic == other.isStatic &&
+        isSynthetic == other.isSynthetic &&
+        propertyIri == other.propertyIri;
+  }
 
   @override
   String toString() {

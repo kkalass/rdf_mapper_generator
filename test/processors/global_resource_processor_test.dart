@@ -1,10 +1,9 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
-import 'package:test/test.dart';
 import 'package:rdf_vocabularies/schema.dart';
+import 'package:test/test.dart';
 
 import '../test_helper.dart';
 
@@ -37,6 +36,160 @@ void main() {
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));
     });
+    test('should process ClassWithEmptyIriStrategyNoRegisterGlobally', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(libraryElement
+          .getClass2('ClassWithEmptyIriStrategyNoRegisterGlobally')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithEmptyIriStrategyNoRegisterGlobally');
+      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isFalse);
+      expect(result.annotation.iri,
+          equals(IriStrategyInfo(mapper: null, template: null)));
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
+    test('should process ClassWithIriTemplateStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriTemplateStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriTemplateStrategy');
+      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.mapper, isNull);
+      expect(
+          result.annotation.iri,
+          equals(IriStrategyInfo(
+              mapper: null, template: 'http://example.org/persons/{id}')));
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+    });
+    test('should process ClassWithIriNamedMapperStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriNamedMapperStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriNamedMapperStrategy');
+      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.mapper, isNull);
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.template, isNull);
+      expect(result.annotation.iri!.mapper, isNotNull);
+      expect(result.annotation.iri!.mapper!.name, equals('testMapper'));
+      expect(result.annotation.iri!.mapper!.type, isNull);
+      expect(result.annotation.iri!.mapper!.instance, isNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
+    test('should process ClassWithIriMapperStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriMapperStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriMapperStrategy');
+      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.mapper, isNull);
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.template, isNull);
+      expect(result.annotation.iri!.mapper, isNotNull);
+      expect(result.annotation.iri!.mapper!.name, isNull);
+      // TODO: implement a better check
+      expect(result.annotation.iri!.mapper!.type, isNotNull);
+      expect(result.annotation.iri!.mapper!.instance, isNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
+    test('should process ClassWithIriMapperInstanceStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriMapperInstanceStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriMapperInstanceStrategy');
+      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.mapper, isNull);
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.template, isNull);
+      expect(result.annotation.iri!.mapper, isNotNull);
+      expect(result.annotation.iri!.mapper!.name, isNull);
+      expect(result.annotation.iri!.mapper!.type, isNull);
+      // TODO: implement a better check
+      expect(result.annotation.iri!.mapper!.instance, isNotNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
+    test('should process ClassWithMapperNamedMapperStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithMapperNamedMapperStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithMapperNamedMapperStrategy');
+      expect(result.annotation.classIri, isNull);
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.iri, isNull);
+      expect(result.annotation.mapper, isNotNull);
+      expect(
+          result.annotation.mapper!.name, equals('testGlobalResourceMapper'));
+      expect(result.annotation.mapper!.type, isNull);
+      expect(result.annotation.mapper!.instance, isNull);
+
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
+    test('should process ClassWithMapperStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithMapperStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithMapperStrategy');
+      expect(result.annotation.classIri, isNull);
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.iri, isNull);
+      expect(result.annotation.mapper, isNotNull);
+      expect(result.annotation.mapper!.name, isNull);
+      // TODO: can I check this more thoroughly?
+      expect(result.annotation.mapper!.type, isNotNull);
+      expect(result.annotation.mapper!.instance, isNull);
+
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
+    test('should process ClassWithMapperInstanceStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithMapperInstanceStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithMapperInstanceStrategy');
+      expect(result.annotation.classIri, isNull);
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.iri, isNull);
+      expect(result.annotation.mapper, isNotNull);
+      expect(result.annotation.mapper!.name, isNull);
+      expect(result.annotation.mapper!.type, isNull);
+      // TODO: can I check this more thoroughly?
+      expect(result.annotation.mapper!.instance, isNotNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(0));
+    });
 
     test('should process class with RdfGlobalResource annotation', () {
       // Act
@@ -48,7 +201,7 @@ void main() {
       expect(result.annotation.classIri, equals(SchemaBook.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.classIri, isA<IriTerm>());
-      expect(result.annotation.iri, isA<IriStrategy>());
+      expect(result.annotation.iri, isA<IriStrategyInfo>());
     });
 
     test('should return null for class without RdfGlobalResource annotation',

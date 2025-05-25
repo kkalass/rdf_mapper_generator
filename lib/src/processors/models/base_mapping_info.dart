@@ -14,4 +14,15 @@ class MapperRefInfo<M> {
 class BaseMappingInfo<M> {
   final MapperRefInfo<M>? mapper;
   const BaseMappingInfo({required this.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([mapper]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! BaseMappingInfo<M>) {
+      return false;
+    }
+    return mapper == other.mapper;
+  }
 }
