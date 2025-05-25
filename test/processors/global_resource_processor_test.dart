@@ -1,10 +1,8 @@
-import 'dart:io';
-import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
-import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element2.dart';
-import 'package:path/path.dart' as p;
 import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
 import 'package:test/test.dart';
+
+import '../test_helper.dart';
 
 void main() {
   group('GlobalResourceProcessor', () {
@@ -13,30 +11,7 @@ void main() {
     late ClassElement2 invalidClass;
 
     setUpAll(() async {
-      // Get the path to the test file relative to the project root
-      final testFilePath = p.normalize(p.absolute(
-        p.join('test', 'fixtures', 'test_models.dart'),
-      ));
-
-      // Ensure the file exists
-      if (!File(testFilePath).existsSync()) {
-        throw Exception(
-            'Test file not found at $testFilePath. Current directory: ${Directory.current.path}');
-      }
-
-      // Set up analysis context - use the fixtures directory
-      final fixturesDir = p.dirname(testFilePath);
-      final collection = AnalysisContextCollection(
-        includedPaths: [fixturesDir],
-      );
-
-      // Parse the test file
-      final session = collection.contextFor(testFilePath).currentSession;
-      final result =
-          await session.getResolvedUnit(testFilePath) as ResolvedUnitResult;
-
-      // Get class elements
-      final libraryElement = result.libraryElement2;
+      final libraryElement = await analyzeTestFile('test_models.dart');
       bookClass = libraryElement.getClass2('Book')!;
       personClass = libraryElement.getClass2('Person')!;
       invalidClass = libraryElement.getClass2('NotAnnotated')!;

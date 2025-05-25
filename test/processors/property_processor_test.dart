@@ -1,39 +1,17 @@
-import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
-import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element2.dart';
-import 'package:path/path.dart' as p;
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:test/test.dart';
+
+import '../test_helper.dart';
 
 void main() {
   late ClassElement2 bookClass;
   late ClassElement2 personClass;
 
   setUpAll(() async {
-    // Set up the analysis context with absolute paths
-    final fixturesPath = p.join(p.current, 'test', 'fixtures');
-    final testModelsPath = p.join(fixturesPath, 'test_models.dart');
-
-    final collection = AnalysisContextCollection(
-      includedPaths: [p.absolute(fixturesPath)],
-    );
-
-    // Get the test file
-    final context = collection.contextFor(p.absolute(testModelsPath));
-    final result = await context.currentSession.getResolvedUnit(
-      p.absolute(testModelsPath),
-    ) as ResolvedUnitResult;
-
-    // Find the test classes in the library's top-level elements
-    for (final element in result.libraryElement2.children2) {
-      if (element is ClassElement2) {
-        if (element.name3 == 'Book') {
-          bookClass = element;
-        } else if (element.name3 == 'Person') {
-          personClass = element;
-        }
-      }
-    }
+    final libraryElement = await analyzeTestFile('test_models.dart');
+    bookClass = libraryElement.getClass2('Book')!;
+    personClass = libraryElement.getClass2('Person')!;
   });
 
   group('PropertyProcessor', () {
