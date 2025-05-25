@@ -127,7 +127,7 @@ class GlobalResourceProcessor {
       final type = annotation.type;
       if (type != null) {
         final element = type.element;
-        if (element is InterfaceElement) {
+        if (element is ClassElement) {
           // Look for a field that might contain the positional arguments
           for (final field in element.fields) {
             if (field.name == '_positionalArguments' || field.name == 'values') {
@@ -200,11 +200,15 @@ class GlobalResourceProcessor {
 
   static List<FieldInfo> _extractFields(ClassElement classElement) {
     final fields = <FieldInfo>[];
+    final typeSystem = classElement.library.typeSystem;
     
     for (final field in classElement.fields) {
       if (field.isStatic) continue;
       
       final propertyInfo = PropertyProcessor.processField(field);
+      final isNullable = field.type.isDartCoreNull || 
+          (field.type is InterfaceType && (field.type as InterfaceType).isDartCoreNull) ||
+          typeSystem.isNullable(field.type);
       
       fields.add(FieldInfo(
         name: field.name,
@@ -214,7 +218,7 @@ class GlobalResourceProcessor {
         isStatic: field.isStatic,
         isSynthetic: field.isSynthetic,
         propertyIri: propertyInfo?.propertyIri,
-        isRequired: propertyInfo?.isRequired ?? !(field.type is InterfaceType && (field.type as InterfaceType).isDartCoreNull),
+        isRequired: propertyInfo?.isRequired ?? !isNullable,
       ));
     }
     

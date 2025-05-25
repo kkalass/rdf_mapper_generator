@@ -21,12 +21,20 @@ class PropertyProcessor {
     }
 
     final iriMapping = _getIriMapping(annotation);
+    
+    // Get the type system from the field's library
+    final typeSystem = field.library.typeSystem;
+    
+    // Check if the type is nullable
+    final isNullable = field.type.isDartCoreNull || 
+        (field.type is InterfaceType && (field.type as InterfaceType).isDartCoreNull) ||
+        typeSystem.isNullable(field.type);
 
     return PropertyInfo(
       name: field.name,
       type: field.type.getDisplayString(),
       propertyIri: propertyIri,
-      isRequired: !(field.type is InterfaceType && (field.type as InterfaceType).isDartCoreNull),
+      isRequired: !isNullable,
       isFinal: field.isFinal,
       isLate: field.isLate,
       isStatic: field.isStatic,
@@ -40,7 +48,7 @@ class PropertyProcessor {
       final element = metadata.element;
       if (element is ConstructorElement) {
         final classElement = element.returnType.element;
-        if (classElement.name == 'RdfProperty') {
+        if (classElement is ClassElement && classElement.name == 'RdfProperty') {
           return metadata.computeConstantValue();
         }
       }
@@ -145,6 +153,12 @@ class PropertyProcessor {
             }
           }
         }
+      }
+      
+      // As a fallback, try to get the first positional argument directly
+      final value = annotation.getField('value');
+      if (value != null && !value.isNull) {
+        return [value];
       }
     } catch (e) {
       print('Error getting positional arguments: $e');
