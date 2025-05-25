@@ -133,6 +133,12 @@ class FieldInfo {
   
   /// Whether this is a synthetic field
   final bool isSynthetic;
+  
+  /// The IRI of the RDF property associated with this field, if any
+  final String? propertyIri;
+  
+  /// Whether this field is required (non-nullable)
+  final bool isRequired;
 
   const FieldInfo({
     required this.name,
@@ -141,6 +147,8 @@ class FieldInfo {
     required this.isLate,
     required this.isStatic,
     required this.isSynthetic,
+    this.propertyIri,
+    this.isRequired = false,
   });
 
   @override
@@ -151,7 +159,9 @@ class FieldInfo {
         '  isFinal: $isFinal,\n'
         '  isLate: $isLate,\n'
         '  isStatic: $isStatic,\n'
-        '  isSynthetic: $isSynthetic\n'
+        '  isSynthetic: $isSynthetic,\n'
+        '  propertyIri: $propertyIri,\n'
+        '  isRequired: $isRequired\n'
         '}';
   }
 }
