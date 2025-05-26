@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:rdf_vocabularies/xsd.dart';
@@ -9,7 +7,7 @@ bool mapEquals(Map<String, dynamic>? a, Map<String, dynamic>? b) {
   if (a == b) return true;
   if (a == null || b == null) return false;
   if (a.length != b.length) return false;
-  
+
   for (final key in a.keys) {
     if (!b.containsKey(key) || a[key] != b[key]) {
       return false;
@@ -91,30 +89,21 @@ class LiteralMappingTest {
 }
 
 class CollectionTest {
-  @RdfProperty(
-    SchemaBook.author,
-    collection: RdfCollectionType.none
-  )
+  @RdfProperty(SchemaBook.author, collection: RdfCollectionType.none)
   final List<String> authors;
 
   CollectionTest({required this.authors});
 }
 
 class MapTest {
-  @RdfProperty(
-    SchemaBook.reviews,
-    collection: RdfCollectionType.none
-  )
+  @RdfProperty(SchemaBook.reviews, collection: RdfCollectionType.none)
   final Map<String, String> reviews;
 
   MapTest({required this.reviews});
 }
 
 class SetTest {
-  @RdfProperty(
-    SchemaBook.keywords,
-    collection: RdfCollectionType.none
-  )
+  @RdfProperty(SchemaBook.keywords, collection: RdfCollectionType.none)
   final Set<String> keywords;
 
   SetTest({required this.keywords});
@@ -129,8 +118,57 @@ class ComplexTypeTest {
 
 enum BookFormatType { hardcover, paperback, ebook, audioBook }
 
+class ComplexDefaultValueTest {
+  @RdfProperty(
+    SchemaBook.isbn,
+    defaultValue: const {'id': '1', 'name': 'Test'},
+  )
+  final Map<String, dynamic> complexValue;
+
+  ComplexDefaultValueTest({required this.complexValue});
+}
+
+class LatePropertyTest {
+  @RdfProperty(SchemaBook.name)
+  late String name;
+
+  @RdfProperty(SchemaBook.description)
+  late String? description;
+
+  LatePropertyTest();
+}
+
+class MutablePropertyTest {
+  @RdfProperty(SchemaBook.name)
+  String name;
+
+  @RdfProperty(SchemaBook.description)
+  String? description;
+
+  MutablePropertyTest({required this.name, this.description});
+}
+
+class LanguageTagTest {
+  @RdfProperty(
+    SchemaBook.description,
+    literal: const LiteralMapping.withLanguage('en'),
+  )
+  final String description;
+
+  LanguageTagTest({required this.description});
+}
+
+class DatatypeTest {
+  @RdfProperty(
+    SchemaBook.dateCreated,
+    literal: const LiteralMapping.withType(Xsd.dateTime),
+  )
+  final DateTime date;
+
+  DatatypeTest({required this.date});
+}
+
 class NoAnnotationTest {
   final String name;
-
   NoAnnotationTest({required this.name});
 }
