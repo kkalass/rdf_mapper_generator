@@ -1,11 +1,11 @@
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/constant/value.dart';
 
 class MapperRefInfo<M> {
   final String? name;
 
-  final FormalParameterElement? type;
+  final DartObject? type;
 
-  final FormalParameterElement? instance;
+  final DartObject? instance;
 
   const MapperRefInfo(
       {required this.name, required this.type, required this.instance});

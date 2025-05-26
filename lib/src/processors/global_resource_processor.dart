@@ -3,9 +3,6 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
-import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/parse_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
@@ -52,7 +49,7 @@ class GlobalResourceProcessor {
           for (final field in element.fields2) {
             if (field.name3 == '_positionalArguments' ||
                 field.name3 == 'values') {
-              final value = annotation.getField(field.name3!);
+              final value = getField(annotation, field.name3!);
               if (value != null && !value.isNull) {
                 return value.toListValue() ?? [];
               }
@@ -62,7 +59,7 @@ class GlobalResourceProcessor {
       }
 
       // As a fallback, try to get the first positional argument directly
-      final value = annotation.getField('value');
+      final value = getField(annotation, 'value');
       if (value != null && !value.isNull) {
         return [value];
       }
@@ -78,10 +75,6 @@ class GlobalResourceProcessor {
     try {
       // Get the classIri from the annotation
       final classIri = _getClassIri(annotation);
-
-      if (classIri == null) {
-        throw StateError('Could not determine class IRI from annotation');
-      }
 
       // Get the iriStrategy from the annotation
       final iriStrategy = _getIriStrategy(annotation);
@@ -117,7 +110,7 @@ class GlobalResourceProcessor {
         final firstArg = positionalArgs.first;
         if (!firstArg.isNull) {
           // Check if it's an IriTerm with an 'iri' field
-          final iriValue = firstArg.getField('iri')?.toStringValue();
+          final iriValue = getField(firstArg, 'iri')?.toStringValue();
           if (iriValue != null) {
             return IriTerm(iriValue);
           }
@@ -137,13 +130,13 @@ class GlobalResourceProcessor {
     }
   }
 
-  static IriStrategyInfo _getIriStrategy(DartObject annotation) {
+  static IriStrategyInfo? _getIriStrategy(DartObject annotation) {
     // Check if we have an iri field (for the standard constructor)
-    final iriValue = annotation.getField('iri');
+    final iriValue = getField(annotation, 'iri');
     if (iriValue == null || iriValue.isNull) {
-      throw ParseException('Missing iri field');
+      return null;
     }
-    final template = iriValue.getField('template')?.toStringValue();
+    final template = getField(iriValue, 'template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
     return IriStrategyInfo(mapper: mapper, template: template);
   }

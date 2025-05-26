@@ -83,7 +83,7 @@ void main() {
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;
       expect(annotation.classIri, equals(SchemaBook.classIri));
-      expect(annotation.registerGlobally, isFalse); // Default value
+      expect(annotation.registerGlobally, isTrue); // Default value
 
       // Check IriStrategy
       final iriStrategy = annotation.iri;

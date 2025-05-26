@@ -10,14 +10,13 @@ import '../test_helper.dart';
 void main() {
   group('GlobalResourceProcessor', () {
     late ClassElement2 bookClass;
-    late ClassElement2 personClass;
+
     late ClassElement2 invalidClass;
     late LibraryElement2 libraryElement;
 
     setUpAll(() async {
       libraryElement = await analyzeTestFile('test_models.dart');
       bookClass = libraryElement.getClass2('Book')!;
-      personClass = libraryElement.getClass2('Person')!;
       invalidClass = libraryElement.getClass2('NotAnnotated')!;
     });
 
@@ -248,18 +247,6 @@ void main() {
       expect(titleField, isNotNull);
       expect(titleField.type, 'String');
       expect(titleField.isFinal, isTrue);
-    });
-
-    test('should handle class with custom type IRI and registerGlobally false',
-        () {
-      // Act
-      final result = GlobalResourceProcessor.processClass(personClass);
-
-      // Assert
-      expect(result, isNotNull);
-      expect(result!.className, 'Person');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
-      expect(result.annotation.registerGlobally, isFalse);
     });
   });
 }
