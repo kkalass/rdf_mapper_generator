@@ -15,7 +15,8 @@ void main() {
     late LibraryElement2 libraryElement;
 
     setUpAll(() async {
-      libraryElement = await analyzeTestFile('test_models.dart');
+      libraryElement =
+          await analyzeTestFile('global_resource_processor_test_models.dart');
       bookClass = libraryElement.getClass2('Book')!;
       invalidClass = libraryElement.getClass2('NotAnnotated')!;
     });

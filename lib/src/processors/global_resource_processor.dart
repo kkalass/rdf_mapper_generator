@@ -3,7 +3,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
-import 'package:rdf_mapper_generator/src/processors/parse_utils.dart';
+import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 
 /// Processes class elements to extract RDF global resource information.

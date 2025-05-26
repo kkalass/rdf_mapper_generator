@@ -89,44 +89,44 @@ class PropertyProcessor {
     }
     // Check if it's an IriMapping
     final template = iriMapping!.getField('template')?.toStringValue();
-    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    final mapper = getMapperRefInfo<IriTermMapper>(iriMapping);
     return IriMappingInfo(template: template, mapper: mapper);
   }
 
   static LocalResourceMappingInfo? _extractLocalResourceMapping(
       DartObject annotation) {
     // Check for named parameter 'iri'
-    final iriMapping = getField(annotation, 'iri');
-    if (isNull(iriMapping)) {
+    final localResource = getField(annotation, 'localResource');
+    if (isNull(localResource)) {
       return null;
     }
     // Check if it's an IriMapping
-    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    final mapper = getMapperRefInfo<IriTermMapper>(localResource!);
     return LocalResourceMappingInfo(mapper: mapper);
   }
 
   static GlobalResourceMappingInfo? _extractGlobalResourceMapping(
       DartObject annotation) {
     // Check for named parameter 'iri'
-    final iriMapping = getField(annotation, 'iri');
-    if (isNull(iriMapping)) {
+    final globalResource = getField(annotation, 'globalResource');
+    if (isNull(globalResource)) {
       return null;
     }
     // Check if it's an IriMapping
-    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    final mapper = getMapperRefInfo<IriTermMapper>(globalResource!);
     return GlobalResourceMappingInfo(mapper: mapper);
   }
 
   static LiteralMappingInfo? _extractLiteralMapping(DartObject annotation) {
     // Check for named parameter 'iri'
-    final iriMapping = getField(annotation, 'iri');
-    if (isNull(iriMapping)) {
+    final literal = getField(annotation, 'literal');
+    if (isNull(literal)) {
       return null;
     }
     // Check if it's an IriMapping
-    final language = getField(iriMapping!, 'language')?.toStringValue();
-    final datatype = getIriTerm(iriMapping, 'datatype');
-    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    final language = getField(literal!, 'language')?.toStringValue();
+    final datatype = getIriTerm(literal, 'datatype');
+    final mapper = getMapperRefInfo<IriTermMapper>(literal);
     return LiteralMappingInfo(
         language: language, datatype: datatype, mapper: mapper);
   }
