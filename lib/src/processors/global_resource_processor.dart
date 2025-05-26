@@ -1,7 +1,6 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/parse_utils.dart';
@@ -14,7 +13,8 @@ class GlobalResourceProcessor {
   /// Returns a [GlobalResourceInfo] containing the processed information if the class is annotated
   /// with `@RdfGlobalResource`, otherwise returns `null`.
   static GlobalResourceInfo? processClass(ClassElement2 classElement) {
-    final annotation = _getRdfGlobalResourceAnnotation(classElement);
+    final annotation =
+        getAnnotation(classElement.metadata2, 'RdfGlobalResource');
     if (annotation == null) {
       return null;
     }
@@ -34,47 +34,10 @@ class GlobalResourceProcessor {
     );
   }
 
-  static DartObject? _getRdfGlobalResourceAnnotation(
-          ClassElement2 classElement) =>
-      getAnnotation(classElement, 'RdfGlobalResource');
-
-  static List<DartObject> _getPositionalArguments(DartObject annotation) {
-    try {
-      // Try to access the positional arguments through the annotation's fields
-      final type = annotation.type;
-      if (type != null) {
-        final element = type.element3;
-        if (element is ClassElement2) {
-          // Look for a field that might contain the positional arguments
-          for (final field in element.fields2) {
-            if (field.name3 == '_positionalArguments' ||
-                field.name3 == 'values') {
-              final value = getField(annotation, field.name3!);
-              if (value != null && !value.isNull) {
-                return value.toListValue() ?? [];
-              }
-            }
-          }
-        }
-      }
-
-      // As a fallback, try to get the first positional argument directly
-      final value = getField(annotation, 'value');
-      if (value != null && !value.isNull) {
-        return [value];
-      }
-
-      return [];
-    } catch (e) {
-      print('Error getting positional arguments: $e');
-      return [];
-    }
-  }
-
   static RdfGlobalResourceInfo _createRdfGlobalResource(DartObject annotation) {
     try {
       // Get the classIri from the annotation
-      final classIri = _getClassIri(annotation);
+      final classIri = getIriTerm(annotation, 'classIri');
 
       // Get the iriStrategy from the annotation
       final iriStrategy = _getIriStrategy(annotation);
@@ -94,39 +57,6 @@ class GlobalResourceProcessor {
     } catch (e) {
       print('Error creating RdfGlobalResource: $e');
       rethrow;
-    }
-  }
-
-  static IriTerm? _getClassIri(DartObject annotation) {
-    try {
-      final classIri = getIriTerm(annotation, 'classIri');
-      if (classIri != null) {
-        return classIri;
-      }
-
-      // Try to get from positional arguments (first argument is classIri)
-      final positionalArgs = _getPositionalArguments(annotation);
-      if (positionalArgs.isNotEmpty) {
-        final firstArg = positionalArgs.first;
-        if (!firstArg.isNull) {
-          // Check if it's an IriTerm with an 'iri' field
-          final iriValue = getField(firstArg, 'iri')?.toStringValue();
-          if (iriValue != null) {
-            return IriTerm(iriValue);
-          }
-
-          // Try direct string value
-          final stringValue = firstArg.toStringValue();
-          if (stringValue != null) {
-            return IriTerm(stringValue);
-          }
-        }
-      }
-
-      return null;
-    } catch (e) {
-      print('Error getting class IRI: $e');
-      return null;
     }
   }
 
@@ -194,7 +124,7 @@ class GlobalResourceProcessor {
         isLate: field.isLate,
         isStatic: field.isStatic,
         isSynthetic: field.isSynthetic,
-        propertyIri: propertyInfo?.propertyIri,
+        propertyInfo: propertyInfo,
         isRequired: propertyInfo?.isRequired ?? !isNullable,
       ));
     }

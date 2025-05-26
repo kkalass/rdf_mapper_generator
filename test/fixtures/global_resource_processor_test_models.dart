@@ -28,14 +28,6 @@ class Book {
 }
 
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy())
-class Person {
-  @RdfIriPart()
-  final String id;
-
-  Person({required this.id});
-}
-
-@RdfGlobalResource(SchemaPerson.classIri, IriStrategy())
 class ClassWithEmptyIriStrategy {}
 
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy(),

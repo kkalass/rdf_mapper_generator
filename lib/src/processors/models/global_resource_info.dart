@@ -2,6 +2,7 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_annotation_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 
 /// Contains information about a class annotated with @RdfGlobalResource
 class GlobalResourceInfo {
@@ -225,7 +226,7 @@ class FieldInfo {
   final bool isSynthetic;
 
   /// The IRI of the RDF property associated with this field, if any
-  final String? propertyIri;
+  final PropertyInfo? propertyInfo;
 
   /// Whether this field is required (non-nullable)
   final bool isRequired;
@@ -237,13 +238,13 @@ class FieldInfo {
     required this.isLate,
     required this.isStatic,
     required this.isSynthetic,
-    this.propertyIri,
+    this.propertyInfo,
     this.isRequired = false,
   });
 
   @override
   int get hashCode => Object.hashAll(
-      [name, type, isFinal, isLate, isStatic, isSynthetic, propertyIri]);
+      [name, type, isFinal, isLate, isStatic, isSynthetic, propertyInfo]);
 
   @override
   bool operator ==(Object other) {
@@ -256,7 +257,7 @@ class FieldInfo {
         isLate == other.isLate &&
         isStatic == other.isStatic &&
         isSynthetic == other.isSynthetic &&
-        propertyIri == other.propertyIri;
+        propertyInfo == other.propertyInfo;
   }
 
   @override
@@ -268,7 +269,7 @@ class FieldInfo {
         '  isLate: $isLate,\n'
         '  isStatic: $isStatic,\n'
         '  isSynthetic: $isSynthetic,\n'
-        '  propertyIri: $propertyIri,\n'
+        '  propertyInfo: $propertyInfo,\n'
         '  isRequired: $isRequired\n'
         '}';
   }

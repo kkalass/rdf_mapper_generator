@@ -1,9 +1,11 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 
 /// Processes field elements to extract RDF property information.
 class PropertyProcessor {
@@ -19,9 +21,6 @@ class PropertyProcessor {
 
     // Create an instance of RdfProperty from the annotation data
     final rdfProperty = _createRdfProperty(annotationObj);
-    if (rdfProperty == null) {
-      return null;
-    }
 
     // Get the type system from the field's library
     final typeSystem = field.library2.typeSystem;
@@ -45,133 +44,90 @@ class PropertyProcessor {
   }
 
   static DartObject? _getRdfPropertyAnnotation(FieldElement2 field) {
-    for (final metadata in field.metadata2.annotations) {
-      final element = metadata.element2;
-      if (element is ConstructorElement2) {
-        final classElement = element.returnType.element3;
-        if (classElement is ClassElement2 &&
-            classElement.name3 == 'RdfProperty') {
-          return metadata.computeConstantValue();
-        }
-      }
-    }
-    return null;
+    return getAnnotation(field.metadata2, 'RdfProperty');
   }
 
-  static RdfProperty? _createRdfProperty(DartObject annotation) {
+  static RdfPropertyInfo _createRdfProperty(DartObject annotation) {
     // Extract the predicate IRI
-    final iriTerm = _extractIriTerm(annotation);
-    if (iriTerm == null) {
-      return null;
+    final predicate = getIriTerm(annotation, 'predicate');
+    if (predicate == null) {
+      throw ParseException('RdfProperty must have a predicate');
     }
-
+    final include = getField(annotation, 'include')?.toBoolValue() ?? true;
+    final defaultValue = getField(annotation, 'defaultValue');
+    final includeDefaultsInSerialization =
+        getField(annotation, 'includeDefaultsInSerialization')?.toBoolValue() ??
+            true;
+    final localResource = _extractLocalResourceMapping(annotation);
+    final literal = _extractLiteralMapping(annotation);
+    final globalResource = _extractGlobalResourceMapping(annotation);
+    final collection = getField(annotation, 'collection')?.toStringValue();
     // Extract IRI mapping if present
-    final iriMapping = _extractIriMapping(annotation);
-    
+    final iri = _extractIriMapping(annotation);
+
     // Create and return the RdfProperty instance
-    return RdfProperty(
-      iriTerm,
-      iri: iriMapping,
-      // Add other parameters as needed
+    return RdfPropertyInfo(
+      predicate,
+      include: include,
+      defaultValue: defaultValue,
+      includeDefaultsInSerialization: includeDefaultsInSerialization,
+      localResource: localResource,
+      literal: literal,
+      globalResource: globalResource,
+      iri: iri,
+      collection: collection == null
+          ? RdfCollectionType.auto
+          : RdfCollectionType.values.firstWhere((e) => e.name == collection),
     );
   }
 
-  
-  static IriTerm? _extractIriTerm(DartObject annotation) {
-    // First try to get the predicate field
-    final predicateValue = annotation.getField('predicate');
-    if (predicateValue != null && !predicateValue.isNull) {
-      // Try to get the iri field from the predicate
-      final iriValue = predicateValue.getField('iri');
-      if (iriValue != null && !iriValue.isNull) {
-        final iri = iriValue.toStringValue();
-        if (iri != null) {
-          return IriTerm(iri);
-        }
-      }
-    }
-
-    // Try to get the first positional argument
-    final positionalArgs = _getPositionalArguments(annotation);
-    if (positionalArgs.isNotEmpty) {
-      final firstArg = positionalArgs.first;
-      if (!firstArg.isNull) {
-        // Check if it's an IriTerm
-        final iriValue = firstArg.getField('iri');
-        if (iriValue != null && !iriValue.isNull) {
-          final value = iriValue.toStringValue();
-          if (value != null) {
-            return IriTerm(value);
-          }
-        }
-      }
-    }
-
-    // Try to get the value field directly
-    final valueField = annotation.getField('value');
-    if (valueField != null && !valueField.isNull) {
-      final stringValue = valueField.toStringValue();
-      if (stringValue != null) {
-        return IriTerm(stringValue);
-      }
-    }
-
-    // Try to get the iri field directly as a fallback
-    final iriField = annotation.getField('iri');
-    if (iriField != null && !iriField.isNull) {
-      final value = iriField.toStringValue();
-      if (value != null) {
-        return IriTerm(value);
-      }
-    }
-
-    // If we get here, we couldn't find a valid IRI
-    return null;
-  }
-  
-  static IriMapping? _extractIriMapping(DartObject annotation) {
+  static IriMappingInfo? _extractIriMapping(DartObject annotation) {
     // Check for named parameter 'iri'
-    final iriMapping = annotation.getField('iri');
-    if (iriMapping != null && !iriMapping.isNull) {
-      // Check if it's an IriMapping
-      final template = iriMapping.getField('template');
-      if (template != null && !template.isNull) {
-        final templateStr = template.toStringValue();
-        if (templateStr != null) {
-          return IriMapping(templateStr);
-        }
-      }
+    final iriMapping = getField(annotation, 'iri');
+    if (isNull(iriMapping)) {
+      return null;
     }
-    return null;
+    // Check if it's an IriMapping
+    final template = iriMapping!.getField('template')?.toStringValue();
+    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    return IriMappingInfo(template: template, mapper: mapper);
   }
-  
-  static List<DartObject> _getPositionalArguments(DartObject annotation) {
-    try {
-      final type = annotation.type;
-      if (type != null) {
-        final element = type.element3;
-        if (element is ClassElement2) {
-          // Look for a field that might contain the positional arguments
-          for (final field in element.fields2) {
-            if (field.name3 == '_positionalArguments' ||
-                field.name3 == 'values') {
-              final value = annotation.getField(field.name3!);
-              if (value != null && !value.isNull) {
-                return value.toListValue() ?? [];
-              }
-            }
-          }
-        }
-      }
 
-      // As a fallback, try to get the first positional argument directly
-      final value = annotation.getField('value');
-      if (value != null && !value.isNull) {
-        return [value];
-      }
-    } catch (e) {
-      print('Error getting positional arguments: $e');
+  static LocalResourceMappingInfo? _extractLocalResourceMapping(
+      DartObject annotation) {
+    // Check for named parameter 'iri'
+    final iriMapping = getField(annotation, 'iri');
+    if (isNull(iriMapping)) {
+      return null;
     }
-    return [];
+    // Check if it's an IriMapping
+    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    return LocalResourceMappingInfo(mapper: mapper);
+  }
+
+  static GlobalResourceMappingInfo? _extractGlobalResourceMapping(
+      DartObject annotation) {
+    // Check for named parameter 'iri'
+    final iriMapping = getField(annotation, 'iri');
+    if (isNull(iriMapping)) {
+      return null;
+    }
+    // Check if it's an IriMapping
+    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    return GlobalResourceMappingInfo(mapper: mapper);
+  }
+
+  static LiteralMappingInfo? _extractLiteralMapping(DartObject annotation) {
+    // Check for named parameter 'iri'
+    final iriMapping = getField(annotation, 'iri');
+    if (isNull(iriMapping)) {
+      return null;
+    }
+    // Check if it's an IriMapping
+    final language = getField(iriMapping!, 'language')?.toStringValue();
+    final datatype = getIriTerm(iriMapping, 'datatype');
+    final mapper = getMapperRefInfo<IriTermMapper>(annotation);
+    return LiteralMappingInfo(
+        language: language, datatype: datatype, mapper: mapper);
   }
 }

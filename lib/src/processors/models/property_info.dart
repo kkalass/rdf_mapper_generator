@@ -1,4 +1,149 @@
+import 'package:analyzer/dart/constant/value.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+
+class LocalResourceMappingInfo extends BaseMappingInfo {
+  LocalResourceMappingInfo({required super.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([
+        super.hashCode,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! LocalResourceMappingInfo) {
+      return false;
+    }
+    return super == other;
+  }
+}
+
+class LiteralMappingInfo extends BaseMappingInfo {
+  final String? language;
+
+  final IriTerm? datatype;
+
+  LiteralMappingInfo(
+      {required this.language, required this.datatype, required super.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([
+        super.hashCode,
+        language,
+        datatype,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! LiteralMappingInfo) {
+      return false;
+    }
+    return super == other &&
+        language == other.language &&
+        datatype == other.datatype;
+  }
+}
+
+class GlobalResourceMappingInfo extends BaseMappingInfo {
+  GlobalResourceMappingInfo({required super.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([
+        super.hashCode,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! GlobalResourceMappingInfo) {
+      return false;
+    }
+    return super == other;
+  }
+}
+
+class IriMappingInfo extends BaseMappingInfo {
+  final String? template;
+
+  IriMappingInfo({required this.template, required super.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([
+        super.hashCode,
+        template,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! IriMappingInfo) {
+      return false;
+    }
+    return super == other && template == other.template;
+  }
+}
+
+class RdfPropertyInfo implements RdfAnnotation {
+  final IriTerm predicate;
+
+  final bool include;
+
+  final DartObject? defaultValue;
+
+  final bool includeDefaultsInSerialization;
+
+  final IriMappingInfo? iri;
+
+  final LocalResourceMappingInfo? localResource;
+
+  final LiteralMappingInfo? literal;
+
+  final GlobalResourceMappingInfo? globalResource;
+
+  final RdfCollectionType collection;
+
+  const RdfPropertyInfo(
+    this.predicate, {
+    required this.include,
+    required this.defaultValue,
+    required this.includeDefaultsInSerialization,
+    required this.iri,
+    required this.localResource,
+    required this.literal,
+    required this.globalResource,
+    required this.collection,
+  });
+
+  @override
+  int get hashCode => Object.hashAll([
+        predicate,
+        include,
+        defaultValue,
+        includeDefaultsInSerialization,
+        iri,
+        localResource,
+        literal,
+        globalResource,
+        collection,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfPropertyInfo) {
+      return false;
+    }
+    return predicate == other.predicate &&
+        include == other.include &&
+        defaultValue == other.defaultValue &&
+        includeDefaultsInSerialization ==
+            other.includeDefaultsInSerialization &&
+        iri == other.iri &&
+        localResource == other.localResource &&
+        literal == other.literal &&
+        globalResource == other.globalResource &&
+        collection == other.collection;
+  }
+}
 
 /// Contains information about a field annotated with `@RdfProperty`
 class PropertyInfo {
@@ -8,9 +153,8 @@ class PropertyInfo {
   /// The type of the field as a string
   final String type;
 
-  // FIXME convert to RdfPropertyInfo
   /// The complete RdfProperty annotation instance
-  final RdfProperty annotation;
+  final RdfPropertyInfo annotation;
 
   /// Whether this is a required field
   final bool isRequired;
@@ -27,12 +171,6 @@ class PropertyInfo {
   /// Whether this is a synthetic field
   final bool isSynthetic;
 
-  /// The IRI of the RDF property (computed from the annotation)
-  String get propertyIri => annotation.predicate.iri;
-
-  /// The IRI mapping strategy for this property (if any)
-  String? get iriMapping => annotation.iri?.template;
-
   const PropertyInfo({
     required this.name,
     required this.type,
@@ -45,17 +183,43 @@ class PropertyInfo {
   });
 
   @override
+  int get hashCode => Object.hashAll([
+        name,
+        type,
+        annotation,
+        isRequired,
+        isFinal,
+        isLate,
+        isStatic,
+        isSynthetic,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! PropertyInfo) {
+      return false;
+    }
+    return name == other.name &&
+        type == other.type &&
+        annotation == other.annotation &&
+        isRequired == other.isRequired &&
+        isFinal == other.isFinal &&
+        isLate == other.isLate &&
+        isStatic == other.isStatic &&
+        isSynthetic == other.isSynthetic;
+  }
+
+  @override
   String toString() {
     return 'PropertyInfo{\n'
         '  name: $name,\n'
+        '  annotation: $annotation,\n'
         '  type: $type,\n'
-        '  propertyIri: $propertyIri,\n'
         '  isRequired: $isRequired,\n'
         '  isFinal: $isFinal,\n'
         '  isLate: $isLate,\n'
         '  isStatic: $isStatic,\n'
         '  isSynthetic: $isSynthetic,\n'
-        '  iriMapping: $iriMapping\n'
         '}';
   }
 }

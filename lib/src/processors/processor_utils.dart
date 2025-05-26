@@ -3,11 +3,11 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 
-DartObject? getAnnotation(ClassElement2 classElement, String annotationName) {
+DartObject? getAnnotation(Metadata metadata2, String annotationName) {
   try {
     // Get metadata from the class element
     ;
-    for (final elementAnnotation in classElement.metadata2.annotations) {
+    for (final elementAnnotation in metadata2.annotations) {
       try {
         final annotation = elementAnnotation.computeConstantValue();
         if (annotation != null) {
