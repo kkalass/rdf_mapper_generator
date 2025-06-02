@@ -448,7 +448,7 @@ void main() {
       expect(annotation.predicate, equals(SchemaBook.isbn));
     });
 
-    test('should process instance-based mapper', () {
+    test('should process LocalResourceInstanceMapperTest', () {
       // Arrange
       final field = libraryElement
           .getClass2('LocalResourceInstanceMapperTest')!
@@ -465,11 +465,16 @@ void main() {
       final annotation = result!.annotation;
       expect(annotation.localResource, isNotNull);
       expect(annotation.localResource!.mapper, isNotNull);
-      expect(annotation.localResource!.mapper!.name, 'testLocalMapper');
+      expect(annotation.localResource!.mapper!.name, isNull);
+      expect(annotation.localResource!.mapper!.type, isNull);
       expect(annotation.predicate, equals(SchemaBook.author));
+      expect(annotation.localResource!.mapper!.instance, isNotNull);
+      expect(
+          annotation.localResource!.mapper!.instance!.type!.getDisplayString(),
+          "LocalResourceMapperImpl");
     });
 
-    test('should process type-based mapper', () {
+    test('should process LiteralTypeMapperTest', () {
       // Arrange
       final field =
           libraryElement.getClass2('LiteralTypeMapperTest')!.getField2('price');
@@ -484,7 +489,15 @@ void main() {
       final annotation = result!.annotation;
       expect(annotation.literal, isNotNull);
       expect(annotation.literal!.mapper, isNotNull);
-      expect(annotation.literal!.mapper!.name, 'testTypeMapper');
+      expect(annotation.literal!.mapper!.name, isNull);
+      expect(annotation.literal!.mapper!.instance, isNull);
+      expect(annotation.literal!.mapper!.type, isNotNull);
+      expect(
+          annotation.literal!.mapper!.type!.type!.getDisplayString(), 'Type');
+      expect(
+          annotation.literal!.mapper!.type!.toTypeValue()!.getDisplayString(),
+          'LiteralMapperImpl');
+
       expect(annotation.predicate, equals(SchemaBook.bookFormat));
     });
 
