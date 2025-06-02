@@ -2,7 +2,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
-import '../../lib/src/processors/property_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import '../test_helper.dart';
 
 void main() {

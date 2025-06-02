@@ -1,4 +1,6 @@
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:rdf_vocabularies/xsd.dart';
 
@@ -171,4 +173,211 @@ class DatatypeTest {
 class NoAnnotationTest {
   final String name;
   NoAnnotationTest({required this.name});
+}
+
+/// Test model for named mappers
+class NamedMapperTest {
+  @RdfProperty(
+    SchemaBook.publisher,
+    globalResource: GlobalResourceMapping.namedMapper('testNamedMapper'),
+  )
+  final Object publisher;
+
+  const NamedMapperTest({required this.publisher});
+}
+
+/// Test model for custom mapper with parameters
+class CustomMapperTest {
+  @RdfProperty(
+    SchemaBook.isbn,
+    literal: LiteralMapping.namedMapper('testCustomMapper'),
+  )
+  final String isbn;
+
+  const CustomMapperTest({required this.isbn});
+}
+
+/// Test model for instance-based mappers
+class InstanceMapperTest {
+  @RdfProperty(
+    SchemaBook.author,
+    localResource: LocalResourceMapping.namedMapper('testLocalMapper'),
+  )
+  final Object author;
+
+  const InstanceMapperTest({required this.author});
+}
+
+/// Test model for type-based mappers
+class TypeMapperTest {
+  @RdfProperty(
+    SchemaBook.bookFormat,
+    literal: LiteralMapping.namedMapper('testTypeMapper'),
+  )
+  final double price;
+
+  const TypeMapperTest({required this.price});
+}
+
+/// Test model for type-based mappers using mapper() constructor
+class TypeBasedMapperTest {
+  @RdfProperty(
+    SchemaBook.bookFormat,
+    globalResource: GlobalResourceMapping.mapper(GlobalResourceMapperImpl),
+  )
+  final Object format;
+
+  const TypeBasedMapperTest({required this.format});
+}
+
+/// Test model for instance-based mappers using mapperInstance() constructor
+class InstanceBasedMapperTest {
+  static const _testMapper = const LocalResourceMapperImpl();
+
+  @RdfProperty(
+    SchemaBook.author,
+    localResource: LocalResourceMapping.mapperInstance(_testMapper),
+  )
+  final Object author;
+
+  const InstanceBasedMapperTest({required this.author});
+}
+
+/// Test model for literal mappers using mapper() constructor
+class LiteralTypeMapperTest {
+  @RdfProperty(
+    SchemaBook.numberOfPages,
+    literal: LiteralMapping.mapper(LiteralMapperImpl),
+  )
+  final int pageCount;
+
+  const LiteralTypeMapperTest({required this.pageCount});
+}
+
+// Example implementation of GlobalResourceMapper
+class GlobalResourceMapperImpl
+    implements GlobalResourceMapper<GlobalResourceMapperTest> {
+  const GlobalResourceMapperImpl();
+  @override
+  GlobalResourceMapperTest fromRdfResource(
+      IriTerm term, DeserializationContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+      GlobalResourceMapperTest value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  IriTerm? get typeIri => throw UnimplementedError();
+}
+
+// Example implementation of LocalResourceMapper
+class LocalResourceMapperImpl
+    implements LocalResourceMapper<LocalResourceMapperTest> {
+  const LocalResourceMapperImpl();
+  @override
+  LocalResourceMapperTest fromRdfResource(
+      BlankNodeTerm term, DeserializationContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+      LocalResourceMapperTest value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  IriTerm? get typeIri => throw UnimplementedError();
+}
+
+// Example implementation of LiteralTermMapper
+class LiteralMapperImpl implements LiteralTermMapper<LiteralMapperTest> {
+  const LiteralMapperImpl();
+
+  @override
+  LiteralMapperTest fromRdfTerm(
+      LiteralTerm term, DeserializationContext context) {
+    // Implementation here
+    throw UnimplementedError();
+  }
+
+  @override
+  LiteralTerm toRdfTerm(LiteralMapperTest value, SerializationContext context) {
+    // Implementation here
+    throw UnimplementedError();
+  }
+}
+
+/// Test model for global resource mapper using mapper() constructor
+class GlobalResourceMapperTest {
+  @RdfProperty(
+    SchemaBook.publisher,
+    globalResource: GlobalResourceMapping.mapper(GlobalResourceMapperImpl),
+  )
+  final Object publisher;
+
+  const GlobalResourceMapperTest({required this.publisher});
+}
+
+/// Test model for global resource mapper using mapperInstance() constructor
+class GlobalResourceInstanceMapperTest {
+  @RdfProperty(
+    SchemaBook.publisher,
+    globalResource:
+        GlobalResourceMapping.mapperInstance(GlobalResourceMapperImpl()),
+  )
+  final Object publisher;
+
+  const GlobalResourceInstanceMapperTest({required this.publisher});
+}
+
+/// Test model for local resource mapper using mapper() constructor
+class LocalResourceMapperTest {
+  @RdfProperty(
+    SchemaBook.author,
+    localResource: LocalResourceMapping.mapper(LocalResourceMapperImpl),
+  )
+  final Object author;
+
+  const LocalResourceMapperTest({required this.author});
+}
+
+/// Test model for local resource mapper using mapperInstance() constructor
+class LocalResourceInstanceMapperTest {
+  @RdfProperty(
+    SchemaBook.author,
+    localResource:
+        LocalResourceMapping.mapperInstance(LocalResourceMapperImpl()),
+  )
+  final Object author;
+
+  const LocalResourceInstanceMapperTest({required this.author});
+}
+
+/// Test model for literal mapper using mapper() constructor
+class LiteralMapperTest {
+  @RdfProperty(
+    SchemaBook.numberOfPages,
+    literal: LiteralMapping.mapper(LiteralMapperImpl),
+  )
+  final int pageCount;
+
+  const LiteralMapperTest({required this.pageCount});
+}
+
+/// Test model for literal mapper using mapperInstance() constructor
+class LiteralInstanceMapperTest {
+  @RdfProperty(
+    SchemaBook.isbn,
+    literal: LiteralMapping.mapperInstance(const LiteralMapperImpl()),
+  )
+  final String isbn;
+
+  const LiteralInstanceMapperTest({required this.isbn});
 }

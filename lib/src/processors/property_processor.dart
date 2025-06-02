@@ -57,7 +57,7 @@ class PropertyProcessor {
     final defaultValue = getField(annotation, 'defaultValue');
     final includeDefaultsInSerialization =
         getField(annotation, 'includeDefaultsInSerialization')?.toBoolValue() ??
-            true;
+            false;
     final localResource = _extractLocalResourceMapping(annotation);
     final literal = _extractLiteralMapping(annotation);
     final globalResource = _extractGlobalResourceMapping(annotation);
