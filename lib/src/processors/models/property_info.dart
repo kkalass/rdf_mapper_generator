@@ -1,7 +1,7 @@
 import 'package:analyzer/dart/constant/value.dart';
-import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 
 class LocalResourceMappingInfo extends BaseMappingInfo {
   LocalResourceMappingInfo({required super.mapper});
@@ -23,7 +23,7 @@ class LocalResourceMappingInfo extends BaseMappingInfo {
 class LiteralMappingInfo extends BaseMappingInfo {
   final String? language;
 
-  final IriTerm? datatype;
+  final IriTermInfo? datatype;
 
   LiteralMappingInfo(
       {required this.language, required this.datatype, required super.mapper});
@@ -84,7 +84,7 @@ class IriMappingInfo extends BaseMappingInfo {
 }
 
 class RdfPropertyInfo implements RdfAnnotation {
-  final IriTerm predicate;
+  final IriTermInfo predicate;
 
   final bool include;
 

@@ -4,7 +4,8 @@ import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:path/path.dart' as p;
 
-Future<LibraryElement2> analyzeTestFile(String filename) async {
+Future<(LibraryElement2 library, String path)> analyzeTestFile(
+    String filename) async {
   // Get the path to the test file relative to the project root
   final testFilePath = p.normalize(p.absolute(
     p.join('test', 'fixtures', filename),
@@ -28,5 +29,5 @@ Future<LibraryElement2> analyzeTestFile(String filename) async {
       await session.getResolvedUnit(testFilePath) as ResolvedUnitResult;
 
   // Get class elements
-  return result.libraryElement2;
+  return (result.libraryElement2, testFilePath);
 }

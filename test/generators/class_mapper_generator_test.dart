@@ -10,7 +10,7 @@ void main() {
     late LibraryElement2 libraryElement;
 
     setUpAll(() async {
-      libraryElement =
+      (libraryElement, _) =
           await analyzeTestFile('global_resource_processor_test_models.dart');
     });
 

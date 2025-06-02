@@ -12,7 +12,8 @@ void main() {
   late ClassElement2 bookWithTemplateClass;
 
   setUpAll(() async {
-    final libraryElement = await analyzeTestFile('annotation_test_models.dart');
+    final (libraryElement, _) =
+        await analyzeTestFile('annotation_test_models.dart');
     bookWithMapperClass = libraryElement.getClass2('BookWithMapper')!;
     bookWithMapperInstanceClass =
         libraryElement.getClass2('BookWithMapperInstance')!;
@@ -32,7 +33,7 @@ void main() {
 
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;
-      expect(annotation.classIri, equals(SchemaBook.classIri));
+      expect(annotation.classIri!.value, equals(SchemaBook.classIri));
       expect(annotation.registerGlobally, isTrue);
 
       // Check IriStrategy
@@ -58,7 +59,7 @@ void main() {
 
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;
-      expect(annotation.classIri, equals(SchemaBook.classIri));
+      expect(annotation.classIri!.value, equals(SchemaBook.classIri));
       expect(annotation.registerGlobally, isFalse);
 
       // Check IriStrategy
@@ -82,7 +83,7 @@ void main() {
 
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;
-      expect(annotation.classIri, equals(SchemaBook.classIri));
+      expect(annotation.classIri!.value, equals(SchemaBook.classIri));
       expect(annotation.registerGlobally, isTrue); // Default value
 
       // Check IriStrategy
@@ -108,7 +109,7 @@ void main() {
 
       // Check RdfProperty annotation
       final annotation = result.annotation;
-      expect(annotation.predicate, equals(SchemaBook.name));
+      expect(annotation.predicate.value, equals(SchemaBook.name));
       expect(annotation.include, isTrue);
       expect(annotation.includeDefaultsInSerialization, isFalse);
 

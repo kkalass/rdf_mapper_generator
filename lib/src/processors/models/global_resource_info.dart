@@ -1,4 +1,3 @@
-import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_annotation_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
@@ -164,19 +163,16 @@ class IriTemplateInfo {
 
 class RdfGlobalResourceInfo
     extends BaseMappingAnnotationInfo<GlobalResourceMapper> {
-  final IriTerm? classIri;
-  final IriSourceReference? classIriSourceRef;
+  final IriTermInfo? classIri;
   final IriStrategyInfo? iri;
   const RdfGlobalResourceInfo(
       {required this.classIri,
-      this.classIriSourceRef,
       required this.iri,
       required super.registerGlobally,
       required super.mapper});
 
   @override
-  int get hashCode => Object.hashAll(
-      [classIri, classIriSourceRef, iri, registerGlobally, mapper]);
+  int get hashCode => Object.hashAll([classIri, iri, registerGlobally, mapper]);
 
   @override
   bool operator ==(Object other) {
@@ -184,7 +180,6 @@ class RdfGlobalResourceInfo
       return false;
     }
     return classIri == other.classIri &&
-        classIriSourceRef == other.classIriSourceRef &&
         iri == other.iri &&
         registerGlobally == other.registerGlobally &&
         mapper == other.mapper;

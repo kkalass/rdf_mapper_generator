@@ -3,6 +3,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
@@ -13,14 +14,20 @@ class PropertyProcessor {
   ///
   /// Returns a [PropertyInfo] if the field is annotated with `@RdfProperty`,
   /// otherwise returns `null`.
-  static PropertyInfo? processField(FieldElement2 field) {
+  static PropertyInfo? processField(FieldElement2 field,
+      {LibsByClassName? libsByClassName}) {
     final annotationObj = _getRdfPropertyAnnotation(field);
     if (annotationObj == null) {
       return null;
     }
 
+    if (libsByClassName == null) {
+      // Create a LibsByClassName instance if not provided
+      libsByClassName = LibsByClassName.create(field.library2);
+    }
+
     // Create an instance of RdfProperty from the annotation data
-    final rdfProperty = _createRdfProperty(annotationObj);
+    final rdfProperty = _createRdfProperty(annotationObj, libsByClassName);
 
     // Get the type system from the field's library
     final typeSystem = field.library2.typeSystem;
@@ -47,9 +54,11 @@ class PropertyProcessor {
     return getAnnotation(field.metadata2, 'RdfProperty');
   }
 
-  static RdfPropertyInfo _createRdfProperty(DartObject annotation) {
+  static RdfPropertyInfo _createRdfProperty(
+      DartObject annotation, LibsByClassName libsByClassName) {
     // Extract the predicate IRI
-    final predicate = getIriTerm(annotation, 'predicate');
+    final predicate =
+        getIriTermInfo(getField(annotation, 'predicate'), libsByClassName);
     if (predicate == null) {
       throw ParseException('RdfProperty must have a predicate');
     }
@@ -59,7 +68,7 @@ class PropertyProcessor {
         getField(annotation, 'includeDefaultsInSerialization')?.toBoolValue() ??
             false;
     final localResource = _extractLocalResourceMapping(annotation);
-    final literal = _extractLiteralMapping(annotation);
+    final literal = _extractLiteralMapping(annotation, libsByClassName);
     final globalResource = _extractGlobalResourceMapping(annotation);
     final collection = getEnumFieldValue(annotation, 'collection',
         RdfCollectionType.values, RdfCollectionType.auto);
@@ -116,7 +125,8 @@ class PropertyProcessor {
     return GlobalResourceMappingInfo(mapper: mapper);
   }
 
-  static LiteralMappingInfo? _extractLiteralMapping(DartObject annotation) {
+  static LiteralMappingInfo? _extractLiteralMapping(
+      DartObject annotation, LibsByClassName libsByClassName) {
     // Check for named parameter 'iri'
     final literal = getField(annotation, 'literal');
     if (isNull(literal)) {
@@ -124,7 +134,8 @@ class PropertyProcessor {
     }
     // Check if it's an IriMapping
     final language = getField(literal!, 'language')?.toStringValue();
-    final datatype = getIriTerm(literal, 'datatype');
+    final datatype =
+        getIriTermInfo(getField(literal, 'datatype'), libsByClassName);
     final mapper = getMapperRefInfo<IriTermMapper>(literal);
     return LiteralMappingInfo(
         language: language, datatype: datatype, mapper: mapper);

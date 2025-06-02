@@ -48,9 +48,9 @@ class ClassMapperGenerator {
     ];
 
     // Add import for the classIri reference if needed
-    final classIriRef = resourceInfo.annotation.classIriSourceRef;
-    if (classIriRef?.importUri != null) {
-      imports.add(classIriRef!.importUri!);
+    final classIriTermInfo = resourceInfo.annotation.classIri;
+    if (classIriTermInfo?.importUri != null) {
+      imports.add(classIriTermInfo!.importUri!);
     }
 
     return imports.map((uri) => Directive.import(uri)).toList();
@@ -61,17 +61,14 @@ class ClassMapperGenerator {
     final fields = <Field>[];
 
     // Add typeIri field if classIri is provided
-    if (resourceInfo.annotation.classIri != null) {
+    final classIri = resourceInfo.annotation.classIri;
+    if (classIri != null) {
       // Use source reference if available, otherwise use the literal IRI value
-      final classIriRef = resourceInfo.annotation.classIriSourceRef;
-      final typeIriValue = classIriRef != null
-          ? Code(classIriRef.reference)
-          : Code('IriTerm(\'${resourceInfo.annotation.classIri!.iri}\')');
       fields.add(Field((b) => b
         ..name = 'typeIri'
         ..modifier = FieldModifier.final$
         ..type = refer('IriTerm')
-        ..assignment = typeIriValue
+        ..assignment = Code(classIri.code)
         ..annotations.add(refer('override'))));
     }
 

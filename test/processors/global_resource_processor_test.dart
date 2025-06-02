@@ -15,7 +15,7 @@ void main() {
     late LibraryElement2 libraryElement;
 
     setUpAll(() async {
-      libraryElement =
+      (libraryElement, _) =
           await analyzeTestFile('global_resource_processor_test_models.dart');
       bookClass = libraryElement.getClass2('Book')!;
       invalidClass = libraryElement.getClass2('NotAnnotated')!;
@@ -29,7 +29,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'ClassWithEmptyIriStrategy');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri,
           equals(IriStrategyInfo(mapper: null, template: null)));
@@ -44,7 +44,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'ClassWithEmptyIriStrategyNoRegisterGlobally');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isFalse);
       expect(result.annotation.iri,
           equals(IriStrategyInfo(mapper: null, template: null)));
@@ -59,7 +59,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'ClassWithIriTemplateStrategy');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
       expect(result.annotation.iri?.mapper, isNull);
@@ -81,7 +81,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'ClassWithIriNamedMapperStrategy');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
       expect(result.annotation.iri, isNotNull);
@@ -101,7 +101,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'ClassWithIriMapperStrategy');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
       expect(result.annotation.iri, isNotNull);
@@ -128,7 +128,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'ClassWithIriMapperInstanceStrategy');
-      expect(result.annotation.classIri, equals(SchemaPerson.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
       expect(result.annotation.iri, isNotNull);
@@ -214,9 +214,9 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.className, 'Book');
-      expect(result.annotation.classIri, equals(SchemaBook.classIri));
+      expect(result.annotation.classIri!.value, equals(SchemaBook.classIri));
       expect(result.annotation.registerGlobally, isTrue);
-      expect(result.annotation.classIri, isA<IriTerm>());
+      expect(result.annotation.classIri!.value, isA<IriTerm>());
       expect(result.annotation.iri, isA<IriStrategyInfo>());
     });
 

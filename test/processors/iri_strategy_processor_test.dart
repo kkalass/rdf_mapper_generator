@@ -11,7 +11,7 @@ void main() {
     late ClassElement2 simpleClass;
 
     setUpAll(() async {
-      final libraryElement =
+      final (libraryElement, _) =
           await analyzeTestFile('global_resource_processor_test_models.dart');
       bookClass = libraryElement.getClass2('Book')!;
       simpleClass = libraryElement.getClass2('ClassWithIriTemplateStrategy')!;
