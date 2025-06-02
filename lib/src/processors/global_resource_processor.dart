@@ -42,6 +42,9 @@ class GlobalResourceProcessor {
       // Get the classIri from the annotation
       final classIri = getIriTerm(annotation, 'classIri');
 
+      // Get the source reference for the classIri (including import info)
+      final classIriSourceRef = getIriSourceReference(annotation, 'classIri');
+
       // Get the iriStrategy from the annotation
       final iriStrategy = _getIriStrategy(annotation, classElement);
 
@@ -53,6 +56,7 @@ class GlobalResourceProcessor {
       // Create and return the RdfGlobalResource instance
       return RdfGlobalResourceInfo(
         classIri: classIri,
+        classIriSourceRef: classIriSourceRef,
         iri: iriStrategy,
         registerGlobally: registerGlobally,
         mapper: mapper,
