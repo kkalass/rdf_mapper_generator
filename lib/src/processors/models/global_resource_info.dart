@@ -53,18 +53,111 @@ class GlobalResourceInfo {
 
 class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   final String? template;
+  final IriTemplateInfo? templateInfo;
 
-  IriStrategyInfo({required super.mapper, required this.template});
+  IriStrategyInfo({
+    required super.mapper,
+    required this.template,
+    this.templateInfo,
+  });
 
   @override
-  int get hashCode => Object.hashAll([mapper, template]);
+  int get hashCode => Object.hashAll([mapper, template, templateInfo]);
 
   @override
   bool operator ==(Object other) {
     if (other is! IriStrategyInfo) {
       return false;
     }
-    return mapper == other.mapper && template == other.template;
+    return mapper == other.mapper &&
+        template == other.template &&
+        templateInfo == other.templateInfo;
+  }
+}
+
+/// Contains information about a processed IRI template.
+class IriTemplateInfo {
+  /// The original template string.
+  final String template;
+
+  /// All variables found in the template.
+  final Set<String> variables;
+
+  /// Variables that correspond to class properties with @RdfIriPart.
+  final Set<String> propertyVariables;
+
+  /// Variables that need to be provided from context.
+  final Set<String> contextVariables;
+
+  /// Whether the template passed validation.
+  final bool isValid;
+
+  /// Validation error messages.
+  final List<String> validationErrors;
+
+  /// Warning messages about template configuration issues.
+  final List<String> warnings;
+
+  const IriTemplateInfo({
+    required this.template,
+    required this.variables,
+    required this.propertyVariables,
+    required this.contextVariables,
+    required this.isValid,
+    required this.validationErrors,
+    this.warnings = const [],
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! IriTemplateInfo) return false;
+
+    return template == other.template &&
+        variables.length == other.variables.length &&
+        variables.difference(other.variables).isEmpty &&
+        propertyVariables.length == other.propertyVariables.length &&
+        propertyVariables.difference(other.propertyVariables).isEmpty &&
+        contextVariables.length == other.contextVariables.length &&
+        contextVariables.difference(other.contextVariables).isEmpty &&
+        isValid == other.isValid &&
+        validationErrors.length == other.validationErrors.length &&
+        _listEquals(validationErrors, other.validationErrors) &&
+        warnings.length == other.warnings.length &&
+        _listEquals(warnings, other.warnings);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      template,
+      variables.length,
+      propertyVariables.length,
+      contextVariables.length,
+      isValid,
+      validationErrors.length,
+      warnings.length,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'IriTemplateInfo('
+        'template: $template, '
+        'variables: $variables, '
+        'propertyVariables: $propertyVariables, '
+        'contextVariables: $contextVariables, '
+        'isValid: $isValid, '
+        'validationErrors: $validationErrors, '
+        'warnings: $warnings)';
+  }
+
+  bool _listEquals<T>(List<T> a, List<T> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
 

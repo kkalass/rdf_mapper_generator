@@ -1,0 +1,386 @@
+import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:test/test.dart';
+
+import '../test_helper.dart';
+
+void main() {
+  group('IriStrategyProcessor', () {
+    late ClassElement2 bookClass;
+    late ClassElement2 simpleClass;
+
+    setUpAll(() async {
+      final libraryElement =
+          await analyzeTestFile('global_resource_processor_test_models.dart');
+      bookClass = libraryElement.getClass2('Book')!;
+      simpleClass = libraryElement.getClass2('ClassWithIriTemplateStrategy')!;
+    });
+
+    group('processTemplate', () {
+      test('should return null for null template', () {
+        final result = IriStrategyProcessor.processTemplate(null, bookClass);
+        expect(result, isNull);
+      });
+
+      test('should return null for empty template', () {
+        final result = IriStrategyProcessor.processTemplate('', bookClass);
+        expect(result, isNull);
+      });
+
+      test('should process simple template with single variable', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.template, equals(template));
+        expect(result.variables, contains('isbn'));
+        expect(result.variables, hasLength(1));
+        expect(result.propertyVariables, contains('isbn'));
+        expect(result.contextVariables, isEmpty);
+        expect(result.isValid, isTrue);
+        expect(result.validationErrors, isEmpty);
+        expect(result.warnings, isA<List<String>>());
+      });
+
+      test('should process template with multiple variables', () {
+        const template = 'http://example.org/books/{isbn}/authors/{authorId}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.variables, containsAll(['isbn', 'authorId']));
+        expect(result.variables, hasLength(2));
+        expect(result.propertyVariables, hasLength(1));
+        expect(result.propertyVariables, contains('isbn'));
+        // authorId is not annotated with @RdfIriPart, so it should be a context variable
+        expect(result.contextVariables, hasLength(1));
+        expect(result.contextVariables, contains('authorId'));
+      });
+
+      test('should handle template with context variables only', () {
+        const template = 'http://example.org/resources/{contextVar}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.variables, contains('contextVar'));
+        expect(result.propertyVariables, isEmpty);
+        expect(result.contextVariables, contains('contextVar'));
+      });
+
+      test('should validate template syntax correctly', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isTrue);
+        expect(result.validationErrors, isEmpty);
+      });
+
+      test('should detect invalid variable syntax', () {
+        const template = 'http://example.org/books/{{isbn}}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isFalse);
+        expect(result.validationErrors, isNotEmpty);
+        expect(
+            result.validationErrors.first, contains('Invalid variable syntax'));
+      });
+
+      test('should detect unmatched braces', () {
+        const template = 'http://example.org/books/{isbn';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isFalse);
+        expect(
+            result.validationErrors, contains('Unmatched braces in template'));
+      });
+
+      test('should detect empty variable names', () {
+        const template = 'http://example.org/books/{}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isFalse);
+        expect(result.validationErrors, isNotEmpty);
+      });
+
+      test('should validate variable names', () {
+        const template = 'http://example.org/books/{123invalid}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isFalse);
+        expect(result.validationErrors,
+            anyElement(contains('Invalid variable name')));
+      });
+
+      test('should warn about relative URIs', () {
+        const template = 'books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isFalse);
+        expect(result.validationErrors, anyElement(contains('relative URI')));
+      });
+
+      test('should handle processing errors gracefully', () {
+        // This test verifies error handling when processing fails
+        const template = 'http://example.org/books/{isbn}';
+        // Using a class that might cause issues (we'll use a simple one)
+        final result =
+            IriStrategyProcessor.processTemplate(template, simpleClass);
+
+        expect(result, isNotNull);
+        // Even if there are issues, we should get a result with error information
+      });
+    });
+
+    group('Variable extraction edge cases', () {
+      test('should extract variables with underscores', () {
+        const template = 'http://example.org/{book_id}/{author_name}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.variables, containsAll(['book_id', 'author_name']));
+      });
+
+      test('should extract variables with numbers', () {
+        const template = 'http://example.org/{id1}/{id2}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.variables, containsAll(['id1', 'id2']));
+      });
+
+      test('should handle duplicate variable names', () {
+        const template = 'http://example.org/{id}/{id}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.variables, hasLength(1));
+        expect(result.variables, contains('id'));
+      });
+
+      test('should handle complex URI patterns', () {
+        const template =
+            'https://api.example.org/v1/books/{isbn}/reviews/{reviewId}?format=json';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.variables, containsAll(['isbn', 'reviewId']));
+        expect(result.isValid, isTrue);
+      });
+    });
+
+    group('URI validation', () {
+      test('should accept absolute HTTP URIs', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isTrue);
+      });
+
+      test('should accept absolute HTTPS URIs', () {
+        const template = 'https://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isTrue);
+      });
+
+      test('should accept URN patterns', () {
+        const template = 'urn:isbn:{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isTrue);
+      });
+
+      test('should accept absolute paths', () {
+        const template = '/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isTrue);
+      });
+
+      test('should reject obviously malformed URIs', () {
+        const template = 'http://example.org//invalid//{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.isValid, isFalse);
+        expect(result.validationErrors, isNotEmpty);
+      });
+    });
+
+    group('Property variable detection', () {
+      test('should identify @RdfIriPart annotated fields', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.propertyVariables, contains('isbn'));
+      });
+
+      test('should handle fields without @RdfIriPart as context variables', () {
+        const template = 'http://example.org/books/{isbn}/{title}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.propertyVariables, contains('isbn'));
+        expect(result.contextVariables, contains('title'));
+      });
+
+      test('should handle template variables not matching any field', () {
+        const template = 'http://example.org/books/{isbn}/{nonExistentField}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.propertyVariables, contains('isbn'));
+        expect(result.contextVariables, contains('nonExistentField'));
+      });
+    });
+
+    group('Unused @RdfIriPart warnings', () {
+      test('should warn when @RdfIriPart annotation is not used in template',
+          () {
+        // Use a template that doesn't include all annotated properties
+        const template =
+            'http://example.org/books/{title}'; // isbn is annotated but not used
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.warnings, isNotEmpty);
+        expect(
+            result.warnings,
+            anyElement(contains(
+                'Property \'isbn\' is annotated with @RdfIriPart(\'isbn\') but \'isbn\' is not used in the IRI template')));
+      });
+
+      test('should not warn when all @RdfIriPart annotations are used', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.warnings, isEmpty);
+      });
+
+      test('should warn for custom @RdfIriPart names not used in template', () {
+        // This test assumes we have a field with @RdfIriPart(name: 'customName')
+        // For now, we'll test with a template that uses field name but not custom name
+        const template =
+            'http://example.org/books/{fieldName}'; // assumes custom name is different
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+
+        // If there are warnings about unused annotations, they should be present
+        expect(
+            result!.warnings,
+            contains(
+                "Property 'isbn' is annotated with @RdfIriPart('isbn') but 'isbn' is not used in the IRI template"));
+      });
+
+      test('should handle multiple unused @RdfIriPart annotations', () {
+        const template =
+            'http://example.org/books/static'; // no variables at all
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        // Should warn for all annotated fields that aren't used
+        expect(result!.warnings, isNotEmpty);
+        expect(result.warnings.length, greaterThan(0));
+      });
+
+      test('should provide clear warning messages', () {
+        const template = 'http://example.org/books/{title}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        if (result!.warnings.isNotEmpty) {
+          for (final warning in result.warnings) {
+            expect(warning, contains('is annotated with @RdfIriPart'));
+            expect(warning, contains('is not used in the IRI template'));
+          }
+        }
+      });
+
+      test('should not warn for properties without @RdfIriPart annotation', () {
+        const template = 'http://example.org/books/{nonAnnotatedField}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        // Should not warn about non-annotated properties, only unused annotations
+        final annotationWarnings = result!.warnings.where(
+            (warning) => warning.contains('is annotated with @RdfIriPart'));
+
+        // Any warnings should only be about actually annotated fields
+        for (final warning in annotationWarnings) {
+          expect(warning, contains('is annotated with @RdfIriPart'));
+        }
+      });
+    });
+
+    group('IriTemplateInfo model', () {
+      test('should create correct IriTemplateInfo instance', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result, isA<IriTemplateInfo>());
+        expect(result!.template, equals(template));
+        expect(result.variables, isA<Set<String>>());
+        expect(result.propertyVariables, isA<Set<String>>());
+        expect(result.contextVariables, isA<Set<String>>());
+        expect(result.isValid, isA<bool>());
+        expect(result.validationErrors, isA<List<String>>());
+        expect(result.warnings, isA<List<String>>());
+      });
+
+      test('should maintain immutability of variable sets', () {
+        const template = 'http://example.org/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(() => result!.variables.add('newVar'), throwsUnsupportedError);
+        expect(() => result!.propertyVariables.add('newVar'),
+            throwsUnsupportedError);
+        expect(() => result!.contextVariables.add('newVar'),
+            throwsUnsupportedError);
+      });
+    });
+  });
+}

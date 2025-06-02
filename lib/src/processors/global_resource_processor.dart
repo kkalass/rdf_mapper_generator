@@ -5,6 +5,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 
 /// Processes class elements to extract RDF global resource information.
 class GlobalResourceProcessor {
@@ -24,7 +25,8 @@ class GlobalResourceProcessor {
     final fields = _extractFields(classElement);
 
     // Create the RdfGlobalResource instance from the annotation
-    final rdfGlobalResource = _createRdfGlobalResource(annotation);
+    final rdfGlobalResource =
+        _createRdfGlobalResource(annotation, classElement);
 
     return GlobalResourceInfo(
       className: className,
@@ -34,13 +36,14 @@ class GlobalResourceProcessor {
     );
   }
 
-  static RdfGlobalResourceInfo _createRdfGlobalResource(DartObject annotation) {
+  static RdfGlobalResourceInfo _createRdfGlobalResource(
+      DartObject annotation, ClassElement2 classElement) {
     try {
       // Get the classIri from the annotation
       final classIri = getIriTerm(annotation, 'classIri');
 
       // Get the iriStrategy from the annotation
-      final iriStrategy = _getIriStrategy(annotation);
+      final iriStrategy = _getIriStrategy(annotation, classElement);
 
       // Get the registerGlobally flag
       final registerGlobally = isRegisterGlobally(annotation);
@@ -60,7 +63,8 @@ class GlobalResourceProcessor {
     }
   }
 
-  static IriStrategyInfo? _getIriStrategy(DartObject annotation) {
+  static IriStrategyInfo? _getIriStrategy(
+      DartObject annotation, ClassElement2 classElement) {
     // Check if we have an iri field (for the standard constructor)
     final iriValue = getField(annotation, 'iri');
     if (iriValue == null || iriValue.isNull) {
@@ -68,7 +72,17 @@ class GlobalResourceProcessor {
     }
     final template = getField(iriValue, 'template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
-    return IriStrategyInfo(mapper: mapper, template: template);
+
+    // Process template if it exists
+    final templateInfo = template != null
+        ? IriStrategyProcessor.processTemplate(template, classElement)
+        : null;
+
+    return IriStrategyInfo(
+      mapper: mapper,
+      template: template,
+      templateInfo: templateInfo,
+    );
   }
 
   static List<ConstructorInfo> _extractConstructors(

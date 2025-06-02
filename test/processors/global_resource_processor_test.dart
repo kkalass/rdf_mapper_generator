@@ -62,10 +62,14 @@ void main() {
       expect(result.annotation.classIri, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
-      expect(
-          result.annotation.iri,
-          equals(IriStrategyInfo(
-              mapper: null, template: 'http://example.org/persons/{id}')));
+      expect(result.annotation.iri?.mapper, isNull);
+      expect(result.annotation.iri?.template,
+          equals('http://example.org/persons/{id}'));
+      expect(result.annotation.iri?.templateInfo, isNotNull);
+      expect(result.annotation.iri?.templateInfo?.isValid, isTrue);
+      expect(result.annotation.iri?.templateInfo?.variables, contains('id'));
+      expect(result.annotation.iri?.templateInfo?.propertyVariables,
+          contains('id'));
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(1));
     });
