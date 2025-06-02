@@ -4,6 +4,7 @@ targets:
       rdf_mapper_generator|rdf_mapper_generator:
         generate_for:
           - lib/**.dart
+          - test/**.dart
 builders:
   rdf_mapper_generator:
     import: 'package:rdf_mapper_generator/builder.dart'
