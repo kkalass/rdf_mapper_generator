@@ -610,6 +610,12 @@ void main() {
       expect(result, isNotNull);
       final annotation = result!.annotation;
       expect(annotation.literal, isNotNull);
+      expect(annotation.literal!.mapper, isNotNull);
+      expect(annotation.literal!.mapper!.name, isNull);
+      expect(annotation.literal!.mapper!.type, isNull);
+      expect(annotation.literal!.mapper!.instance, isNotNull);
+      expect(annotation.literal!.mapper!.instance!.type!.getDisplayString(),
+          'LiteralMapperImpl');
       expect(annotation.predicate, equals(SchemaBook.isbn));
     });
   });

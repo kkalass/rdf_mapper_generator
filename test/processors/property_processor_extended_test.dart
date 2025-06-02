@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies/xsd.dart';
 import 'package:test/test.dart';
 
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
@@ -64,9 +65,16 @@ void main() {
 
     // Assert
     expect(nameResult, isNotNull);
+    expect(nameResult!.isLate, isTrue);
+    expect(nameResult.isFinal, isFalse);
+    expect(nameResult.isStatic, isFalse);
     expect(descriptionResult, isNotNull);
-    expect(nameResult!.annotation.predicate, SchemaBook.name);
-    expect(descriptionResult!.annotation.predicate, SchemaBook.description);
+    expect(descriptionResult!.isLate, isTrue);
+    expect(descriptionResult.isFinal, isFalse);
+    expect(descriptionResult.isStatic, isFalse);
+
+    expect(nameResult.annotation.predicate, SchemaBook.name);
+    expect(descriptionResult.annotation.predicate, SchemaBook.description);
   });
 
   test('should process mutable properties with getters/setters', () {
@@ -92,9 +100,52 @@ void main() {
 
     // Assert
     expect(nameResult, isNotNull);
+    expect(nameResult!.isFinal, isFalse);
+    expect(nameResult.isLate, isFalse);
+    expect(nameResult.isStatic, isFalse);
+
     expect(descriptionResult, isNotNull);
-    expect(nameResult!.annotation.predicate, SchemaBook.name);
-    expect(descriptionResult!.annotation.predicate, SchemaBook.description);
+    expect(descriptionResult!.isFinal, isFalse);
+    expect(descriptionResult.isLate, isFalse);
+    expect(descriptionResult.isStatic, isFalse);
+
+    expect(nameResult.annotation.predicate, SchemaBook.name);
+    expect(descriptionResult.annotation.predicate, SchemaBook.description);
+  });
+
+  test('should process final properties', () {
+    // Arrange
+    final classElement = libraryElement.getClass2('FinalPropertyTest');
+    if (classElement == null) {
+      fail('Class FinalPropertyTest not found in test models');
+    }
+
+    final nameField = classElement.getField2('name');
+    final descriptionField = classElement.getField2('description');
+
+    if (nameField == null) {
+      fail('Field "name" not found in FinalPropertyTest');
+    }
+    if (descriptionField == null) {
+      fail('Field "description" not found in FinalPropertyTest');
+    }
+
+    // Act
+    final nameResult = PropertyProcessor.processField(nameField);
+    final descriptionResult = PropertyProcessor.processField(descriptionField);
+
+    // Assert
+    expect(nameResult, isNotNull);
+    expect(nameResult!.isLate, isFalse);
+    expect(nameResult.isFinal, isTrue);
+    expect(nameResult.isStatic, isFalse);
+    expect(descriptionResult, isNotNull);
+    expect(descriptionResult!.isLate, isFalse);
+    expect(descriptionResult.isFinal, isTrue);
+    expect(descriptionResult.isStatic, isFalse);
+
+    expect(nameResult.annotation.predicate, SchemaBook.name);
+    expect(descriptionResult.annotation.predicate, SchemaBook.description);
   });
 
   test('should process literal with language tag', () {
@@ -146,13 +197,7 @@ void main() {
     // Check for datatype
     final literal = propertyInfo.annotation.literal;
     expect(literal, isNotNull);
-    // The datatype might be wrapped in angle brackets
-    final datatype = literal?.datatype.toString();
-    expect(
-        datatype,
-        anyOf([
-          'http://www.w3.org/2001/XMLSchema#dateTime',
-          '<http://www.w3.org/2001/XMLSchema#dateTime>'
-        ]));
+
+    expect(literal?.datatype, Xsd.dateTime);
   });
 }

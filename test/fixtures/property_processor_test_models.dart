@@ -207,6 +207,16 @@ class ComplexDefaultValueTest {
   ComplexDefaultValueTest({required this.complexValue});
 }
 
+class FinalPropertyTest {
+  @RdfProperty(SchemaBook.name)
+  final String name;
+
+  @RdfProperty(SchemaBook.description)
+  final String? description;
+
+  FinalPropertyTest({required this.name, required this.description});
+}
+
 class LatePropertyTest {
   @RdfProperty(SchemaBook.name)
   late String name;
