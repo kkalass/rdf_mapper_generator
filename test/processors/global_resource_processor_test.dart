@@ -104,8 +104,14 @@ void main() {
       expect(result.annotation.iri!.template, isNull);
       expect(result.annotation.iri!.mapper, isNotNull);
       expect(result.annotation.iri!.mapper!.name, isNull);
-      // TODO: implement a better check
       expect(result.annotation.iri!.mapper!.type, isNotNull);
+      expect(result.annotation.iri!.mapper!.type!.type!.getDisplayString(),
+          'Type');
+      expect(
+          result.annotation.iri!.mapper!.type!
+              .toTypeValue()!
+              .getDisplayString(),
+          'TestIriMapper');
       expect(result.annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));
@@ -126,8 +132,10 @@ void main() {
       expect(result.annotation.iri!.mapper, isNotNull);
       expect(result.annotation.iri!.mapper!.name, isNull);
       expect(result.annotation.iri!.mapper!.type, isNull);
-      // TODO: implement a better check
       expect(result.annotation.iri!.mapper!.instance, isNotNull);
+      expect(result.annotation.iri!.mapper!.instance!.type!.getDisplayString(),
+          'TestIriMapper');
+      expect(result.annotation.iri!.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));
     });
@@ -164,8 +172,10 @@ void main() {
       expect(result.annotation.iri, isNull);
       expect(result.annotation.mapper, isNotNull);
       expect(result.annotation.mapper!.name, isNull);
-      // TODO: can I check this more thoroughly?
       expect(result.annotation.mapper!.type, isNotNull);
+      expect(result.annotation.mapper!.type!.type!.getDisplayString(), 'Type');
+      expect(result.annotation.mapper!.type!.toTypeValue()!.getDisplayString(),
+          'TestGlobalResourceMapper');
       expect(result.annotation.mapper!.instance, isNull);
 
       expect(result.constructors, hasLength(1));
@@ -185,8 +195,10 @@ void main() {
       expect(result.annotation.mapper, isNotNull);
       expect(result.annotation.mapper!.name, isNull);
       expect(result.annotation.mapper!.type, isNull);
-      // TODO: can I check this more thoroughly?
       expect(result.annotation.mapper!.instance, isNotNull);
+      expect(result.annotation.mapper!.instance!.type!.getDisplayString(),
+          'TestGlobalResourceMapper');
+      expect(result.annotation.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));
     });
