@@ -3,7 +3,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
-import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';

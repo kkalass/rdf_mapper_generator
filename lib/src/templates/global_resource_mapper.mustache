@@ -1,0 +1,96 @@
+{{#imports}}
+import '{{{import}}}';
+{{/imports}}
+
+/// Generated mapper for [{{className}}] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type {{className}}.
+class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
+  @override
+  IriTerm get typeIri => {{typeIri}};
+
+  @override
+  {{className}} fromRdfResource(IriTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+    {{#iriParts}}
+    // Extract IRI parts
+    {{#hasTemplate}}
+    final iriTemplate = '{{template}}';
+    final iriParts = _parseIriParts(subject.value, iriTemplate);
+    {{/hasTemplate}}
+    {{/iriParts}}
+    
+    {{#constructorParameters}}
+    {{#isIriPart}}
+    final {{name}} = {{#hasConverter}}{{converter}}.fromIri({{/hasConverter}}{{^hasConverter}}{{/hasConverter}}iriParts['{{iriPartName}}']{{#hasConverter}}){{/hasConverter}};
+    {{/isIriPart}}
+    {{#isRdfProperty}}
+    final {{name}} = reader.{{#isRequired}}require{{/isRequired}}{{^isRequired}}get{{/isRequired}}<{{dartType}}>({{predicate}}){{#hasDefaultValue}} ?? {{defaultValue}}{{/hasDefaultValue}};
+    {{/isRdfProperty}}
+    {{/constructorParameters}}
+
+    return {{className}}(
+      {{#constructorParameters}}
+      {{name}}: {{name}},
+      {{/constructorParameters}}
+    );
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    {{className}} resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    {{#iriStrategy}}
+    final subject = {{#hasTemplate}}IriTerm(_buildIri(resource)){{/hasTemplate}}{{^hasTemplate}}IriTerm('{{baseIri}}'){{/hasTemplate}};
+    {{/iriStrategy}}
+    
+    final builder = context.resourceBuilder(subject);
+    
+    {{#properties}}
+    {{#isRdfProperty}}
+    {{#isRequired}}
+    builder.addValue({{predicate}}, {{#hasConverter}}{{converter}}.toRdf({{/hasConverter}}resource.{{propertyName}}{{#hasConverter}}){{/hasConverter}});
+    {{/isRequired}}
+    {{^isRequired}}
+    if (resource.{{propertyName}} != null) {
+      builder.addValue({{predicate}}, {{#hasConverter}}{{converter}}.toRdf({{/hasConverter}}resource.{{propertyName}}{{#hasConverter}}){{/hasConverter}});
+    }
+    {{/isRequired}}
+    {{/isRdfProperty}}
+    {{/properties}}
+
+    return builder.build();
+  }
+
+  {{#iriStrategy}}
+  {{#hasTemplate}}
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri({{className}} resource) {
+    var iri = '{{template}}';
+    {{#iriParts}}
+    iri = iri.replaceAll('{{{placeholder}}}', {{#hasConverter}}{{converter}}.toIri({{/hasConverter}}resource.{{propertyName}}.toString(){{#hasConverter}}){{/hasConverter}});
+    {{/iriParts}}
+    return iri;
+  }
+
+  /// Parses IRI parts from a complete IRI using the template.
+  Map<String, String> _parseIriParts(String iri, String template) {
+    final parts = <String, String>{};
+    // Simple template parsing - in practice, this would be more sophisticated
+    {{#iriParts}}
+    // Extract {{placeholder}} from IRI
+    final {{propertyName}}Pattern = RegExp(r'{{regexPattern}}');
+    final {{propertyName}}Match = {{propertyName}}Pattern.firstMatch(iri);
+    if ({{propertyName}}Match != null) {
+      parts['{{placeholder}}'] = {{propertyName}}Match.group(1)!;
+    }
+    {{/iriParts}}
+    return parts;
+  }
+  {{/hasTemplate}}
+  {{/iriStrategy}}
+}

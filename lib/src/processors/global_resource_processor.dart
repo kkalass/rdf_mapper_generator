@@ -6,30 +6,7 @@ import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
-
-class LibsByClassName {
-  final Map<String, LibraryElement2> _libsByExportedNames;
-
-  LibsByClassName(this._libsByExportedNames);
-
-  /// Gets the library associated with the provided export name.
-  ///
-  /// Returns the [LibraryElement2] for the given export [name],
-  /// or null if no library was found with that name.
-  LibraryElement2? operator [](String name) => _libsByExportedNames[name];
-
-  static LibsByClassName create(LibraryElement2 libraryElement) {
-    final libs = libraryElement.fragments
-        .expand((frag) => frag.importedLibraries2)
-        .toList();
-
-    final libsByExportedNames = {
-      for (final lib in libs)
-        for (final name in lib.exportNamespace.definedNames2.keys) name: lib,
-    };
-    return LibsByClassName(libsByExportedNames);
-  }
-}
+import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
 
 /// Processes class elements to extract RDF global resource information.
 class GlobalResourceProcessor {
