@@ -66,6 +66,20 @@ DartObject? getField(DartObject obj, String fieldName) {
   return getField(superInstance, fieldName);
 }
 
+E getEnumFieldValue<E extends Enum>(
+    DartObject annotation, String fieldName, List<E> values, E defaultValue) {
+  final collectionField = getField(annotation, 'collection');
+
+  // Extract enum constant name - toStringValue() returns null for enums,
+  // so we need to access the variable element's name
+  final collectionValue = collectionField?.variable2?.name3;
+
+  final collection = collectionValue == null
+      ? defaultValue
+      : values.firstWhere((e) => e.name == collectionValue);
+  return collection;
+}
+
 IriTerm? getIriTerm(DartObject annotation, String fieldName) {
   try {
     final classIriValue = annotation.getField(fieldName);

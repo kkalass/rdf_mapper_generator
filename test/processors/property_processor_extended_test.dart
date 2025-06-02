@@ -155,14 +155,4 @@ void main() {
           '<http://www.w3.org/2001/XMLSchema#dateTime>'
         ]));
   });
-
-  test('should process instance-based mappers', () {
-    // This test is currently skipped as the feature is not yet implemented
-    // Implementation will be added in a future update
-  }, skip: 'Instance-based mappers not yet implemented');
-
-  test('should process type-based mappers', () {
-    // This test is currently skipped as the feature is not yet implemented
-    // Implementation will be added in a future update
-  }, skip: 'Type-based mappers not yet implemented');
 }

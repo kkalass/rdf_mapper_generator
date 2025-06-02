@@ -61,7 +61,8 @@ class PropertyProcessor {
     final localResource = _extractLocalResourceMapping(annotation);
     final literal = _extractLiteralMapping(annotation);
     final globalResource = _extractGlobalResourceMapping(annotation);
-    final collection = getField(annotation, 'collection')?.toStringValue();
+    final collection = getEnumFieldValue(annotation, 'collection',
+        RdfCollectionType.values, RdfCollectionType.auto);
     // Extract IRI mapping if present
     final iri = _extractIriMapping(annotation);
 
@@ -75,9 +76,7 @@ class PropertyProcessor {
       literal: literal,
       globalResource: globalResource,
       iri: iri,
-      collection: collection == null
-          ? RdfCollectionType.auto
-          : RdfCollectionType.values.firstWhere((e) => e.name == collection),
+      collection: collection,
     );
   }
 
