@@ -20,8 +20,8 @@ class IriStrategyProcessor {
     try {
       final variables = _extractVariables(template);
       final propertyResult = _findPropertyVariables(variables, classElement);
-      final contextVariables = Set.unmodifiable(
-          variables.difference(propertyResult.propertyVariables));
+      final contextVariables = Set.unmodifiable(variables.difference(
+          propertyResult.propertyVariables.map((pn) => pn.name).toSet()));
       final validationResult = _validateTemplate(template, variables);
 
       return IriTemplateInfo(
@@ -37,7 +37,7 @@ class IriStrategyProcessor {
       return IriTemplateInfo(
         template: template,
         variables: Set.unmodifiable(<String>{}),
-        propertyVariables: Set.unmodifiable(<String>{}),
+        propertyVariables: Set.unmodifiable(<PropertyVariableName>{}),
         contextVariables: Set.unmodifiable(<String>{}),
         isValid: false,
         validationErrors: ['Failed to process template: $e'],
@@ -72,7 +72,7 @@ class IriStrategyProcessor {
   /// that don't correspond to any template variable.
   static _PropertyVariablesResult _findPropertyVariables(
       Set<String> variables, ClassElement2 classElement) {
-    final propertyVariables = <String>{};
+    final propertyVariables = <PropertyVariableName>{};
     final warnings = <String>[];
 
     for (final field in classElement.fields2) {
@@ -99,7 +99,7 @@ class IriStrategyProcessor {
       if (iriPartAnnotation != null) {
         // Try to get the variable name from the annotation,
         // fallback to field name if not specified
-        String variableName = field.name3!;
+        String name = field.name3!;
 
         final annotationValue = iriPartAnnotation;
         // Check for named parameter in @RdfIriPart(name)
@@ -107,17 +107,18 @@ class IriStrategyProcessor {
         if (nameField != null && !nameField.isNull) {
           final nameValue = nameField.toStringValue();
           if (nameValue != null && nameValue.isNotEmpty) {
-            variableName = nameValue;
+            name = nameValue;
           }
         }
 
         // Add to property variables if it matches a template variable
-        if (variables.contains(variableName)) {
-          propertyVariables.add(variableName);
+        if (variables.contains(name)) {
+          propertyVariables.add(
+              PropertyVariableName(name: name, dartPropertyName: field.name3!));
         } else {
           // Generate warning for unused @RdfIriPart annotation
           warnings.add(
-              'Property \'${field.name3}\' is annotated with @RdfIriPart(\'$variableName\') but \'$variableName\' is not used in the IRI template');
+              'Property \'${field.name3}\' is annotated with @RdfIriPart(\'$name\') but \'$name\' is not used in the IRI template');
         }
       }
     }
@@ -271,7 +272,7 @@ class _TemplateValidationResult {
 
 /// Internal model for property variable analysis results.
 class _PropertyVariablesResult {
-  final Set<String> propertyVariables;
+  final Set<PropertyVariableName> propertyVariables;
   final List<String> warnings;
 
   const _PropertyVariablesResult({

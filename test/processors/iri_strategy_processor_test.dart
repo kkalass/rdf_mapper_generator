@@ -37,7 +37,7 @@ void main() {
         expect(result!.template, equals(template));
         expect(result.variables, contains('isbn'));
         expect(result.variables, hasLength(1));
-        expect(result.propertyVariables, contains('isbn'));
+        expect(result.propertyVariables.map((pn) => pn.name), contains('isbn'));
         expect(result.contextVariables, isEmpty);
         expect(result.isValid, isTrue);
         expect(result.validationErrors, isEmpty);
@@ -53,7 +53,7 @@ void main() {
         expect(result!.variables, containsAll(['isbn', 'authorId']));
         expect(result.variables, hasLength(2));
         expect(result.propertyVariables, hasLength(1));
-        expect(result.propertyVariables, contains('isbn'));
+        expect(result.propertyVariables.map((pn) => pn.name), contains('isbn'));
         // authorId is not annotated with @RdfIriPart, so it should be a context variable
         expect(result.contextVariables, hasLength(1));
         expect(result.contextVariables, contains('authorId'));
@@ -242,7 +242,8 @@ void main() {
             IriStrategyProcessor.processTemplate(template, bookClass);
 
         expect(result, isNotNull);
-        expect(result!.propertyVariables, contains('isbn'));
+        expect(
+            result!.propertyVariables.map((pn) => pn.name), contains('isbn'));
       });
 
       test('should handle fields without @RdfIriPart as context variables', () {
@@ -251,7 +252,8 @@ void main() {
             IriStrategyProcessor.processTemplate(template, bookClass);
 
         expect(result, isNotNull);
-        expect(result!.propertyVariables, contains('isbn'));
+        expect(
+            result!.propertyVariables.map((pn) => pn.name), contains('isbn'));
         expect(result.contextVariables, contains('title'));
       });
 
@@ -261,7 +263,8 @@ void main() {
             IriStrategyProcessor.processTemplate(template, bookClass);
 
         expect(result, isNotNull);
-        expect(result!.propertyVariables, contains('isbn'));
+        expect(
+            result!.propertyVariables.map((pn) => pn.name), contains('isbn'));
         expect(result.contextVariables, contains('nonExistentField'));
       });
     });
@@ -362,7 +365,7 @@ void main() {
         expect(result, isA<IriTemplateInfo>());
         expect(result!.template, equals(template));
         expect(result.variables, isA<Set<String>>());
-        expect(result.propertyVariables, isA<Set<String>>());
+        expect(result.propertyVariables, isA<Set<PropertyVariableName>>());
         expect(result.contextVariables, isA<Set<String>>());
         expect(result.isValid, isA<bool>());
         expect(result.validationErrors, isA<List<String>>());
@@ -376,7 +379,9 @@ void main() {
 
         expect(result, isNotNull);
         expect(() => result!.variables.add('newVar'), throwsUnsupportedError);
-        expect(() => result!.propertyVariables.add('newVar'),
+        expect(
+            () => result!.propertyVariables.add(PropertyVariableName(
+                dartPropertyName: 'newVar', name: 'newVar')),
             throwsUnsupportedError);
         expect(() => result!.contextVariables.add('newVar'),
             throwsUnsupportedError);

@@ -1,4 +1,5 @@
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_annotation_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
@@ -81,6 +82,27 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   }
 }
 
+class PropertyVariableName {
+  final String dartPropertyName;
+  final String name;
+
+  PropertyVariableName({required this.dartPropertyName, required this.name});
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is PropertyVariableName &&
+        other.dartPropertyName == dartPropertyName &&
+        other.name == name;
+  }
+
+  @override
+  int get hashCode => Object.hash(dartPropertyName, name);
+
+  @override
+  String toString() =>
+      'PropertyVariableName(variableName: $dartPropertyName, annotationName: $name)';
+}
+
 /// Contains information about a processed IRI template.
 class IriTemplateInfo {
   /// The original template string.
@@ -90,7 +112,7 @@ class IriTemplateInfo {
   final Set<String> variables;
 
   /// Variables that correspond to class properties with @RdfIriPart.
-  final Set<String> propertyVariables;
+  final Set<PropertyVariableName> propertyVariables;
 
   /// Variables that need to be provided from context.
   final Set<String> contextVariables;

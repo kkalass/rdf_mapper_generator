@@ -68,7 +68,9 @@ void main() {
       expect(result.annotation.iri?.templateInfo, isNotNull);
       expect(result.annotation.iri?.templateInfo?.isValid, isTrue);
       expect(result.annotation.iri?.templateInfo?.variables, contains('id'));
-      expect(result.annotation.iri?.templateInfo?.propertyVariables,
+      expect(
+          result.annotation.iri?.templateInfo?.propertyVariables
+              .map((pn) => pn.name),
           contains('id'));
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(1));

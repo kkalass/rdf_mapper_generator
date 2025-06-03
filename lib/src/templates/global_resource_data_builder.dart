@@ -97,8 +97,8 @@ class GlobalResourceDataBuilder {
       template: iriTemplateInfo.template,
       propertyVariables: iriTemplateInfo.propertyVariables
           .map((variable) => PropertyVariableData(
-                variableName: variable,
-                placeholder: '{$variable}',
+                variableName: variable.dartPropertyName,
+                placeholder: '{${variable.name}}',
               ))
           .toSet(),
       contextVariables: iriTemplateInfo.contextVariables,
