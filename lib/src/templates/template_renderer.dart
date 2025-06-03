@@ -15,7 +15,7 @@ class TemplateRenderer {
   factory TemplateRenderer() => _instance;
 
   /// Renders a global resource mapper using the provided template data.
-  Future<String> renderGlobalResourceMapper(
+  Future<String> _renderGlobalResourceMapper(
       GlobalResourceMapperTemplateData data, AssetReader reader) async {
     final template = await _getTemplate('global_resource_mapper', reader);
     final dataMap = data.toMap();
@@ -30,6 +30,31 @@ class TemplateRenderer {
     print('Rendered template:');
     print(result);
 
+    return result;
+  }
+
+  /// Renders a complete file using the file template and multiple mappers.
+  Future<String> renderFileTemplate(
+      FileTemplateData data, AssetReader reader) async {
+    final template = await _getTemplate('file_template', reader);
+
+    // Render each mapper individually first
+    final renderedMappers = <String>[];
+    for (final mapperData in data.mappers) {
+      final mapperCode = switch (mapperData.mapperData) {
+        GlobalResourceMapperTemplateData templateData =>
+          await _renderGlobalResourceMapper(templateData, reader),
+        // Add cases for other mapper types if needed
+      };
+      renderedMappers.add(mapperCode);
+    }
+
+    // Build the complete file data map
+    final dataMap = data.toMap();
+    dataMap['mappers'] =
+        renderedMappers.map((code) => {'mapperCode': code}).toList();
+
+    final result = template.renderString(dataMap);
     return result;
   }
 
@@ -60,12 +85,12 @@ class TemplateRenderer {
           String templateName, AssetReader reader) async =>
       _templateCache.putIfAbsent(
           templateName,
-          () async => Template(await loadTemplate(templateName, reader),
+          () async => Template(await _loadTemplate(templateName, reader),
               name: templateName,
               lenient: true,
               htmlEscapeValues: false)); // Disable HTML escaping globally
 
-  Future<String> loadTemplate(String name, AssetReader reader) async {
+  Future<String> _loadTemplate(String name, AssetReader reader) async {
     final assetId = AssetId(
       'rdf_mapper_generator',
       path.join(

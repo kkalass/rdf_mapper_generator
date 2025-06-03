@@ -5,7 +5,13 @@ import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 
 /// Contains information about a class annotated with @RdfGlobalResource
-class GlobalResourceInfo {
+sealed class MappableClassInfo {
+  /// The name of the class
+  String get className;
+}
+
+/// Contains information about a class annotated with @RdfGlobalResource
+class GlobalResourceInfo implements MappableClassInfo {
   /// The name of the class
   final String className;
 

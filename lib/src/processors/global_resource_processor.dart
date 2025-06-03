@@ -12,7 +12,7 @@ import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
 class GlobalResourceProcessor {
   /// Processes a class element to extract RDF global resource information.
   ///
-  /// Returns a [GlobalResourceInfo] containing the processed information if the class is annotated
+  /// Returns a [MappableClassInfo] containing the processed information if the class is annotated
   /// with `@RdfGlobalResource`, otherwise returns `null`.
   static GlobalResourceInfo? processClass(ClassElement2 classElement,
       {LibsByClassName? libsByClassName}) {
