@@ -268,7 +268,8 @@ class ParameterData {
   Map<String, dynamic> toMap() => {
         'name': name,
         'dartType': dartType,
-        'isRequired': isRequired,
+        // if default value is provided, then it is not required
+        'isRequired': isRequired && defaultValue == null,
         'isIriPart': isIriPart && !isRdfProperty,
         'isRdfProperty': isRdfProperty,
         'iriPartName': iriPartName,
