@@ -11,221 +11,48 @@ import 'package:test/test.dart';
 /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
 Map<String, String> _parseIriParts(
     String iri, String template, List<String> variables) {
-  try {
-    // Handle edge cases
-    if (template.isEmpty || iri.isEmpty || variables.isEmpty) return {};
+  // Convert template to regex pattern
+  String regexPattern = RegExp.escape(template);
 
-    // Check for malformed templates
-    if (template.split('{').length != template.split('}').length) return {};
+  // Track the order of variables as they appear in the template
+  List<String> orderedVariables = [];
 
-    // Convert template to regex by replacing variables with capture groups
-    String regexPattern = template;
-    final variableOrder = <String>[];
+  // Replace variables with capturing groups
+  // After escaping, {+var} becomes \{\+var\} and {var} becomes \{var\}
+  Pattern variablePattern = RegExp(r'\\?\{\\?\+?(\w+)\\?\}');
+  regexPattern = regexPattern.replaceAllMapped(variablePattern, (match) {
+    String fullMatch = match.group(0)!;
+    String varName = match.group(1)!;
 
-    // Replace variables in the order they appear in the template
-    for (final variable in variables) {
-      final reservedPattern = '{+$variable}';
-      final defaultPattern = '{$variable}';
+    orderedVariables.add(varName);
 
-      if (regexPattern.contains(reservedPattern)) {
-        variableOrder.add(variable);
-        regexPattern =
-            regexPattern.replaceFirst(reservedPattern, '___CAPTURE_GROUP___');
-      } else if (regexPattern.contains(defaultPattern)) {
-        variableOrder.add(variable);
-        regexPattern =
-            regexPattern.replaceFirst(defaultPattern, '___CAPTURE_GROUP___');
-      }
-    }
+    // Check if it's a +reserved expansion by looking at the full match
+    bool isReservedExpansion =
+        fullMatch.contains(r'\+') || fullMatch.contains('+');
 
-    // Check if we found all variables
-    if (variableOrder.length != variables.length) return {};
+    // Use .* for +reserved expansion, [^/]* for default
+    return isReservedExpansion ? '(.*)' : '([^/]*)';
+  });
 
-    // Escape special regex characters
-    regexPattern = RegExp.escape(regexPattern);
+  // Try to match the IRI against the regex pattern
+  RegExp regex = RegExp('^$regexPattern\$');
+  Match? match = regex.firstMatch(iri);
 
-    // Now replace capture group placeholders with actual regex patterns
-    for (int i = 0; i < variableOrder.length; i++) {
-      final variable = variableOrder[i];
-      final isReserved = template.contains('{+$variable}');
-
-      if (isReserved) {
-        // Reserved expansion: greedy match that includes '/'
-        regexPattern = regexPattern.replaceFirst(
-            RegExp.escape('___CAPTURE_GROUP___'), '(.*?)');
-      } else {
-        // Default expansion: match non-'/' characters
-        regexPattern = regexPattern.replaceFirst(
-            RegExp.escape('___CAPTURE_GROUP___'), '([^/]*?)');
-      }
-    }
-
-    // Handle the special case where default variables might need to include ':'
-    // in URL schemes (like https://). We need to make the regex smarter.
-
-    // For now, let's use a different approach - match greedily but validate after
-    final parts = <String, String>{};
-
-    // Try regex first
-    final regex = RegExp('^$regexPattern\$');
-    final match = regex.firstMatch(iri);
-
-    if (match != null && match.groupCount == variableOrder.length) {
-      // Extract values
-      for (int i = 0; i < variableOrder.length; i++) {
-        final variable = variableOrder[i];
-        final value = match.group(i + 1) ?? '';
-        final isReserved = template.contains('{+$variable}');
-
-        // Validate that default variables don't contain '/' unless it's a URL scheme
-        if (!isReserved && value.contains('/') && !value.contains('://')) {
-          // This default variable contains '/' which it shouldn't
-          // Fall back to manual parsing
-          return _parseManually(iri, template, variables);
-        }
-
-        parts[variable] = value;
-      }
-
-      return parts;
-    }
-
-    // Regex failed, try manual parsing
-    return _parseManually(iri, template, variables);
-  } catch (e) {
+  if (match == null) {
     return {};
   }
-}
 
-/// Manual parsing approach for complex cases
-Map<String, String> _parseManually(
-    String iri, String template, List<String> variables) {
-  try {
-    final parts = <String, String>{};
-
-    // Build a list of template segments
-    final segments = <dynamic>[];
-    String remaining = template;
-
-    while (remaining.isNotEmpty) {
-      final varStart = remaining.indexOf('{');
-      if (varStart == -1) {
-        // No more variables
-        if (remaining.isNotEmpty) {
-          segments.add(remaining); // literal
-        }
-        break;
-      }
-
-      // Add literal before variable
-      if (varStart > 0) {
-        segments.add(remaining.substring(0, varStart));
-      }
-
-      // Find variable end
-      final varEnd = remaining.indexOf('}', varStart);
-      if (varEnd == -1) return {}; // malformed
-
-      final varContent = remaining.substring(varStart + 1, varEnd);
-      final isReserved = varContent.startsWith('+');
-      final varName = isReserved ? varContent.substring(1) : varContent;
-
-      if (variables.contains(varName)) {
-        segments.add({
-          'name': varName,
-          'isReserved': isReserved,
-        });
-      }
-
-      remaining = remaining.substring(varEnd + 1);
+  // Build result map from captured groups
+  Map<String, String> result = {};
+  for (int i = 0; i < orderedVariables.length && i < match.groupCount; i++) {
+    String varName = orderedVariables[i];
+    String? value = match.group(i + 1);
+    if (value != null && variables.contains(varName)) {
+      result[varName] = value;
     }
-
-    // Now parse the IRI segment by segment
-    String currentIri = iri;
-
-    for (int i = 0; i < segments.length; i++) {
-      final segment = segments[i];
-
-      if (segment is String) {
-        // Literal segment
-        if (!currentIri.startsWith(segment)) {
-          return {}; // doesn't match
-        }
-        currentIri = currentIri.substring(segment.length);
-      } else if (segment is Map) {
-        // Variable segment
-        final varName = segment['name'] as String;
-        final isReserved = segment['isReserved'] as bool;
-
-        // Find the next literal to know where this variable ends
-        String? nextLiteral;
-        for (int j = i + 1; j < segments.length; j++) {
-          if (segments[j] is String) {
-            nextLiteral = segments[j] as String;
-            break;
-          }
-        }
-
-        String varValue;
-        if (nextLiteral != null) {
-          // Find the next occurrence of the literal
-          int nextIndex = currentIri.indexOf(nextLiteral);
-          if (nextIndex == -1) return {};
-
-          // For default variables, find the last occurrence before a '/'
-          // unless it's part of a URL scheme
-          if (!isReserved) {
-            // Look for alternative positions that don't cross path boundaries
-            final allIndices = <int>[];
-            int searchPos = 0;
-            while (searchPos < currentIri.length) {
-              final foundIndex = currentIri.indexOf(nextLiteral, searchPos);
-              if (foundIndex == -1) break;
-              allIndices.add(foundIndex);
-              searchPos = foundIndex + 1;
-            }
-
-            // Pick the first valid index where the variable value doesn't contain '/'
-            // unless it's a URL scheme
-            bool foundValid = false;
-            for (final index in allIndices) {
-              final candidateValue = currentIri.substring(0, index);
-              if (!candidateValue.contains('/') ||
-                  candidateValue.contains('://')) {
-                nextIndex = index;
-                foundValid = true;
-                break;
-              }
-            }
-
-            if (!foundValid && !allIndices.isEmpty) {
-              // Use the first occurrence as fallback
-              nextIndex = allIndices.first;
-            }
-          }
-
-          varValue = currentIri.substring(0, nextIndex);
-          currentIri = currentIri.substring(nextIndex);
-        } else {
-          // Last variable, take everything remaining
-          varValue = currentIri;
-          currentIri = '';
-        }
-
-        parts[varName] = varValue;
-      }
-    }
-
-    // Should have consumed all input
-    if (currentIri.isNotEmpty) return {};
-
-    // Should have found all variables
-    if (parts.length != variables.length) return {};
-
-    return parts;
-  } catch (e) {
-    return {};
   }
+
+  return result;
 }
 
 void main() {
@@ -517,10 +344,10 @@ void main() {
         // Default behavior: baseUri should NOT include slashes
         final iriPartsDefault = _parseIriParts(
             'https://example.com/api/users/123',
-            '{baseUri}/api/users/{id}',
+            'https://{baseUri}/api/users/{id}',
             ['baseUri', 'id']);
 
-        expect(iriPartsDefault['baseUri'], 'https://example.com');
+        expect(iriPartsDefault['baseUri'], 'example.com');
         expect(iriPartsDefault['id'], '123');
 
         // Reserved expansion: baseUri SHOULD include slashes
