@@ -14,45 +14,24 @@ Map<String, String> _parseIriParts(
   // Convert template to regex pattern
   String regexPattern = RegExp.escape(template);
 
-  // Track the order of variables as they appear in the template
-  List<String> orderedVariables = [];
-
-  // Replace variables with capturing groups
-  // After escaping, {+var} becomes \{\+var\} and {var} becomes \{var\}
-  Pattern variablePattern = RegExp(r'\\?\{\\?\+?(\w+)\\?\}');
-  regexPattern = regexPattern.replaceAllMapped(variablePattern, (match) {
-    String fullMatch = match.group(0)!;
-    String varName = match.group(1)!;
-
-    orderedVariables.add(varName);
-
-    // Check if it's a +reserved expansion by looking at the full match
-    bool isReservedExpansion =
-        fullMatch.contains(r'\+') || fullMatch.contains('+');
-
-    // Use .* for +reserved expansion, [^/]* for default
-    return isReservedExpansion ? '(.*)' : '([^/]*)';
-  });
+  // Replace variables with named capture groups
+  for (final v in variables) {
+    // Use named capture groups for cleaner variable extraction
+    regexPattern = regexPattern
+        .replaceAll('\\{\\+$v\\}', '(?<$v>.*)') // .* for +reserved expansion
+        .replaceAll('\\{$v\\}', '(?<$v>[^/]*)'); // [^/]* for default
+  }
 
   // Try to match the IRI against the regex pattern
   RegExp regex = RegExp('^$regexPattern\$');
-  Match? match = regex.firstMatch(iri);
+  RegExpMatch? match = regex.firstMatch(iri);
 
-  if (match == null) {
-    return {};
-  }
-
-  // Build result map from captured groups
-  Map<String, String> result = {};
-  for (int i = 0; i < orderedVariables.length && i < match.groupCount; i++) {
-    String varName = orderedVariables[i];
-    String? value = match.group(i + 1);
-    if (value != null && variables.contains(varName)) {
-      result[varName] = value;
-    }
-  }
-
-  return result;
+  return match == null
+      ? {}
+      : Map.fromEntries(match.groupNames.map((name) {
+          var namedGroup = match.namedGroup(name)!;
+          return MapEntry(name, namedGroup);
+        }));
 }
 
 void main() {
