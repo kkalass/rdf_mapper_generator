@@ -1,6 +1,7 @@
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
+import 'package:rdf_mapper_generator/src/utils/iri_parser.dart';
 
 /// Builds template data from processed resource information.
 class GlobalResourceDataBuilder {
@@ -97,17 +98,24 @@ class GlobalResourceDataBuilder {
     );
   }
 
+  static VariableNameData _buildVariableNameData(VariableName variable) {
+    return VariableNameData(
+      variableName: variable.dartPropertyName,
+      placeholder:
+          variable.canBeUri ? '{+${variable.name}}' : '{${variable.name}}',
+    );
+  }
+
   static IriTemplateData _buildTemplateData(IriTemplateInfo iriTemplateInfo) {
     return IriTemplateData(
       template: iriTemplateInfo.template,
-      propertyVariables: iriTemplateInfo.propertyVariables
-          .map((variable) => PropertyVariableData(
-                variableName: variable.dartPropertyName,
-                placeholder: '{${variable.name}}',
-              ))
-          .toSet(),
-      contextVariables: iriTemplateInfo.contextVariables,
-      variables: iriTemplateInfo.variables,
+      propertyVariables:
+          iriTemplateInfo.propertyVariables.map(_buildVariableNameData).toSet(),
+      contextVariables:
+          iriTemplateInfo.contextVariables.map(_buildVariableNameData).toSet(),
+      variables: iriTemplateInfo.variables.map(_buildVariableNameData).toSet(),
+      regexPattern: buildRegexPattern(
+          iriTemplateInfo.template, iriTemplateInfo.variables),
     );
   }
 
@@ -116,14 +124,15 @@ class GlobalResourceDataBuilder {
       IriTemplateInfo? templateInfo) {
     if (templateInfo == null) return [];
 
-    return templateInfo.contextVariables
-        .map((variable) => ContextProviderData(
-              variableName: variable,
-              privateFieldName: '_${variable}Provider',
-              parameterName: '${variable}Provider',
-              placeholder: '{$variable}',
-            ))
-        .toList();
+    return templateInfo.contextVariables.map((variable) {
+      final d = _buildVariableNameData(variable);
+      return ContextProviderData(
+        variableName: d.variableName,
+        privateFieldName: '_${d.variableName}Provider',
+        parameterName: '${d.variableName}Provider',
+        placeholder: d.placeholder,
+      );
+    }).toList();
   }
 
   /// Builds constructor parameter data for the template.

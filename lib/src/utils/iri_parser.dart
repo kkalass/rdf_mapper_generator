@@ -4,6 +4,25 @@
 /// using template patterns that support both default and reserved expansion.
 library iri_parser;
 
+import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+
+String buildRegexPattern(String template, Iterable<VariableName> variables) {
+  // Convert template to regex pattern by escaping special regex characters
+  String regexPattern = RegExp.escape(template);
+
+  // Replace variables with named capture groups
+  // Process all variables to create appropriate regex patterns
+  for (final variable in variables) {
+    // Use named capture groups for cleaner variable extraction
+    regexPattern = regexPattern
+        .replaceAll('\\{\\+${variable.name}\\}',
+            '(?<${variable.name}>.*)') // .* for +reserved expansion
+        .replaceAll('\\{${variable.name}\\}',
+            '(?<${variable.name}>[^/]*)'); // [^/]* for default
+  }
+  return '^$regexPattern\\\$';
+}
+
 /// Parses IRI parts from a complete IRI using a template.
 ///
 /// FIXM: currently this function is copied to the `global_resource_data_builder.dart` file by hand, it would be better to automate that.
@@ -45,22 +64,10 @@ library iri_parser;
 /// ```
 Map<String, String> parseIriParts(
     String iri, String template, List<String> variables) {
-  // Convert template to regex pattern by escaping special regex characters
-  String regexPattern = RegExp.escape(template);
-
-  // Replace variables with named capture groups
-  // Process all variables to create appropriate regex patterns
-  for (final variable in variables) {
-    // Use named capture groups for cleaner variable extraction
-    regexPattern = regexPattern
-        .replaceAll('\\{\\+$variable\\}',
-            '(?<$variable>.*)') // .* for +reserved expansion
-        .replaceAll(
-            '\\{$variable\\}', '(?<$variable>[^/]*)'); // [^/]* for default
-  }
-
-  // Try to match the IRI against the regex pattern
-  final regex = RegExp('^$regexPattern\$');
+  final regex = RegExp(buildRegexPattern(
+      template,
+      variables.map(
+          (v) => VariableName(name: v, dartPropertyName: v, canBeUri: false))));
   final match = regex.firstMatch(iri);
 
   // Extract all named groups if match is found

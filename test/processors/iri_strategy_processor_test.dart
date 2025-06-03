@@ -381,7 +381,7 @@ void main() {
         expect(result, isA<IriTemplateInfo>());
         expect(result!.template, equals(template));
         expect(result.variables, isA<Set<String>>());
-        expect(result.propertyVariables, isA<Set<PropertyVariableName>>());
+        expect(result.propertyVariables, isA<Set<VariableName>>());
         expect(result.contextVariables, isA<Set<String>>());
         expect(result.isValid, isA<bool>());
         expect(result.validationErrors, isA<List<String>>());
@@ -394,14 +394,18 @@ void main() {
             IriStrategyProcessor.processTemplate(template, bookClass);
 
         expect(result, isNotNull);
-        expect(() => result!.variables.add('newVar'), throwsUnsupportedError);
-        expect(
-            () => result!.propertyVariables.add(PropertyVariableName(
-                dartPropertyName: 'newVar', name: 'newVar')),
+        expect(() => result!.variables.add(newVarVariableName()),
             throwsUnsupportedError);
-        expect(() => result!.contextVariables.add('newVar'),
+        expect(() => result!.propertyVariables.add(newVarVariableName()),
+            throwsUnsupportedError);
+        expect(() => result!.contextVariables.add(newVarVariableName()),
             throwsUnsupportedError);
       });
     });
   });
+}
+
+VariableName newVarVariableName() {
+  return VariableName(
+      dartPropertyName: 'newVar', name: 'newVar', canBeUri: false);
 }

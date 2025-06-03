@@ -20,13 +20,17 @@ class IriStrategyProcessor {
     try {
       final variables = _extractVariables(template);
       final propertyResult = _findPropertyVariables(variables, classElement);
-      final contextVariables = Set.unmodifiable(variables.difference(
-          propertyResult.propertyVariables.map((pn) => pn.name).toSet()));
+      final propertyNames =
+          propertyResult.propertyVariables.map((pn) => pn.name).toSet();
+      final contextVariables = Set.unmodifiable(variables.entries
+          .where((entry) => !propertyNames.contains(entry.key))
+          .map((entry) => entry.value)
+          .toSet());
       final validationResult = _validateTemplate(template, variables);
 
       return IriTemplateInfo(
         template: template,
-        variables: variables,
+        variables: {...propertyResult.propertyVariables, ...contextVariables},
         propertyVariables: propertyResult.propertyVariables,
         contextVariables: contextVariables,
         isValid: validationResult.isValid,
@@ -36,9 +40,9 @@ class IriStrategyProcessor {
     } catch (e) {
       return IriTemplateInfo(
         template: template,
-        variables: Set.unmodifiable(<String>{}),
-        propertyVariables: Set.unmodifiable(<PropertyVariableName>{}),
-        contextVariables: Set.unmodifiable(<String>{}),
+        variables: Set.unmodifiable(<VariableName>{}),
+        propertyVariables: Set.unmodifiable(<VariableName>{}),
+        contextVariables: Set.unmodifiable(<VariableName>{}),
         isValid: false,
         validationErrors: ['Failed to process template: $e'],
         warnings: [],
@@ -51,8 +55,8 @@ class IriStrategyProcessor {
   /// Variables are identified by the pattern {variableName} or {+variableName} in the template.
   /// The + prefix ( reserved expansion) is stripped from the variable name.
   /// Returns a set of unique variable names.
-  static Set<String> _extractVariables(String template) {
-    final variables = <String>{};
+  static Map<String, VariableName> _extractVariables(String template) {
+    final variables = <String, VariableName>{};
     final regex = RegExp(r'\{([^}]+)\}');
     final matches = regex.allMatches(template);
 
@@ -63,11 +67,14 @@ class IriStrategyProcessor {
         final cleanVariableName = variableName.startsWith('+')
             ? variableName.substring(1)
             : variableName;
-        variables.add(cleanVariableName);
+        variables[cleanVariableName] = VariableName(
+            name: cleanVariableName,
+            dartPropertyName: cleanVariableName,
+            canBeUri: variableName.startsWith('+'));
       }
     }
 
-    return Set.unmodifiable(variables);
+    return Map.unmodifiable(variables);
   }
 
   /// Identifies which variables correspond to properties annotated with @RdfIriPart.
@@ -76,8 +83,8 @@ class IriStrategyProcessor {
   /// them against the extracted variables. Also detects unused @RdfIriPart annotations
   /// that don't correspond to any template variable.
   static _PropertyVariablesResult _findPropertyVariables(
-      Set<String> variables, ClassElement2 classElement) {
-    final propertyVariables = <PropertyVariableName>{};
+      Map<String, VariableName> variables, ClassElement2 classElement) {
+    final propertyVariables = <VariableName>{};
     final warnings = <String>[];
 
     for (final field in classElement.fields2) {
@@ -117,9 +124,12 @@ class IriStrategyProcessor {
         }
 
         // Add to property variables if it matches a template variable
-        if (variables.contains(name)) {
-          propertyVariables.add(
-              PropertyVariableName(name: name, dartPropertyName: field.name3!));
+        if (variables.containsKey(name)) {
+          final variable = variables[name]!;
+          propertyVariables.add(VariableName(
+              name: name,
+              dartPropertyName: field.name3!,
+              canBeUri: variable.canBeUri));
         } else {
           // Generate warning for unused @RdfIriPart annotation
           warnings.add(
@@ -142,7 +152,7 @@ class IriStrategyProcessor {
   /// - No unescaped special characters
   /// - Reasonable URI structure
   static _TemplateValidationResult _validateTemplate(
-      String template, Set<String> variables) {
+      String template, Map<String, VariableName> variables) {
     final errors = <String>[];
 
     // Check for basic template syntax issues
@@ -163,10 +173,10 @@ class IriStrategyProcessor {
     }
 
     // Check for forbidden characters in variable names
-    for (final variable in variables) {
-      if (!_isValidVariableName(variable)) {
+    for (final variable in variables.values) {
+      if (!_isValidVariableName(variable.name)) {
         errors.add(
-            'Invalid variable name: $variable. Variable names must be valid identifiers');
+            'Invalid variable name: ${variable.name}. Variable names must be valid identifiers');
       }
     }
 
@@ -226,14 +236,18 @@ class IriStrategyProcessor {
 
   /// Creates a test URI by substituting variables with dummy values.
   /// Handles both regular {variable} and RFC 6570 {+variable} patterns.
-  static String _createTestUri(String template, Set<String> variables) {
+  static String _createTestUri(
+      String template, Map<String, VariableName> variables) {
     String testUri = template;
 
-    for (final variable in variables) {
-      // Replace {+variable} patterns with a complete URI for reserved expansion
-      testUri = testUri.replaceAll('{+$variable}', 'https://example.org');
-      // Replace regular {variable} patterns with simple test values
-      testUri = testUri.replaceAll('{$variable}', 'test_value');
+    for (final variable in variables.values) {
+      if (variable.canBeUri) {
+        testUri =
+            testUri.replaceAll('{+$variable.name}', 'https://example.org');
+      } else {
+        // Replace regular {variable} patterns with simple test values
+        testUri = testUri.replaceAll('{$variable.name}', 'test_value');
+      }
     }
 
     return testUri;
@@ -289,7 +303,7 @@ class _TemplateValidationResult {
 
 /// Internal model for property variable analysis results.
 class _PropertyVariablesResult {
-  final Set<PropertyVariableName> propertyVariables;
+  final Set<VariableName> propertyVariables;
   final List<String> warnings;
 
   const _PropertyVariablesResult({

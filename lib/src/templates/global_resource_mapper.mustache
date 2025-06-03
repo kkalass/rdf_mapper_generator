@@ -26,11 +26,7 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     {{#iriStrategy}}
     // Extract IRI parts
     {{#hasTemplate}}
-    final iriParts = _parseIriParts(subject.iri, '{{template.template}}', 
-    [{{#template.variables}}'{{value}}'{{^last}}, {{/last}}{{/template.variables}}]);
-    {{/hasTemplate}}
-    {{^hasTemplate}}
-    final iriParts = <String, String>{};
+    final iriParts = _parseIriParts(subject.iri);
     {{/hasTemplate}}
     {{/iriStrategy}}
     
@@ -83,36 +79,25 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri({{className}} resource) {
     var iri = '{{template.template}}';
-    {{#iriStrategy.template.propertyVariables}}
+    {{#template.propertyVariables}}
     iri = iri.replaceAll('{{value.placeholder}}', resource.{{value.variableName}}.toString());
-    {{/iriStrategy.template.propertyVariables}}
+    {{/template.propertyVariables}}
     {{#contextProviders}}
     iri = iri.replaceAll('{{value.placeholder}}', {{value.privateFieldName}}());
     {{/contextProviders}}
     return iri;
   }
 
+  static final RegExp _regex = RegExp('{{template.regexPattern}}');
+
   /// Parses IRI parts from a complete IRI using a template.
   ///
   /// Supports RFC 6570 URI Template standard:
   /// - {variable} (default): excludes reserved characters like '/'
   /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(
-      String iri, String template, List<String> variables) {
-    // Convert template to regex pattern
-    String regexPattern = RegExp.escape(template);
-
-    // Replace variables with named capture groups
-    for (final v in variables) {
-      // Use named capture groups for cleaner variable extraction
-      regexPattern = regexPattern
-          .replaceAll('\\{\\+$v\\}', '(?<$v>.*)') // .* for +reserved expansion
-          .replaceAll('\\{$v\\}', '(?<$v>[^/]*)'); // [^/]* for default
-    }
-
+  Map<String, String> _parseIriParts(String iri) {
     // Try to match the IRI against the regex pattern
-    RegExp regex = RegExp('^$regexPattern\$');
-    RegExpMatch? match = regex.firstMatch(iri);
+    RegExpMatch? match = _regex.firstMatch(iri);
 
     return match == null
         ? {}

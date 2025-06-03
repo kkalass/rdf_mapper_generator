@@ -177,24 +177,43 @@ class ContextProviderData {
       };
 }
 
+class VariableNameData {
+  final String variableName;
+  final String placeholder;
+
+  const VariableNameData({
+    required this.variableName,
+    required this.placeholder,
+  });
+
+  Map<String, dynamic> toMap() => {
+        'variableName': variableName,
+        'placeholder': placeholder,
+      };
+}
+
 class IriTemplateData {
   /// The original template string.
   final String template;
 
   /// All variables found in the template.
-  final Set<String> variables;
+  final Set<VariableNameData> variables;
 
   /// Variables that correspond to class properties with @RdfIriPart.
-  final Set<PropertyVariableData> propertyVariables;
+  final Set<VariableNameData> propertyVariables;
 
   /// Variables that need to be provided from context.
-  final Set<String> contextVariables;
+  final Set<VariableNameData> contextVariables;
+
+  /// The regex pattern built from the template.
+  final String regexPattern;
 
   const IriTemplateData({
     required this.template,
     required this.variables,
     required this.propertyVariables,
     required this.contextVariables,
+    required this.regexPattern,
   });
 
   Map<String, dynamic> toMap() {
@@ -204,6 +223,7 @@ class IriTemplateData {
       'propertyVariables':
           toMustacheList(propertyVariables.map((p) => p.toMap()).toList()),
       'contextVariables': toMustacheList(contextVariables.toList()),
+      'regexPattern': regexPattern,
     };
   }
 }
@@ -221,25 +241,6 @@ class IriStrategyData {
   Map<String, dynamic> toMap() => {
         'hasTemplate': template != null,
         'template': template?.toMap(),
-      };
-}
-
-/// Data for property variables used in IRI templates
-class PropertyVariableData {
-  /// The name of the property variable
-  final String variableName;
-
-  /// The placeholder pattern to replace in IRI templates (e.g., '{id}')
-  final String placeholder;
-
-  const PropertyVariableData({
-    required this.variableName,
-    required this.placeholder,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'variableName': variableName,
-        'placeholder': placeholder,
       };
 }
 

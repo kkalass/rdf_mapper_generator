@@ -81,25 +81,31 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   }
 }
 
-class PropertyVariableName {
+class VariableName {
   final String dartPropertyName;
   final String name;
+  final bool canBeUri;
 
-  PropertyVariableName({required this.dartPropertyName, required this.name});
+  VariableName({
+    required this.dartPropertyName,
+    required this.name,
+    required this.canBeUri,
+  });
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is PropertyVariableName &&
+    return other is VariableName &&
         other.dartPropertyName == dartPropertyName &&
-        other.name == name;
+        other.name == name &&
+        other.canBeUri == canBeUri;
   }
 
   @override
-  int get hashCode => Object.hash(dartPropertyName, name);
+  int get hashCode => Object.hash(dartPropertyName, name, canBeUri);
 
   @override
   String toString() =>
-      'PropertyVariableName(variableName: $dartPropertyName, annotationName: $name)';
+      'VariableName(dartPropertyName: $dartPropertyName, name: $name, canBeUri: $canBeUri)';
 }
 
 /// Contains information about a processed IRI template.
@@ -108,13 +114,13 @@ class IriTemplateInfo {
   final String template;
 
   /// All variables found in the template.
-  final Set<String> variables;
+  final Set<VariableName> variables;
 
   /// Variables that correspond to class properties with @RdfIriPart.
-  final Set<PropertyVariableName> propertyVariables;
+  final Set<VariableName> propertyVariables;
 
   /// Variables that need to be provided from context.
-  final Set<String> contextVariables;
+  final Set<VariableName> contextVariables;
 
   /// Whether the template passed validation.
   final bool isValid;
