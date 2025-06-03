@@ -1,14 +1,29 @@
+import 'package:rdf_mapper_generator/src/templates/util.dart';
+
 sealed class MappableClassMapperTemplateData {
   /// Required imports for the generated file
   List<ImportData> get imports;
 
-  /// The name of the Dart class being mapped
-  String get className;
-
-  /// The name of the generated mapper class
-  String get mapperClassName;
-
   Map<String, dynamic> toMap();
+}
+
+// FIXME: implement properly, this is for @RdfGlobalResource where
+// a custom mapper is used via one of the constructors
+class GlobalResourceMapperCustomTemplateData
+    implements MappableClassMapperTemplateData {
+  /// Required imports for the generated file
+  final List<ImportData> imports;
+
+  const GlobalResourceMapperCustomTemplateData({
+    required this.imports,
+  });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'imports': imports.map((i) => i.toMap()).toList(),
+    };
+  }
 }
 
 /// Template data model for generating global resource mappers.
@@ -27,29 +42,23 @@ class GlobalResourceMapperTemplateData
   final String mapperClassName;
 
   /// The type IRI expression (e.g., 'SchemaBook.classIri')
-  final String typeIri;
+  final String? typeIri;
 
   /// IRI strategy information
-  final IriStrategyData? iriStrategy;
-
-  /// IRI parts information for template-based IRIs
-  final IriPartsData? iriParts;
+  final IriStrategyData iriStrategy;
 
   /// Constructor parameters information
-  final List<ParameterData> constructorParameters;
+  final List<ParameterData> constructorParameters = const [];
 
   /// Property mapping information
-  final List<PropertyData> properties;
+  final List<PropertyData> properties = const [];
 
   const GlobalResourceMapperTemplateData({
     required this.imports,
     required this.className,
     required this.mapperClassName,
     required this.typeIri,
-    this.iriStrategy,
-    this.iriParts,
-    required this.constructorParameters,
-    required this.properties,
+    required this.iriStrategy,
   });
 
   /// Converts this template data to a Map for mustache rendering
@@ -59,8 +68,8 @@ class GlobalResourceMapperTemplateData
       'className': className,
       'mapperClassName': mapperClassName,
       'typeIri': typeIri,
-      'iriStrategy': iriStrategy?.toMap(),
-      'iriParts': iriParts?.toMap(),
+      'hasTypeIri': typeIri != null,
+      'iriStrategy': iriStrategy.toMap(),
       'constructorParameters':
           constructorParameters.map((p) => p.toMap()).toList(),
       'properties': properties.map((p) => p.toMap()).toList(),
@@ -131,31 +140,53 @@ class ImportData {
   Map<String, dynamic> toMap() => {'import': import};
 }
 
+class IriTemplateData {
+  /// The original template string.
+  final String template;
+
+  /// All variables found in the template.
+  final Set<String> variables;
+
+  /// Variables that correspond to class properties with @RdfIriPart.
+  final Set<String> propertyVariables;
+
+  /// Variables that need to be provided from context.
+  final Set<String> contextVariables;
+
+  const IriTemplateData({
+    required this.template,
+    required this.variables,
+    required this.propertyVariables,
+    required this.contextVariables,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'template': template,
+      'variables': toMustacheList(variables.toList()),
+      'propertyVariables': toMustacheList(propertyVariables.toList()),
+      'contextVariables': toMustacheList(contextVariables.toList()),
+    };
+  }
+}
+
 /// Data for IRI strategy
 class IriStrategyData {
-  final bool hasTemplate;
-  final String? template;
-  // FIXME: what is this?
-  final String? baseIri;
-  // FIXME: what is this?
-  final String? placeholder;
+  final IriTemplateData? template;
+  // FIXME: support non-template IRIs (aka custom mappers)
 
   const IriStrategyData({
-    required this.hasTemplate,
     this.template,
-    this.baseIri,
-    this.placeholder,
   });
 
   Map<String, dynamic> toMap() => {
-        'hasTemplate': hasTemplate,
-        'template': template,
-        'baseIri': baseIri,
-        'placeholder': placeholder,
+        'hasTemplate': template != null,
+        'template': template?.toMap(),
       };
 }
 
 /// Data for IRI parts parsing
+@Deprecated('used?')
 class IriPartsData {
   final bool hasTemplate;
   // FIXME: slighty confusing - why is the template here and optional
@@ -207,6 +238,7 @@ class IriPartData {
 }
 
 /// Data for constructor parameters
+@Deprecated("rewrite")
 class ParameterData {
   final String name;
   final String dartType;
@@ -249,6 +281,7 @@ class ParameterData {
 }
 
 /// Data for RDF properties
+@Deprecated("rewrite")
 class PropertyData {
   final String propertyName;
   final String dartType;

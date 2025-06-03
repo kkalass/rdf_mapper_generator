@@ -1,5 +1,4 @@
 import 'package:analyzer/dart/element/element2.dart';
-import 'package:path/path.dart' as path;
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/global_resource_data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
@@ -22,8 +21,11 @@ class TemplateDataBuilder {
 
     for (final (resourceInfo, classElement) in resourceInfosWithElements) {
       final MappableClassMapperTemplateData mapperData = switch (resourceInfo) {
-        GlobalResourceInfo _ =>
-          GlobalResourceDataBuilder.buildGlobalResourceMapper(resourceInfo),
+        GlobalResourceInfo _ => resourceInfo.annotation.mapper != null
+            ? GlobalResourceDataBuilder.buildGlobalResourceMapperCustom(
+                resourceInfo)
+            : // Use custom mapper if specified
+            GlobalResourceDataBuilder.buildGlobalResourceMapper(resourceInfo),
       };
 
       // Add imports from this mapper

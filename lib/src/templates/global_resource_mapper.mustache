@@ -3,20 +3,44 @@
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type {{className}}.
 class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
+  {{#iriStrategy}}
+  {{#hasTemplate}}
+  {{#template.contextVariables}}
+  /// Provider for context variable '{{value}}'
+  final String Function() _{{value}}Provider;
+  {{/template.contextVariables}}
+
+  /// Constructor{{#template.contextVariables}} requiring providers for context variables{{/template.contextVariables}}
+  {{mapperClassName}}({{#template.contextVariables}}{
+    {{#template.contextVariables}}
+    required String Function() {{value}}Provider,
+    {{/template.contextVariables}}
+  }{{/template.contextVariables}}){{#template.contextVariables}} : {{#template.contextVariables}}_{{value}}Provider = {{value}}Provider{{^last}},
+       {{/last}}{{/template.contextVariables}}{{/template.contextVariables}};
+  {{/hasTemplate}}
+  {{^hasTemplate}}
+  /// Default constructor
+  {{mapperClassName}}();
+  {{/hasTemplate}}
+  {{/iriStrategy}}
+
   @override
-  IriTerm get typeIri => {{typeIri}};
+  IriTerm get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
 
   @override
   {{className}} fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
     
-    {{#iriParts}}
+    {{#iriStrategy}}
     // Extract IRI parts
     {{#hasTemplate}}
-    final iriTemplate = '{{template}}';
-    final iriParts = _parseIriParts(subject.value, iriTemplate);
+    final iriParts = _parseIriParts(subject.iri, '{{template.template}}', 
+    [{{#template.variables}}'{{value}}'{{^last}}, {{/last}}{{/template.variables}}]);
     {{/hasTemplate}}
-    {{/iriParts}}
+    {{^hasTemplate}}
+    final iriParts = <String, String>{};
+    {{/hasTemplate}}
+    {{/iriStrategy}}
     
     {{#constructorParameters}}
     {{#isIriPart}}
@@ -66,25 +90,43 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   {{#hasTemplate}}
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri({{className}} resource) {
-    var iri = '{{template}}';
-    {{#iriParts}}
-    iri = iri.replaceAll('{{{placeholder}}}', {{#hasConverter}}{{converter}}.toIri({{/hasConverter}}resource.{{propertyName}}.toString(){{#hasConverter}}){{/hasConverter}});
-    {{/iriParts}}
+    var iri = '{{template.template}}';
+    {{#template.propertyVariables}}
+    iri = iri.replaceAll('{' + '{{value}}' + '}', resource.{{value}}.toString());
+    {{/template.propertyVariables}}
+    {{#template.contextVariables}}
+    iri = iri.replaceAll('{' + '{{value}}' + '}', _{{value}}Provider());
+    {{/template.contextVariables}}
     return iri;
   }
 
-  /// Parses IRI parts from a complete IRI using the template.
-  Map<String, String> _parseIriParts(String iri, String template) {
+   /// Parses IRI parts from a complete IRI using the template.
+  Map<String, String> _parseIriParts(String iri, String template, List<String> variables) {
     final parts = <String, String>{};
-    // Simple template parsing - in practice, this would be more sophisticated
-    {{#iriParts}}
-    // Extract {{placeholder}} from IRI
-    final {{propertyName}}Pattern = RegExp(r'{{regexPattern}}');
-    final {{propertyName}}Match = {{propertyName}}Pattern.firstMatch(iri);
-    if ({{propertyName}}Match != null) {
-      parts['{{placeholder}}'] = {{propertyName}}Match.group(1)!;
+    
+    // Handle case where iri doesn't match the expected pattern
+    if (!iri.startsWith(template.split('{').first)) {
+      return parts;
     }
-    {{/iriParts}}
+    
+    // Create regex pattern from template
+    String pattern = template;
+    for (final variable in variables) {
+      pattern = pattern.replaceAll('{$variable}', '([^/]+)');
+    }
+    pattern = '^${pattern}\$';
+    
+    // Extract values using regex
+    final regex = RegExp(pattern);
+    final match = regex.firstMatch(iri);
+    
+    if (match != null) {
+      for (int i = 0; i < variables.length; i++) {
+        // Regex groups start at index 1
+        parts[variables[i]] = match.group(i + 1) ?? '';
+      }
+    }
+    
     return parts;
   }
   {{/hasTemplate}}

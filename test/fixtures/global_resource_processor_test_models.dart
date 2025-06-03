@@ -43,6 +43,14 @@ class ClassWithIriTemplateStrategy {
   ClassWithIriTemplateStrategy({required this.id});
 }
 
+@RdfGlobalResource(SchemaPerson.classIri, IriStrategy('{baseUri}/persons/{id}'))
+class ClassWithIriTemplateAndContextVariableStrategy {
+  @RdfIriPart()
+  final String id;
+
+  ClassWithIriTemplateAndContextVariableStrategy({required this.id});
+}
+
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy.namedMapper('testMapper'))
 class ClassWithIriNamedMapperStrategy {}
 

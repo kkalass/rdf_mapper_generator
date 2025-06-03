@@ -44,8 +44,13 @@ class TemplateRenderer {
       final mapperCode = switch (mapperData.mapperData) {
         GlobalResourceMapperTemplateData templateData =>
           await _renderGlobalResourceMapper(templateData, reader),
+        // Custom mappers are coded by our users, we do not render them here
+        GlobalResourceMapperCustomTemplateData _ => null,
         // Add cases for other mapper types if needed
       };
+      if (mapperCode == null) {
+        continue; // Skip if the mapper code is null (e.g., custom mappers)
+      }
       renderedMappers.add(mapperCode);
     }
 

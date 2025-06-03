@@ -52,6 +52,20 @@ void main() {
       expect(result, isNotNull);
       expect(result, contains('class ClassWithIriTemplateStrategyMapper'));
     });
+    test(
+        'should generate mapper for class with IRI template strategy and context variable',
+        () async {
+      final result = await BuilderHelper().build(
+          'global_resource_processor_test_models.dart',
+          [
+            library.getClass2('ClassWithIriTemplateAndContextVariableStrategy')!
+          ],
+          libsByClassName,
+          assetReader);
+      expect(result, isNotNull);
+      expect(result,
+          contains('class ClassWithIriTemplateAndContextVariableStrategy'));
+    });
 
     test('should generate mapper for class with named IRI mapper strategy',
         () async {
