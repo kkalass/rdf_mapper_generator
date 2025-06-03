@@ -36,10 +36,10 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     
     {{#constructorParameters}}
     {{#isIriPart}}
-    final {{name}} = {{#hasConverter}}{{converter}}.fromIri({{/hasConverter}}{{^hasConverter}}{{/hasConverter}}iriParts['{{iriPartName}}']{{#hasConverter}}){{/hasConverter}};
+    final {{name}} = iriParts['{{iriPartName}}'];
     {{/isIriPart}}
     {{#isRdfProperty}}
-    final {{name}} = reader.{{#isRequired}}require{{/isRequired}}{{^isRequired}}get{{/isRequired}}<{{dartType}}>({{predicate}}){{#hasDefaultValue}} ?? {{defaultValue}}{{/hasDefaultValue}};
+    final {{name}} = reader.{{#isRequired}}require{{/isRequired}}{{^isRequired}}optional{{/isRequired}}<{{dartType}}>({{predicate}}){{#hasDefaultValue}} ?? {{defaultValue}}{{/hasDefaultValue}};
     {{/isRdfProperty}}
     {{/constructorParameters}}
 

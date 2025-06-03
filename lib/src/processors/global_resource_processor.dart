@@ -26,12 +26,19 @@ class GlobalResourceProcessor {
     }
 
     final className = classElement.displayName;
-    final constructors = _extractConstructors(classElement);
-    final fields = _extractFields(classElement, libsByClassName);
 
     // Create the RdfGlobalResource instance from the annotation
     final rdfGlobalResource =
         _createRdfGlobalResource(annotation, classElement, libsByClassName);
+    final iriTemplateInfo = rdfGlobalResource.iri?.templateInfo;
+    final iriPartNameByPropertyName = Map<String, String>.fromIterable(
+      iriTemplateInfo?.propertyVariables ?? const [],
+      key: (pv) => pv.dartPropertyName,
+      value: (pv) => pv.name,
+    );
+    final fields = _extractFields(classElement, libsByClassName);
+    final constructors =
+        _extractConstructors(classElement, fields, iriPartNameByPropertyName);
 
     return GlobalResourceInfo(
       className: className,
@@ -91,14 +98,19 @@ class GlobalResourceProcessor {
     );
   }
 
-  static List<ConstructorInfo> _extractConstructors(
-      ClassElement2 classElement) {
+  static List<ConstructorInfo> _extractConstructors(ClassElement2 classElement,
+      List<FieldInfo> fields, Map<String, String> iriPartNameByPropertyName) {
     final constructors = <ConstructorInfo>[];
     try {
+      final fieldsByName = Map.fromIterable(fields, key: (field) => field.name);
+
       for (final constructor in classElement.constructors2) {
         final parameters = <ParameterInfo>[];
 
         for (final parameter in constructor.formalParameters) {
+          // Find the corresponding field with @RdfProperty annotation, if it exists
+          final fieldInfo = fieldsByName[parameter.name3!];
+
           parameters.add(ParameterInfo(
             name: parameter.name3!,
             type: parameter.type.getDisplayString(),
@@ -106,6 +118,9 @@ class GlobalResourceProcessor {
             isNamed: parameter.isNamed,
             isPositional: parameter.isPositional,
             isOptional: parameter.isOptional,
+            propertyInfo: fieldInfo?.propertyInfo,
+            isIriPart: iriPartNameByPropertyName.containsKey(parameter.name3!),
+            iriPartName: iriPartNameByPropertyName[parameter.name3!],
           ));
         }
 

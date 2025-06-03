@@ -286,6 +286,15 @@ class ParameterInfo {
   /// Whether this parameter is optional
   final bool isOptional;
 
+  /// The RDF property info associated with this parameter, if it maps to a field with @RdfProperty
+  final PropertyInfo? propertyInfo;
+
+  /// Whether this parameter is an IRI part
+  final bool isIriPart;
+
+  /// The name of the IRI part variable
+  final String? iriPartName;
+
   const ParameterInfo({
     required this.name,
     required this.type,
@@ -293,11 +302,21 @@ class ParameterInfo {
     required this.isNamed,
     required this.isPositional,
     required this.isOptional,
+    required this.propertyInfo,
+    required this.isIriPart,
+    required this.iriPartName,
   });
 
   @override
-  int get hashCode => Object.hashAll(
-      [name, type, isRequired, isNamed, isPositional, isOptional]);
+  int get hashCode => Object.hashAll([
+        name,
+        type,
+        isRequired,
+        isNamed,
+        isPositional,
+        isOptional,
+        propertyInfo
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -309,7 +328,8 @@ class ParameterInfo {
         isRequired == other.isRequired &&
         isNamed == other.isNamed &&
         isPositional == other.isPositional &&
-        isOptional == other.isOptional;
+        isOptional == other.isOptional &&
+        propertyInfo == other.propertyInfo;
   }
 
   @override
@@ -320,7 +340,8 @@ class ParameterInfo {
         '  isRequired: $isRequired,\n'
         '  isNamed: $isNamed,\n'
         '  isPositional: $isPositional,\n'
-        '  isOptional: $isOptional\n'
+        '  isOptional: $isOptional,\n'
+        '  propertyInfo: $propertyInfo\n'
         '}';
   }
 }

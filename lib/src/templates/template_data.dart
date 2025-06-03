@@ -47,8 +47,8 @@ class GlobalResourceMapperTemplateData
   /// IRI strategy information
   final IriStrategyData iriStrategy;
 
-  /// Constructor parameters information
-  final List<ParameterData> constructorParameters = const [];
+  /// List of parameters for this constructor
+  final List<ParameterData> constructorParameters;
 
   /// Property mapping information
   final List<PropertyData> properties = const [];
@@ -62,7 +62,8 @@ class GlobalResourceMapperTemplateData
     required this.mapperClassName,
     required this.typeIri,
     required this.iriStrategy,
-    this.contextProviders = const [],
+    required this.contextProviders,
+    required this.constructorParameters,
   });
 
   /// Converts this template data to a Map for mustache rendering
@@ -242,60 +243,7 @@ class PropertyVariableData {
       };
 }
 
-/// Data for IRI parts parsing
-@Deprecated('used?')
-class IriPartsData {
-  final bool hasTemplate;
-  // FIXME: slighty confusing - why is the template here and optional
-  final String? template;
-  final List<IriPartData> iriParts;
-
-  const IriPartsData({
-    required this.hasTemplate,
-    this.template,
-    required this.iriParts,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'hasTemplate': hasTemplate,
-        'template': template,
-        'iriParts': iriParts.map((p) => p.toMap()).toList(),
-      };
-}
-
-/// Data for individual IRI parts
-class IriPartData {
-  // FIXME: again - what is this
-  final String placeholder;
-  final String propertyName;
-  // FIXME: again - what is this
-  final String regexPattern;
-  // FIXME: again - what is this
-  final bool hasConverter;
-  // FIXME: again - what is this
-  final String? converter;
-
-  const IriPartData({
-    required this.placeholder,
-    required this.propertyName,
-    required this.regexPattern,
-    required this.hasConverter,
-    this.converter,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'placeholder': placeholder,
-      'propertyName': propertyName,
-      'regexPattern': regexPattern,
-      'hasConverter': hasConverter,
-      'converter': converter,
-    };
-  }
-}
-
 /// Data for constructor parameters
-@Deprecated("rewrite")
 class ParameterData {
   final String name;
   final String dartType;
@@ -305,10 +253,6 @@ class ParameterData {
   final String? iriPartName;
   final String? predicate;
   final String? defaultValue;
-  // FIXME: what is this?
-  final bool hasConverter;
-  // FIXME: what is this?
-  final String? converter;
 
   const ParameterData({
     required this.name,
@@ -316,39 +260,31 @@ class ParameterData {
     required this.isRequired,
     required this.isIriPart,
     required this.isRdfProperty,
-    this.iriPartName,
-    this.predicate,
-    this.defaultValue,
-    required this.hasConverter,
-    this.converter,
+    required this.iriPartName,
+    required this.predicate,
+    required this.defaultValue,
   });
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'dartType': dartType,
         'isRequired': isRequired,
-        'isIriPart': isIriPart,
+        'isIriPart': isIriPart && !isRdfProperty,
         'isRdfProperty': isRdfProperty,
         'iriPartName': iriPartName,
         'predicate': predicate,
         'defaultValue': defaultValue,
-        'hasConverter': hasConverter,
-        'converter': converter,
+        'hasDefaultValue': defaultValue != null,
       };
 }
 
 /// Data for RDF properties
-@Deprecated("rewrite")
 class PropertyData {
   final String propertyName;
   final String dartType;
   final bool isRequired;
   final bool isRdfProperty;
   final String? predicate;
-  // FIXME: what is this?
-  final bool hasConverter;
-  // FIXME: what is this?
-  final String? converter;
 
   const PropertyData({
     required this.propertyName,
@@ -356,8 +292,6 @@ class PropertyData {
     required this.isRequired,
     required this.isRdfProperty,
     this.predicate,
-    required this.hasConverter,
-    this.converter,
   });
 
   Map<String, dynamic> toMap() => {
@@ -366,7 +300,5 @@ class PropertyData {
         'isRequired': isRequired,
         'isRdfProperty': isRdfProperty,
         'predicate': predicate,
-        'hasConverter': hasConverter,
-        'converter': converter,
       };
 }

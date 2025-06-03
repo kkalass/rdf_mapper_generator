@@ -1,5 +1,6 @@
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 /// Builds template data from processed resource information.
 class GlobalResourceDataBuilder {
@@ -36,6 +37,9 @@ class GlobalResourceDataBuilder {
     final contextProviders =
         _buildContextProviders(resourceInfo.annotation.iri?.templateInfo);
 
+    // Build constructor parameters
+    final constructorParameters = _buildConstructorParameters(resourceInfo);
+
     return GlobalResourceMapperTemplateData(
       imports: imports,
       className: className,
@@ -43,6 +47,7 @@ class GlobalResourceDataBuilder {
       typeIri: typeIri,
       iriStrategy: iriStrategy,
       contextProviders: contextProviders,
+      constructorParameters: constructorParameters,
     );
   }
 
@@ -119,5 +124,35 @@ class GlobalResourceDataBuilder {
               placeholder: '{$variable}',
             ))
         .toList();
+  }
+
+  /// Builds constructor parameter data for the template.
+  static List<ParameterData> _buildConstructorParameters(
+      GlobalResourceInfo resourceInfo) {
+    final parameters = <ParameterData>[];
+
+    // Find the default constructor or use the first one if no default exists
+    final defaultConstructor = resourceInfo.constructors.firstWhere(
+      (c) => c.isDefaultConstructor,
+      orElse: () => resourceInfo.constructors.first,
+    );
+
+    // Process each parameter in the constructor
+    for (final param in defaultConstructor.parameters) {
+      parameters.add(
+        ParameterData(
+          name: param.name,
+          dartType: param.type,
+          isRequired: param.isRequired,
+          isIriPart: param.isIriPart,
+          isRdfProperty: param.propertyInfo != null,
+          iriPartName: param.iriPartName,
+          predicate: param.propertyInfo?.annotation.predicate.code,
+          defaultValue: toCode(param.propertyInfo?.annotation.defaultValue),
+        ),
+      );
+    }
+
+    return parameters;
   }
 }
