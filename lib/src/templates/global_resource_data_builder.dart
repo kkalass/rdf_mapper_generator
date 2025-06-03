@@ -49,6 +49,7 @@ class GlobalResourceDataBuilder {
       iriStrategy: iriStrategy,
       contextProviders: contextProviders,
       constructorParameters: constructorParameters,
+      needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
     );
   }
 

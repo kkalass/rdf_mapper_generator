@@ -56,6 +56,7 @@ class GlobalResourceMapperTemplateData
   /// Context variable providers needed for IRI generation
   final List<ContextProviderData> contextProviders;
 
+  final bool needsReader;
   const GlobalResourceMapperTemplateData({
     required this.imports,
     required this.className,
@@ -64,6 +65,7 @@ class GlobalResourceMapperTemplateData
     required this.iriStrategy,
     required this.contextProviders,
     required this.constructorParameters,
+    required this.needsReader,
   });
 
   /// Converts this template data to a Map for mustache rendering
@@ -81,6 +83,7 @@ class GlobalResourceMapperTemplateData
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
       'hasContextProviders': contextProviders.isNotEmpty,
+      'needsReader': needsReader,
     };
   }
 }

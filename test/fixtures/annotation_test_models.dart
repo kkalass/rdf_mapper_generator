@@ -4,26 +4,24 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies/schema.dart';
 
 // A sample mapper class for testing
-class TestMapper implements IriTermMapper<Map<String, dynamic>> {
+class TestMapper implements IriTermMapper<(String id,)> {
   final String prefix;
 
   const TestMapper({required this.prefix});
 
-  IriTerm call(Map<String, dynamic> properties) {
-    return IriTerm('$prefix/${properties['id']}');
+  IriTerm call((String id,) properties) {
+    return IriTerm('$prefix/${properties.$1}');
   }
 
   @override
-  IriTerm toRdfTerm(
-      Map<String, dynamic> properties, SerializationContext context) {
+  IriTerm toRdfTerm((String id,) properties, SerializationContext context) {
     return call(properties);
   }
 
   @override
-  Map<String, dynamic> fromRdfTerm(
-      IriTerm term, DeserializationContext context) {
+  (String id,) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // This is a simplified implementation for testing
-    return {'id': term.iri.split('/').last};
+    return (term.iri.split('/').last,);
   }
 }
 
