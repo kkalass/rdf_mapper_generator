@@ -188,22 +188,13 @@ class RatingMapper implements LiteralTermMapper<Rating> {
 The generator creates an initialization function that registers all generated mappers:
 
 ```dart
-RdfMapper initRdfMapper({
-  String? baseUri,
-  Map<String, dynamic> context = const {},
-}) {
-  final mapper = RdfMapper(
-    baseUri: baseUri,
-    context: context,
-  );
-  
-  // Register all mappers
-  mapper.registerGlobalResource<Book>(BookMapper());
-  mapper.registerLocalResource<Chapter>(ChapterMapper());
-  mapper.registerIriTerm<ISBN>(IsbnMapper());
-  mapper.registerLiteralTerm<Rating>(RatingMapper());
-  
-  return mapper;
+RdfMapper initRdfMapper() {
+  return RdfMapper.withMappers((registry) {
+    registry.registerMapper<Book>(BookMapper());
+    registry.registerMapper<Chapter>(ChapterMapper());
+    registry.registerMapper<ISBN>(IsbnMapper());
+    registry.registerMapper<Rating>(RatingMapper());  
+  });
 }
 ```
 
