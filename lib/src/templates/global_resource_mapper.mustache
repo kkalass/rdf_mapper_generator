@@ -9,7 +9,7 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   {{/contextProviders}}
 
   /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
-  {{mapperClassName}}({{#hasContextProviders}}{
+  const {{mapperClassName}}({{#hasContextProviders}}{
     {{#contextProviders}}
     required String Function() {{value.parameterName}},
     {{/contextProviders}}
