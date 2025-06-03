@@ -146,9 +146,11 @@ class GlobalResourceDataBuilder {
           isRequired: param.isRequired,
           isIriPart: param.isIriPart,
           isRdfProperty: param.propertyInfo != null,
+          isNamed: param.isNamed,
           iriPartName: param.iriPartName,
           predicate: param.propertyInfo?.annotation.predicate.code,
           defaultValue: toCode(param.propertyInfo?.annotation.defaultValue),
+          hasDefaultValue: param.propertyInfo?.annotation.defaultValue != null,
         ),
       );
     }

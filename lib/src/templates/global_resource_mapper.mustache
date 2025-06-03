@@ -35,17 +35,17 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     {{/iriStrategy}}
     
     {{#constructorParameters}}
-    {{#isIriPart}}
-    final {{name}} = iriParts['{{iriPartName}}'];
-    {{/isIriPart}}
-    {{#isRdfProperty}}
-    final {{name}} = reader.{{#isRequired}}require{{/isRequired}}{{^isRequired}}optional{{/isRequired}}<{{dartType}}>({{predicate}}){{#hasDefaultValue}} ?? {{defaultValue}}{{/hasDefaultValue}};
-    {{/isRdfProperty}}
+    {{#value.isIriPart}}
+    final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    {{/value.isIriPart}}
+    {{#value.isRdfProperty}}
+    final {{value.name}} = reader.{{#value.isRequired}}require{{/value.isRequired}}{{^value.isRequired}}optional{{/value.isRequired}}<{{value.dartType}}>({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    {{/value.isRdfProperty}}
     {{/constructorParameters}}
 
     return {{className}}(
       {{#constructorParameters}}
-      {{name}}: {{name}},
+      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{value.name}}{{^last}},{{/last}}
       {{/constructorParameters}}
     );
   }

@@ -76,7 +76,7 @@ class GlobalResourceMapperTemplateData
       'hasTypeIri': typeIri != null,
       'iriStrategy': iriStrategy.toMap(),
       'constructorParameters':
-          constructorParameters.map((p) => p.toMap()).toList(),
+          toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
       'properties': properties.map((p) => p.toMap()).toList(),
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
@@ -250,9 +250,11 @@ class ParameterData {
   final bool isRequired;
   final bool isIriPart;
   final bool isRdfProperty;
+  final bool isNamed;
   final String? iriPartName;
   final String? predicate;
   final String? defaultValue;
+  final bool hasDefaultValue;
 
   const ParameterData({
     required this.name,
@@ -260,22 +262,25 @@ class ParameterData {
     required this.isRequired,
     required this.isIriPart,
     required this.isRdfProperty,
+    required this.isNamed,
     required this.iriPartName,
     required this.predicate,
     required this.defaultValue,
+    required this.hasDefaultValue,
   });
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'dartType': dartType,
         // if default value is provided, then it is not required
-        'isRequired': isRequired && defaultValue == null,
+        'isRequired': isRequired && !hasDefaultValue,
         'isIriPart': isIriPart && !isRdfProperty,
         'isRdfProperty': isRdfProperty,
+        'isNamed': isNamed,
         'iriPartName': iriPartName,
         'predicate': predicate,
         'defaultValue': defaultValue,
-        'hasDefaultValue': defaultValue != null,
+        'hasDefaultValue': hasDefaultValue,
       };
 }
 
