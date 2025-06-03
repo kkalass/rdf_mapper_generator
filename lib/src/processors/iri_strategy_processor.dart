@@ -48,7 +48,8 @@ class IriStrategyProcessor {
 
   /// Extracts all variable names from an IRI template.
   ///
-  /// Variables are identified by the pattern {variableName} in the template.
+  /// Variables are identified by the pattern {variableName} or {+variableName} in the template.
+  /// The + prefix ( reserved expansion) is stripped from the variable name.
   /// Returns a set of unique variable names.
   static Set<String> _extractVariables(String template) {
     final variables = <String>{};
@@ -58,7 +59,11 @@ class IriStrategyProcessor {
     for (final match in matches) {
       final variableName = match.group(1);
       if (variableName != null && variableName.isNotEmpty) {
-        variables.add(variableName);
+        // Strip the + prefix for RFC 6570 reserved expansion
+        final cleanVariableName = variableName.startsWith('+')
+            ? variableName.substring(1)
+            : variableName;
+        variables.add(cleanVariableName);
       }
     }
 
@@ -166,9 +171,13 @@ class IriStrategyProcessor {
     }
 
     // Warn about relative URIs (might be intentional)
+    // Templates starting with {+variable} are valid if the variable contains a complete URI
+    final startsWithReservedExpansion =
+        RegExp(r'^\{\+\w+\}').hasMatch(template);
     if (!template.contains('://') &&
         !template.startsWith('/') &&
-        !template.startsWith('urn:')) {
+        !template.startsWith('urn:') &&
+        !startsWithReservedExpansion) {
       errors.add(
           'Template appears to be a relative URI. Consider using absolute URIs for global resources');
     }
@@ -180,14 +189,18 @@ class IriStrategyProcessor {
   }
 
   /// Checks if the template has valid variable syntax.
+  /// Supports both {variable} and {+variable} patterns (RFC 6570).
   static bool _hasValidVariableSyntax(String template) {
     // Check for invalid patterns like {{, }}, {}, { }, etc.
     final invalidPatterns = [
       RegExp(r'\{\{'), // Double opening brace
       RegExp(r'\}\}'), // Double closing brace
       RegExp(r'\{\s*\}'), // Empty braces or braces with only whitespace
+      RegExp(r'\{\+\s*\}'), // Empty braces with + prefix
       RegExp(
-          r'\{[^a-zA-Z_][^}]*\}'), // Variables not starting with letter or underscore
+          r'\{[^a-zA-Z_+][^}]*\}'), // Variables not starting with letter, underscore, or +
+      RegExp(
+          r'\{\+[^a-zA-Z_][^}]*\}'), // Variables with + not followed by letter or underscore
     ];
 
     return !invalidPatterns.any((pattern) => pattern.hasMatch(template));
@@ -212,10 +225,14 @@ class IriStrategyProcessor {
   }
 
   /// Creates a test URI by substituting variables with dummy values.
+  /// Handles both regular {variable} and RFC 6570 {+variable} patterns.
   static String _createTestUri(String template, Set<String> variables) {
     String testUri = template;
 
     for (final variable in variables) {
+      // Replace {+variable} patterns with a complete URI for reserved expansion
+      testUri = testUri.replaceAll('{+$variable}', 'https://example.org');
+      // Replace regular {variable} patterns with simple test values
       testUri = testUri.replaceAll('{$variable}', 'test_value');
     }
 

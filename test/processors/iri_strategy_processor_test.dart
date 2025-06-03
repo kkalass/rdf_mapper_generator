@@ -43,6 +43,22 @@ void main() {
         expect(result.validationErrors, isEmpty);
         expect(result.warnings, isA<List<String>>());
       });
+      test('should process template with +variable', () {
+        const template = '{+baseUri}/books/{isbn}';
+        final result =
+            IriStrategyProcessor.processTemplate(template, bookClass);
+
+        expect(result, isNotNull);
+        expect(result!.template, equals(template));
+        expect(result.variables, contains('isbn'));
+        expect(result.variables, contains('baseUri'));
+        expect(result.variables, hasLength(2));
+        expect(result.propertyVariables.map((pn) => pn.name), contains('isbn'));
+        expect(result.contextVariables, contains('baseUri'));
+        expect(result.isValid, isTrue);
+        expect(result.validationErrors, isEmpty);
+        expect(result.warnings, isA<List<String>>());
+      });
 
       test('should process template with multiple variables', () {
         const template = 'http://example.org/books/{isbn}/authors/{authorId}';
