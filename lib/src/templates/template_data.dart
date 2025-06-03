@@ -68,17 +68,20 @@ class IriStrategyData {
   final bool hasTemplate;
   final String? template;
   final String? baseIri;
+  final String? placeholder;
 
   const IriStrategyData({
     required this.hasTemplate,
     this.template,
     this.baseIri,
+    this.placeholder,
   });
 
   Map<String, dynamic> toMap() => {
         'hasTemplate': hasTemplate,
         'template': template,
         'baseIri': baseIri,
+        'placeholder': placeholder,
       };
 }
 
@@ -117,13 +120,19 @@ class IriPartData {
     this.converter,
   });
 
-  Map<String, dynamic> toMap() => {
-        'placeholder': placeholder,
-        'propertyName': propertyName,
-        'regexPattern': regexPattern,
-        'hasConverter': hasConverter,
-        'converter': converter,
-      };
+  Map<String, dynamic> toMap() {
+    // Create a function that returns the complete line of code for the IRI part replacement
+    String replacementLine() => "'$placeholder', resource.$propertyName.toString();";
+    
+    return {
+      'placeholder': placeholder,
+      'propertyName': propertyName,
+      'regexPattern': regexPattern,
+      'hasConverter': hasConverter,
+      'converter': converter,
+      'replacementLine': replacementLine,
+    };
+  }
 }
 
 /// Data for constructor parameters

@@ -1,11 +1,10 @@
 import 'dart:async';
+
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
-import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
+import 'package:rdf_mapper_generator/builder_helper.dart';
 import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
-import 'package:rdf_mapper_generator/src/templates/template_data_builder.dart';
-import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
 Builder rdfMapperBuilder(BuilderOptions options) => RdfMapperBuilder();
 
@@ -15,7 +14,7 @@ Builder rdfMapperBuilder(BuilderOptions options) => RdfMapperBuilder();
 /// corresponding mapper classes that handle serialization/deserialization between Dart objects
 /// and RDF triples.
 class RdfMapperBuilder implements Builder {
-  static final _templateRenderer = TemplateRenderer();
+  static final _builderHelper = BuilderHelper();
 
   @override
   Future<void> build(BuildStep buildStep) async {
@@ -56,18 +55,13 @@ class RdfMapperBuilder implements Builder {
       // Process all classes in the library
       for (final fragment in library.fragments) {
         for (final classFragment in fragment.classes2) {
-          final resourceInfo = GlobalResourceProcessor.processClass(
+          final mapperCode = await _builderHelper.build(
             classFragment.element,
-            libsByClassName: libsByClassName,
+            libsByClassName,
+            buildStep,
           );
-
-          if (resourceInfo != null) {
+          if (mapperCode != null) {
             hasGeneratedCode = true;
-            final templateData =
-                TemplateDataBuilder.buildGlobalResourceMapper(resourceInfo);
-            final mapperCode =
-                _templateRenderer.renderGlobalResourceMapper(templateData);
-
             generatedCode.writeln(mapperCode);
             generatedCode.writeln();
           }

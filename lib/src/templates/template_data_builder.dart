@@ -83,13 +83,20 @@ class TemplateDataBuilder {
   }
 
   /// Builds IRI parts data for template-based IRIs.
-  static IriPartsData? _buildIriParts(GlobalResourceInfo resourceInfo) {
-    final iriStrategy = resourceInfo.annotation.iri;
-    if (iriStrategy?.template == null) return null;
-
-    final template = iriStrategy!.template!;
+  static IriPartsData _buildIriParts(GlobalResourceInfo resourceInfo) {
     final iriParts = <IriPartData>[];
-
+    final iriStrategy = resourceInfo.annotation.iri;
+    
+    if (iriStrategy?.template == null) {
+      return IriPartsData(
+        hasTemplate: false,
+        template: null,
+        iriParts: [],
+      );
+    }
+    
+    final template = iriStrategy!.template!;
+    
     // Get template info to find property variables
     final templateInfo = iriStrategy.templateInfo;
     if (templateInfo != null) {
@@ -98,13 +105,16 @@ class TemplateDataBuilder {
         // Find the field with this variable name (either field name or @RdfIriPart name)
         final field = resourceInfo.fields.firstWhere(
           (f) => f.name == variableName,
-          orElse: () =>
-              resourceInfo.fields.first, // Fallback, should not happen
+          orElse: () => throw Exception('No field found for IRI part: $variableName'),
         );
 
-        final regexPattern =
-            '([^/]+)'; // Simplified regex for template variable
+        final regexPattern = '([^/]+)'; // Simplified regex for template variable
 
+        print('Creating IriPartData:');
+        print('  - placeholder: $variableName');
+        print('  - propertyName: ${field.name}');
+        print('  - regexPattern: $regexPattern');
+        
         iriParts.add(IriPartData(
           placeholder: variableName,
           propertyName: field.name,
@@ -115,11 +125,18 @@ class TemplateDataBuilder {
       }
     }
 
-    return IriPartsData(
+    final partsData = IriPartsData(
       hasTemplate: true,
       template: template,
       iriParts: iriParts,
     );
+    
+    print('Built IriPartsData:');
+    print('  - hasTemplate: ${partsData.hasTemplate}');
+    print('  - template: ${partsData.template}');
+    print('  - iriParts: ${partsData.iriParts.map((p) => '${p.placeholder} -> ${p.propertyName}').join(', ')}');
+    
+    return partsData;
   }
 
   /// Builds constructor parameter data.
