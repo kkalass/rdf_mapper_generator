@@ -1,43 +1,10 @@
-// Test functions that are embedded in the generated code.
-// This file is not really high-tech, but more of a debugging tool to ensure
-// that the generated code works as expected.
-
+import 'package:rdf_mapper_generator/src/utils/iri_parser.dart';
 import 'package:test/test.dart';
 
-/// Parses IRI parts from a complete IRI using a template.
-///
-/// Supports RFC 6570 URI Template standard:
-/// - {variable} (default): excludes reserved characters like '/'
-/// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-Map<String, String> _parseIriParts(
-    String iri, String template, List<String> variables) {
-  // Convert template to regex pattern
-  String regexPattern = RegExp.escape(template);
-
-  // Replace variables with named capture groups
-  for (final v in variables) {
-    // Use named capture groups for cleaner variable extraction
-    regexPattern = regexPattern
-        .replaceAll('\\{\\+$v\\}', '(?<$v>.*)') // .* for +reserved expansion
-        .replaceAll('\\{$v\\}', '(?<$v>[^/]*)'); // [^/]* for default
-  }
-
-  // Try to match the IRI against the regex pattern
-  RegExp regex = RegExp('^$regexPattern\$');
-  RegExpMatch? match = regex.firstMatch(iri);
-
-  return match == null
-      ? {}
-      : Map.fromEntries(match.groupNames.map((name) {
-          var namedGroup = match.namedGroup(name)!;
-          return MapEntry(name, namedGroup);
-        }));
-}
-
 void main() {
-  group('_parseIriParts', () {
+  group('parseIriParts', () {
     test('should parse basic IRI with baseUri and id', () {
-      final iriParts = _parseIriParts('https://my.host.de/test/persons/234',
+      final iriParts = parseIriParts('https://my.host.de/test/persons/234',
           '{+baseUri}/persons/{thisId}', ['baseUri', 'thisId']);
 
       expect(iriParts['thisId'], '234');
@@ -45,7 +12,7 @@ void main() {
     });
 
     test('should parse IRI with multiple path segments in baseUri', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://api.example.com/v1/data/users/123',
           '{+baseUri}/users/{id}',
           ['baseUri', 'id']);
@@ -55,27 +22,27 @@ void main() {
     });
 
     test('should parse IRI with single variable', () {
-      final iriParts = _parseIriParts('user123', '{userId}', ['userId']);
+      final iriParts = parseIriParts('user123', '{userId}', ['userId']);
 
       expect(iriParts['userId'], 'user123');
     });
 
     test('should parse IRI with variable at the beginning', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'admin/settings/theme', '{role}/settings/theme', ['role']);
 
       expect(iriParts['role'], 'admin');
     });
 
     test('should parse IRI with variable in the middle', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'api/v2/products', 'api/{version}/products', ['version']);
 
       expect(iriParts['version'], 'v2');
     });
 
     test('should parse IRI with multiple variables', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://example.com/users/john/posts/42',
           '{+base}/users/{username}/posts/{postId}',
           ['base', 'username', 'postId']);
@@ -88,7 +55,7 @@ void main() {
     test('should parse IRI with consecutive variables', () {
       // Note: This is inherently ambiguous - we need at least one separator
       // Testing with a dot separator to make it unambiguous
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'file123.txt', '{name}.{extension}', ['name', 'extension']);
 
       expect(iriParts['name'], 'file123');
@@ -96,7 +63,7 @@ void main() {
     });
 
     test('should parse IRI with numeric IDs', () {
-      final iriParts = _parseIriParts('https://db.example.com/records/999999',
+      final iriParts = parseIriParts('https://db.example.com/records/999999',
           '{+baseUrl}/records/{recordId}', ['baseUrl', 'recordId']);
 
       expect(iriParts['baseUrl'], 'https://db.example.com');
@@ -104,7 +71,7 @@ void main() {
     });
 
     test('should parse IRI with UUID-like IDs', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://api.service.com/entities/550e8400-e29b-41d4-a716-446655440000',
           '{+baseUri}/entities/{entityId}',
           ['baseUri', 'entityId']);
@@ -114,7 +81,7 @@ void main() {
     });
 
     test('should parse IRI with special characters in ID', () {
-      final iriParts = _parseIriParts('https://example.com/items/item-name_123',
+      final iriParts = parseIriParts('https://example.com/items/item-name_123',
           '{+base}/items/{itemId}', ['base', 'itemId']);
 
       expect(iriParts['base'], 'https://example.com');
@@ -122,7 +89,7 @@ void main() {
     });
 
     test('should handle IRI with query parameters (not in template)', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://example.com/users/123?format=json',
           '{+baseUri}/users/{userId}',
           ['baseUri', 'userId']);
@@ -132,14 +99,15 @@ void main() {
     });
 
     test('should handle IRI with fragment (not in template)', () {
-      final iriParts = _parseIriParts('https://example.com/docs/page#section1',
+      final iriParts = parseIriParts('https://example.com/docs/page#section1',
           '{+baseUri}/docs/{pageId}', ['baseUri', 'pageId']);
 
       expect(iriParts['baseUri'], 'https://example.com');
       expect(iriParts['pageId'], 'page#section1');
     });
+
     test('should handle IRI with fragment (in template)', () {
-      final iriParts = _parseIriParts('https://example.com/docs/page#section1',
+      final iriParts = parseIriParts('https://example.com/docs/page#section1',
           '{+baseUri}/docs/{pageId}#section1', ['baseUri', 'pageId']);
 
       expect(iriParts['baseUri'], 'https://example.com');
@@ -147,7 +115,7 @@ void main() {
     });
 
     test('should return empty map when IRI does not match template', () {
-      final iriParts = _parseIriParts('https://example.com/different/structure',
+      final iriParts = parseIriParts('https://example.com/different/structure',
           '{baseUri}/users/{userId}', ['baseUri', 'userId']);
 
       expect(iriParts, isEmpty);
@@ -155,14 +123,14 @@ void main() {
 
     test('should return empty map when template has more segments than IRI',
         () {
-      final iriParts = _parseIriParts('https://example.com/users',
+      final iriParts = parseIriParts('https://example.com/users',
           '{+baseUri}/users/{userId}/profile', ['baseUri', 'userId']);
 
       expect(iriParts, isEmpty);
     });
 
     test('should handle localhost URLs', () {
-      final iriParts = _parseIriParts('http://localhost:8080/api/items/456',
+      final iriParts = parseIriParts('http://localhost:8080/api/items/456',
           '{+baseUrl}/api/items/{itemId}', ['baseUrl', 'itemId']);
 
       expect(iriParts['baseUrl'], 'http://localhost:8080');
@@ -170,21 +138,23 @@ void main() {
     });
 
     test('should handle file URLs', () {
-      final iriParts = _parseIriParts('file:///home/user/documents/report.pdf',
+      final iriParts = parseIriParts('file:///home/user/documents/report.pdf',
           'file:///{+path}/documents/{filename}', ['path', 'filename']);
 
       expect(iriParts['path'], 'home/user');
       expect(iriParts['filename'], 'report.pdf');
     });
+
     test('should handle file URLs without extension', () {
-      final iriParts = _parseIriParts('file:///home/user/documents/report.pdf',
+      final iriParts = parseIriParts('file:///home/user/documents/report.pdf',
           'file:///{+path}/documents/{filename}.pdf', ['path', 'filename']);
 
       expect(iriParts['path'], 'home/user');
       expect(iriParts['filename'], 'report');
     });
+
     test('should handle URLs without extension', () {
-      final iriParts = _parseIriParts('http://example.com/report.pdf',
+      final iriParts = parseIriParts('http://example.com/report.pdf',
           '{+baseUri}/{filename}.pdf', ['baseUri', 'filename']);
 
       expect(iriParts['baseUri'], 'http://example.com');
@@ -192,7 +162,7 @@ void main() {
     });
 
     test('should handle URNs', () {
-      final iriParts = _parseIriParts('urn:isbn:0451450523',
+      final iriParts = parseIriParts('urn:isbn:0451450523',
           'urn:{type}:{identifier}', ['type', 'identifier']);
 
       expect(iriParts['type'], 'isbn');
@@ -200,7 +170,7 @@ void main() {
     });
 
     test('should handle relative paths', () {
-      final iriParts = _parseIriParts('docs/api/reference',
+      final iriParts = parseIriParts('docs/api/reference',
           '{section}/{subsection}/{page}', ['section', 'subsection', 'page']);
 
       expect(iriParts['section'], 'docs');
@@ -209,7 +179,7 @@ void main() {
     });
 
     test('should handle empty segments gracefully', () {
-      final iriParts = _parseIriParts('https://example.com//users/123',
+      final iriParts = parseIriParts('https://example.com//users/123',
           '{+baseUri}//users/{id}', ['baseUri', 'id']);
 
       expect(iriParts['baseUri'], 'https://example.com');
@@ -218,13 +188,13 @@ void main() {
 
     test('should handle template with only literal parts (no variables)', () {
       final iriParts =
-          _parseIriParts('static/path/here', 'static/path/here', []);
+          parseIriParts('static/path/here', 'static/path/here', []);
 
       expect(iriParts, isEmpty);
     });
 
     test('should handle variables with underscores and numbers', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://api.example.com/v1/user_profiles/user_123',
           '{+base_url}/v1/user_profiles/{user_id}',
           ['base_url', 'user_id']);
@@ -236,7 +206,7 @@ void main() {
     test('should handle very long URIs', () {
       final longUri =
           'https://very.long.domain.name.example.com/api/v2/extremely/long/path/with/many/segments/final/resource/12345';
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           longUri, '{+baseUri}/final/resource/{id}', ['baseUri', 'id']);
 
       expect(iriParts['baseUri'],
@@ -245,7 +215,7 @@ void main() {
     });
 
     test('should handle URI with port numbers', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://example.com:9443/secure/api/data/789',
           '{+baseUri}/data/{dataId}',
           ['baseUri', 'dataId']);
@@ -255,7 +225,7 @@ void main() {
     });
 
     test('should handle international domain names', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://münchen.example.de/resources/item-456',
           '{+baseUri}/resources/{resourceId}',
           ['baseUri', 'resourceId']);
@@ -266,13 +236,13 @@ void main() {
 
     test('should handle empty variable values', () {
       final iriParts =
-          _parseIriParts('api//test', 'api/{emptyVar}/test', ['emptyVar']);
+          parseIriParts('api//test', 'api/{emptyVar}/test', ['emptyVar']);
 
       expect(iriParts['emptyVar'], '');
     });
 
     test('should handle variables with special regex characters', () {
-      final iriParts = _parseIriParts('api/v1.2/items/item-123.json',
+      final iriParts = parseIriParts('api/v1.2/items/item-123.json',
           'api/{version}/items/{itemFile}', ['version', 'itemFile']);
 
       expect(iriParts['version'], 'v1.2');
@@ -280,7 +250,7 @@ void main() {
     });
 
     test('should handle template with encoded characters', () {
-      final iriParts = _parseIriParts(
+      final iriParts = parseIriParts(
           'https://example.com/users/john%20doe/profile',
           '{+baseUri}/users/{username}/profile',
           ['baseUri', 'username']);
@@ -290,21 +260,21 @@ void main() {
     });
 
     test('should handle malformed templates gracefully', () {
-      final iriParts = _parseIriParts('https://example.com/test',
+      final iriParts = parseIriParts('https://example.com/test',
           '{unclosedVariable/test', ['unclosedVariable']);
 
       expect(iriParts, isEmpty);
     });
 
     test('should handle case where variable is not in template', () {
-      final iriParts = _parseIriParts('https://example.com/test',
+      final iriParts = parseIriParts('https://example.com/test',
           'https://example.com/test', ['nonExistentVar']);
 
       expect(iriParts, isEmpty);
     });
 
     test('should handle very short URIs', () {
-      final iriParts = _parseIriParts('a', '{singleChar}', ['singleChar']);
+      final iriParts = parseIriParts('a', '{singleChar}', ['singleChar']);
 
       expect(iriParts['singleChar'], 'a');
     });
@@ -312,7 +282,7 @@ void main() {
     test('should handle multiple occurrences of same variable pattern', () {
       // This tests a potential edge case in replaceFirst
       final iriParts =
-          _parseIriParts('prefix_test_suffix', 'prefix_{var}_suffix', ['var']);
+          parseIriParts('prefix_test_suffix', 'prefix_{var}_suffix', ['var']);
 
       expect(iriParts['var'], 'test');
     });
@@ -321,7 +291,7 @@ void main() {
     group('RFC 6570 reserved expansion tests', () {
       test('should distinguish between default and +reserved expansion', () {
         // Default behavior: baseUri should NOT include slashes
-        final iriPartsDefault = _parseIriParts(
+        final iriPartsDefault = parseIriParts(
             'https://example.com/api/users/123',
             'https://{baseUri}/api/users/{id}',
             ['baseUri', 'id']);
@@ -330,7 +300,7 @@ void main() {
         expect(iriPartsDefault['id'], '123');
 
         // Reserved expansion: baseUri SHOULD include slashes
-        final iriPartsExpanded = _parseIriParts(
+        final iriPartsExpanded = parseIriParts(
             'https://example.com/api/users/123',
             '{+baseUri}/users/{id}',
             ['baseUri', 'id']);
@@ -340,7 +310,7 @@ void main() {
       });
 
       test('should handle mixed expansion types in same template', () {
-        final iriParts = _parseIriParts(
+        final iriParts = parseIriParts(
             'https://api.example.com/v1/files/report.pdf',
             '{+baseUri}/files/{filename}.pdf',
             ['baseUri', 'filename']);
@@ -350,7 +320,7 @@ void main() {
       });
 
       test('should handle path variables with +reserved expansion', () {
-        final iriParts = _parseIriParts(
+        final iriParts = parseIriParts(
             'files/documents/subfolder/project/readme.txt',
             'files/{+path}/{filename}.txt',
             ['path', 'filename']);
@@ -361,7 +331,7 @@ void main() {
 
       test('should handle consecutive variables with different expansion types',
           () {
-        final iriParts = _parseIriParts(
+        final iriParts = parseIriParts(
             'https://cdn.example.com/images/user/avatar.jpg',
             '{+baseUrl}/{category}/{filename}.jpg',
             ['baseUrl', 'category', 'filename']);
