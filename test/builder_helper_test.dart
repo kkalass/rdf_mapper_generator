@@ -100,7 +100,7 @@ void main() {
           result, contains('class ClassWithIriMapperInstanceStrategyMapper'));
     });
 
-    test('should generate mapper for class with named mapper strategy',
+    test('should NOT generate mapper for class with named mapper strategy',
         () async {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
@@ -108,21 +108,21 @@ void main() {
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
-      expect(
-          result, contains('class ClassWithMapperNamedMapperStrategyMapper'));
+      expect(result,
+          isNot(contains('class ClassWithMapperNamedMapperStrategyMapper')));
     });
 
-    test('should generate mapper for class with mapper strategy', () async {
+    test('should NOT generate mapper for class with mapper strategy', () async {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithMapperStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
-      expect(result, contains('class ClassWithMapperStrategyMapper'));
+      expect(result, isNot(contains('class ClassWithMapperStrategyMapper')));
     });
 
-    test('should generate mapper for class with mapper instance strategy',
+    test('should NOT generate mapper for class with mapper instance strategy',
         () async {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
@@ -130,7 +130,8 @@ void main() {
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
-      expect(result, contains('class ClassWithMapperInstanceStrategyMapper'));
+      expect(result,
+          isNot(contains('class ClassWithMapperInstanceStrategyMapper')));
     });
 
     test('should return null for non-annotated class', () async {

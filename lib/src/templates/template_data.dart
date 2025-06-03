@@ -53,12 +53,16 @@ class GlobalResourceMapperTemplateData
   /// Property mapping information
   final List<PropertyData> properties = const [];
 
+  /// Context variable providers needed for IRI generation
+  final List<ContextProviderData> contextProviders;
+
   const GlobalResourceMapperTemplateData({
     required this.imports,
     required this.className,
     required this.mapperClassName,
     required this.typeIri,
     required this.iriStrategy,
+    this.contextProviders = const [],
   });
 
   /// Converts this template data to a Map for mustache rendering
@@ -73,6 +77,9 @@ class GlobalResourceMapperTemplateData
       'constructorParameters':
           constructorParameters.map((p) => p.toMap()).toList(),
       'properties': properties.map((p) => p.toMap()).toList(),
+      'contextProviders':
+          toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
+      'hasContextProviders': contextProviders.isNotEmpty,
     };
   }
 }
@@ -140,6 +147,35 @@ class ImportData {
   Map<String, dynamic> toMap() => {'import': import};
 }
 
+/// Data for context variable providers required by the mapper
+class ContextProviderData {
+  /// The name of the context variable
+  final String variableName;
+
+  /// The name of the private field that stores the provider
+  final String privateFieldName;
+
+  /// The name of the constructor parameter
+  final String parameterName;
+
+  /// The placeholder pattern to replace in IRI templates (e.g., '{baseUri}')
+  final String placeholder;
+
+  const ContextProviderData({
+    required this.variableName,
+    required this.privateFieldName,
+    required this.parameterName,
+    required this.placeholder,
+  });
+
+  Map<String, dynamic> toMap() => {
+        'variableName': variableName,
+        'privateFieldName': privateFieldName,
+        'parameterName': parameterName,
+        'placeholder': placeholder,
+      };
+}
+
 class IriTemplateData {
   /// The original template string.
   final String template;
@@ -148,7 +184,7 @@ class IriTemplateData {
   final Set<String> variables;
 
   /// Variables that correspond to class properties with @RdfIriPart.
-  final Set<String> propertyVariables;
+  final Set<PropertyVariableData> propertyVariables;
 
   /// Variables that need to be provided from context.
   final Set<String> contextVariables;
@@ -164,7 +200,8 @@ class IriTemplateData {
     return {
       'template': template,
       'variables': toMustacheList(variables.toList()),
-      'propertyVariables': toMustacheList(propertyVariables.toList()),
+      'propertyVariables':
+          toMustacheList(propertyVariables.map((p) => p.toMap()).toList()),
       'contextVariables': toMustacheList(contextVariables.toList()),
     };
   }
@@ -173,6 +210,7 @@ class IriTemplateData {
 /// Data for IRI strategy
 class IriStrategyData {
   final IriTemplateData? template;
+
   // FIXME: support non-template IRIs (aka custom mappers)
 
   const IriStrategyData({
@@ -182,6 +220,25 @@ class IriStrategyData {
   Map<String, dynamic> toMap() => {
         'hasTemplate': template != null,
         'template': template?.toMap(),
+      };
+}
+
+/// Data for property variables used in IRI templates
+class PropertyVariableData {
+  /// The name of the property variable
+  final String variableName;
+
+  /// The placeholder pattern to replace in IRI templates (e.g., '{id}')
+  final String placeholder;
+
+  const PropertyVariableData({
+    required this.variableName,
+    required this.placeholder,
+  });
+
+  Map<String, dynamic> toMap() => {
+        'variableName': variableName,
+        'placeholder': placeholder,
       };
 }
 

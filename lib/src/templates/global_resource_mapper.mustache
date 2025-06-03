@@ -3,26 +3,18 @@
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type {{className}}.
 class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
-  {{#iriStrategy}}
-  {{#hasTemplate}}
-  {{#template.contextVariables}}
-  /// Provider for context variable '{{value}}'
-  final String Function() _{{value}}Provider;
-  {{/template.contextVariables}}
+  {{#contextProviders}}
+  /// Provider for context variable '{{value.variableName}}'
+  final String Function() {{value.privateFieldName}};
+  {{/contextProviders}}
 
-  /// Constructor{{#template.contextVariables}} requiring providers for context variables{{/template.contextVariables}}
-  {{mapperClassName}}({{#template.contextVariables}}{
-    {{#template.contextVariables}}
-    required String Function() {{value}}Provider,
-    {{/template.contextVariables}}
-  }{{/template.contextVariables}}){{#template.contextVariables}} : {{#template.contextVariables}}_{{value}}Provider = {{value}}Provider{{^last}},
-       {{/last}}{{/template.contextVariables}}{{/template.contextVariables}};
-  {{/hasTemplate}}
-  {{^hasTemplate}}
-  /// Default constructor
-  {{mapperClassName}}();
-  {{/hasTemplate}}
-  {{/iriStrategy}}
+  /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
+  {{mapperClassName}}({{#hasContextProviders}}{
+    {{#contextProviders}}
+    required String Function() {{value.parameterName}},
+    {{/contextProviders}}
+  }{{/hasContextProviders}}){{#hasContextProviders}} : {{#contextProviders}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
+       {{/last}}{{/contextProviders}}{{/hasContextProviders}};
 
   @override
   IriTerm get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
@@ -91,12 +83,12 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri({{className}} resource) {
     var iri = '{{template.template}}';
-    {{#template.propertyVariables}}
-    iri = iri.replaceAll('{' + '{{value}}' + '}', resource.{{value}}.toString());
-    {{/template.propertyVariables}}
-    {{#template.contextVariables}}
-    iri = iri.replaceAll('{' + '{{value}}' + '}', _{{value}}Provider());
-    {{/template.contextVariables}}
+    {{#iriStrategy.template.propertyVariables}}
+    iri = iri.replaceAll('{{value.placeholder}}', resource.{{value.variableName}}.toString());
+    {{/iriStrategy.template.propertyVariables}}
+    {{#contextProviders}}
+    iri = iri.replaceAll('{{value.placeholder}}', {{value.privateFieldName}}());
+    {{/contextProviders}}
     return iri;
   }
 

@@ -32,12 +32,17 @@ class GlobalResourceDataBuilder {
     // Build IRI strategy data
     final iriStrategy = _buildIriStrategy(resourceInfo);
 
+    // Build context providers for context variables
+    final contextProviders =
+        _buildContextProviders(resourceInfo.annotation.iri?.templateInfo);
+
     return GlobalResourceMapperTemplateData(
       imports: imports,
       className: className,
       mapperClassName: mapperClassName,
       typeIri: typeIri,
       iriStrategy: iriStrategy,
+      contextProviders: contextProviders,
     );
   }
 
@@ -90,9 +95,29 @@ class GlobalResourceDataBuilder {
   static IriTemplateData _buildTemplateData(IriTemplateInfo iriTemplateInfo) {
     return IriTemplateData(
       template: iriTemplateInfo.template,
-      propertyVariables: iriTemplateInfo.propertyVariables,
+      propertyVariables: iriTemplateInfo.propertyVariables
+          .map((variable) => PropertyVariableData(
+                variableName: variable,
+                placeholder: '{$variable}',
+              ))
+          .toSet(),
       contextVariables: iriTemplateInfo.contextVariables,
       variables: iriTemplateInfo.variables,
     );
+  }
+
+  /// Builds context provider data for context variables.
+  static List<ContextProviderData> _buildContextProviders(
+      IriTemplateInfo? templateInfo) {
+    if (templateInfo == null) return [];
+
+    return templateInfo.contextVariables
+        .map((variable) => ContextProviderData(
+              variableName: variable,
+              privateFieldName: '_${variable}Provider',
+              parameterName: '${variable}Provider',
+              placeholder: '{$variable}',
+            ))
+        .toList();
   }
 }
