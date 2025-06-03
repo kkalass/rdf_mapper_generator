@@ -22,8 +22,11 @@ void main() {
     });
 
     test('should generate mapper for Book class', () async {
-      final result = await BuilderHelper()
-          .build(library.getClass2('Book')!, libsByClassName, assetReader);
+      final result = await BuilderHelper().build(
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('Book')!],
+          libsByClassName,
+          assetReader);
       expect(result, isNotNull);
       expect(result, contains('class BookMapper'));
       expect(result, contains('implements GlobalResourceMapper<Book>'));
@@ -31,7 +34,8 @@ void main() {
 
     test('should generate mapper for class with empty IRI strategy', () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithEmptyIriStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithEmptyIriStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -41,7 +45,8 @@ void main() {
     test('should generate mapper for class with IRI template strategy',
         () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithIriTemplateStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithIriTemplateStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -51,7 +56,8 @@ void main() {
     test('should generate mapper for class with named IRI mapper strategy',
         () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithIriNamedMapperStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithIriNamedMapperStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -60,7 +66,8 @@ void main() {
 
     test('should generate mapper for class with IRI mapper strategy', () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithIriMapperStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithIriMapperStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -70,7 +77,8 @@ void main() {
     test('should generate mapper for class with IRI mapper instance strategy',
         () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithIriMapperInstanceStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithIriMapperInstanceStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -81,7 +89,8 @@ void main() {
     test('should generate mapper for class with named mapper strategy',
         () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithMapperNamedMapperStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithMapperNamedMapperStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -91,7 +100,8 @@ void main() {
 
     test('should generate mapper for class with mapper strategy', () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithMapperStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithMapperStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -101,7 +111,8 @@ void main() {
     test('should generate mapper for class with mapper instance strategy',
         () async {
       final result = await BuilderHelper().build(
-          library.getClass2('ClassWithMapperInstanceStrategy')!,
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('ClassWithMapperInstanceStrategy')!],
           libsByClassName,
           assetReader);
       expect(result, isNotNull);
@@ -110,7 +121,10 @@ void main() {
 
     test('should return null for non-annotated class', () async {
       final result = await BuilderHelper().build(
-          library.getClass2('NotAnnotated')!, libsByClassName, assetReader);
+          'global_resource_processor_test_models.dart',
+          [library.getClass2('NotAnnotated')!],
+          libsByClassName,
+          assetReader);
       expect(result, isNull);
     });
   });
