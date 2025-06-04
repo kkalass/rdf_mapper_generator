@@ -30,7 +30,8 @@ class IriStrategyProcessor {
 
       return IriTemplateInfo(
         template: template,
-        variables: {...propertyResult.propertyVariables, ...contextVariables},
+        variables: Set.unmodifiable(
+            {...propertyResult.propertyVariables, ...contextVariables}),
         propertyVariables: propertyResult.propertyVariables,
         contextVariables: contextVariables,
         isValid: validationResult.isValid,
@@ -243,10 +244,10 @@ class IriStrategyProcessor {
     for (final variable in variables.values) {
       if (variable.canBeUri) {
         testUri =
-            testUri.replaceAll('{+$variable.name}', 'https://example.org');
+            testUri.replaceAll('{+${variable.name}}', 'https://example.org');
       } else {
         // Replace regular {variable} patterns with simple test values
-        testUri = testUri.replaceAll('{$variable.name}', 'test_value');
+        testUri = testUri.replaceAll('{${variable.name}}', 'test_value');
       }
     }
 

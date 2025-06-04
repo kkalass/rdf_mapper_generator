@@ -394,11 +394,11 @@ void main() {
             IriStrategyProcessor.processTemplate(template, bookClass);
 
         expect(result, isNotNull);
-        expect(() => result!.variables.add(newVarVariableName()),
+        expect(() => result!.variableNames.add(newVarVariableName()),
             throwsUnsupportedError);
         expect(() => result!.propertyVariables.add(newVarVariableName()),
             throwsUnsupportedError);
-        expect(() => result!.contextVariables.add(newVarVariableName()),
+        expect(() => result!.contextVariableNames.add(newVarVariableName()),
             throwsUnsupportedError);
       });
     });

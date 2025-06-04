@@ -114,13 +114,16 @@ class IriTemplateInfo {
   final String template;
 
   /// All variables found in the template.
-  final Set<VariableName> variables;
+  final Set<VariableName> variableNames;
+  Set<String> get variables => variableNames.map((e) => e.name).toSet();
 
   /// Variables that correspond to class properties with @RdfIriPart.
   final Set<VariableName> propertyVariables;
 
   /// Variables that need to be provided from context.
-  final Set<VariableName> contextVariables;
+  Set<String> get contextVariables =>
+      contextVariableNames.map((e) => e.name).toSet();
+  final Set<VariableName> contextVariableNames;
 
   /// Whether the template passed validation.
   final bool isValid;
@@ -133,13 +136,14 @@ class IriTemplateInfo {
 
   const IriTemplateInfo({
     required this.template,
-    required this.variables,
+    required Set<VariableName> variables,
     required this.propertyVariables,
-    required this.contextVariables,
+    required Set<VariableName> contextVariables,
     required this.isValid,
     required this.validationErrors,
     this.warnings = const [],
-  });
+  })  : variableNames = variables,
+        contextVariableNames = contextVariables;
 
   @override
   bool operator ==(Object other) {

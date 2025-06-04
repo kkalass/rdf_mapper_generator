@@ -112,11 +112,13 @@ class GlobalResourceDataBuilder {
       template: iriTemplateInfo.template,
       propertyVariables:
           iriTemplateInfo.propertyVariables.map(_buildVariableNameData).toSet(),
-      contextVariables:
-          iriTemplateInfo.contextVariables.map(_buildVariableNameData).toSet(),
-      variables: iriTemplateInfo.variables.map(_buildVariableNameData).toSet(),
-      regexPattern: buildRegexPattern(
-          iriTemplateInfo.template, iriTemplateInfo.variables),
+      contextVariables: iriTemplateInfo.contextVariableNames
+          .map(_buildVariableNameData)
+          .toSet(),
+      variables:
+          iriTemplateInfo.variableNames.map(_buildVariableNameData).toSet(),
+      regexPattern:
+          '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\\\$',
     );
   }
 
@@ -125,7 +127,7 @@ class GlobalResourceDataBuilder {
       IriTemplateInfo? templateInfo) {
     if (templateInfo == null) return [];
 
-    return templateInfo.contextVariables.map((variable) {
+    return templateInfo.contextVariableNames.map((variable) {
       final d = _buildVariableNameData(variable);
       return ContextProviderData(
         variableName: d.variableName,

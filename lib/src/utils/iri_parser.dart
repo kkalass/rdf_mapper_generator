@@ -20,7 +20,7 @@ String buildRegexPattern(String template, Iterable<VariableName> variables) {
         .replaceAll('\\{${variable.name}\\}',
             '(?<${variable.name}>[^/]*)'); // [^/]* for default
   }
-  return '^$regexPattern\\\$';
+  return regexPattern;
 }
 
 /// Parses IRI parts from a complete IRI using a template.
@@ -64,10 +64,8 @@ String buildRegexPattern(String template, Iterable<VariableName> variables) {
 /// ```
 Map<String, String> parseIriParts(
     String iri, String template, List<String> variables) {
-  final regex = RegExp(buildRegexPattern(
-      template,
-      variables.map(
-          (v) => VariableName(name: v, dartPropertyName: v, canBeUri: false))));
+  final regex = RegExp(
+      '^${buildRegexPattern(template, variables.map((v) => VariableName(name: v, dartPropertyName: v, canBeUri: false)))}\$');
   final match = regex.firstMatch(iri);
 
   // Extract all named groups if match is found
