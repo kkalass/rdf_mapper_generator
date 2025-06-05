@@ -57,7 +57,6 @@ class RdfMapperCacheBuilder implements Builder {
         buildStep.inputId.path,
         classes,
         libsByClassName,
-        buildStep,
       );
 
       // Only create output file if we generated code

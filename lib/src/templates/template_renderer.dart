@@ -23,6 +23,12 @@ class TemplateRenderer {
     return result;
   }
 
+  Future<String?> renderInitFileTemplate(
+      Map<String, dynamic> data, AssetReader reader) async {
+    final template = await _getTemplate('init_rdf_mapper', reader);
+    return template.renderString(data);
+  }
+
   /// Renders a complete file using the file template and multiple mappers.
   Future<String> renderFileTemplate(
       Map<String, dynamic> data, AssetReader reader) async {

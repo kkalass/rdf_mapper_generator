@@ -14,8 +14,8 @@ class BuilderHelper {
       Iterable<ClassElement2> classElements,
       LibsByClassName libsByClassName,
       AssetReader reader) async {
-    final templateData = await buildTemplateData(
-        sourcePath, classElements, libsByClassName, reader);
+    final templateData =
+        await buildTemplateData(sourcePath, classElements, libsByClassName);
 
     if (templateData != null) {
       // Use the file template approach which handles imports properly
@@ -29,8 +29,7 @@ class BuilderHelper {
   Future<Map<String, dynamic>?> buildTemplateData(
       String sourcePath,
       Iterable<ClassElement2> classElements,
-      LibsByClassName libsByClassName,
-      AssetReader reader) async {
+      LibsByClassName libsByClassName) async {
     // Collect all resource info and class elements
     final resourceInfosWithElements = <(MappableClassInfo, ClassElement2)>[];
 
