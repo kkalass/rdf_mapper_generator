@@ -18,40 +18,71 @@ class RdfInitFileBuilder implements Builder {
     }
 
     try {
-      // Find all generated cache files
-      final cacheFiles = await buildStep
-          .findAssets(
-            Glob('lib/**.rdf_mapper.cache.json'),
-          )
-          .toList();
-
-      if (cacheFiles.isEmpty) {
-        // No cache files found, skip generation
-        return;
-      }
-
-      // Process each cache file to extract mapper information
-
-      final jsonFiles = await Future.wait(cacheFiles
-          .map((file) async =>
-              (file.path, file.package, await buildStep.readAsString(file)))
-          .toList());
-      final generatedCode = await _builderHelper.build(jsonFiles, buildStep);
-      if (generatedCode == null) {
-        return;
-      }
-
-      // Write the output file
-      final outputId = AssetId(
-        buildStep.inputId.package,
+      // Process lib/ files
+      await _generateMapperFile(
+        buildStep,
+        'lib/**.rdf_mapper.cache.json',
         'lib/init_rdf_mapper.g.dart',
+        isTest: false,
       );
 
-      await buildStep.writeAsString(outputId, generatedCode);
-      log.fine('Generated init_rdf_mapper.g.dart ');
+      // Process test/ files
+      await _generateMapperFile(
+        buildStep,
+        'test/**.rdf_mapper.cache.json',
+        'test/init_test_rdf_mapper.g.dart',
+        isTest: true,
+      );
     } catch (e, stackTrace) {
       log.severe(
-        'Error generating init_rdf_mapper.g.dart: $e',
+        'Error generating RDF mapper initialization files: $e',
+        e,
+        stackTrace,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> _generateMapperFile(
+    BuildStep buildStep,
+    String globPattern,
+    String outputPath, {
+    required bool isTest,
+  }) async {
+    try {
+      // Find all generated cache files matching the pattern
+      final cacheFiles = await buildStep.findAssets(Glob(globPattern)).toList();
+
+      if (cacheFiles.isEmpty) {
+        // No cache files found for this pattern, skip generation
+        return;
+      }
+
+      // Read all cache files in parallel
+      final jsonFiles = await Future.wait(cacheFiles.map((file) async => (
+            file.path,
+            file.package,
+            await buildStep.readAsString(file),
+          )));
+
+      // Generate the code
+      final generatedCode = await _builderHelper.build(
+        jsonFiles,
+        buildStep,
+        isTest: isTest,
+      );
+
+      if (generatedCode != null) {
+        // Write the output file
+        await buildStep.writeAsString(
+          AssetId(buildStep.inputId.package, outputPath),
+          generatedCode,
+        );
+        log.fine('Generated $outputPath with ${jsonFiles.length} mappers');
+      }
+    } catch (e, stackTrace) {
+      log.severe(
+        'Error generating $outputPath: $e',
         e,
         stackTrace,
       );
@@ -61,6 +92,9 @@ class RdfInitFileBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => {
-        'pubspec.yaml': ['lib/init_rdf_mapper.g.dart'],
+        'pubspec.yaml': [
+          'lib/init_rdf_mapper.g.dart',
+          'test/init_test_rdf_mapper.g.dart',
+        ],
       };
 }

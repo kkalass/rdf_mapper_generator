@@ -17,13 +17,10 @@ class TemplateRenderer {
   Future<String> _renderGlobalResourceMapper(
       Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('global_resource_mapper', reader);
-
-    final result = template.renderString(data);
-
-    return result;
+    return template.renderString(data);
   }
 
-  Future<String?> renderInitFileTemplate(
+  Future<String> renderInitFileTemplate(
       Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('init_rdf_mapper', reader);
     return template.renderString(data);

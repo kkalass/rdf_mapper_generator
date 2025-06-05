@@ -8,11 +8,16 @@ import 'package:rdf_mapper/mapper.dart';
 import '{{.}}';
 {{/imports}}
 
-/// Initializes and returns an RdfMapper with all generated mappers registered.
-RdfMapper initRdfMapper() {
-  return RdfMapper.withMappers((registry) {
-    {{#mappers}}
-    registry.registerMapper<{{type}}>({{name}}());
-    {{/mappers}}
-  });
+/// Initializes and returns an RdfMapper with {{#isTest}}test {{/isTest}}mappers registered.
+RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({RdfMapper? rdfMapper}) {
+  if (rdfMapper == null) {
+    rdfMapper = RdfMapper.withDefaultRegistry();
+  }
+  var registry = rdfMapper.registry;
+
+  {{#mappers}}
+  registry.registerMapper<{{type}}>({{name}}());
+  {{/mappers}}
+  
+  return rdfMapper;
 }

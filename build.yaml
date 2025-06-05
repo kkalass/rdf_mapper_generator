@@ -35,7 +35,9 @@ builders:
     import: 'package:rdf_mapper_generator/init_file_builder.dart'
     builder_factories: ["rdfInitFileBuilder"]
     build_extensions:
-      "pubspec.yaml": ["lib/init_rdf_mapper.dart"]
+      "pubspec.yaml": 
+        - "lib/init_rdf_mapper.g.dart"
+        - "test/init_test_rdf_mapper.g.dart"
     auto_apply: root_package 
     build_to: source
 

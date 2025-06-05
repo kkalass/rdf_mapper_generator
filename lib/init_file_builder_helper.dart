@@ -8,7 +8,8 @@ class InitFileBuilderHelper {
   static final _templateRenderer = TemplateRenderer();
 
   Map<String, dynamic>? buildTemplateData(
-      List<(String path, String package, String content)> jsonFiles) {
+      List<(String path, String package, String content)> jsonFiles,
+      {required bool isTest}) {
     try {
       // Process each cache file to extract mapper information
       final mappers = <Map<String, String>>[];
@@ -58,8 +59,9 @@ class InitFileBuilderHelper {
       // Sort for deterministic output
       mappers.sort((a, b) => a['name']!.compareTo(b['name']!));
 
-      // Render the template
+      // Prepare template data
       return {
+        'isTest': isTest,
         'generatedOn': DateTime.now().toIso8601String(),
         'imports': imports.toList()..sort(),
         'mappers': mappers,
@@ -75,9 +77,11 @@ class InitFileBuilderHelper {
   }
 
   Future<String?> build(
-      List<(String path, String package, String content)> jsonFiles,
-      AssetReader reader) async {
-    final data = buildTemplateData(jsonFiles);
+    List<(String path, String package, String content)> jsonFiles,
+    AssetReader reader, {
+    required bool isTest,
+  }) async {
+    final data = buildTemplateData(jsonFiles, isTest: isTest);
     if (data == null) {
       return null;
     }
