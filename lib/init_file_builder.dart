@@ -70,16 +70,15 @@ class RdfInitFileBuilder implements Builder {
         jsonFiles,
         buildStep,
         isTest: isTest,
+        outputPath: outputPath,
       );
 
-      if (generatedCode != null) {
-        // Write the output file
-        await buildStep.writeAsString(
-          AssetId(buildStep.inputId.package, outputPath),
-          generatedCode,
-        );
-        log.fine('Generated $outputPath with ${jsonFiles.length} mappers');
-      }
+      // Write the output file
+      await buildStep.writeAsString(
+        AssetId(buildStep.inputId.package, outputPath),
+        generatedCode,
+      );
+      log.fine('Generated $outputPath with ${jsonFiles.length} mappers');
     } catch (e, stackTrace) {
       log.severe(
         'Error generating $outputPath: $e',

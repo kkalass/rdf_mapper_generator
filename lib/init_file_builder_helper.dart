@@ -1,25 +1,42 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:path/path.dart' as p;
 
 import 'package:build/build.dart';
+import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
 class InitFileBuilderHelper {
   static final _templateRenderer = TemplateRenderer();
+  final Logger log = Logger('InitFileBuilderHelper');
+
+  InitFileBuilderHelper();
 
   Map<String, dynamic>? buildTemplateData(
       List<(String path, String package, String content)> jsonFiles,
-      {required bool isTest}) {
+      {required bool isTest,
+      required String outputPath}) {
     try {
       // Process each cache file to extract mapper information
-      final mappers = <Map<String, String>>[];
-      final imports = <String>{};
+      final mappers = <Map<String, dynamic>>[];
+      final imports = <Map<String, String>>{};
+      final modelImports = <Map<String, String>>{};
+      final sortedJsonFiles = List.from(jsonFiles)
+        ..sort((a, b) {
+          final (aPath, aPackage, _) = a;
+          final (bPath, bPackage, _) = b;
+          final cmp = aPackage.compareTo(bPackage);
+          if (cmp != 0) return cmp;
+          return aPath.compareTo(bPath);
+        });
 
-      for (final file in jsonFiles) {
+      int importIndex = -1;
+      for (final file in sortedJsonFiles) {
+        importIndex++;
         final (path, package, content) = file;
         try {
           final jsonData = jsonDecode(content) as Map<String, dynamic>;
-
+          final modelImportPath = path.replaceAll('.rdf_mapper.cache.json', '');
           // Extract mappers from the cache file
           final mappersData = jsonData['mappers'] as List? ?? [];
           for (final mapperData in mappersData.cast<Map<String, dynamic>>()) {
@@ -30,61 +47,85 @@ class InitFileBuilderHelper {
               mappers.add({
                 'name': mapperClassName,
                 'type': className,
+                '_importPath': modelImportPath,
+                '_importIndex': importIndex,
               });
             }
           }
 
-          // Add import for the generated mapper file
-          final importPath =
-              path.replaceAll('.rdf_mapper.cache.json', '.rdf_mapper.g.dart');
+          // Add import for the generated mapper file and model file
 
-          if (!importPath.startsWith('package:')) {
-            // Convert relative path to package import
-            final packageName = package;
-            imports.add(
-                'package:$packageName/${importPath.replaceFirst('lib/', '')}');
+          if (isTest) {
+            // For test files, use relative imports within the test directory
+            var relativePath =
+                p.relative(modelImportPath, from: p.dirname(outputPath));
+            if (relativePath == '.') {
+              // If the file is in the same directory, just use the filename
+              relativePath = p.basename(modelImportPath);
+            }
+            imports.add({
+              'value': '$relativePath.rdf_mapper.g.dart',
+              'index': importIndex.toString()
+            });
+            modelImports.add({
+              'value': '$relativePath.dart',
+              'index': importIndex.toString()
+            });
+          } else if (!modelImportPath.startsWith('package:')) {
+            // For non-test files, convert relative path to package import
+            final fullImportPath =
+                'package:$package/${p.relative(modelImportPath, from: 'lib')}';
+            imports.add({
+              'value': '$fullImportPath.rdf_mapper.g.dart',
+              'index': importIndex.toString()
+            });
+            modelImports.add({
+              'value': '$fullImportPath.dart',
+              'index': importIndex.toString()
+            });
           } else {
-            imports.add(importPath);
+            // For absolute package imports
+            imports.add({
+              'value': '$modelImportPath.rdf_mapper.g.dart',
+              'index': importIndex.toString()
+            });
+            modelImports.add({
+              'value': '$modelImportPath.dart',
+              'index': importIndex.toString()
+            });
           }
         } catch (e) {
-          log.warning('Error processing cache file ${path}: $e');
+          log.warning('Error processing cache file $path: $e');
         }
       }
 
-      if (mappers.isEmpty) {
-        // No mappers found in any files
-        return null;
-      }
-
-      // Sort for deterministic output
-      mappers.sort((a, b) => a['name']!.compareTo(b['name']!));
-
-      // Prepare template data
       return {
-        'isTest': isTest,
         'generatedOn': DateTime.now().toIso8601String(),
-        'imports': imports.toList()..sort(),
+        'isTest': isTest,
         'mappers': mappers,
+        'imports': imports,
+        'model_imports': modelImports,
       };
     } catch (e, stackTrace) {
-      log.severe(
-        'Error generating init_rdf_mapper.g.dart: $e',
-        e,
-        stackTrace,
-      );
+      log.severe('Error building template data: $e', e, stackTrace);
       rethrow;
     }
   }
 
-  Future<String?> build(
+  Future<String> build(
     List<(String path, String package, String content)> jsonFiles,
     AssetReader reader, {
     required bool isTest,
+    required String outputPath,
   }) async {
-    final data = buildTemplateData(jsonFiles, isTest: isTest);
-    if (data == null) {
-      return null;
+    final templateData = buildTemplateData(
+      jsonFiles,
+      isTest: isTest,
+      outputPath: outputPath,
+    );
+    if (templateData == null) {
+      return '';
     }
-    return _templateRenderer.renderInitFileTemplate(data, reader);
+    return await _templateRenderer.renderInitFileTemplate(templateData, reader);
   }
 }
