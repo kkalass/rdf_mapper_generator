@@ -21,6 +21,7 @@ class InitFileBuilderHelper {
       final mappers = <Map<String, dynamic>>[];
       final imports = <Map<String, String>>{};
       final modelImports = <Map<String, String>>{};
+      final providers = <String, Map<String, dynamic>>{};
       final sortedJsonFiles = List.from(jsonFiles)
         ..sort((a, b) {
           final (aPath, aPackage, _) = a;
@@ -43,12 +44,42 @@ class InitFileBuilderHelper {
             final className = mapperData['className'] as String?;
             final mapperClassName = mapperData['mapperClassName'] as String?;
 
+            // Collect context providers if they exist
+            final contextProviders = (mapperData['contextProviders'] as List?)
+                    ?.cast<Map<String, dynamic>>() ??
+                [];
+            for (final ct in contextProviders) {
+              final provider = ct['value'] as Map<String, dynamic>;
+              final variableName = provider['variableName'] as String?;
+              final parameterName = provider['parameterName'] as String?;
+              final placeholder = provider['placeholder'] as String?;
+              final privateFieldName = provider['privateFieldName'] as String?;
+
+              if (variableName != null &&
+                  parameterName != null &&
+                  placeholder != null &&
+                  privateFieldName != null) {
+                providers[variableName] = {
+                  'variableName': variableName,
+                  'parameterName': parameterName,
+                  'placeholder': placeholder,
+                  'privateFieldName': privateFieldName,
+                  'type': 'String', // Default type, can be extended if needed
+                };
+              }
+            }
+
             if (className != null && mapperClassName != null) {
+              final contextProviders = (mapperData['contextProviders'] as List?)
+                      ?.cast<Map<String, dynamic>>() ??
+                  [];
               mappers.add({
                 'name': mapperClassName,
                 'type': className,
                 '_importPath': modelImportPath,
                 '_importIndex': importIndex,
+                'hasContextProviders': contextProviders.isNotEmpty,
+                'contextProviders': contextProviders,
               });
             }
           }
@@ -99,12 +130,24 @@ class InitFileBuilderHelper {
         }
       }
 
+      // Convert providers map to list and sort by parameter name for consistent ordering
+      final sortedProviders = providers.values.toList()
+        ..sort((a, b) => (a['parameterName'] as String)
+            .compareTo(b['parameterName'] as String));
+      // Sort imports and model imports by value for consistent ordering
+      final sortedImports = imports.toList()
+        ..sort((a, b) => a['value']!.compareTo(b['value']!));
+      final sortedModelImports = modelImports.toList()
+        ..sort((a, b) => a['value']!.compareTo(b['value']!));
+
       return {
         'generatedOn': DateTime.now().toIso8601String(),
         'isTest': isTest,
         'mappers': mappers,
-        'imports': imports,
-        'model_imports': modelImports,
+        'imports': sortedImports,
+        'model_imports': sortedModelImports,
+        'providers': sortedProviders,
+        'hasProviders': sortedProviders.isNotEmpty,
       };
     } catch (e, stackTrace) {
       log.severe('Error building template data: $e', e, stackTrace);
@@ -126,6 +169,7 @@ class InitFileBuilderHelper {
     if (templateData == null) {
       return '';
     }
+    print(JsonEncoder.withIndent('  ').convert(templateData));
     return await _templateRenderer.renderInitFileTemplate(templateData, reader);
   }
 }

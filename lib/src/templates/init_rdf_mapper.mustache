@@ -16,14 +16,36 @@ import '{{value}}' as ma_{{index}};
 {{/imports}}
 
 /// Initializes and returns an RdfMapper with {{#isTest}}test {{/isTest}}mappers registered.
-RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({RdfMapper? rdfMapper}) {
+/// 
+/// [rdfMapper] An optional RdfMapper instance to use. If not provided, a new one will be created.
+{{#hasProviders}}
+/// Provider parameters:
+{{#providers}}
+/// * [{{parameterName}}] {{placeholder}}
+{{/providers}}
+{{/hasProviders}}
+RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
+  RdfMapper? rdfMapper,
+  {{#hasProviders}}
+  // Provider parameters
+  {{#providers}}
+  required {{type}} Function() {{parameterName}},
+  {{/providers}}
+  {{/hasProviders}}
+}) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
   }
   var registry = rdfMapper.registry;
 
   {{#mappers}}
-  registry.registerMapper<mo_{{_importIndex}}.{{type}}>(ma_{{_importIndex}}.{{name}}());
+  registry.registerMapper<mo_{{_importIndex}}.{{type}}>(
+    ma_{{_importIndex}}.{{name}}(
+      {{#contextProviders}}
+      {{value.parameterName}}: {{value.parameterName}},
+      {{/contextProviders}}
+    )
+  );
   {{/mappers}}
   
   return rdfMapper;
