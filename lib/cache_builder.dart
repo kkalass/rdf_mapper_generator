@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/element/element2.dart';
@@ -6,14 +7,12 @@ import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
 import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
 
-Builder rdfMapperBuilder(BuilderOptions options) => RdfMapperBuilder();
+Builder rdfMapperCacheBuilder(BuilderOptions options) =>
+    RdfMapperCacheBuilder();
 
-/// Builder that processes RDF annotations and generates mapper classes using mustache templates.
-///
-/// This builder scans Dart files for classes annotated with @RdfGlobalResource and generates
-/// corresponding mapper classes that handle serialization/deserialization between Dart objects
-/// and RDF triples.
-class RdfMapperBuilder implements Builder {
+/// First phase builder that generates cache files with template data.
+/// This builder runs before the main builder and stores the template data in JSON format.
+class RdfMapperCacheBuilder implements Builder {
   static final _builderHelper = BuilderHelper();
 
   @override
@@ -54,7 +53,7 @@ class RdfMapperBuilder implements Builder {
           .map((c) => c.element)
           .toList();
 
-      final generatedCode = await _builderHelper.build(
+      final generatedTemplateData = await _builderHelper.buildTemplateData(
         buildStep.inputId.path,
         classes,
         libsByClassName,
@@ -62,12 +61,13 @@ class RdfMapperBuilder implements Builder {
       );
 
       // Only create output file if we generated code
-      if (generatedCode != null) {
+      if (generatedTemplateData != null) {
         final outputId =
-            buildStep.inputId.changeExtension('.rdf_mapper.g.dart');
-        await buildStep.writeAsString(outputId, generatedCode);
+            buildStep.inputId.changeExtension('.rdf_mapper.cache.json');
+        await buildStep.writeAsString(
+            outputId, jsonEncode(generatedTemplateData));
 
-        log.info('Generated RDF mapper for ${buildStep.inputId.path}');
+        log.info('Generated RDF mapper cache for ${buildStep.inputId.path}');
       }
     } catch (e, stackTrace) {
       log.severe(
@@ -98,6 +98,6 @@ class RdfMapperBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => {
-        '.dart': ['.rdf_mapper.g.dart']
+        '.dart': ['.rdf_mapper.cache.json']
       };
 }

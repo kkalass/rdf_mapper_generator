@@ -1,7 +1,6 @@
 import 'package:build/build.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
-import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 
 /// Renders mustache templates for RDF mapper generation.
 class TemplateRenderer {
@@ -16,37 +15,29 @@ class TemplateRenderer {
 
   /// Renders a global resource mapper using the provided template data.
   Future<String> _renderGlobalResourceMapper(
-      GlobalResourceMapperTemplateData data, AssetReader reader) async {
+      Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('global_resource_mapper', reader);
-    final dataMap = data.toMap();
 
-    // Debug: Print the data being passed to the template
-    print('Rendering template with data:');
-    _printMap(dataMap, '  ');
-
-    final result = template.renderString(dataMap);
-
-    // Debug: Print the rendered result
-    print('Rendered template:');
-    print(result);
+    final result = template.renderString(data);
 
     return result;
   }
 
   /// Renders a complete file using the file template and multiple mappers.
   Future<String> renderFileTemplate(
-      FileTemplateData data, AssetReader reader) async {
+      Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('file_template', reader);
 
     // Render each mapper individually first
     final renderedMappers = <String>[];
-    for (final mapperData in data.mappers) {
-      final mapperCode = switch (mapperData.mapperData) {
-        GlobalResourceMapperTemplateData templateData =>
-          await _renderGlobalResourceMapper(templateData, reader),
+    for (final mapperData in data['mappers']) {
+      final mapperCode = switch (mapperData['__type__']) {
+        'GlobalResourceMapperTemplateData' => await _renderGlobalResourceMapper(
+            mapperData as Map<String, dynamic>, reader),
         // Custom mappers are coded by our users, we do not render them here
-        GlobalResourceMapperCustomTemplateData _ => null,
+        'GlobalResourceMapperCustomTemplateData' => null,
         // Add cases for other mapper types if needed
+        _ => throw Exception('Unknown mapper type: ${mapperData['__type__']}'),
       };
       if (mapperCode == null) {
         continue; // Skip if the mapper code is null (e.g., custom mappers)
@@ -55,34 +46,12 @@ class TemplateRenderer {
     }
 
     // Build the complete file data map
-    final dataMap = data.toMap();
-    dataMap['mappers'] =
+
+    data['mappers'] =
         renderedMappers.map((code) => {'mapperCode': code}).toList();
 
-    final result = template.renderString(dataMap);
+    final result = template.renderString(data);
     return result;
-  }
-
-  // Helper method to print a map for debugging
-  void _printMap(Map<String, dynamic> map, String indent) {
-    map.forEach((key, value) {
-      if (value is Map) {
-        print('$indent$key:');
-        _printMap(value as Map<String, dynamic>, '$indent  ');
-      } else if (value is List) {
-        print('$indent$key: [${value.length} items]');
-        for (var i = 0; i < value.length; i++) {
-          if (value[i] is Map) {
-            print('$indent  [$i]:');
-            _printMap(value[i] as Map<String, dynamic>, '$indent    ');
-          } else {
-            print('$indent  [$i]: ${value[i]}');
-          }
-        }
-      } else {
-        print('$indent$key: $value');
-      }
-    });
   }
 
   /// Gets a template by name, loading and caching it if necessary.

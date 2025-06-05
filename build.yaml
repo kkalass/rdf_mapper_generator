@@ -1,14 +1,27 @@
 targets:
   $default:
     builders:
-      rdf_mapper_generator|rdf_mapper_generator:
+      rdf_mapper_generator|cache_builder:
         generate_for:
           - lib/**.dart
           - test/**.dart
+      rdf_mapper_generator|source_builder:
+        generate_for:
+          - lib/**.rdf_mapper.cache.json
+          - test/**.rdf_mapper.cache.json
+
 builders:
-  rdf_mapper_generator:
-    import: 'package:rdf_mapper_generator/builder.dart'
-    builder_factories: ['rdfMapperBuilder']
-    build_extensions: { '.dart': ['.rdf_mapper.g.dart'] }
+  cache_builder:
+    import: 'package:rdf_mapper_generator/cache_builder.dart'
+    builder_factories: ['rdfMapperCacheBuilder']
+    build_extensions: { '.dart': ['.rdf_mapper.cache.json'] }
+    build_to: cache
+    auto_apply: dependents
+    runs_before: ['rdf_mapper_generator:source_builder']
+    
+  source_builder:
+    import: 'package:rdf_mapper_generator/source_builder.dart'
+    builder_factories: ['rdfMapperSourceBuilder']
+    build_extensions: { '.rdf_mapper.cache.json': ['.rdf_mapper.g.dart'] }
     build_to: source
     auto_apply: dependents

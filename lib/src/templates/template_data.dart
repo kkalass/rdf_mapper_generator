@@ -139,7 +139,12 @@ class MapperData {
 
   const MapperData(this.mapperData);
 
-  Map<String, dynamic> toMap() => mapperData.toMap();
+  Map<String, dynamic> toMap() {
+    return {
+      '__type__': mapperData.runtimeType.toString(),
+      ...mapperData.toMap(),
+    };
+  }
 }
 
 /// Data for import statements
@@ -222,10 +227,11 @@ class IriTemplateData {
   Map<String, dynamic> toMap() {
     return {
       'template': template,
-      'variables': toMustacheList(variables.toList()),
+      'variables': toMustacheList(variables.map((v) => v.toMap()).toList()),
       'propertyVariables':
           toMustacheList(propertyVariables.map((p) => p.toMap()).toList()),
-      'contextVariables': toMustacheList(contextVariables.toList()),
+      'contextVariables':
+          toMustacheList(contextVariables.map((c) => c.toMap()).toList()),
       'regexPattern': regexPattern,
     };
   }
