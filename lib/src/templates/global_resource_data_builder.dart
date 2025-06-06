@@ -2,6 +2,9 @@ import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/utils/iri_parser.dart';
+import 'package:logging/logging.dart';
+
+final _log = Logger('GlobalResourceDataBuilder');
 
 /// Builds template data from processed resource information.
 class GlobalResourceDataBuilder {
@@ -105,13 +108,15 @@ class GlobalResourceDataBuilder {
           type: type.type,
         );
       } else if (mapper.type != null) {
-        final typeValue = mapper.type?.toStringValue();
+        final typeValue = mapper.type?.toTypeValue()?.getDisplayString();
         if (typeValue != null) {
           mapperRef = MapperRefData(
             implementationType: typeValue,
             isTypeBased: true,
             type: type.type,
           );
+        } else {
+          _log.warning('Mapper type is not based on a type: $mapper');
         }
       } else if (mapper.instance != null) {
         mapperRef = MapperRefData(
