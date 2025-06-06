@@ -73,11 +73,48 @@ class Code {
     if (codes.isEmpty) return Code.literal('');
     if (codes.length == 1) return codes.first;
 
-    final combinedCode = codes.map((c) => c._code).join(separator);
     final combinedImports = <String, ImportInfo>{};
+    final aliasToUriMap = <String, String>{}; // Maps alias to URI
+    final aliasMapping = <String, String>{}; // Maps original URI to final alias
 
+    // First pass: collect all imports and resolve alias conflicts
     for (final code in codes) {
-      combinedImports.addAll(code._imports);
+      for (final entry in code._imports.entries) {
+        final uri = entry.key;
+        final importInfo = entry.value;
+        final originalAlias = importInfo.alias;
+
+        if (combinedImports.containsKey(uri)) {
+          // URI already exists, use the same alias
+          continue;
+        }
+
+        String finalAlias = originalAlias;
+        int counter = 2;
+
+        // Check for alias conflicts and generate unique alias if needed
+        while (aliasToUriMap.containsKey(finalAlias) &&
+            aliasToUriMap[finalAlias] != uri) {
+          finalAlias = '$originalAlias$counter';
+          counter++;
+        }
+
+        // Record the mapping
+        aliasToUriMap[finalAlias] = uri;
+        aliasMapping[uri] = finalAlias;
+        combinedImports[uri] = ImportInfo(uri: uri, alias: finalAlias);
+      }
+    }
+
+    // Second pass: update code with resolved aliases
+    String combinedCode = '';
+    for (int i = 0; i < codes.length; i++) {
+      final code = codes[i];
+      final mappedCode = code.mapAliases(aliasMapping);
+      combinedCode += mappedCode._code;
+      if (i < codes.length - 1) {
+        combinedCode += separator;
+      }
     }
 
     return Code._(combinedCode, combinedImports);

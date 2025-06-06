@@ -38,22 +38,45 @@ void main() {
         expect(code.code, equals('foo.MyClass'));
         expect(code.hasImports, isTrue);
         expect(code.imports, hasLength(1));
-        expect(code.imports['package:foo/bar.dart']?.uri, equals('package:foo/bar.dart'));
+        expect(code.imports['package:foo/bar.dart']?.uri,
+            equals('package:foo/bar.dart'));
         expect(code.imports['package:foo/bar.dart']?.alias, equals('foo'));
       });
 
+      test('combine code with conflicting import aliases', () {
+        final code = Code.type('MyClass', importUri: 'package:foo/bar.dart');
+        final code2 = Code.type('MyClass2', importUri: 'package:foo/bar.dart');
+        final code3 = Code.type('MyClass', importUri: 'package:foo/baz.dart');
+        final code4 = Code.combine([
+          code,
+          Code.literal('<'),
+          code3,
+          Code.literal(', '),
+          code2,
+          Code.literal('>')
+        ]);
+        expect(code4.code, equals('foo.MyClass<foo2.MyClass, foo.MyClass2>'));
+        expect(code4.hasImports, isTrue);
+        expect(code4.imports, hasLength(2));
+        expect(code4.imports['package:foo/bar.dart']?.uri,
+            equals('package:foo/bar.dart'));
+        expect(code4.imports['package:foo/bar.dart']?.alias, equals('foo'));
+        expect(code4.imports['package:foo/baz.dart']?.uri,
+            equals('package:foo/baz.dart'));
+        expect(code4.imports['package:foo/baz.dart']?.alias, equals('foo2'));
+      });
+
       test('uses custom alias when provided', () {
-        final code = Code.type('MyClass', 
-            importUri: 'package:foo/bar.dart', 
-            alias: 'custom');
+        final code = Code.type('MyClass',
+            importUri: 'package:foo/bar.dart', alias: 'custom');
 
         expect(code.code, equals('custom.MyClass'));
         expect(code.imports['package:foo/bar.dart']?.alias, equals('custom'));
       });
 
       test('handles qualified type names correctly', () {
-        final code = Code.type('MyClass.InnerClass', 
-            importUri: 'package:foo/bar.dart');
+        final code =
+            Code.type('MyClass.InnerClass', importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('foo.InnerClass'));
         expect(code.imports['package:foo/bar.dart']?.alias, equals('foo'));
@@ -77,8 +100,8 @@ void main() {
       });
 
       test('creates code with import for regular constructor', () {
-        final code = Code.constructor('MyClass()', 
-            importUri: 'package:foo/bar.dart');
+        final code =
+            Code.constructor('MyClass()', importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('foo.MyClass()'));
         expect(code.hasImports, isTrue);
@@ -86,7 +109,7 @@ void main() {
       });
 
       test('handles const constructors correctly', () {
-        final code = Code.constructor('const MyClass()', 
+        final code = Code.constructor('const MyClass()',
             importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('const foo.MyClass()'));
@@ -94,7 +117,7 @@ void main() {
       });
 
       test('handles named constructors', () {
-        final code = Code.constructor('MyClass.named()', 
+        final code = Code.constructor('MyClass.named()',
             importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('foo.MyClass.named()'));
@@ -102,7 +125,7 @@ void main() {
       });
 
       test('handles const named constructors', () {
-        final code = Code.constructor('const MyClass.named()', 
+        final code = Code.constructor('const MyClass.named()',
             importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('const foo.MyClass.named()'));
@@ -110,7 +133,7 @@ void main() {
       });
 
       test('handles constructors with parameters', () {
-        final code = Code.constructor('MyClass("param1", 42)', 
+        final code = Code.constructor('MyClass("param1", 42)',
             importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('foo.MyClass("param1", 42)'));
@@ -118,7 +141,7 @@ void main() {
       });
 
       test('handles constructors with nested parentheses', () {
-        final code = Code.constructor('MyClass(SomeOtherClass())', 
+        final code = Code.constructor('MyClass(SomeOtherClass())',
             importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('foo.MyClass(SomeOtherClass())'));
@@ -126,16 +149,15 @@ void main() {
       });
 
       test('uses custom alias when provided', () {
-        final code = Code.constructor('MyClass()', 
-            importUri: 'package:foo/bar.dart',
-            alias: 'custom');
+        final code = Code.constructor('MyClass()',
+            importUri: 'package:foo/bar.dart', alias: 'custom');
 
         expect(code.code, equals('custom.MyClass()'));
         expect(code.imports['package:foo/bar.dart']?.alias, equals('custom'));
       });
 
       test('falls back to literal when constructor parsing fails', () {
-        final code = Code.constructor('invalidConstructor', 
+        final code = Code.constructor('invalidConstructor',
             importUri: 'package:foo/bar.dart');
 
         expect(code.code, equals('invalidConstructor'));
@@ -220,14 +242,15 @@ void main() {
         final mapped = code.mapAliases({'package:foo/bar.dart': 'newAlias'});
 
         expect(mapped.code, equals('newAlias.MyClass'));
-        expect(mapped.imports['package:foo/bar.dart']?.alias, equals('foo')); // Original import info preserved
+        expect(mapped.imports['package:foo/bar.dart']?.alias,
+            equals('foo')); // Original import info preserved
       });
 
       test('handles multiple alias mappings', () {
         final code1 = Code.type('ClassA', importUri: 'package:foo/a.dart');
         final code2 = Code.type('ClassB', importUri: 'package:bar/b.dart');
         final combined = Code.combine([code1, code2], separator: ' + ');
-        
+
         final mapped = combined.mapAliases({
           'package:foo/a.dart': 'aliasA',
           'package:bar/b.dart': 'aliasB',
@@ -240,7 +263,7 @@ void main() {
         final code1 = Code.type('ClassA', importUri: 'package:foo/a.dart');
         final code2 = Code.type('ClassB', importUri: 'package:bar/b.dart');
         final combined = Code.combine([code1, code2], separator: ' + ');
-        
+
         final mapped = combined.mapAliases({
           'package:foo/a.dart': 'aliasA',
           // package:bar/b.dart not included in mapping
@@ -249,12 +272,13 @@ void main() {
         expect(mapped.code, equals('aliasA.ClassA + bar.ClassB'));
       });
 
-      test('handles word boundaries correctly to avoid partial replacements', () {
+      test('handles word boundaries correctly to avoid partial replacements',
+          () {
         // Create a combined code that simulates having imports
         final code1 = Code.type('ClassA', importUri: 'package:foo/a.dart');
         final code2 = Code.literal('bar.ClassB');
         final combined = Code.combine([code1, code2], separator: ' foo');
-        
+
         final mapped = combined.mapAliases({
           'package:foo/a.dart': 'newFoo',
         });
@@ -269,35 +293,40 @@ void main() {
       test('generates consistent aliases for package URIs', () {
         final code1 = Code.type('MyClass', importUri: 'package:foo/bar.dart');
         final code2 = Code.type('MyClass', importUri: 'package:foo/bar.dart');
-        
+
         expect(code1.code, equals(code2.code));
         expect(code1.imports.keys.first, equals(code2.imports.keys.first));
-        expect(code1.imports.values.first.alias, equals(code2.imports.values.first.alias));
+        expect(code1.imports.values.first.alias,
+            equals(code2.imports.values.first.alias));
       });
 
       test('generates different aliases for different package URIs', () {
         final code1 = Code.type('MyClass', importUri: 'package:foo/bar.dart');
         final code2 = Code.type('MyClass', importUri: 'package:baz/qux.dart');
-        
-        expect(code1.imports.values.first.alias, isNot(equals(code2.imports.values.first.alias)));
+
+        expect(code1.imports.values.first.alias,
+            isNot(equals(code2.imports.values.first.alias)));
       });
 
       test('handles complex package names appropriately', () {
-        final code = Code.type('MyClass', importUri: 'package:my_complex_package/lib/models.dart');
-        
+        final code = Code.type('MyClass',
+            importUri: 'package:my_complex_package/lib/models.dart');
+
         expect(code.code, contains('.MyClass'));
         expect(code.hasImports, isTrue);
         // The alias should be some sanitized version of the package name
-        expect(code.imports.values.first.alias, matches(RegExp(r'^[a-zA-Z0-9_]+$')));
+        expect(code.imports.values.first.alias,
+            matches(RegExp(r'^[a-zA-Z0-9_]+$')));
       });
 
       test('handles dart: imports appropriately', () {
         final code = Code.type('Future', importUri: 'dart:async');
-        
+
         expect(code.code, contains('.Future'));
         expect(code.hasImports, isTrue);
         // Should generate a reasonable alias for dart: imports
-        expect(code.imports.values.first.alias, matches(RegExp(r'^[a-zA-Z0-9_]+$')));
+        expect(code.imports.values.first.alias,
+            matches(RegExp(r'^[a-zA-Z0-9_]+$')));
       });
     });
 
@@ -311,10 +340,11 @@ void main() {
       test('imports getter returns unmodifiable map', () {
         final code = Code.type('MyClass', importUri: 'package:foo/bar.dart');
         final imports = code.imports;
-        
+
         expect(imports, isA<Map<String, ImportInfo>>());
-        expect(() => imports['new'] = const ImportInfo(uri: 'test', alias: 'test'), 
-               throwsUnsupportedError);
+        expect(
+            () => imports['new'] = const ImportInfo(uri: 'test', alias: 'test'),
+            throwsUnsupportedError);
       });
 
       test('hasImports returns false for literal code', () {
@@ -340,7 +370,7 @@ void main() {
       test('equal instances have same hashCode', () {
         final code1 = Code.literal('test');
         final code2 = Code.literal('test');
-        
+
         expect(code1 == code2, isTrue);
         // Note: Due to Map.hashCode implementation, identical content may have different hashCodes
         // across different instances. This is acceptable as long as equality works correctly.
@@ -349,21 +379,21 @@ void main() {
       test('different code strings are not equal', () {
         final code1 = Code.literal('test1');
         final code2 = Code.literal('test2');
-        
+
         expect(code1 == code2, isFalse);
       });
 
       test('different imports are not equal', () {
         final code1 = Code.type('MyClass', importUri: 'package:foo/bar.dart');
         final code2 = Code.type('MyClass', importUri: 'package:baz/qux.dart');
-        
+
         expect(code1 == code2, isFalse);
       });
 
       test('same code and imports are equal', () {
         final code1 = Code.type('MyClass', importUri: 'package:foo/bar.dart');
         final code2 = Code.type('MyClass', importUri: 'package:foo/bar.dart');
-        
+
         expect(code1 == code2, isTrue);
         // Note: Due to Map.hashCode implementation, identical content may have different hashCodes
         // across different instances. This is acceptable as long as equality works correctly.
@@ -371,7 +401,7 @@ void main() {
 
       test('identical instances are equal', () {
         final code = Code.literal('test');
-        
+
         expect(code == code, isTrue);
       });
 
@@ -379,13 +409,13 @@ void main() {
         final code = Code.literal('test');
         final hashCode1 = code.hashCode;
         final hashCode2 = code.hashCode;
-        
+
         expect(hashCode1, equals(hashCode2));
       });
 
       test('comparing with different type returns false', () {
         final code = Code.literal('test');
-        
+
         expect(code == 'test', isFalse);
       });
     });
@@ -394,8 +424,9 @@ void main() {
   group('ImportInfo', () {
     group('constructor', () {
       test('creates instance with required parameters', () {
-        const importInfo = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
-        
+        const importInfo =
+            ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
+
         expect(importInfo.uri, equals('package:foo/bar.dart'));
         expect(importInfo.alias, equals('foo'));
       });
@@ -405,7 +436,7 @@ void main() {
       test('equal instances have same hashCode', () {
         const info1 = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
         const info2 = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
-        
+
         expect(info1 == info2, isTrue);
         expect(info1.hashCode, equals(info2.hashCode));
       });
@@ -413,26 +444,26 @@ void main() {
       test('different uri makes instances unequal', () {
         const info1 = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
         const info2 = ImportInfo(uri: 'package:baz/qux.dart', alias: 'foo');
-        
+
         expect(info1 == info2, isFalse);
       });
 
       test('different alias makes instances unequal', () {
         const info1 = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
         const info2 = ImportInfo(uri: 'package:foo/bar.dart', alias: 'bar');
-        
+
         expect(info1 == info2, isFalse);
       });
 
       test('identical instances are equal', () {
         const info = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
-        
+
         expect(info == info, isTrue);
       });
 
       test('comparing with different type returns false', () {
         const info = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
-        
+
         expect(info == 'test', isFalse);
       });
     });
@@ -440,8 +471,9 @@ void main() {
     group('toString', () {
       test('returns formatted string representation', () {
         const info = ImportInfo(uri: 'package:foo/bar.dart', alias: 'foo');
-        
-        expect(info.toString(), equals('ImportInfo(uri: package:foo/bar.dart, alias: foo)'));
+
+        expect(info.toString(),
+            equals('ImportInfo(uri: package:foo/bar.dart, alias: foo)'));
       });
     });
   });
