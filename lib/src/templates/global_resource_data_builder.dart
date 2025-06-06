@@ -51,6 +51,7 @@ class GlobalResourceDataBuilder {
       contextProviders: contextProviders,
       constructorParameters: resourceConstructorParameters,
       needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
+      registerGlobally: resourceInfo.annotation.registerGlobally,
     );
   }
 

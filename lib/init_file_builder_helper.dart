@@ -73,14 +73,19 @@ class InitFileBuilderHelper {
               final contextProviders = (mapperData['contextProviders'] as List?)
                       ?.cast<Map<String, dynamic>>() ??
                   [];
-              mappers.add({
-                'name': mapperClassName,
-                'type': className,
-                '_importPath': modelImportPath,
-                '_importIndex': importIndex,
-                'hasContextProviders': contextProviders.isNotEmpty,
-                'contextProviders': contextProviders,
-              });
+              final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+              
+              // Only add the mapper if registerGlobally is true or not set (defaults to true)
+              if (registerGlobally) {
+                mappers.add({
+                  'name': mapperClassName,
+                  'type': className,
+                  '_importPath': modelImportPath,
+                  '_importIndex': importIndex,
+                  'hasContextProviders': contextProviders.isNotEmpty,
+                  'contextProviders': contextProviders,
+                });
+              }
             }
           }
 

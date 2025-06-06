@@ -100,16 +100,29 @@ class GlobalResourceMapperTemplateData
   final List<ContextProviderData> contextProviders;
 
   final bool needsReader;
+
+  /// Whether to register this mapper globally
+  final bool registerGlobally;
+
   const GlobalResourceMapperTemplateData({
-    required this.imports,
-    required this.className,
-    required this.mapperClassName,
-    required this.typeIri,
-    required this.iriStrategy,
-    required this.contextProviders,
-    required this.constructorParameters,
-    required this.needsReader,
-  });
+    required List<ImportData> imports,
+    required String className,
+    required String mapperClassName,
+    required String? typeIri,
+    required IriStrategyData iriStrategy,
+    required List<ContextProviderData> contextProviders,
+    required List<ParameterData> constructorParameters,
+    required bool needsReader,
+    required bool registerGlobally,
+  })  : imports = imports,
+        className = className,
+        mapperClassName = mapperClassName,
+        typeIri = typeIri,
+        iriStrategy = iriStrategy,
+        contextProviders = contextProviders,
+        constructorParameters = constructorParameters,
+        needsReader = needsReader,
+        registerGlobally = registerGlobally;
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -129,6 +142,7 @@ class GlobalResourceMapperTemplateData
       'hasMapperConstructorParameters':
           iriStrategy.hasMapper || contextProviders.isNotEmpty,
       'needsReader': needsReader,
+      'registerGlobally': registerGlobally,
     };
   }
 }
