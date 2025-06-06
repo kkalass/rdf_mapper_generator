@@ -5,10 +5,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
-import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
-
-final _log = Logger('IriStrategyProcessor');
 
 /// Processes IRI strategy templates and extracts variable information.
 ///
