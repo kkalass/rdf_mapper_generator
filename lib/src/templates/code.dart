@@ -48,12 +48,19 @@ class Code {
     // Replace the constructor with the aliased version
     final parts = constructorCall.split('(');
     if (parts.length >= 2) {
-      final constructorName = parts[0];
+      final constructorPart = parts[0].trim();
       final remainder = parts.sublist(1).join('(');
-      final aliasedConstructor = constructorName.contains('.')
-          ? constructorName.replaceFirst(
-              constructorName.split('.').first, effectiveAlias)
-          : '$effectiveAlias.$constructorName';
+
+      String aliasedConstructor;
+      if (constructorPart.startsWith('const ')) {
+        // Handle const constructors: "const MyClass" or "const MyClass.named"
+        final constructorName = constructorPart.substring(6); // Remove "const "
+        aliasedConstructor = 'const $effectiveAlias.$constructorName';
+      } else {
+        // Handle regular constructors: "MyClass" or "MyClass.named"
+        aliasedConstructor = '$effectiveAlias.$constructorPart';
+      }
+
       final aliasedCode = '$aliasedConstructor($remainder';
       return Code._(aliasedCode, imports);
     }
