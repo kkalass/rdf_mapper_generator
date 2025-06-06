@@ -39,7 +39,8 @@ class GlobalResourceDataBuilder {
         _buildContextProviders(resourceInfo.annotation.iri?.templateInfo);
 
     // Build constructor parameters
-    final constructorParameters = _buildConstructorParameters(resourceInfo);
+    final resourceConstructorParameters =
+        _buildResourceConstructorParameters(resourceInfo);
 
     return GlobalResourceMapperTemplateData(
       imports: imports,
@@ -48,7 +49,7 @@ class GlobalResourceDataBuilder {
       typeIri: typeIri,
       iriStrategy: iriStrategy,
       contextProviders: contextProviders,
-      constructorParameters: constructorParameters,
+      constructorParameters: resourceConstructorParameters,
       needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
     );
   }
@@ -92,10 +93,47 @@ class GlobalResourceDataBuilder {
     }
 
     final template = iriStrategy.template;
+    final mapper = iriStrategy.mapper;
+    final type = iriStrategy.iriMapperType;
+    MapperRefData? mapperRef;
+    if (mapper != null && type != null) {
+      if (mapper.name != null) {
+        mapperRef = MapperRefData(
+          name: mapper.name,
+          isNamed: true,
+          type: type.type,
+        );
+      } else if (mapper.type != null) {
+        final typeValue = mapper.type?.toStringValue();
+        if (typeValue != null) {
+          mapperRef = MapperRefData(
+            implementationType: typeValue,
+            isTypeBased: true,
+            type: type.type,
+          );
+        }
+      } else if (mapper.instance != null) {
+        mapperRef = MapperRefData(
+          isInstance: true,
+          type: type.type,
+          instanceInitializationCode: toCode(mapper.instance),
+        );
+      }
+    }
+    final iriMapperParts = type?.parts
+            .map((p) => IriPartData(
+                  name: p.name,
+                  dartPropertyName: p.dartPropertyName,
+                ))
+            .toList() ??
+        [];
     return IriStrategyData(
       template: template == null
           ? null
           : _buildTemplateData(iriStrategy.templateInfo!),
+      mapper: mapperRef,
+      hasMapper: mapperRef != null,
+      iriMapperParts: iriMapperParts,
     );
   }
 
@@ -139,7 +177,7 @@ class GlobalResourceDataBuilder {
   }
 
   /// Builds constructor parameter data for the template.
-  static List<ParameterData> _buildConstructorParameters(
+  static List<ParameterData> _buildResourceConstructorParameters(
       GlobalResourceInfo resourceInfo) {
     final parameters = <ParameterData>[];
 

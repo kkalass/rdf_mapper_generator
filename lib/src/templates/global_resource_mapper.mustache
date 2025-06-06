@@ -8,13 +8,22 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   final String Function() {{value.privateFieldName}};
   {{/contextProviders}}
 
+  {{#iriStrategy.hasMapper}}
+  final {{iriStrategy.mapper.type}} _iriMapper;
+  {{/iriStrategy.hasMapper}}
+
   /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
-  const {{mapperClassName}}({{#hasContextProviders}}{
+  const {{mapperClassName}}({{#hasMapperConstructorParameters}}{
+    {{#iriStrategy.hasMapper}}
+    required {{iriStrategy.mapper.type}} iriMapper
+    {{/iriStrategy.hasMapper}}
     {{#contextProviders}}
+    {{#iriStrategy.hasMapper}},{{/iriStrategy.hasMapper}}
     required String Function() {{value.parameterName}},
     {{/contextProviders}}
-  }{{/hasContextProviders}}){{#hasContextProviders}} : {{#contextProviders}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
-       {{/last}}{{/contextProviders}}{{/hasContextProviders}};
+  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#iriStrategy.hasMapper}}_iriMapper = iriMapper{{/iriStrategy.hasMapper}}{{#contextProviders}}{{#iriStrategy.hasMapper}},
+       {{/iriStrategy.hasMapper}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
+       {{/last}}{{/contextProviders}}{{/hasMapperConstructorParameters}};
 
   @override
   IriTerm get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
@@ -30,6 +39,11 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     {{#hasTemplate}}
     final iriParts = _parseIriParts(subject.iri);
     {{/hasTemplate}}
+    {{#hasMapper}}
+    {{#hasIriMapperParts}}
+    final ({{#iriMapperParts}}{{value.dartPropertyName}}, {{/iriMapperParts}}) = _iriMapper.fromRdfTerm(subject, context);
+    {{/hasIriMapperParts}}
+    {{/hasMapper}}
     {{/iriStrategy}}
     
     {{#constructorParameters}}
@@ -39,8 +53,8 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     {{#value.isRdfProperty}}
     final {{value.name}} = reader.{{#value.isRequired}}require{{/value.isRequired}}{{^value.isRequired}}optional{{/value.isRequired}}<{{value.dartType}}>({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isRdfProperty}}
-    {{/constructorParameters}}
 
+    {{/constructorParameters}}
     return {{className}}(
       {{#constructorParameters}}
       {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{value.name}}{{^last}},{{/last}}
@@ -55,7 +69,18 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     RdfSubject? parentSubject,
   }) {
     {{#iriStrategy}}
-    final subject = {{#hasTemplate}}IriTerm(_buildIri(resource)){{/hasTemplate}}{{^hasTemplate}}IriTerm('{{baseIri}}'){{/hasTemplate}};
+    {{#hasTemplate}}
+    final subject = IriTerm(_buildIri(resource));
+    {{/hasTemplate}}
+    {{#hasMapper}}
+    {{#hasIriMapperParts}}
+    final subject = _iriMapper.toRdfTerm(({{#iriMapperParts}}resource.{{value.dartPropertyName}}, {{/iriMapperParts}}) , context);
+    {{/hasIriMapperParts}}
+    {{^hasIriMapperParts}}
+    final subject = _iriMapper.toRdfTerm(resource, context);
+    {{/hasIriMapperParts}}
+    {{/hasMapper}}
+
     {{/iriStrategy}}
     
     final builder = context.resourceBuilder(subject);

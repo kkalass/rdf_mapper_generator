@@ -1,25 +1,58 @@
+import 'dart:math';
+
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:logging/logging.dart';
+
+final _log = Logger('IriStrategyProcessor');
 
 /// Processes IRI strategy templates and extracts variable information.
 ///
 /// This processor analyzes IRI templates used in @RdfGlobalResource annotations
 /// to extract variables, validate patterns, and categorize variables by their source.
 class IriStrategyProcessor {
+  static IriStrategyInfo? processIriStrategy(
+      DartObject iriValue, ClassElement2 classElement) {
+    // Check if we have an iri field (for the standard constructor)
+    final template = getField(iriValue, 'template')?.toStringValue();
+    final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
+    final iriParts = _findIriPartFields(classElement);
+    // Process template if it exists
+    final templateInfo = template != null
+        ? processTemplate(template, classElement, iriParts: iriParts)
+        : null;
+    final (iriMapperType, typeWarnings) =
+        _getIriMapperType(classElement.name3!, iriParts);
+    if (typeWarnings.isNotEmpty) {
+      _log.warning('Type warnings: $typeWarnings');
+    }
+    return IriStrategyInfo(
+      mapper: mapper,
+      template: template,
+      templateInfo: templateInfo,
+      iriMapperType: iriMapperType,
+    );
+  }
+
   /// Processes an IRI template and extracts information about variables and validation.
   ///
   /// Returns an [IriTemplateInfo] containing parsed template data, or null if the
   /// template is invalid or empty.
   static IriTemplateInfo? processTemplate(
-      String? template, ClassElement2 classElement) {
+      String? template, ClassElement2 classElement,
+      {List<IriPartInfo>? iriParts}) {
     if (template == null || template.isEmpty) {
       return null;
     }
 
     try {
+      iriParts ??= _findIriPartFields(classElement);
       final variables = _extractVariables(template);
-      final propertyResult = _findPropertyVariables(variables, classElement);
+      final propertyResult = _findPropertyVariables(variables, iriParts);
+
       final propertyNames =
           propertyResult.propertyVariables.map((pn) => pn.name).toSet();
       final contextVariables = Set.unmodifiable(variables.entries
@@ -84,9 +117,33 @@ class IriStrategyProcessor {
   /// them against the extracted variables. Also detects unused @RdfIriPart annotations
   /// that don't correspond to any template variable.
   static _PropertyVariablesResult _findPropertyVariables(
-      Map<String, VariableName> variables, ClassElement2 classElement) {
+      Map<String, VariableName> variables, List<IriPartInfo> iriParts) {
     final propertyVariables = <VariableName>{};
     final warnings = <String>[];
+
+    for (final iriPart in iriParts) {
+      final name = iriPart.name;
+      if (variables.containsKey(name)) {
+        final variable = variables[name]!;
+        propertyVariables.add(VariableName(
+            name: name,
+            dartPropertyName: iriPart.dartPropertyName,
+            canBeUri: variable.canBeUri));
+      } else {
+        // Generate warning for unused @RdfIriPart annotation
+        warnings.add(
+            'Property \'${iriPart.dartPropertyName}\' is annotated with @RdfIriPart(\'$name\') but \'$name\' is not used in the IRI template');
+      }
+    }
+
+    return _PropertyVariablesResult(
+      propertyVariables: Set.unmodifiable(propertyVariables),
+      warnings: warnings,
+    );
+  }
+
+  static List<IriPartInfo> _findIriPartFields(ClassElement2 classElement) {
+    final result = <IriPartInfo>[];
 
     for (final field in classElement.fields2) {
       if (field.isStatic || field.isSynthetic) continue;
@@ -123,26 +180,19 @@ class IriStrategyProcessor {
             name = nameValue;
           }
         }
-
+        final pos = annotationValue.getField('pos')?.toIntValue() ?? 0;
         // Add to property variables if it matches a template variable
-        if (variables.containsKey(name)) {
-          final variable = variables[name]!;
-          propertyVariables.add(VariableName(
-              name: name,
-              dartPropertyName: field.name3!,
-              canBeUri: variable.canBeUri));
-        } else {
-          // Generate warning for unused @RdfIriPart annotation
-          warnings.add(
-              'Property \'${field.name3}\' is annotated with @RdfIriPart(\'$name\') but \'$name\' is not used in the IRI template');
-        }
+
+        result.add(IriPartInfo(
+          name: name,
+          dartPropertyName: field.name3!,
+          type: field.type.getDisplayString(),
+          pos: pos,
+        ));
       }
     }
 
-    return _PropertyVariablesResult(
-      propertyVariables: Set.unmodifiable(propertyVariables),
-      warnings: warnings,
-    );
+    return result;
   }
 
   /// Validates an IRI template for correctness and common issues.
@@ -288,6 +338,36 @@ class IriStrategyProcessor {
     // Must start with letter or underscore, followed by letters, digits, or underscores
     final regex = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$');
     return regex.hasMatch(variable) && variable.isNotEmpty;
+  }
+
+  static (IriMapperType?, List<String>) _getIriMapperType(
+      String resourceClassType, List<IriPartInfo> iriParts) {
+    if (iriParts.isEmpty) {
+      return (IriMapperType('IriTermMapper<$resourceClassType>', []), []);
+    }
+    // Sort by position
+    final iriPartFields = [...iriParts]..sort((a, b) => a.pos.compareTo(b.pos));
+
+    // Validate positions
+    if (iriPartFields.length > 1) {
+      final positions = iriPartFields.map((e) => e.pos).toSet();
+      if (positions.length != iriPartFields.length) {
+        return (null, ['Duplicate position values in RdfIriPart annotations']);
+      }
+      final minPos = iriPartFields.map((e) => e.pos).reduce(min);
+      if (minPos != 1) {
+        return (null, ['RdfIriPart annotations must start at position 1']);
+      }
+    }
+
+    final recordFields =
+        iriPartFields.map((f) => '${f.type} ${f.name}').join(', ');
+
+    return (
+      IriMapperType(
+          'IriTermMapper<($recordFields,)>', List.unmodifiable(iriPartFields)),
+      []
+    );
   }
 }
 

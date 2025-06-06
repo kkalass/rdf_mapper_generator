@@ -83,19 +83,7 @@ class GlobalResourceProcessor {
     if (iriValue == null || iriValue.isNull) {
       return null;
     }
-    final template = getField(iriValue, 'template')?.toStringValue();
-    final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
-
-    // Process template if it exists
-    final templateInfo = template != null
-        ? IriStrategyProcessor.processTemplate(template, classElement)
-        : null;
-
-    return IriStrategyInfo(
-      mapper: mapper,
-      template: template,
-      templateInfo: templateInfo,
-    );
+    return IriStrategyProcessor.processIriStrategy(iriValue, classElement);
   }
 
   static List<ConstructorInfo> _extractConstructors(ClassElement2 classElement,

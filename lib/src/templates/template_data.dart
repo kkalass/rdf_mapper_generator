@@ -1,5 +1,48 @@
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
+/// Information about a mapper reference
+class MapperRefData {
+  /// The name of the mapper (for named mappers)
+  final String? name;
+
+  /// The type of the mapper implementation (for type-based mappers)
+  final String? implementationType;
+
+  /// The (interface) type of the mapper (for all mappers)
+  final String type;
+
+  /// Whether this is a named mapper
+  final bool isNamed;
+
+  /// Whether this is a type-based mapper
+  final bool isTypeBased;
+
+  /// Whether this is a direct instance
+  final bool isInstance;
+
+  final String? instanceInitializationCode;
+
+  const MapperRefData({
+    this.name,
+    this.implementationType,
+    required this.type,
+    this.isNamed = false,
+    this.isTypeBased = false,
+    this.isInstance = false,
+    this.instanceInitializationCode,
+  });
+
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'implementationType': implementationType,
+        'type': type,
+        'isNamed': isNamed,
+        'isTypeBased': isTypeBased,
+        'isInstance': isInstance,
+        'instanceInitializationCode': instanceInitializationCode,
+      };
+}
+
 sealed class MappableClassMapperTemplateData {
   /// Required imports for the generated file
   List<ImportData> get imports;
@@ -83,6 +126,8 @@ class GlobalResourceMapperTemplateData
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
       'hasContextProviders': contextProviders.isNotEmpty,
+      'hasMapperConstructorParameters':
+          iriStrategy.hasMapper || contextProviders.isNotEmpty,
       'needsReader': needsReader,
     };
   }
@@ -237,19 +282,45 @@ class IriTemplateData {
   }
 }
 
-/// Data for IRI strategy
-class IriStrategyData {
-  final IriTemplateData? template;
+class IriPartData {
+  final String name;
+  final String dartPropertyName;
 
-  // FIXME: support non-template IRIs (aka custom mappers)
-
-  const IriStrategyData({
-    this.template,
+  const IriPartData({
+    required this.name,
+    required this.dartPropertyName,
   });
 
   Map<String, dynamic> toMap() => {
-        'hasTemplate': template != null,
+        'name': name,
+        'dartPropertyName': dartPropertyName,
+      };
+}
+
+/// Data for IRI strategy
+class IriStrategyData {
+  final IriTemplateData? template;
+  final MapperRefData? mapper;
+  final bool hasMapper;
+  final List<IriPartData> iriMapperParts;
+
+  const IriStrategyData({
+    this.template,
+    this.mapper,
+    this.hasMapper = false,
+    required this.iriMapperParts,
+  });
+
+  bool get hasTemplate => template != null;
+
+  Map<String, dynamic> toMap() => {
         'template': template?.toMap(),
+        'hasTemplate': hasTemplate,
+        'mapper': mapper?.toMap(),
+        'hasMapper': hasMapper,
+        'iriMapperParts':
+            toMustacheList(iriMapperParts.map((p) => p.toMap()).toList()),
+        'hasIriMapperParts': iriMapperParts.isNotEmpty,
       };
 }
 

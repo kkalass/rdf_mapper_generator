@@ -60,15 +60,18 @@ class GlobalResourceInfo implements MappableClassInfo {
 class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   final String? template;
   final IriTemplateInfo? templateInfo;
+  final IriMapperType? iriMapperType;
 
   IriStrategyInfo({
     required super.mapper,
     required this.template,
     this.templateInfo,
+    this.iriMapperType,
   });
 
   @override
-  int get hashCode => Object.hashAll([mapper, template, templateInfo]);
+  int get hashCode =>
+      Object.hashAll([mapper, template, templateInfo, iriMapperType]);
 
   @override
   bool operator ==(Object other) {
@@ -77,7 +80,8 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
     }
     return mapper == other.mapper &&
         template == other.template &&
-        templateInfo == other.templateInfo;
+        templateInfo == other.templateInfo &&
+        iriMapperType == other.iriMapperType;
   }
 }
 
@@ -106,6 +110,59 @@ class VariableName {
   @override
   String toString() =>
       'VariableName(dartPropertyName: $dartPropertyName, name: $name, canBeUri: $canBeUri)';
+}
+
+class IriPartInfo {
+  final String name;
+  final String dartPropertyName;
+  final String type;
+  final int pos;
+
+  const IriPartInfo({
+    required this.name,
+    required this.dartPropertyName,
+    required this.type,
+    required this.pos,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is IriPartInfo &&
+        other.name == name &&
+        other.dartPropertyName == dartPropertyName &&
+        other.type == type &&
+        other.pos == pos;
+  }
+
+  @override
+  int get hashCode => Object.hash(name, dartPropertyName, type, pos);
+
+  @override
+  String toString() =>
+      'IriPartInfo(name: $name, dartPropertyName: $dartPropertyName, type: $type, pos: $pos)';
+}
+
+class IriMapperType {
+  final String type;
+  final List<IriPartInfo> parts;
+
+  const IriMapperType(this.type, this.parts);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is IriMapperType &&
+        other.type == type &&
+        other.parts.length == parts.length &&
+        other.parts.every((part) => parts.contains(part));
+  }
+
+  @override
+  int get hashCode => Object.hash(type, parts);
+
+  @override
+  String toString() => 'IriMapperType(type: $type, parts: $parts)';
 }
 
 /// Contains information about a processed IRI template.
@@ -186,7 +243,7 @@ class IriTemplateInfo {
         'contextVariables: $contextVariables, '
         'isValid: $isValid, '
         'validationErrors: $validationErrors, '
-        'warnings: $warnings)';
+        'warnings: $warnings, ';
   }
 
   bool _listEquals<T>(List<T> a, List<T> b) {

@@ -267,5 +267,59 @@ void main() {
       expect(titleField.type, 'String');
       expect(titleField.isFinal, isTrue);
     });
+    test('should process ClassWithIriMapperStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriMapperStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriMapperStrategy');
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.mapper, isNotNull);
+      final mapperType = result.annotation.iri!.mapper!.type;
+      expect(mapperType, isNotNull);
+      expect(mapperType.toString(), contains('TestIriMapper'));
+      expect(result.annotation.iri!.mapper!.name, isNull);
+      expect(result.annotation.iri!.mapper!.instance, isNull);
+    });
+
+    test('should process ClassWithIriMapperInstanceStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriMapperInstanceStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriMapperInstanceStrategy');
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.mapper, isNotNull);
+      final instance = result.annotation.iri!.mapper!.instance;
+      expect(instance, isNotNull);
+      expect(instance.toString(), contains('TestIriMapper'));
+      expect(result.annotation.iri!.mapper!.name, isNull);
+      expect(result.annotation.iri!.mapper!.type, isNull);
+    });
+
+    test('should process ClassWithIriNamedMapperStrategy', () {
+      // Act
+      final result = GlobalResourceProcessor.processClass(
+          libraryElement.getClass2('ClassWithIriNamedMapperStrategy')!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className, 'ClassWithIriNamedMapperStrategy');
+      expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(result.annotation.registerGlobally, isTrue);
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.mapper, isNotNull);
+      expect(result.annotation.iri!.mapper!.name, 'testMapper');
+      expect(result.annotation.iri!.mapper!.type, isNull);
+      expect(result.annotation.iri!.mapper!.instance, isNull);
+    });
   });
 }
