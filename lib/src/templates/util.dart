@@ -1,11 +1,24 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'code.dart';
 
 List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   return List.generate(values.length, (i) {
     return {'value': values[i], 'last': i == values.length - 1};
   });
+}
+
+Code typeToCode(DartType type) {
+  final typeName = type.getDisplayString();
+  final importUri = _getImportUriForType(type.element3);
+  return Code.type(typeName, importUri: importUri);
+}
+
+Code classToCode(ClassElement2 type) {
+  final typeName = type.name3!;
+  final importUri = _getImportUriForType(type);
+  return Code.type(typeName, importUri: importUri);
 }
 
 /// Converts a DartObject to a Code instance with proper import tracking

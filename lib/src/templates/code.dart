@@ -4,6 +4,9 @@
 /// packages/libraries and need to be properly imported and aliased in the
 /// target file to avoid naming conflicts.
 class Code {
+  static const String typeMarker = '\$Code\$';
+  static const String typeProperty = '__type__';
+
   final String _code;
   final Set<String> _imports; // Import URIs only
 
@@ -12,6 +15,22 @@ class Code {
   static const String _aliasEndMarker = '@⟩';
 
   Code._(this._code, this._imports);
+
+  Map<String, dynamic> toMap() {
+    return {
+      'code': _code,
+      'imports': _imports.toList(),
+      typeProperty: typeMarker,
+    };
+  }
+
+  static Code fromMap(Map<String, dynamic> map) {
+    assert(map[typeProperty] == typeMarker, 'Invalid map for Code: $map');
+    return Code._(
+      map['code'] as String,
+      Set<String>.from(map['imports'] as List<dynamic>),
+    );
+  }
 
   /// Creates a Code instance with the given code string and no imports
   Code.literal(String code) : this._(code, {});

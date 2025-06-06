@@ -1,3 +1,4 @@
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 /// Information about a mapper reference
@@ -6,10 +7,10 @@ class MapperRefData {
   final String? name;
 
   /// The type of the mapper implementation (for type-based mappers)
-  final String? implementationType;
+  final Code? implementationType;
 
   /// The (interface) type of the mapper (for all mappers)
-  final String type;
+  final Code type;
 
   /// Whether this is a named mapper
   final bool isNamed;
@@ -20,7 +21,7 @@ class MapperRefData {
   /// Whether this is a direct instance
   final bool isInstance;
 
-  final String? instanceInitializationCode;
+  final Code? instanceInitializationCode;
 
   const MapperRefData({
     this.name,
@@ -34,12 +35,12 @@ class MapperRefData {
 
   Map<String, dynamic> toMap() => {
         'name': name,
-        'implementationType': implementationType,
-        'type': type,
+        'implementationType': implementationType?.toMap(),
+        'type': type.toMap(),
         'isNamed': isNamed,
         'isTypeBased': isTypeBased,
         'isInstance': isInstance,
-        'instanceInitializationCode': instanceInitializationCode,
+        'instanceInitializationCode': instanceInitializationCode?.toMap(),
       };
 }
 
@@ -348,7 +349,7 @@ class ParameterData {
   final bool isNamed;
   final String? iriPartName;
   final String? predicate;
-  final String? defaultValue;
+  final Code? defaultValue;
   final bool hasDefaultValue;
 
   const ParameterData({
@@ -374,7 +375,7 @@ class ParameterData {
         'isNamed': isNamed,
         'iriPartName': iriPartName,
         'predicate': predicate,
-        'defaultValue': defaultValue,
+        'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': hasDefaultValue,
       };
 }

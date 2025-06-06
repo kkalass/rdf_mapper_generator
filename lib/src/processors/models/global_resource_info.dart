@@ -3,6 +3,7 @@ import 'package:rdf_mapper_generator/src/processors/models/base_mapping_annotati
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 
 /// Contains information about a class annotated with @RdfGlobalResource
 sealed class MappableClassInfo {
@@ -115,7 +116,7 @@ class VariableName {
 class IriPartInfo {
   final String name;
   final String dartPropertyName;
-  final String type;
+  final Code type;
   final int pos;
 
   const IriPartInfo({
@@ -144,7 +145,7 @@ class IriPartInfo {
 }
 
 class IriMapperType {
-  final String type;
+  final Code type;
   final List<IriPartInfo> parts;
 
   const IriMapperType(this.type, this.parts);

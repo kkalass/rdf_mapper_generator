@@ -7,13 +7,20 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Import model files
 {{#model_imports}}
-import '{{value}}' as mo_{{index}};
+import '{{uri}}'{{#hasAlias}} as {{alias}}{{/hasAlias}};
 {{/model_imports}}
 
 // Import mapper files
 {{#imports}}
-import '{{value}}' as ma_{{index}};
+import '{{uri}}'{{#hasAlias}} as {{alias}}{{/hasAlias}};
 {{/imports}}
+
+{{#hasAliasedImports}}
+// Other imports
+{{#aliasedImports}}
+import '{{uri}}'{{#hasAlias}} as {{alias}}{{/hasAlias}};
+{{/aliasedImports}}
+{{/hasAliasedImports}}
 
 /// Initializes and returns an RdfMapper with {{#isTest}}test {{/isTest}}mappers registered.
 /// 

@@ -13,6 +13,13 @@
 import '{{{import}}}';
 {{/imports}}
 
+{{#hasAliasedImports}}
+// Other imports
+{{#aliasedImports}}
+import '{{uri}}'{{#hasAlias}} as {{alias}}{{/hasAlias}};
+{{/aliasedImports}}
+{{/hasAliasedImports}}
+
 {{#mappers}}
 {{{mapperCode}}}
 

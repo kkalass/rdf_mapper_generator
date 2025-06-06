@@ -1,4 +1,5 @@
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/utils/iri_parser.dart';
@@ -108,10 +109,10 @@ class GlobalResourceDataBuilder {
           type: type.type,
         );
       } else if (mapper.type != null) {
-        final typeValue = mapper.type?.toTypeValue()?.getDisplayString();
+        final typeValue = mapper.type?.toTypeValue();
         if (typeValue != null) {
           mapperRef = MapperRefData(
-            implementationType: typeValue,
+            implementationType: typeToCode(typeValue),
             isTypeBased: true,
             type: type.type,
           );

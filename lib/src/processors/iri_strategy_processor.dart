@@ -5,6 +5,8 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 /// Processes IRI strategy templates and extracts variable information.
@@ -32,7 +34,7 @@ class IriStrategyProcessor {
         ? processTemplate(context, template, classElement, iriParts: iriParts)
         : null;
     final (iriMapperType, typeWarnings) =
-        _getIriMapperType(classElement.name3!, iriParts);
+        _getIriMapperType(classToCode(classElement), iriParts);
     typeWarnings.forEach(context.addWarning);
     if (templateInfo == null && mapper == null) {
       if (iriParts.length != 1) {
@@ -196,7 +198,7 @@ class IriStrategyProcessor {
         result.add(IriPartInfo(
           name: name,
           dartPropertyName: field.name3!,
-          type: field.type.getDisplayString(),
+          type: typeToCode(field.type),
           pos: pos,
         ));
       }
@@ -351,9 +353,18 @@ class IriStrategyProcessor {
   }
 
   static (IriMapperType?, List<String>) _getIriMapperType(
-      String resourceClassType, List<IriPartInfo> iriParts) {
+      Code resourceClassType, List<IriPartInfo> iriParts) {
     if (iriParts.isEmpty) {
-      return (IriMapperType('IriTermMapper<$resourceClassType>', []), []);
+      return (
+        IriMapperType(
+            Code.combine([
+              Code.literal('IriTermMapper<'),
+              resourceClassType,
+              Code.literal('>')
+            ]),
+            []),
+        []
+      );
     }
     // Sort by position
     final iriPartFields = [...iriParts]..sort((a, b) => a.pos.compareTo(b.pos));
@@ -370,12 +381,19 @@ class IriStrategyProcessor {
       }
     }
 
-    final recordFields =
-        iriPartFields.map((f) => '${f.type} ${f.name}').join(', ');
-
     return (
       IriMapperType(
-          'IriTermMapper<($recordFields,)>', List.unmodifiable(iriPartFields)),
+          Code.combine([
+            Code.literal('IriTermMapper<('),
+            Code.combine(
+                iriPartFields
+                    .map((f) => Code.combine(
+                        [f.type, Code.literal(' ${f.dartPropertyName}')]))
+                    .toList(),
+                separator: ', '),
+            Code.literal(',)>')
+          ]),
+          List.unmodifiable(iriPartFields)),
       []
     );
   }

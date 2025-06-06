@@ -4,13 +4,14 @@ import 'package:path/path.dart' as p;
 
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
 /// Internal class to hold processing results during template data building
 class _ProcessingResult {
   final List<Map<String, dynamic>> mappers;
-  final Set<Map<String, String>> imports;
-  final Set<Map<String, String>> modelImports;
+  final Set<Map<String, dynamic>> imports;
+  final Set<Map<String, dynamic>> modelImports;
   final Map<String, Map<String, dynamic>> providers;
   final Map<String, Map<String, dynamic>> namedIriMappers;
 
@@ -64,8 +65,8 @@ class InitFileBuilderHelper {
       bool isTest,
       String outputPath) {
     final mappers = <Map<String, dynamic>>[];
-    final imports = <Map<String, String>>{};
-    final modelImports = <Map<String, String>>{};
+    final imports = <Map<String, dynamic>>{};
+    final modelImports = <Map<String, dynamic>>{};
     final providers = <String, Map<String, dynamic>>{};
     final namedIriMappers = <String, Map<String, dynamic>>{};
 
@@ -75,7 +76,8 @@ class InitFileBuilderHelper {
       final (path, package, content) = file;
 
       try {
-        final jsonData = jsonDecode(content) as Map<String, dynamic>;
+        var jsonData = jsonDecode(content) as Map<String, dynamic>;
+
         final modelImportPath = path.replaceAll('.rdf_mapper.cache.json', '');
 
         // Process mappers and context providers from this file
@@ -85,8 +87,8 @@ class InitFileBuilderHelper {
         // Add imports for this file
         _addImportsForFile(modelImportPath, package, importIndex, isTest,
             outputPath, imports, modelImports);
-      } catch (e) {
-        log.warning('Error processing cache file $path: $e');
+      } catch (e, stackTrace) {
+        log.warning('Error processing cache file $path: $e', e, stackTrace);
       }
     }
 
@@ -182,25 +184,28 @@ class InitFileBuilderHelper {
 
     final mapper = iriStrategy['mapper'] as Map<String, dynamic>?;
     if (mapper == null) return [];
-    print("Extracting IRI mapper: $mapper");
+
     // Extract IRI mapper type and name information
-    final type = mapper['type'] as String?;
+    final type = mapper['type'] as Map<String, dynamic>?; // Code actually
     final name = mapper['name'] as String?;
-    final implementationType = mapper['implementationType'] as String?;
+    final implementationType =
+        mapper['implementationType'] as Map<String, dynamic>?; // Code actually
     final isNamed = mapper['isNamed'] as bool? ?? false;
     final isTypeBased = mapper['isTypeBased'] as bool? ?? false;
     final isInstance = mapper['isInstance'] as bool? ?? false;
     final instanceInitializationCode =
-        mapper['instanceInitializationCode'] as String?;
+        mapper['instanceInitializationCode'] as Map<String, dynamic>?;
     if (type == null) return [];
-    String? code;
-    if (isTypeBased) {
-      code = '$implementationType()';
-    } else if (isInstance) {
-      code = instanceInitializationCode;
+    Code? code;
+    if (isTypeBased && implementationType != null) {
+      // instantiate the constructor with empty parameters
+      code =
+          Code.combine([Code.fromMap(implementationType), Code.literal('()')]);
+    } else if (isInstance && instanceInitializationCode != null) {
+      code = Code.fromMap(instanceInitializationCode);
     }
-    if (code == null) {
-      code = name;
+    if (code == null && name != null) {
+      code = Code.literal(name);
     }
     if (code == null) {
       throw ArgumentError('No valid code found for IRI mapper: $mapper');
@@ -208,7 +213,7 @@ class InitFileBuilderHelper {
     return [
       {
         'type': type,
-        'code': code,
+        'code': code.toMap(),
         'parameterName': 'iriMapper',
         'isNamed': isNamed,
         'isTypeBased': isTypeBased,
@@ -236,8 +241,8 @@ class InitFileBuilderHelper {
       int importIndex,
       bool isTest,
       String outputPath,
-      Set<Map<String, String>> imports,
-      Set<Map<String, String>> modelImports) {
+      Set<Map<String, dynamic>> imports,
+      Set<Map<String, dynamic>> modelImports) {
     if (isTest) {
       _addTestImports(
           modelImportPath, outputPath, importIndex, imports, modelImports);
@@ -254,8 +259,8 @@ class InitFileBuilderHelper {
       String modelImportPath,
       String outputPath,
       int importIndex,
-      Set<Map<String, String>> imports,
-      Set<Map<String, String>> modelImports) {
+      Set<Map<String, dynamic>> imports,
+      Set<Map<String, dynamic>> modelImports) {
     var relativePath = p.relative(modelImportPath, from: p.dirname(outputPath));
     if (relativePath == '.') {
       // If the file is in the same directory, just use the filename
@@ -263,11 +268,17 @@ class InitFileBuilderHelper {
     }
 
     imports.add({
-      'value': '$relativePath.rdf_mapper.g.dart',
+      'uri': '$relativePath.rdf_mapper.g.dart',
+      'hasAlias': true,
+      'alias': 'ma_' + importIndex.toString(),
       'index': importIndex.toString()
     });
-    modelImports
-        .add({'value': '$relativePath.dart', 'index': importIndex.toString()});
+    modelImports.add({
+      'uri': '$relativePath.dart',
+      'index': importIndex.toString(),
+      'hasAlias': true,
+      'alias': 'mo_' + importIndex.toString(),
+    });
   }
 
   /// Adds package imports for non-test files
@@ -275,28 +286,43 @@ class InitFileBuilderHelper {
       String modelImportPath,
       String package,
       int importIndex,
-      Set<Map<String, String>> imports,
-      Set<Map<String, String>> modelImports) {
+      Set<Map<String, dynamic>> imports,
+      Set<Map<String, dynamic>> modelImports) {
     final fullImportPath =
         'package:$package/${p.relative(modelImportPath, from: 'lib')}';
 
     imports.add({
-      'value': '$fullImportPath.rdf_mapper.g.dart',
+      'uri': '$fullImportPath.rdf_mapper.g.dart',
+      'hasAlias': true,
+      'alias': 'ma_' + importIndex.toString(),
       'index': importIndex.toString()
     });
-    modelImports.add(
-        {'value': '$fullImportPath.dart', 'index': importIndex.toString()});
+    modelImports.add({
+      'uri': '$fullImportPath.dart',
+      'hasAlias': true,
+      'alias': 'mo_' + importIndex.toString(),
+      'index': importIndex.toString()
+    });
   }
 
   /// Adds absolute package imports
-  void _addAbsoluteImports(String modelImportPath, int importIndex,
-      Set<Map<String, String>> imports, Set<Map<String, String>> modelImports) {
+  void _addAbsoluteImports(
+      String modelImportPath,
+      int importIndex,
+      Set<Map<String, dynamic>> imports,
+      Set<Map<String, dynamic>> modelImports) {
     imports.add({
-      'value': '$modelImportPath.rdf_mapper.g.dart',
+      'uri': '$modelImportPath.rdf_mapper.g.dart',
+      'hasAlias': true,
+      'alias': 'ma_' + importIndex.toString(),
       'index': importIndex.toString()
     });
-    modelImports.add(
-        {'value': '$modelImportPath.dart', 'index': importIndex.toString()});
+    modelImports.add({
+      'uri': '$modelImportPath.dart',
+      'hasAlias': true,
+      'alias': 'mo_' + importIndex.toString(),
+      'index': importIndex.toString()
+    });
   }
 
   /// Builds the final template data from processing results
@@ -306,8 +332,10 @@ class InitFileBuilderHelper {
     final sortedNamedIriMappers = _sortIriMappers(result.namedIriMappers);
     final sortedImports = _sortImports(result.imports);
     final sortedModelImports = _sortImports(result.modelImports);
-
-    return {
+    final knownImports = Map<String, String>.fromIterable(
+        [...sortedImports, ...sortedModelImports],
+        key: (e) => e['uri'], value: (e) => e['alias'] ?? '');
+    final data = _templateRenderer.resolveCodeSnipplets({
       'generatedOn': DateTime.now().toIso8601String(),
       'isTest': isTest,
       'mappers': result.mappers,
@@ -317,7 +345,9 @@ class InitFileBuilderHelper {
       'hasProviders': sortedProviders.isNotEmpty,
       'iriMappers': sortedNamedIriMappers,
       'hasIriMappers': sortedNamedIriMappers.isNotEmpty,
-    };
+    }, importAliases: knownImports);
+
+    return data;
   }
 
   /// Sorts providers by parameter name for consistent ordering
@@ -336,8 +366,8 @@ class InitFileBuilderHelper {
   }
 
   /// Sorts imports by value for consistent ordering
-  List<Map<String, String>> _sortImports(Set<Map<String, String>> imports) {
-    return imports.toList()..sort((a, b) => a['value']!.compareTo(b['value']!));
+  List<Map<String, dynamic>> _sortImports(Set<Map<String, dynamic>> imports) {
+    return imports.toList()..sort((a, b) => a['uri']!.compareTo(b['uri']!));
   }
 
   Future<String> build(
