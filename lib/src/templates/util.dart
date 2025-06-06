@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
+import 'code.dart';
 
 List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   return List.generate(values.length, (i) {
@@ -7,34 +8,38 @@ List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   });
 }
 
-// FIXME: create many test cases for this function
-String toCode(DartObject? value) {
+/// Converts a DartObject to a Code instance with proper import tracking
+///
+/// This function analyzes a compile-time constant value and generates the
+/// corresponding Dart code along with any necessary import dependencies.
+Code toCode(DartObject? value) {
   if (value == null || value.isNull) {
-    return 'null';
+    return Code.value('null');
   }
 
-  // Handle primitive types
+  // Handle primitive types (no imports needed)
   if (value.type?.isDartCoreBool == true) {
-    return value.toBoolValue().toString();
+    return Code.value(value.toBoolValue().toString());
   }
   if (value.type?.isDartCoreInt == true) {
-    return value.toIntValue().toString();
+    return Code.value(value.toIntValue().toString());
   }
   if (value.type?.isDartCoreDouble == true) {
-    return value.toDoubleValue().toString();
+    return Code.value(value.toDoubleValue().toString());
   }
   if (value.type?.isDartCoreString == true) {
     final str = value.toStringValue() ?? '';
     // Escape single quotes and wrap in single quotes
-    return "'${str.replaceAll("'", "\\'")}'";
+    return Code.value("'${str.replaceAll("'", "\\'")}'");
   }
 
-  // Handle enums
+  // Handle enums - these need import tracking
   if (value.type?.isDartCoreEnum == true) {
     final enumValue = value.getField('_name')?.toStringValue();
     final enumType = value.type!.getDisplayString();
     if (enumValue != null) {
-      return '$enumType.$enumValue';
+      final importUri = _getImportUriForType(value.type!.element3);
+      return Code.type('$enumType.$enumValue', importUri: importUri);
     }
   }
 
@@ -43,52 +48,81 @@ String toCode(DartObject? value) {
   if (type == 'IriTerm') {
     final iri = value.getField('iri')?.toStringValue();
     if (iri != null) {
-      return "IriTerm('${_escapeString(iri)}')";
+      final importUri = _getImportUriForType(value.type!.element3);
+      return Code.constructor("IriTerm('${_escapeString(iri)}')",
+          importUri: importUri);
     }
   }
 
   // Handle lists
   if (value.type?.isDartCoreList == true) {
     final items = value.toListValue() ?? [];
-    final itemCodes = items.map((item) => toCode(item)).join(', ');
-    return '[$itemCodes]';
+    final itemCodes = items.map((item) => toCode(item)).toList();
+    final combinedCode = Code.combine(itemCodes, separator: ', ');
+    return Code.combine([Code.value('['), combinedCode, Code.value(']')]);
   }
 
   // Handle maps
   if (value.type?.isDartCoreMap == true) {
     final map = value.toMapValue() ?? {};
-    final entries = map.entries.map((entry) {
-      return '${toCode(entry.key)}: ${toCode(entry.value)}';
-    }).join(', ');
-    return '{$entries}';
+    final entryCodes = map.entries.map((entry) {
+      final keyCode = toCode(entry.key);
+      final valueCode = toCode(entry.value);
+      return Code.combine([keyCode, Code.value(': '), valueCode]);
+    }).toList();
+    final combinedEntries = Code.combine(entryCodes, separator: ', ');
+    return Code.combine([Code.value('{'), combinedEntries, Code.value('}')]);
   }
 
-  // Handle objects with const constructors (like TestMapper)
+  // Handle objects with const constructors (like custom mappers)
   var typeElement = value.type?.element3;
   if (typeElement is ClassElement2) {
     for (final constructor in typeElement.constructors2) {
       final fields = constructor.formalParameters;
       if (constructor.isConst) {
         final constructorName = constructor.displayName;
-        final namedArgs = <String, String>{};
+        final namedArgCodes = <Code>[];
 
-// FIXME: handle positional arguments
+        // FIXME: handle positional arguments
         for (final field in fields) {
           final fieldValue = value.getField(field.name3!);
           if (fieldValue != null) {
-            namedArgs[field.name3!] = toCode(fieldValue);
+            final fieldCode = toCode(fieldValue);
+            namedArgCodes.add(
+                Code.combine([Code.value('${field.name3!}: '), fieldCode]));
           }
         }
 
-        final args =
-            namedArgs.entries.map((e) => '${e.key}: ${e.value}').join(', ');
-        return 'const $constructorName($args)';
+        final argsCode = Code.combine(namedArgCodes, separator: ', ');
+        final importUri = _getImportUriForType(typeElement);
+
+        return Code.combine([
+          Code.constructor('const $constructorName(', importUri: importUri),
+          argsCode,
+          Code.value(')')
+        ]);
       }
     }
   }
 
   // Fallback to string representation if type is not recognized
-  return value.toStringValue() ?? '';
+  return Code.value(value.toStringValue() ?? '');
+}
+
+/// Determines the import URI for a given type element
+String? _getImportUriForType(Element2? element) {
+  if (element == null) return null;
+
+  final source = element.library2?.identifier;
+  final sourceUri = element.library2?.uri;
+  if (source == null || sourceUri == null) return null;
+
+  // Don't include imports for dart: core types
+  if (sourceUri.scheme == 'dart' && sourceUri.pathSegments.first == 'core') {
+    return null;
+  }
+
+  return source.toString();
 }
 
 String _escapeString(String input) {
