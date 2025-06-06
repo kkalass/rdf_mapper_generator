@@ -18,9 +18,18 @@ class IriStrategyProcessor {
   static IriStrategyInfo? processIriStrategy(ValidationContext context,
       DartObject iriValue, ClassElement2 classElement) {
     // Check if we have an iri field (for the standard constructor)
-    final template = getField(iriValue, 'template')?.toStringValue();
+    var template = getField(iriValue, 'template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
     final iriParts = _findIriPartFields(classElement);
+    if (mapper == null && (template == null || template.isEmpty)) {
+      if (iriParts.length != 1) {
+        context.addError(
+            'No @RdfIriPart annotations found, but no custom mapper is specified. If you are using IriStrategy() default constructor without any arguments, you have to provide @RdfIriPart annotation on exactly one field.');
+      } else {
+        template = '{+${iriParts.first.name}}';
+      }
+    }
+
     // Process template if it exists
     final templateInfo = template != null
         ? processTemplate(context, template, classElement, iriParts: iriParts)
@@ -47,12 +56,8 @@ class IriStrategyProcessor {
   /// Returns an [IriTemplateInfo] containing parsed template data, or null if the
   /// template is invalid or empty.
   static IriTemplateInfo? processTemplate(
-      ValidationContext context, String? template, ClassElement2 classElement,
+      ValidationContext context, String template, ClassElement2 classElement,
       {List<IriPartInfo>? iriParts}) {
-    if (template == null || template.isEmpty) {
-      return null;
-    }
-
     try {
       iriParts ??= _findIriPartFields(classElement);
       final variables = _extractVariables(template);

@@ -19,14 +19,6 @@ void main() {
     });
 
     group('processTemplate', () {
-      test('should return null for null template', () {
-        final validationContext = ValidationContext();
-        final result = IriStrategyProcessor.processTemplate(
-            validationContext, null, bookClass);
-        validationContext.throwIfErrors();
-        expect(result, isNull);
-      });
-
       test('should return null for empty template', () {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
