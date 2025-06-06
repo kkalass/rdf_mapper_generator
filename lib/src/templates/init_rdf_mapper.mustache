@@ -24,6 +24,12 @@ import '{{value}}' as ma_{{index}};
 /// * [{{parameterName}}] {{placeholder}}
 {{/providers}}
 {{/hasProviders}}
+{{#hasIriMappers}}
+/// IRI mapper parameters:
+{{#iriMappers}}
+/// * [{{name}}] IRI mapper of type {{type}}
+{{/iriMappers}}
+{{/hasIriMappers}}
 RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   RdfMapper? rdfMapper,
   {{#hasProviders}}
@@ -32,6 +38,12 @@ RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   required {{type}} Function() {{parameterName}},
   {{/providers}}
   {{/hasProviders}}
+  {{#hasIriMappers}}
+  // IRI mapper parameters
+  {{#iriMappers}}
+  required {{type}} {{name}},
+  {{/iriMappers}}
+  {{/hasIriMappers}}
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
@@ -44,6 +56,9 @@ RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
       {{#contextProviders}}
       {{value.parameterName}}: {{value.parameterName}},
       {{/contextProviders}}
+      {{#iriMappers}}
+      {{parameterName}}: {{code}},
+      {{/iriMappers}}
     )
   );
   {{/mappers}}
