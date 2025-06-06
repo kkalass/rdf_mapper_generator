@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:test/test.dart';
 
 import '../test_helper.dart';
@@ -19,19 +20,27 @@ void main() {
 
     group('processTemplate', () {
       test('should return null for null template', () {
-        final result = IriStrategyProcessor.processTemplate(null, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, null, bookClass);
+        validationContext.throwIfErrors();
         expect(result, isNull);
       });
 
       test('should return null for empty template', () {
-        final result = IriStrategyProcessor.processTemplate('', bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, '', bookClass);
+        validationContext.throwIfErrors();
         expect(result, isNull);
       });
 
       test('should process simple template with single variable', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.template, equals(template));
@@ -45,8 +54,10 @@ void main() {
       });
       test('should process template with +variable', () {
         const template = '{+baseUri}/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.template, equals(template));
@@ -62,8 +73,10 @@ void main() {
 
       test('should process template with multiple variables', () {
         const template = 'http://example.org/books/{isbn}/authors/{authorId}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.variables, containsAll(['isbn', 'authorId']));
@@ -77,8 +90,10 @@ void main() {
 
       test('should handle template with context variables only', () {
         const template = 'http://example.org/resources/{contextVar}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.variables, contains('contextVar'));
@@ -88,8 +103,10 @@ void main() {
 
       test('should validate template syntax correctly', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isTrue);
@@ -98,8 +115,10 @@ void main() {
 
       test('should detect invalid variable syntax', () {
         const template = 'http://example.org/books/{{isbn}}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
@@ -110,8 +129,10 @@ void main() {
 
       test('should detect unmatched braces', () {
         const template = 'http://example.org/books/{isbn';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
@@ -121,8 +142,10 @@ void main() {
 
       test('should detect empty variable names', () {
         const template = 'http://example.org/books/{}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
@@ -131,8 +154,10 @@ void main() {
 
       test('should validate variable names', () {
         const template = 'http://example.org/books/{123invalid}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
@@ -142,8 +167,10 @@ void main() {
 
       test('should warn about relative URIs', () {
         const template = 'books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
@@ -154,8 +181,10 @@ void main() {
         // This test verifies error handling when processing fails
         const template = 'http://example.org/books/{isbn}';
         // Using a class that might cause issues (we'll use a simple one)
-        final result =
-            IriStrategyProcessor.processTemplate(template, simpleClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, simpleClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         // Even if there are issues, we should get a result with error information
@@ -165,8 +194,10 @@ void main() {
     group('Variable extraction edge cases', () {
       test('should extract variables with underscores', () {
         const template = 'http://example.org/{book_id}/{author_name}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.variables, containsAll(['book_id', 'author_name']));
@@ -174,8 +205,10 @@ void main() {
 
       test('should extract variables with numbers', () {
         const template = 'http://example.org/{id1}/{id2}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.variables, containsAll(['id1', 'id2']));
@@ -183,8 +216,10 @@ void main() {
 
       test('should handle duplicate variable names', () {
         const template = 'http://example.org/{id}/{id}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.variables, hasLength(1));
@@ -194,8 +229,10 @@ void main() {
       test('should handle complex URI patterns', () {
         const template =
             'https://api.example.org/v1/books/{isbn}/reviews/{reviewId}?format=json';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.variables, containsAll(['isbn', 'reviewId']));
@@ -206,8 +243,10 @@ void main() {
     group('URI validation', () {
       test('should accept absolute HTTP URIs', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isTrue);
@@ -215,8 +254,10 @@ void main() {
 
       test('should accept absolute HTTPS URIs', () {
         const template = 'https://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isTrue);
@@ -224,8 +265,10 @@ void main() {
 
       test('should accept URN patterns', () {
         const template = 'urn:isbn:{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isTrue);
@@ -233,8 +276,10 @@ void main() {
 
       test('should accept absolute paths', () {
         const template = '/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isTrue);
@@ -242,8 +287,10 @@ void main() {
 
       test('should reject obviously malformed URIs', () {
         const template = 'http://example.org//invalid//{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
@@ -254,8 +301,10 @@ void main() {
     group('Property variable detection', () {
       test('should identify @RdfIriPart annotated fields', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(
@@ -264,8 +313,10 @@ void main() {
 
       test('should handle fields without @RdfIriPart as context variables', () {
         const template = 'http://example.org/books/{isbn}/{title}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(
@@ -275,8 +326,10 @@ void main() {
 
       test('should handle template variables not matching any field', () {
         const template = 'http://example.org/books/{isbn}/{nonExistentField}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(
@@ -291,8 +344,10 @@ void main() {
         // Use a template that doesn't include all annotated properties
         const template =
             'http://example.org/books/{title}'; // isbn is annotated but not used
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.warnings, isNotEmpty);
@@ -304,8 +359,10 @@ void main() {
 
       test('should not warn when all @RdfIriPart annotations are used', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.warnings, isEmpty);
@@ -316,8 +373,10 @@ void main() {
         // For now, we'll test with a template that uses field name but not custom name
         const template =
             'http://example.org/books/{fieldName}'; // assumes custom name is different
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
 
@@ -331,8 +390,10 @@ void main() {
       test('should handle multiple unused @RdfIriPart annotations', () {
         const template =
             'http://example.org/books/static'; // no variables at all
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         // Should warn for all annotated fields that aren't used
@@ -342,8 +403,10 @@ void main() {
 
       test('should provide clear warning messages', () {
         const template = 'http://example.org/books/{title}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         if (result!.warnings.isNotEmpty) {
@@ -356,8 +419,10 @@ void main() {
 
       test('should not warn for properties without @RdfIriPart annotation', () {
         const template = 'http://example.org/books/{nonAnnotatedField}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         // Should not warn about non-annotated properties, only unused annotations
@@ -374,8 +439,10 @@ void main() {
     group('IriTemplateInfo model', () {
       test('should create correct IriTemplateInfo instance', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result, isA<IriTemplateInfo>());
@@ -390,8 +457,10 @@ void main() {
 
       test('should maintain immutability of variable sets', () {
         const template = 'http://example.org/books/{isbn}';
-        final result =
-            IriStrategyProcessor.processTemplate(template, bookClass);
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext, template, bookClass);
+        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(() => result!.variableNames.add(newVarVariableName()),

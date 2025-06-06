@@ -66,7 +66,7 @@ void main() {
     });
 
     test('ClassWithEmptyIriStrategy mapping', () {
-      final instance = ClassWithEmptyIriStrategy();
+      final instance = ClassWithEmptyIriStrategy(iri: "http://example.org/");
       final graph = mapper.encodeObject(instance);
       expect(graph, isNotNull);
     });

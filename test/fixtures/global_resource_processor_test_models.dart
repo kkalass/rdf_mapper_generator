@@ -28,11 +28,21 @@ class Book {
 }
 
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy())
-class ClassWithEmptyIriStrategy {}
+class ClassWithEmptyIriStrategy {
+  @RdfIriPart()
+  final String iri;
+
+  ClassWithEmptyIriStrategy({required this.iri});
+}
 
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy(),
     registerGlobally: false)
-class ClassWithEmptyIriStrategyNoRegisterGlobally {}
+class ClassWithEmptyIriStrategyNoRegisterGlobally {
+  @RdfIriPart()
+  final String iri;
+
+  ClassWithEmptyIriStrategyNoRegisterGlobally({required this.iri});
+}
 
 @RdfGlobalResource(
     SchemaPerson.classIri, IriStrategy('http://example.org/persons/{id}'))

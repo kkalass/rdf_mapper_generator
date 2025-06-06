@@ -7,14 +7,16 @@ import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 /// Processes class elements to extract RDF global resource information.
 class GlobalResourceProcessor {
-  /// Processes a class element to extract RDF global resource information.
+  /// Processes a class element and returns its GlobalResourceInfo if it's annotated with @RdfGlobalResource.
   ///
   /// Returns a [MappableClassInfo] containing the processed information if the class is annotated
   /// with `@RdfGlobalResource`, otherwise returns `null`.
-  static GlobalResourceInfo? processClass(ClassElement2 classElement,
+  static GlobalResourceInfo? processClass(
+      ValidationContext context, ClassElement2 classElement,
       {LibsByClassName? libsByClassName}) {
     final annotation =
         getAnnotation(classElement.metadata2, 'RdfGlobalResource');
@@ -28,8 +30,8 @@ class GlobalResourceProcessor {
     final className = classElement.displayName;
 
     // Create the RdfGlobalResource instance from the annotation
-    final rdfGlobalResource =
-        _createRdfGlobalResource(annotation, classElement, libsByClassName);
+    final rdfGlobalResource = _createRdfGlobalResource(
+        context, annotation, classElement, libsByClassName);
     final iriTemplateInfo = rdfGlobalResource.iri?.templateInfo;
     final iriPartNameByPropertyName = Map<String, String>.fromIterable(
       iriTemplateInfo?.propertyVariables ?? const [],
@@ -48,15 +50,18 @@ class GlobalResourceProcessor {
     );
   }
 
-  static RdfGlobalResourceInfo _createRdfGlobalResource(DartObject annotation,
-      ClassElement2 classElement, LibsByClassName libsByClassName) {
+  static RdfGlobalResourceInfo _createRdfGlobalResource(
+      ValidationContext context,
+      DartObject annotation,
+      ClassElement2 classElement,
+      LibsByClassName libsByClassName) {
     try {
       // Get the classIri from the annotation
       final classIri =
           getIriTermInfo(getField(annotation, 'classIri'), libsByClassName);
 
       // Get the iriStrategy from the annotation
-      final iriStrategy = _getIriStrategy(annotation, classElement);
+      final iriStrategy = _getIriStrategy(context, annotation, classElement);
 
       // Get the registerGlobally flag
       final registerGlobally = isRegisterGlobally(annotation);
@@ -76,14 +81,15 @@ class GlobalResourceProcessor {
     }
   }
 
-  static IriStrategyInfo? _getIriStrategy(
+  static IriStrategyInfo? _getIriStrategy(ValidationContext context,
       DartObject annotation, ClassElement2 classElement) {
     // Check if we have an iri field (for the standard constructor)
     final iriValue = getField(annotation, 'iri');
     if (iriValue == null || iriValue.isNull) {
       return null;
     }
-    return IriStrategyProcessor.processIriStrategy(iriValue, classElement);
+    return IriStrategyProcessor.processIriStrategy(
+        context, iriValue, classElement);
   }
 
   static List<ConstructorInfo> _extractConstructors(ClassElement2 classElement,

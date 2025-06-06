@@ -73,8 +73,9 @@ class InitFileBuilderHelper {
               final contextProviders = (mapperData['contextProviders'] as List?)
                       ?.cast<Map<String, dynamic>>() ??
                   [];
-              final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-              
+              final registerGlobally =
+                  mapperData['registerGlobally'] as bool? ?? true;
+
               // Only add the mapper if registerGlobally is true or not set (defaults to true)
               if (registerGlobally) {
                 mappers.add({
@@ -174,7 +175,7 @@ class InitFileBuilderHelper {
     if (templateData == null) {
       return '';
     }
-    print(JsonEncoder.withIndent('  ').convert(templateData));
+
     return await _templateRenderer.renderInitFileTemplate(templateData, reader);
   }
 }

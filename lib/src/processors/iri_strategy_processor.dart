@@ -6,6 +6,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:logging/logging.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 final _log = Logger('IriStrategyProcessor');
 
@@ -14,7 +15,7 @@ final _log = Logger('IriStrategyProcessor');
 /// This processor analyzes IRI templates used in @RdfGlobalResource annotations
 /// to extract variables, validate patterns, and categorize variables by their source.
 class IriStrategyProcessor {
-  static IriStrategyInfo? processIriStrategy(
+  static IriStrategyInfo? processIriStrategy(ValidationContext context,
       DartObject iriValue, ClassElement2 classElement) {
     // Check if we have an iri field (for the standard constructor)
     final template = getField(iriValue, 'template')?.toStringValue();
@@ -22,12 +23,16 @@ class IriStrategyProcessor {
     final iriParts = _findIriPartFields(classElement);
     // Process template if it exists
     final templateInfo = template != null
-        ? processTemplate(template, classElement, iriParts: iriParts)
+        ? processTemplate(context, template, classElement, iriParts: iriParts)
         : null;
     final (iriMapperType, typeWarnings) =
         _getIriMapperType(classElement.name3!, iriParts);
-    if (typeWarnings.isNotEmpty) {
-      _log.warning('Type warnings: $typeWarnings');
+    typeWarnings.forEach(context.addWarning);
+    if (templateInfo == null && mapper == null) {
+      if (iriParts.length != 1) {
+        context.addError(
+            'No @RdfIriPart annotations found, but no custom mapper is specified. If you are using IriStrategy() default constructor without any arguments, you have to provide @RdfIriPart annotation on exactly one field.');
+      }
     }
     return IriStrategyInfo(
       mapper: mapper,
@@ -42,7 +47,7 @@ class IriStrategyProcessor {
   /// Returns an [IriTemplateInfo] containing parsed template data, or null if the
   /// template is invalid or empty.
   static IriTemplateInfo? processTemplate(
-      String? template, ClassElement2 classElement,
+      ValidationContext context, String? template, ClassElement2 classElement,
       {List<IriPartInfo>? iriParts}) {
     if (template == null || template.isEmpty) {
       return null;
@@ -60,6 +65,8 @@ class IriStrategyProcessor {
           .map((entry) => entry.value)
           .toSet());
       final validationResult = _validateTemplate(template, variables);
+      validationResult.errors.forEach(context.addError);
+      propertyResult.warnings.forEach(context.addWarning);
 
       return IriTemplateInfo(
         template: template,
@@ -72,6 +79,7 @@ class IriStrategyProcessor {
         warnings: propertyResult.warnings,
       );
     } catch (e) {
+      context.addError('Failed to process template: $e');
       return IriTemplateInfo(
         template: template,
         variables: Set.unmodifiable(<VariableName>{}),

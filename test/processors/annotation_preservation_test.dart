@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
@@ -24,8 +25,11 @@ void main() {
     test(
         'should preserve all RdfGlobalResource parameters with IriStrategy.mapper',
         () {
+      final validationContext = ValidationContext();
       // Act
-      final result = GlobalResourceProcessor.processClass(bookWithMapperClass);
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, bookWithMapperClass);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -49,9 +53,11 @@ void main() {
     test(
         'should preserve all RdfGlobalResource parameters with IriStrategy.mapperInstance',
         () {
+      final validationContext = ValidationContext();
       // Act
-      final result =
-          GlobalResourceProcessor.processClass(bookWithMapperInstanceClass);
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, bookWithMapperInstanceClass);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -73,9 +79,11 @@ void main() {
     test(
         'should preserve all RdfGlobalResource parameters with IriStrategy.template',
         () {
+      final validationContext = ValidationContext();
       // Act
-      final result =
-          GlobalResourceProcessor.processClass(bookWithTemplateClass);
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, bookWithTemplateClass);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);

@@ -2,6 +2,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
@@ -9,22 +10,19 @@ import '../test_helper.dart';
 
 void main() {
   group('GlobalResourceProcessor', () {
-    late ClassElement2 bookClass;
-
-    late ClassElement2 invalidClass;
     late LibraryElement2 libraryElement;
 
     setUpAll(() async {
       (libraryElement, _) =
           await analyzeTestFile('global_resource_processor_test_models.dart');
-      bookClass = libraryElement.getClass2('Book')!;
-      invalidClass = libraryElement.getClass2('NotAnnotated')!;
     });
 
     test('should process ClassWithEmptyIriStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithEmptyIriStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -38,8 +36,12 @@ void main() {
     });
     test('should process ClassWithEmptyIriStrategyNoRegisterGlobally', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(libraryElement
-          .getClass2('ClassWithEmptyIriStrategyNoRegisterGlobally')!);
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(
+          validationContext,
+          libraryElement
+              .getClass2('ClassWithEmptyIriStrategyNoRegisterGlobally')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -53,8 +55,10 @@ void main() {
     });
     test('should process ClassWithIriTemplateStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriTemplateStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -77,8 +81,10 @@ void main() {
     });
     test('should process ClassWithIriNamedMapperStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriNamedMapperStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -97,8 +103,10 @@ void main() {
     });
     test('should process ClassWithIriMapperStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriMapperStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -124,8 +132,10 @@ void main() {
     });
     test('should process ClassWithIriMapperInstanceStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriMapperInstanceStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -147,8 +157,10 @@ void main() {
     });
     test('should process ClassWithMapperNamedMapperStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithMapperNamedMapperStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -167,8 +179,10 @@ void main() {
     });
     test('should process ClassWithMapperStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithMapperStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -189,8 +203,10 @@ void main() {
     });
     test('should process ClassWithMapperInstanceStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithMapperInstanceStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -211,7 +227,10 @@ void main() {
 
     test('should process class with RdfGlobalResource annotation', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(bookClass);
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, libraryElement.getClass2('Book')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -225,7 +244,10 @@ void main() {
     test('should return null for class without RdfGlobalResource annotation',
         () {
       // Act
-      final result = GlobalResourceProcessor.processClass(invalidClass);
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, libraryElement.getClass2('NotAnnotated')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNull);
@@ -233,7 +255,10 @@ void main() {
 
     test('should extract constructors', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(bookClass);
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, libraryElement.getClass2('Book')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -252,7 +277,10 @@ void main() {
 
     test('should extract fields', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(bookClass);
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(
+          validationContext, libraryElement.getClass2('Book')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -269,8 +297,10 @@ void main() {
     });
     test('should process ClassWithIriMapperStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriMapperStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -288,8 +318,10 @@ void main() {
 
     test('should process ClassWithIriMapperInstanceStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriMapperInstanceStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
@@ -307,8 +339,10 @@ void main() {
 
     test('should process ClassWithIriNamedMapperStrategy', () {
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final validationContext = ValidationContext();
+      final result = GlobalResourceProcessor.processClass(validationContext,
           libraryElement.getClass2('ClassWithIriNamedMapperStrategy')!);
+      validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
