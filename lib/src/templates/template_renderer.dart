@@ -28,12 +28,18 @@ class TemplateRenderer {
   }
 
   /// Renders a complete file using the file template and multiple mappers.
-  Future<String> renderFileTemplate(
+  Future<String> renderFileTemplate(String mapperImportUri,
       Map<String, dynamic> data, AssetReader reader) async {
-    data = resolveCodeSnipplets(data,
-        defaultImports: (data['imports'] as List<dynamic>? ?? [])
-            .map((d) => d['import'] as String)
-            .toList());
+    data = resolveCodeSnipplets(
+      data,
+      defaultImports: (data['imports'] as List<dynamic>? ?? [])
+          .map((d) => d['import'] as String)
+          .toList()
+        ..add(mapperImportUri),
+      baseUris: _createBaseUris(mapperImportUri),
+      broaderImports:
+          (data['broaderImports'] as Map<String, dynamic>? ?? {}).cast(),
+    );
     final template = await _getTemplate('file_template', reader);
 
     // Render each mapper individually first
@@ -87,19 +93,23 @@ class TemplateRenderer {
 
   Map<String, dynamic> resolveCodeSnipplets(Map<String, dynamic> data,
       {List<String> defaultImports = const [],
-      Map<String, String> importAliases = const {}}) {
+      Map<String, String> importAliases = const {},
+      Set<String> baseUris = const {},
+      Map<String, String> broaderImports = const {},
+      bool makeImportsRelative = true}) {
     // the default imports all are without aliases (or better: for the empty alias)
     final knownImports = <String, String>{...importAliases};
 
     for (final import in defaultImports) {
       knownImports[import] = '';
     }
+    print('Resolving code snippets with imports: $knownImports');
 
     // Create a copy of the data to avoid modifying the original
     final resolvedData = _deepCopyMap(data);
 
     // Recursively traverse and resolve Code instances
-    _traverseAndResolveCode(resolvedData, knownImports);
+    _traverseAndResolveCode(resolvedData, knownImports, broaderImports);
 
     // Remove the original imports from knownImports and add aliasedImports
     for (final import in defaultImports) {
@@ -112,7 +122,7 @@ class TemplateRenderer {
     // Add aliasedImports entry for mustache templates
     final aliasedImports = knownImports.entries
         .map((entry) => {
-              'uri': entry.key,
+              'uri': _toRelativeUri(baseUris, entry.key),
               'alias': entry.value,
               'hasAlias': entry.value.isNotEmpty,
             })
@@ -120,12 +130,24 @@ class TemplateRenderer {
 
     resolvedData['aliasedImports'] = aliasedImports;
     resolvedData['hasAliasedImports'] = aliasedImports.isNotEmpty;
-
+    if (makeImportsRelative) {
+      if (resolvedData['imports'] is List) {
+        for (var import in resolvedData['imports']) {
+          if (import is String) {
+            import = _toRelativeUri(baseUris, import);
+          } else if (import is Map<String, dynamic> &&
+              import.containsKey('import')) {
+            import['import'] = _toRelativeUri(baseUris, import['import']);
+          }
+        }
+      }
+    }
     return resolvedData;
   }
 
   /// Recursively traverses the data structure and resolves Code instances
-  void _traverseAndResolveCode(dynamic data, Map<String, String> knownImports) {
+  void _traverseAndResolveCode(dynamic data, Map<String, String> knownImports,
+      Map<String, String> broaderImports) {
     if (data is Map<String, dynamic>) {
       // Check if this is a Code instance
       if (data.containsKey(Code.typeProperty) &&
@@ -145,8 +167,8 @@ class TemplateRenderer {
             value[Code.typeProperty] == Code.typeMarker) {
           // This is a Code instance, reconstruct it and replace with resolved code
           final code = Code.fromMap(value);
-          final (resolvedCode, moreImports) =
-              code.resolveAliases(knownImports: knownImports);
+          final (resolvedCode, moreImports) = code.resolveAliases(
+              knownImports: knownImports, broaderImports: broaderImports);
 
           // Update knownImports with new imports
           knownImports.addAll(moreImports);
@@ -155,7 +177,7 @@ class TemplateRenderer {
           data[key] = resolvedCode;
         } else {
           // Recursively process the value
-          _traverseAndResolveCode(value, knownImports);
+          _traverseAndResolveCode(value, knownImports, broaderImports);
         }
       }
     } else if (data is List) {
@@ -167,8 +189,8 @@ class TemplateRenderer {
             item[Code.typeProperty] == Code.typeMarker) {
           // This is a Code instance, reconstruct it and replace with resolved code
           final code = Code.fromMap(item);
-          final (resolvedCode, moreImports) =
-              code.resolveAliases(knownImports: knownImports);
+          final (resolvedCode, moreImports) = code.resolveAliases(
+              knownImports: knownImports, broaderImports: broaderImports);
 
           // Update knownImports with new imports
           knownImports.addAll(moreImports);
@@ -177,7 +199,7 @@ class TemplateRenderer {
           data[i] = resolvedCode;
         } else {
           // Recursively process the item
-          _traverseAndResolveCode(item, knownImports);
+          _traverseAndResolveCode(item, knownImports, broaderImports);
         }
       }
     }
@@ -203,5 +225,31 @@ class TemplateRenderer {
       // Primitive types can be copied directly
       return value;
     }
+  }
+
+  String _toRelativeUri(Set<String> baseUris, String uri) {
+    for (final baseUri in baseUris) {
+      if (uri.startsWith(baseUri)) {
+        return uri.substring(baseUri.length);
+      }
+    }
+    return uri;
+  }
+
+  Set<String> _createBaseUris(String mapperImportUri) {
+    final parts = mapperImportUri.split(':');
+    final p = parts.length < 2
+        ? mapperImportUri
+        : parts.sublist(1).join(':'); // Join back if scheme is present
+
+    // Extract the base URI from the mapper import URI
+    final baseUri = path.dirname(p);
+    final normalizedBaseUri = baseUri.endsWith('/') ? baseUri : '$baseUri/';
+    // Return a set containing the base URI
+    return {
+      'asset:' + normalizedBaseUri,
+      'package:' + normalizedBaseUri,
+      'test:' + normalizedBaseUri
+    };
   }
 }

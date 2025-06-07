@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/global_resource_data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
@@ -10,7 +11,9 @@ class TemplateDataBuilder {
   static FileTemplateData buildFileTemplate(
     ValidationContext context,
     String sourcePath,
+    String mapperImportUri,
     List<(MappableClassInfo, ClassElement2)> resourceInfosWithElements,
+    BroaderImports broaderImports,
   ) {
     final header = FileHeaderData(
       sourcePath: sourcePath,
@@ -21,27 +24,18 @@ class TemplateDataBuilder {
     final allImports = <String>{};
     final mapperDatas = <MapperData>[];
 
-    for (final (resourceInfo, classElement) in resourceInfosWithElements) {
+    for (final (resourceInfo, _) in resourceInfosWithElements) {
       final MappableClassMapperTemplateData mapperData = switch (resourceInfo) {
         GlobalResourceInfo _ => resourceInfo.annotation.mapper != null
             ? GlobalResourceDataBuilder.buildGlobalResourceMapperCustom(
                 resourceInfo)
             : // Use custom mapper if specified
-            GlobalResourceDataBuilder.buildGlobalResourceMapper(resourceInfo),
+            GlobalResourceDataBuilder.buildGlobalResourceMapper(
+                resourceInfo, mapperImportUri),
       };
 
       // Add imports from this mapper
       allImports.addAll(mapperData.imports.map((i) => i.import));
-
-      // Add source file import for the model class
-      // Generate the expected output file path from the source path
-      final generatedFilePath =
-          sourcePath.replaceAll('.dart', '.rdf_mapper.g.dart');
-      final sourceImport =
-          _buildSourceFileImport(classElement, generatedFilePath);
-      if (sourceImport != null) {
-        allImports.add(sourceImport);
-      }
 
       mapperDatas.add(MapperData(mapperData));
     }
@@ -52,27 +46,7 @@ class TemplateDataBuilder {
       header: header,
       imports: imports,
       mappers: mapperDatas,
+      broaderImports: broaderImports,
     );
-  }
-
-  /// Builds the source file import for the model class.
-  static String? _buildSourceFileImport(
-    ClassElement2 classElement,
-    String generatedFilePath,
-  ) {
-    // Access the library identifier which contains the source package/file information
-    final libraryIdentifier = classElement.library2.identifier;
-    // Extract just the filename part from the library identifier
-    final String lastPart;
-
-    // Handle possible scheme prefixes (package:, asset:, file:)
-    if (libraryIdentifier.contains('/')) {
-      lastPart = libraryIdentifier.split('/').last;
-    } else {
-      lastPart = libraryIdentifier;
-    }
-
-    // If the last part is a Dart file, use it as the import
-    return lastPart.endsWith('.dart') ? lastPart : null;
   }
 }

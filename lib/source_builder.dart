@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:build/build.dart';
+import 'package:rdf_mapper_generator/builder_helper.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
 Builder rdfMapperSourceBuilder(BuilderOptions options) =>
@@ -23,9 +24,12 @@ class RdfMapperSourceBuilder implements Builder {
       // Read and parse the cache file
       final jsonString = await buildStep.readAsString(buildStep.inputId);
       final jsonData = jsonDecode(jsonString);
+      String mapperImportUri = getMapperImportUri(buildStep.inputId.package,
+          buildStep.inputId.path.replaceAll('.cache.json', '.g.dart'));
 
       // Render the template
       final generatedCode = await _templateRenderer.renderFileTemplate(
+        mapperImportUri,
         jsonData,
         buildStep,
       );

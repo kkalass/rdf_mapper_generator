@@ -5,7 +5,7 @@ import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
-import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
+import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 
 Builder rdfMapperCacheBuilder(BuilderOptions options) =>
     RdfMapperCacheBuilder();
@@ -46,18 +46,16 @@ class RdfMapperCacheBuilder implements Builder {
         return;
       }
 
-      final libsByClassName = LibsByClassName.create(library);
-
       final classes = library.fragments
           .expand((f) => f.classes2)
           .map((c) => c.element)
           .toList();
 
       final generatedTemplateData = await _builderHelper.buildTemplateData(
-        buildStep.inputId.path,
-        classes,
-        libsByClassName,
-      );
+          buildStep.inputId.path,
+          buildStep.inputId.package,
+          classes,
+          BroaderImports.create(library));
 
       // Only create output file if we generated code
       if (generatedTemplateData != null) {

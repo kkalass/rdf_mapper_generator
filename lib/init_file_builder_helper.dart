@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:path/path.dart' as p;
 
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
@@ -33,13 +32,14 @@ class InitFileBuilderHelper {
   Map<String, dynamic>? buildTemplateData(
       List<(String path, String package, String content)> jsonFiles,
       {required bool isTest,
-      required String outputPath}) {
+      required String outputPath,
+      required String currentPackage}) {
     try {
       final sortedJsonFiles = _sortJsonFiles(jsonFiles);
       final processingResult =
           _processJsonFiles(sortedJsonFiles, isTest, outputPath);
 
-      return _buildFinalTemplateData(processingResult, isTest);
+      return _buildFinalTemplateData(processingResult, isTest, currentPackage);
     } catch (e, stackTrace) {
       log.severe('Error building template data: $e', e, stackTrace);
       rethrow;
@@ -83,10 +83,6 @@ class InitFileBuilderHelper {
         // Process mappers and context providers from this file
         _processFileMappers(jsonData, modelImportPath, importIndex, mappers,
             providers, namedIriMappers);
-
-        // Add imports for this file
-        _addImportsForFile(modelImportPath, package, importIndex, isTest,
-            outputPath, imports, modelImports);
       } catch (e, stackTrace) {
         log.warning('Error processing cache file $path: $e', e, stackTrace);
       }
@@ -112,8 +108,8 @@ class InitFileBuilderHelper {
     final mappersData = jsonData['mappers'] as List? ?? [];
 
     for (final mapperData in mappersData.cast<Map<String, dynamic>>()) {
-      final className = mapperData['className'] as String?;
-      final mapperClassName = mapperData['mapperClassName'] as String?;
+      final className = mapperData['className'] as Map?;
+      final mapperClassName = mapperData['mapperClassName'] as Map?;
 
       if (className == null || mapperClassName == null) continue;
 
@@ -234,100 +230,9 @@ class InitFileBuilderHelper {
     }
   }
 
-  /// Adds import statements for a processed file
-  void _addImportsForFile(
-      String modelImportPath,
-      String package,
-      int importIndex,
-      bool isTest,
-      String outputPath,
-      Set<Map<String, dynamic>> imports,
-      Set<Map<String, dynamic>> modelImports) {
-    if (isTest) {
-      _addTestImports(
-          modelImportPath, outputPath, importIndex, imports, modelImports);
-    } else if (!modelImportPath.startsWith('package:')) {
-      _addPackageImports(
-          modelImportPath, package, importIndex, imports, modelImports);
-    } else {
-      _addAbsoluteImports(modelImportPath, importIndex, imports, modelImports);
-    }
-  }
-
-  /// Adds imports for test files (relative imports)
-  void _addTestImports(
-      String modelImportPath,
-      String outputPath,
-      int importIndex,
-      Set<Map<String, dynamic>> imports,
-      Set<Map<String, dynamic>> modelImports) {
-    var relativePath = p.relative(modelImportPath, from: p.dirname(outputPath));
-    if (relativePath == '.') {
-      // If the file is in the same directory, just use the filename
-      relativePath = p.basename(modelImportPath);
-    }
-
-    imports.add({
-      'uri': '$relativePath.rdf_mapper.g.dart',
-      'hasAlias': true,
-      'alias': 'ma_' + importIndex.toString(),
-      'index': importIndex.toString()
-    });
-    modelImports.add({
-      'uri': '$relativePath.dart',
-      'index': importIndex.toString(),
-      'hasAlias': true,
-      'alias': 'mo_' + importIndex.toString(),
-    });
-  }
-
-  /// Adds package imports for non-test files
-  void _addPackageImports(
-      String modelImportPath,
-      String package,
-      int importIndex,
-      Set<Map<String, dynamic>> imports,
-      Set<Map<String, dynamic>> modelImports) {
-    final fullImportPath =
-        'package:$package/${p.relative(modelImportPath, from: 'lib')}';
-
-    imports.add({
-      'uri': '$fullImportPath.rdf_mapper.g.dart',
-      'hasAlias': true,
-      'alias': 'ma_' + importIndex.toString(),
-      'index': importIndex.toString()
-    });
-    modelImports.add({
-      'uri': '$fullImportPath.dart',
-      'hasAlias': true,
-      'alias': 'mo_' + importIndex.toString(),
-      'index': importIndex.toString()
-    });
-  }
-
-  /// Adds absolute package imports
-  void _addAbsoluteImports(
-      String modelImportPath,
-      int importIndex,
-      Set<Map<String, dynamic>> imports,
-      Set<Map<String, dynamic>> modelImports) {
-    imports.add({
-      'uri': '$modelImportPath.rdf_mapper.g.dart',
-      'hasAlias': true,
-      'alias': 'ma_' + importIndex.toString(),
-      'index': importIndex.toString()
-    });
-    modelImports.add({
-      'uri': '$modelImportPath.dart',
-      'hasAlias': true,
-      'alias': 'mo_' + importIndex.toString(),
-      'index': importIndex.toString()
-    });
-  }
-
   /// Builds the final template data from processing results
   Map<String, dynamic> _buildFinalTemplateData(
-      _ProcessingResult result, bool isTest) {
+      _ProcessingResult result, bool isTest, String currentPackage) {
     final sortedProviders = _sortProviders(result.providers);
     final sortedNamedIriMappers = _sortIriMappers(result.namedIriMappers);
     final sortedImports = _sortImports(result.imports);
@@ -346,6 +251,9 @@ class InitFileBuilderHelper {
       'iriMappers': sortedNamedIriMappers,
       'hasIriMappers': sortedNamedIriMappers.isNotEmpty,
     }, importAliases: knownImports);
+
+    // Clean up aliasedImports URIs by removing asset:packageName/lib/ or asset:packageName/test/ prefixes
+    _fixupAliasedImports(data, currentPackage);
 
     return data;
   }
@@ -370,16 +278,54 @@ class InitFileBuilderHelper {
     return imports.toList()..sort((a, b) => a['uri']!.compareTo(b['uri']!));
   }
 
+  void _fixupAliasedImports(Map<String, dynamic> data, String currentPackage) {
+    if (data['aliasedImports'] is List) {
+      final aliasedImports = data['aliasedImports'] as List;
+      for (final import in aliasedImports) {
+        if (import is Map<String, dynamic> && import['uri'] is String) {
+          final uri = import['uri'] as String;
+          final cleanedUri = _cleanupImportUri(uri, currentPackage);
+          import['uri'] = cleanedUri;
+        }
+      }
+    }
+  }
+
+  /// Cleans up import URIs by removing asset:packageName/lib/ or asset:packageName/test/ prefixes
+  String _cleanupImportUri(String uri, String currentPackage) {
+    // Check for asset:packageName/lib/ prefix
+    final libPrefix = 'asset:$currentPackage/lib/';
+    if (uri.startsWith(libPrefix)) {
+      return 'package:$currentPackage/${uri.substring(libPrefix.length)}';
+    }
+
+    // Check for asset:packageName/test/ prefix
+    final testPrefix = 'asset:$currentPackage/test/';
+    if (uri.startsWith(testPrefix)) {
+      return '${uri.substring(testPrefix.length)}';
+    }
+    // Check for asset:packageName/ prefix
+    final assetPrefix = 'asset:$currentPackage/';
+    if (uri.startsWith(assetPrefix)) {
+      return 'package:$currentPackage/${uri.substring(assetPrefix.length)}';
+    }
+
+    // Return the URI unchanged if no prefixes match
+    return uri;
+  }
+
   Future<String> build(
     List<(String path, String package, String content)> jsonFiles,
     AssetReader reader, {
     required bool isTest,
     required String outputPath,
+    required String currentPackage,
   }) async {
     final templateData = buildTemplateData(
       jsonFiles,
       isTest: isTest,
       outputPath: outputPath,
+      currentPackage: currentPackage,
     );
     if (templateData == null) {
       return '';

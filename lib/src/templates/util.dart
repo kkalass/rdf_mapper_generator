@@ -16,6 +16,7 @@ Code typeToCode(DartType type) {
 }
 
 Code classToCode(ClassElement2 type) {
+  // TODO: should we use type.displayName or type.name3?
   final typeName = type.name3!;
   final importUri = _getImportUriForType(type);
   return Code.type(typeName, importUri: importUri);

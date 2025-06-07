@@ -3,44 +3,37 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 /// Contains information about an IRI source reference including the
 /// source code expression and required import.
 class IriTermInfo {
   /// The source code expression (e.g., 'SchemaBook.classIri' or 'IriTerm("https://schema.org/Book")')
-  final String code;
-
-  /// The import URI required for this reference if any (e.g., 'package:rdf_vocabularies/schema.dart')
-  final String? importUri;
+  final Code code;
 
   /// The actual IRI value for fallback purposes
   final IriTerm value;
 
   const IriTermInfo({
     required this.code,
-    this.importUri,
     required this.value,
   });
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is IriTermInfo &&
-        other.code == code &&
-        other.importUri == importUri &&
-        other.value == value;
+    return other is IriTermInfo && other.code == code && other.value == value;
   }
 
   @override
   int get hashCode => Object.hash(
         code,
-        importUri,
         value,
       );
 
   @override
   String toString() => 'IriTermInfo(code: $code, '
-      'importUri: $importUri, '
       'value: $value)';
 }
 
@@ -142,50 +135,17 @@ IriTerm? getIriTerm(DartObject? iriTermObject) {
 /// and determining the required import.
 /// This is used to maintain references like 'SchemaBook.classIri' instead of
 /// evaluating them to literal values.
-IriTermInfo? getIriTermInfo(
-    DartObject? iriTermObject, LibsByClassName libsByClassName) {
+IriTermInfo? getIriTermInfo(DartObject? iriTermObject) {
   try {
     if (iriTermObject != null && !iriTermObject.isNull) {
       // Get the actual IRI value for fallback
       final iriTerm = getIriTerm(iriTermObject)!;
 
       // Try to get the source reference from the variable element
-      final variable = iriTermObject.variable2;
-      if (variable != null) {
-        // For static fields, get the declaring class and field name
-        final declaringElement = variable.enclosingElement2;
-        final fieldName = variable.displayName;
+      final code = toCode(iriTermObject);
 
-        if (declaringElement != null) {
-          final declaringClass = declaringElement.displayName;
-          final reference = '$declaringClass.$fieldName';
-
-          // Get the import URI from the library where the variable is declared
-          final library = variable.library2;
-          final internalLibraryUri = library?.identifier;
-
-          // Try to resolve the public import URI that users actually use
-          final publicImportUri = libsByClassName[declaringClass]?.identifier;
-
-          return IriTermInfo(
-            code: reference,
-            importUri: publicImportUri ?? internalLibraryUri,
-            value: iriTerm,
-          );
-        }
-
-        // Fallback to just the variable name
-        return IriTermInfo(
-          code: variable.displayName,
-          importUri: null,
-          value: iriTerm,
-        );
-      }
-
-      // If we can't get the source reference, create a fallback with literal value
       return IriTermInfo(
-        code: "IriTerm('${iriTerm.iri}')",
-        importUri: null,
+        code: code,
         value: iriTerm,
       );
     }

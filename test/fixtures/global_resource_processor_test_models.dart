@@ -1,5 +1,4 @@
-import 'package:rdf_core/src/graph/rdf_term.dart';
-import 'package:rdf_core/src/graph/triple.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies/schema.dart';

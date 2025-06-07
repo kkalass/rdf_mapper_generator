@@ -2,13 +2,13 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
-import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
+import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:test/test.dart';
+
 import 'test_helper.dart' as test_helper;
 
 void main() {
   group('BuilderHelper', () {
-    late LibsByClassName libsByClassName;
     late LibraryElement2 library;
     late AssetReader assetReader;
 
@@ -18,15 +18,14 @@ void main() {
       final result = await test_helper
           .analyzeTestFile('global_resource_processor_test_models.dart');
       library = result.$1;
-      libsByClassName = LibsByClassName.create(library);
     });
 
     test('should generate mapper for Book class', () async {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('Book')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, contains('class BookMapper'));
       expect(result, contains('implements GlobalResourceMapper<Book>'));
@@ -36,8 +35,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithEmptyIriStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, contains('class ClassWithEmptyIriStrategyMapper'));
     });
@@ -47,8 +46,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithIriTemplateStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, contains('class ClassWithIriTemplateStrategyMapper'));
     });
@@ -60,8 +59,8 @@ void main() {
           [
             library.getClass2('ClassWithIriTemplateAndContextVariableStrategy')!
           ],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result,
           contains('class ClassWithIriTemplateAndContextVariableStrategy'));
@@ -72,8 +71,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithIriNamedMapperStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, contains('class ClassWithIriNamedMapperStrategyMapper'));
     });
@@ -82,8 +81,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithIriMapperStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, contains('class ClassWithIriMapperStrategyMapper'));
     });
@@ -93,8 +92,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithIriMapperInstanceStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(
           result, contains('class ClassWithIriMapperInstanceStrategyMapper'));
@@ -105,8 +104,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithMapperNamedMapperStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result,
           isNot(contains('class ClassWithMapperNamedMapperStrategyMapper')));
@@ -116,8 +115,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithMapperStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, isNot(contains('class ClassWithMapperStrategyMapper')));
     });
@@ -127,8 +126,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('ClassWithMapperInstanceStrategy')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result,
           isNot(contains('class ClassWithMapperInstanceStrategyMapper')));
@@ -138,8 +137,8 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [library.getClass2('NotAnnotated')!],
-          libsByClassName,
-          assetReader);
+          assetReader,
+          BroaderImports.create(library));
       expect(result, isNull);
     });
   });

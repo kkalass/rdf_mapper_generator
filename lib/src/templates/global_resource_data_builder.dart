@@ -23,14 +23,17 @@ class GlobalResourceDataBuilder {
 
   /// Builds template data for a global resource mapper.
   static GlobalResourceMapperTemplateData buildGlobalResourceMapper(
-    GlobalResourceInfo resourceInfo,
-  ) {
+      GlobalResourceInfo resourceInfo, String mapperImportUri) {
     assert(resourceInfo.annotation.mapper == null);
     final className = resourceInfo.className;
-    final mapperClassName = '${className}Mapper';
+    // To get the pure class name without imports, we resolve aliases
+    // and use the class name without any import prefixes.
+    final mapperClassName = Code.type(
+        '${className.resolveAliases(knownImports: Map.fromIterable(className.imports, key: (v) => v, value: (v) => '')).$1}Mapper',
+        importUri: mapperImportUri);
 
     // Build imports
-    final imports = _buildImports(resourceInfo);
+    final imports = _buildImports(resourceInfo, className.imports);
 
     // Build type IRI expression
     final typeIri = _buildTypeIri(resourceInfo);
@@ -60,30 +63,19 @@ class GlobalResourceDataBuilder {
   }
 
   /// Builds the list of required imports.
-  static List<ImportData> _buildImports(GlobalResourceInfo resourceInfo) {
+  static List<ImportData> _buildImports(
+      GlobalResourceInfo resourceInfo, Set<String> knownImports) {
     final imports = <String>{
       'package:rdf_core/rdf_core.dart',
       'package:rdf_mapper/rdf_mapper.dart',
+      ...knownImports
     };
-
-    // Add imports based on type IRI
-    final classIriTermInfo = resourceInfo.annotation.classIri;
-    if (classIriTermInfo?.importUri != null) {
-      imports.add(classIriTermInfo!.importUri!);
-    }
-
-    // Add imports for property predicates from @RdfProperty fields
-    for (final field in resourceInfo.fields) {
-      if (field.propertyInfo?.annotation.predicate.importUri != null) {
-        imports.add(field.propertyInfo!.annotation.predicate.importUri!);
-      }
-    }
 
     return imports.map(ImportData.new).toList();
   }
 
   /// Builds the type IRI expression.
-  static String? _buildTypeIri(GlobalResourceInfo resourceInfo) {
+  static Code? _buildTypeIri(GlobalResourceInfo resourceInfo) {
     final classIriInfo = resourceInfo.annotation.classIri;
     return classIriInfo?.code;
   }

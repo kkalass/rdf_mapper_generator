@@ -2,11 +2,11 @@ import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/libs_by_classname.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 /// Processes class elements to extract RDF global resource information.
@@ -16,29 +16,24 @@ class GlobalResourceProcessor {
   /// Returns a [MappableClassInfo] containing the processed information if the class is annotated
   /// with `@RdfGlobalResource`, otherwise returns `null`.
   static GlobalResourceInfo? processClass(
-      ValidationContext context, ClassElement2 classElement,
-      {LibsByClassName? libsByClassName}) {
+      ValidationContext context, ClassElement2 classElement) {
     final annotation =
         getAnnotation(classElement.metadata2, 'RdfGlobalResource');
     if (annotation == null) {
       return null;
     }
-    if (libsByClassName == null) {
-      libsByClassName = LibsByClassName.create(classElement.library2);
-    }
-
-    final className = classElement.displayName;
+    final className = classToCode(classElement);
 
     // Create the RdfGlobalResource instance from the annotation
-    final rdfGlobalResource = _createRdfGlobalResource(
-        context, annotation, classElement, libsByClassName);
+    final rdfGlobalResource =
+        _createRdfGlobalResource(context, annotation, classElement);
     final iriTemplateInfo = rdfGlobalResource.iri?.templateInfo;
     final iriPartNameByPropertyName = Map<String, String>.fromIterable(
       iriTemplateInfo?.propertyVariables ?? const [],
       key: (pv) => pv.dartPropertyName,
       value: (pv) => pv.name,
     );
-    final fields = _extractFields(classElement, libsByClassName);
+    final fields = _extractFields(classElement);
     final constructors =
         _extractConstructors(classElement, fields, iriPartNameByPropertyName);
 
@@ -53,12 +48,10 @@ class GlobalResourceProcessor {
   static RdfGlobalResourceInfo _createRdfGlobalResource(
       ValidationContext context,
       DartObject annotation,
-      ClassElement2 classElement,
-      LibsByClassName libsByClassName) {
+      ClassElement2 classElement) {
     try {
       // Get the classIri from the annotation
-      final classIri =
-          getIriTermInfo(getField(annotation, 'classIri'), libsByClassName);
+      final classIri = getIriTermInfo(getField(annotation, 'classIri'));
 
       // Get the iriStrategy from the annotation
       final iriStrategy = _getIriStrategy(context, annotation, classElement);
@@ -133,16 +126,14 @@ class GlobalResourceProcessor {
     return constructors;
   }
 
-  static List<FieldInfo> _extractFields(
-      ClassElement2 classElement, LibsByClassName libsByClassName) {
+  static List<FieldInfo> _extractFields(ClassElement2 classElement) {
     final fields = <FieldInfo>[];
     final typeSystem = classElement.library2.typeSystem;
 
     for (final field in classElement.fields2) {
       if (field.isStatic) continue;
 
-      final propertyInfo = PropertyProcessor.processField(field,
-          libsByClassName: libsByClassName);
+      final propertyInfo = PropertyProcessor.processField(field);
       final isNullable = field.type.isDartCoreNull ||
           (field.type is InterfaceType &&
               (field.type as InterfaceType).isDartCoreNull) ||

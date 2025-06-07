@@ -1,3 +1,4 @@
+import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
@@ -80,13 +81,13 @@ class GlobalResourceMapperTemplateData
   final List<ImportData> imports;
 
   /// The name of the Dart class being mapped
-  final String className;
+  final Code className;
 
   /// The name of the generated mapper class
-  final String mapperClassName;
+  final Code mapperClassName;
 
   /// The type IRI expression (e.g., 'SchemaBook.classIri')
-  final String? typeIri;
+  final Code? typeIri;
 
   /// IRI strategy information
   final IriStrategyData iriStrategy;
@@ -107,9 +108,9 @@ class GlobalResourceMapperTemplateData
 
   const GlobalResourceMapperTemplateData({
     required List<ImportData> imports,
-    required String className,
-    required String mapperClassName,
-    required String? typeIri,
+    required Code className,
+    required Code mapperClassName,
+    required Code? typeIri,
     required IriStrategyData iriStrategy,
     required List<ContextProviderData> contextProviders,
     required List<ParameterData> constructorParameters,
@@ -129,9 +130,9 @@ class GlobalResourceMapperTemplateData
   Map<String, dynamic> toMap() {
     return {
       'imports': imports.map((i) => i.toMap()).toList(),
-      'className': className,
-      'mapperClassName': mapperClassName,
-      'typeIri': typeIri,
+      'className': className.toMap(),
+      'mapperClassName': mapperClassName.toMap(),
+      'typeIri': typeIri?.toMap(),
       'hasTypeIri': typeIri != null,
       'iriStrategy': iriStrategy.toMap(),
       'constructorParameters':
@@ -158,12 +159,15 @@ class FileTemplateData {
   /// All imports required for the file
   final List<ImportData> imports;
 
+  final BroaderImports broaderImports;
+
   /// All generated mapper classes
   final List<MapperData> mappers;
 
   const FileTemplateData({
     required this.header,
     required this.imports,
+    required this.broaderImports,
     required this.mappers,
   });
 
@@ -171,6 +175,7 @@ class FileTemplateData {
   Map<String, dynamic> toMap() {
     return {
       'header': header.toMap(),
+      'broaderImports': broaderImports.toMap(),
       'imports': imports.map((i) => i.toMap()).toList(),
       'mappers': mappers.map((m) => m.toMap()).toList(),
     };
@@ -348,7 +353,7 @@ class ParameterData {
   final bool isRdfProperty;
   final bool isNamed;
   final String? iriPartName;
-  final String? predicate;
+  final Code? predicate;
   final Code? defaultValue;
   final bool hasDefaultValue;
 
@@ -374,7 +379,7 @@ class ParameterData {
         'isRdfProperty': isRdfProperty,
         'isNamed': isNamed,
         'iriPartName': iriPartName,
-        'predicate': predicate,
+        'predicate': predicate?.toMap(),
         'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': hasDefaultValue,
       };

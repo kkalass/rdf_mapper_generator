@@ -103,7 +103,8 @@ class Code {
   /// Resolves alias markers in code to actual aliases
   /// Returns a record with the resolved code and a map of import URIs to aliases
   (String, Map<String, String>) resolveAliases(
-      {Map<String, String> knownImports = const {}}) {
+      {Map<String, String> knownImports = const {},
+      Map<String, String> broaderImports = const {}}) {
     String resolvedCode = _code;
     final importsWithAlias = <String, String>{};
 
@@ -111,7 +112,8 @@ class Code {
     final usedAliases = <String>{};
     usedAliases.addAll(knownImports.values);
 
-    for (final importUri in _imports) {
+    for (final originalImportUri in _imports) {
+      final importUri = broaderImports[originalImportUri] ?? originalImportUri;
       String alias;
 
       if (knownImports.containsKey(importUri)) {
@@ -131,7 +133,7 @@ class Code {
       }
 
       importsWithAlias[importUri] = alias;
-      final marker = _wrapImportUri(importUri);
+      final marker = _wrapImportUri(originalImportUri);
       resolvedCode =
           resolvedCode.replaceAll(marker, alias.isEmpty ? '' : '$alias.');
     }
@@ -144,6 +146,12 @@ class Code {
     if (uri.startsWith('package:')) {
       // Extract package name: package:foo/bar.dart -> foo
       final parts = uri.substring(8).split('/');
+      if (parts.isNotEmpty) {
+        return _sanitizeAlias(parts.first);
+      }
+    } else if (uri.startsWith('asset:')) {
+      // Extract package name: asset:foo/bar.dart -> foo
+      final parts = uri.substring(6).split('/');
       if (parts.isNotEmpty) {
         return _sanitizeAlias(parts.first);
       }

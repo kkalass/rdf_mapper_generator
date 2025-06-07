@@ -71,6 +71,7 @@ class RdfInitFileBuilder implements Builder {
         buildStep,
         isTest: isTest,
         outputPath: outputPath,
+        currentPackage: buildStep.inputId.package,
       );
 
       // Write the output file

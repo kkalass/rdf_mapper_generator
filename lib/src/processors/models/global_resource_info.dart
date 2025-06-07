@@ -8,13 +8,13 @@ import 'package:rdf_mapper_generator/src/templates/code.dart';
 /// Contains information about a class annotated with @RdfGlobalResource
 sealed class MappableClassInfo {
   /// The name of the class
-  String get className;
+  Code get className;
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
 class GlobalResourceInfo implements MappableClassInfo {
   /// The name of the class
-  final String className;
+  final Code className;
 
   /// The RdfGlobalResource annotation instance
   final RdfGlobalResourceInfo annotation;
