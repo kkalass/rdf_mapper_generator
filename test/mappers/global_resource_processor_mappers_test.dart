@@ -17,7 +17,8 @@ class TestMapper implements IriTermMapper<ClassWithIriNamedMapperStrategy> {
   @override
   IriTerm toRdfTerm(
       ClassWithIriNamedMapperStrategy value, SerializationContext context) {
-    throw UnimplementedError();
+    // this of course is pretty nonsensical, but just for testing
+    return IriTerm('http://example.org/persons3/${value.hashCode}');
   }
 }
 
@@ -85,24 +86,34 @@ void main() {
       final instance = ClassWithEmptyIriStrategy(iri: "http://example.org/");
       final graph = mapper.encodeObject(instance);
       expect(graph, isNotNull);
+      final decoded = mapper.decodeObject<ClassWithEmptyIriStrategy>(graph);
+      expect(decoded, isNotNull);
     });
 
     test('ClassWithIriNamedMapperStrategy mapping', () {
       final instance = ClassWithIriNamedMapperStrategy();
       final graph = mapper.encodeObject(instance);
       expect(graph, isNotNull);
+      final decoded =
+          mapper.decodeObject<ClassWithIriNamedMapperStrategy>(graph);
+      expect(decoded, isNotNull);
     });
 
     test('ClassWithIriMapperStrategy mapping', () {
       final instance = ClassWithIriMapperStrategy();
       final graph = mapper.encodeObject(instance);
       expect(graph, isNotNull);
+      final decoded = mapper.decodeObject<ClassWithIriMapperStrategy>(graph);
+      expect(decoded, isNotNull);
     });
 
     test('ClassWithIriMapperInstanceStrategy mapping', () {
       final instance = ClassWithIriMapperInstanceStrategy();
       final graph = mapper.encodeObject(instance);
       expect(graph, isNotNull);
+      final decoded =
+          mapper.decodeObject<ClassWithIriMapperInstanceStrategy>(graph);
+      expect(decoded, isNotNull);
     });
   });
 }

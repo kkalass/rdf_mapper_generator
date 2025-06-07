@@ -102,13 +102,15 @@ class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
   const TestIriMapper();
 
   @override
-  fromRdfTerm(IriTerm term, DeserializationContext context) {
+  ClassWithIriMapperStrategy fromRdfTerm(
+      IriTerm term, DeserializationContext context) {
     throw UnimplementedError();
   }
 
   @override
   IriTerm toRdfTerm(value, SerializationContext context) {
-    throw UnimplementedError();
+    // this of course is pretty nonsensical, but just for testing
+    return IriTerm('http://example.org/persons/${value.hashCode}');
   }
 }
 
@@ -123,7 +125,8 @@ class TestIriMapper2
 
   @override
   IriTerm toRdfTerm(value, SerializationContext context) {
-    throw UnimplementedError();
+    // this of course is pretty nonsensical, but just for testing
+    return IriTerm('http://example.org/persons2/${value.hashCode}');
   }
 }
 
