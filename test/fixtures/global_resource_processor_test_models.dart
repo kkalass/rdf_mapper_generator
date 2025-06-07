@@ -68,7 +68,7 @@ class ClassWithIriNamedMapperStrategy {}
 class ClassWithIriMapperStrategy {}
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.mapperInstance(TestIriMapper()))
+    SchemaPerson.classIri, IriStrategy.mapperInstance(TestIriMapper2()))
 class ClassWithIriMapperInstanceStrategy {}
 
 @RdfGlobalResource.namedMapper('testGlobalResourceMapper')
@@ -98,8 +98,23 @@ class TestGlobalResourceMapper implements GlobalResourceMapper {
   IriTerm? get typeIri => throw UnimplementedError();
 }
 
-class TestIriMapper implements IriTermMapper {
+class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
   const TestIriMapper();
+
+  @override
+  fromRdfTerm(IriTerm term, DeserializationContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  IriTerm toRdfTerm(value, SerializationContext context) {
+    throw UnimplementedError();
+  }
+}
+
+class TestIriMapper2
+    implements IriTermMapper<ClassWithIriMapperInstanceStrategy> {
+  const TestIriMapper2();
 
   @override
   fromRdfTerm(IriTerm term, DeserializationContext context) {

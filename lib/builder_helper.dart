@@ -80,7 +80,6 @@ class BuilderHelper {
 }
 
 String getMapperImportUri(String packageName, String sourcePath) {
-  final mapperImportUri =
-      'asset:$packageName/${sourcePath.replaceAll('.dart', '.rdf_mapper.g.dart')}';
+  final mapperImportUri = 'asset:$packageName/${sourcePath}';
   return mapperImportUri;
 }

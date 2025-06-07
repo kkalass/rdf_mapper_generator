@@ -174,8 +174,24 @@ class Code {
   }
 
   /// Sanitizes an alias to ensure it's a valid Dart identifier
+  /// If the result is too long, shortens it by using first letters of underscore-separated parts
   static String _sanitizeAlias(String input) {
-    return input.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    final sanitized = input.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+
+    // If alias is reasonably short, return as is
+    if (sanitized.length <= 12) {
+      return sanitized;
+    }
+
+    // For long aliases, use first letter of each underscore-separated part
+    final parts = sanitized.split('_').where((part) => part.isNotEmpty);
+    if (parts.length > 1) {
+      final abbreviated = parts.map((part) => part[0].toLowerCase()).join();
+      return abbreviated.isNotEmpty ? abbreviated : sanitized;
+    }
+
+    // For single long words without underscores, truncate to reasonable length
+    return sanitized.length > 12 ? sanitized.substring(0, 12) : sanitized;
   }
 
   @override
