@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
+
 import 'code.dart';
 
 List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
@@ -152,8 +153,4 @@ String? _getImportUriForType(Element2? element) {
   }
 
   return source.toString();
-}
-
-String _escapeString(String input) {
-  return input.replaceAll("'", "\\'");
 }

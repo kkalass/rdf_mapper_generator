@@ -1,10 +1,26 @@
+import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:test/test.dart';
 
 // Import test models
 import '../fixtures/annotation_test_models.dart';
 // Import the generated init function
+import '../fixtures/global_resource_processor_test_models.dart';
 import '../init_test_rdf_mapper.g.dart';
+
+class TestMapper implements IriTermMapper<ClassWithIriNamedMapperStrategy> {
+  @override
+  ClassWithIriNamedMapperStrategy fromRdfTerm(
+      IriTerm term, DeserializationContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  IriTerm toRdfTerm(
+      ClassWithIriNamedMapperStrategy value, SerializationContext context) {
+    throw UnimplementedError();
+  }
+}
 
 void main() {
   late RdfMapper mapper;
@@ -12,8 +28,7 @@ void main() {
 
   setUp(() {
     mapper = initTestRdfMapper(
-      baseUriProvider: () => baseUri,
-    );
+        baseUriProvider: () => baseUri, testMapper: TestMapper());
   });
 
   group('All Mappers Test', () {
