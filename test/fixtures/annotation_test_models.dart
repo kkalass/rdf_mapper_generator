@@ -9,13 +9,9 @@ class TestMapper implements IriTermMapper<(String id,)> {
 
   const TestMapper({required this.prefix});
 
-  IriTerm call((String id,) properties) {
-    return IriTerm('$prefix/${properties.$1}');
-  }
-
   @override
   IriTerm toRdfTerm((String id,) properties, SerializationContext context) {
-    return call(properties);
+    return IriTerm('$prefix/${properties.$1}');
   }
 
   @override
