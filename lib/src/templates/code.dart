@@ -143,17 +143,17 @@ class Code {
 
   /// Generates a default alias from an import URI
   static String _generateAliasFromUri(String uri) {
-    if (uri.startsWith('package:')) {
-      // Extract package name: package:foo/bar.dart -> foo
-      final parts = uri.substring(8).split('/');
+    if (uri.startsWith('package:') || uri.startsWith('asset:')) {
+      // Extract filename from URI: package:foo/bar/baz.dart -> baz, asset:foo/bar.dart -> bar
+      final prefixLength = uri.startsWith('package:') ? 8 : 6;
+      final parts = uri.substring(prefixLength).split('/');
       if (parts.isNotEmpty) {
-        return _sanitizeAlias(parts.first);
-      }
-    } else if (uri.startsWith('asset:')) {
-      // Extract package name: asset:foo/bar.dart -> foo
-      final parts = uri.substring(6).split('/');
-      if (parts.isNotEmpty) {
-        return _sanitizeAlias(parts.first);
+        final lastPart = parts.last;
+        // Remove .dart extension if present
+        final aliasName = lastPart.endsWith('.dart')
+            ? lastPart.substring(0, lastPart.length - 5)
+            : lastPart;
+        return _sanitizeAlias(aliasName);
       }
     } else if (uri.startsWith('dart:')) {
       if (uri == 'dart:core') {

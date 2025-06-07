@@ -14,16 +14,27 @@ class BroaderImports {
   String? operator [](String name) => _libsBySrcLibNames[name];
 
   static BroaderImports create(LibraryElement2 libraryElement) {
-    final libs = libraryElement.fragments
+    final importedLibraries = libraryElement.fragments
         .expand((frag) => frag.importedLibraries2)
         .toList();
-    var entries = libs.expand((lib) => lib.fragments
-        .expand((frag) => frag.libraryExports2)
-        .map((exp) => MapEntry<String, String>(
-            (exp.exportedLibrary2?.identifier)!, lib.identifier)));
+    var entries = importedLibraries
+        .expand((lib) => _exportedLibraryMappings(lib, lib.identifier));
     var broaderImports = Map.fromEntries(entries);
 
     return BroaderImports(broaderImports);
+  }
+
+  static Iterable<MapEntry<String, String>> _exportedLibraryMappings(
+      LibraryElement2 lib, String broaderImportName) {
+    return lib.fragments
+        .expand((frag) => frag.libraryExports2)
+        .expand((exp) => [
+              MapEntry<String, String>(
+                  (exp.exportedLibrary2?.identifier)!, broaderImportName),
+              if (exp.exportedLibrary2 != null)
+                ..._exportedLibraryMappings(
+                    exp.exportedLibrary2!, broaderImportName)
+            ]);
   }
 
   Map<String, dynamic> toMap() {

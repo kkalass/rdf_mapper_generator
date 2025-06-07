@@ -57,17 +57,6 @@ Code toCode(DartObject? value) {
     }
   }
 
-  // Handle const constructors (like IriTerm, etc.)
-  final type = value.type?.getDisplayString();
-  if (type == 'IriTerm') {
-    final iri = value.getField('iri')?.toStringValue();
-    if (iri != null) {
-      final importUri = _getImportUriForType(value.type!.element3);
-      return Code.constructor("IriTerm('${_escapeString(iri)}')",
-          importUri: importUri);
-    }
-  }
-
   // Handle lists
   if (value.type?.isDartCoreList == true) {
     final items = value.toListValue() ?? [];
@@ -88,6 +77,19 @@ Code toCode(DartObject? value) {
     return Code.combine([Code.value('{'), combinedEntries, Code.value('}')]);
   }
 
+  if (value.variable2 != null) {
+    // Handle variables (e.g., const variables)
+    final variable = value.variable2!;
+    final variableName = variable.name3;
+    final enclosingElement = variable.enclosingElement2;
+    if (enclosingElement is ClassElement2 &&
+        variableName != null &&
+        variable.isStatic) {
+      return Code.combine(
+          [classToCode(enclosingElement), Code.literal('.$variableName')]);
+    }
+  }
+
   // Handle objects with const constructors (like custom mappers)
   var typeElement = value.type?.element3;
   if (typeElement is ClassElement2) {
@@ -95,19 +97,32 @@ Code toCode(DartObject? value) {
       final fields = constructor.formalParameters;
       if (constructor.isConst) {
         final constructorName = constructor.displayName;
+        final positionalArgCodes = <Code>[];
         final namedArgCodes = <Code>[];
 
-        // FIXME: handle positional arguments
+        // Separate positional and named parameters
         for (final field in fields) {
           final fieldValue = value.getField(field.name3!);
           if (fieldValue != null) {
             final fieldCode = toCode(fieldValue);
-            namedArgCodes.add(
-                Code.combine([Code.value('${field.name3!}: '), fieldCode]));
+
+            if (field.isNamed) {
+              // Named parameter: paramName: value
+              namedArgCodes.add(
+                  Code.combine([Code.value('${field.name3!}: '), fieldCode]));
+            } else {
+              // Positional parameter: just the value
+              positionalArgCodes.add(fieldCode);
+            }
           }
         }
 
-        final argsCode = Code.combine(namedArgCodes, separator: ', ');
+        // Combine positional and named arguments
+        final allArgCodes = <Code>[];
+        allArgCodes.addAll(positionalArgCodes);
+        allArgCodes.addAll(namedArgCodes);
+
+        final argsCode = Code.combine(allArgCodes, separator: ', ');
         final importUri = _getImportUriForType(typeElement);
 
         return Code.combine([
