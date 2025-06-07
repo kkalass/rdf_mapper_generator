@@ -84,6 +84,15 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
         templateInfo == other.templateInfo &&
         iriMapperType == other.iriMapperType;
   }
+
+  @override
+  String toString() {
+    return 'IriStrategyInfo{'
+        'mapper: $mapper, '
+        'template: $template, '
+        'templateInfo: $templateInfo, '
+        'iriMapperType: $iriMapperType}';
+  }
 }
 
 class VariableName {

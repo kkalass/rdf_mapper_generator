@@ -143,9 +143,11 @@ class Code {
 
   /// Generates a default alias from an import URI
   static String _generateAliasFromUri(String uri) {
-    if (uri.startsWith('package:') || uri.startsWith('asset:')) {
+    if (uri.startsWith('package:') ||
+        uri.startsWith('asset:') ||
+        uri.startsWith('file:')) {
       // Extract filename from URI: package:foo/bar/baz.dart -> baz, asset:foo/bar.dart -> bar
-      final prefixLength = uri.startsWith('package:') ? 8 : 6;
+      final prefixLength = uri.split(":")[0].length + 1; // +1 for the colon
       final parts = uri.substring(prefixLength).split('/');
       if (parts.isNotEmpty) {
         final lastPart = parts.last;

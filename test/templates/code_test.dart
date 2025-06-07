@@ -35,11 +35,11 @@ void main() {
       test('creates code with import when importUri is provided', () {
         final code = Code.type('MyClass', importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('foo.MyClass'));
+        expect(code.code, equals('bar.MyClass'));
         expect(code.hasImports, isTrue);
         expect(code.imports, hasLength(1));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('combine code with conflicting import aliases', () {
@@ -54,12 +54,12 @@ void main() {
           code2,
           Code.literal('>')
         ]);
-        expect(code4.code, equals('foo.MyClass<foo2.MyClass, foo.MyClass2>'));
+        expect(code4.code, equals('bar.MyClass<baz.MyClass, bar.MyClass2>'));
         expect(code4.hasImports, isTrue);
         expect(code4.imports, hasLength(2));
         final (_, imports) = code4.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
-        expect(imports['package:foo/baz.dart'], equals('foo2'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
+        expect(imports['package:foo/baz.dart'], equals('baz'));
       });
 
       test('uses custom alias when provided', () {
@@ -74,9 +74,9 @@ void main() {
         final code =
             Code.type('MyClass.InnerClass', importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('foo.MyClass.InnerClass'));
+        expect(code.code, equals('bar.MyClass.InnerClass'));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('handles dart: imports correctly', () {
@@ -101,55 +101,55 @@ void main() {
         final code =
             Code.constructor('MyClass()', importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('foo.MyClass()'));
+        expect(code.code, equals('bar.MyClass()'));
         expect(code.hasImports, isTrue);
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('handles const constructors correctly', () {
         final code = Code.constructor('const MyClass()',
             importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('const foo.MyClass()'));
+        expect(code.code, equals('const bar.MyClass()'));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('handles named constructors', () {
         final code = Code.constructor('MyClass.named()',
             importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('foo.MyClass.named()'));
+        expect(code.code, equals('bar.MyClass.named()'));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('handles const named constructors', () {
         final code = Code.constructor('const MyClass.named()',
             importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('const foo.MyClass.named()'));
+        expect(code.code, equals('const bar.MyClass.named()'));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('handles constructors with parameters', () {
         final code = Code.constructor('MyClass("param1", 42)',
             importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('foo.MyClass("param1", 42)'));
+        expect(code.code, equals('bar.MyClass("param1", 42)'));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('handles constructors with nested parentheses', () {
         final code = Code.constructor('MyClass(SomeOtherClass())',
             importUri: 'package:foo/bar.dart');
 
-        expect(code.code, equals('foo.MyClass(SomeOtherClass())'));
+        expect(code.code, equals('bar.MyClass(SomeOtherClass())'));
         final (_, imports) = code.resolveAliases();
-        expect(imports['package:foo/bar.dart'], equals('foo'));
+        expect(imports['package:foo/bar.dart'], equals('bar'));
       });
 
       test('uses custom alias when provided', () {
@@ -211,11 +211,11 @@ void main() {
         final code2 = Code.type('ClassB', importUri: 'package:bar/b.dart');
         final combined = Code.combine([code1, code2], separator: ' + ');
 
-        expect(combined.code, equals('foo.ClassA + bar.ClassB'));
+        expect(combined.code, equals('a.ClassA + b.ClassB'));
         expect(combined.imports, hasLength(2));
         final (_, imports) = combined.resolveAliases();
-        expect(imports['package:foo/a.dart'], equals('foo'));
-        expect(imports['package:bar/b.dart'], equals('bar'));
+        expect(imports['package:foo/a.dart'], equals('a'));
+        expect(imports['package:bar/b.dart'], equals('b'));
       });
 
       test('handles duplicate imports correctly', () {
@@ -225,7 +225,7 @@ void main() {
 
         expect(combined.imports, hasLength(1));
         final (_, imports) = combined.resolveAliases();
-        expect(imports['package:foo/a.dart'], equals('foo'));
+        expect(imports['package:foo/a.dart'], equals('a'));
       });
     });
 

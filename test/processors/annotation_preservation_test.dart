@@ -33,7 +33,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'BookWithMapper');
+      expect(result!.className.code, 'atm.BookWithMapper');
 
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;
@@ -61,7 +61,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'BookWithMapperInstance');
+      expect(result!.className.code, 'atm.BookWithMapperInstance');
 
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;
@@ -87,7 +87,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'BookWithTemplate');
+      expect(result!.className.code, 'atm.BookWithTemplate');
 
       // Check RdfGlobalResource annotation
       final annotation = result.annotation;

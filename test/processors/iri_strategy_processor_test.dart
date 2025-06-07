@@ -23,8 +23,12 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, '', bookClass);
-        validationContext.throwIfErrors();
+
         expect(result, isNull);
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(
+            validationContext.errors, contains('IRI template cannot be empty'));
       });
 
       test('should process simple template with single variable', () {
@@ -110,13 +114,19 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, template, bookClass);
-        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
         expect(result.validationErrors, isNotEmpty);
         expect(
             result.validationErrors.first, contains('Invalid variable syntax'));
+
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(
+            validationContext.errors,
+            contains(
+                'Invalid variable syntax. Variables must be in format {variableName}'));
       });
 
       test('should detect unmatched braces', () {
@@ -124,12 +134,15 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, template, bookClass);
-        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
         expect(
             result.validationErrors, contains('Unmatched braces in template'));
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(
+            validationContext.errors, contains('Unmatched braces in template'));
       });
 
       test('should detect empty variable names', () {
@@ -137,11 +150,16 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, template, bookClass);
-        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
         expect(result.validationErrors, isNotEmpty);
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(
+            validationContext.errors,
+            contains(
+                'Invalid variable syntax. Variables must be in format {variableName}'));
       });
 
       test('should validate variable names', () {
@@ -149,12 +167,17 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, template, bookClass);
-        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
         expect(result.validationErrors,
             anyElement(contains('Invalid variable name')));
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(
+            validationContext.errors,
+            contains(
+                'Invalid variable syntax. Variables must be in format {variableName}'));
       });
 
       test('should warn about relative URIs', () {
@@ -162,11 +185,14 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, template, bookClass);
-        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
         expect(result.validationErrors, anyElement(contains('relative URI')));
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(validationContext.errors,
+            contains('Template does not produce valid URI structure'));
       });
 
       test('should handle processing errors gracefully', () {
@@ -282,11 +308,14 @@ void main() {
         final validationContext = ValidationContext();
         final result = IriStrategyProcessor.processTemplate(
             validationContext, template, bookClass);
-        validationContext.throwIfErrors();
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
         expect(result.validationErrors, isNotEmpty);
+        expect(validationContext.isValid, isFalse);
+        expect(validationContext.errors, isNotEmpty);
+        expect(validationContext.errors,
+            contains('Template does not produce valid URI structure'));
       });
     });
 

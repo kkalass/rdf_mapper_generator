@@ -58,6 +58,10 @@ class IriStrategyProcessor {
       ValidationContext context, String template, ClassElement2 classElement,
       {List<IriPartInfo>? iriParts}) {
     try {
+      if (template.isEmpty) {
+        context.addError('IRI template cannot be empty');
+        return null;
+      }
       iriParts ??= _findIriPartFields(classElement);
       final variables = _extractVariables(template);
       final propertyResult = _findPropertyVariables(variables, iriParts);

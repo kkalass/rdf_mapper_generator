@@ -21,11 +21,11 @@ void main() {
         final result = renderer.resolveCodeSnipplets(data);
 
         expect(result['someField'], equals('value'));
-        expect(result['codeField'], equals('foo.MyClass'));
+        expect(result['codeField'], equals('bar.MyClass'));
         expect(result['aliasedImports'], hasLength(1));
         expect(
             result['aliasedImports'][0]['uri'], equals('package:foo/bar.dart'));
-        expect(result['aliasedImports'][0]['alias'], equals('foo'));
+        expect(result['aliasedImports'][0]['alias'], equals('bar'));
         expect(result['aliasedImports'][0]['hasAlias'], isTrue);
       });
       test('resolves simple Code instance without alias if requested so', () {
@@ -60,9 +60,9 @@ void main() {
 
         final result = renderer.resolveCodeSnipplets(data);
 
-        expect(result['nested']['code1'], equals('foo.ClassA'));
+        expect(result['nested']['code1'], equals('a.ClassA'));
         expect(result['nested']['someList'][0], equals('string'));
-        expect(result['nested']['someList'][1], equals('bar.ClassB'));
+        expect(result['nested']['someList'][1], equals('b.ClassB'));
         expect(result['nested']['someList'][2], equals(123));
         expect(result['aliasedImports'], hasLength(2));
       });
@@ -83,8 +83,8 @@ void main() {
       });
 
       test('handles alias conflicts with known imports', () {
-        final code1 = Code.type('ClassA', importUri: 'package:foo/a.dart');
-        final code2 = Code.type('ClassB', importUri: 'package:foo/b.dart');
+        final code1 = Code.type('ClassA', importUri: 'package:a/foo.dart');
+        final code2 = Code.type('ClassB', importUri: 'package:b/foo.dart');
 
         final data = {
           'code1': code1.toMap(),
@@ -99,8 +99,8 @@ void main() {
 
         final aliases = result['aliasedImports'] as List;
         final aliasMap = {for (var item in aliases) item['uri']: item['alias']};
-        expect(aliasMap['package:foo/a.dart'], equals('foo'));
-        expect(aliasMap['package:foo/b.dart'], equals('foo2'));
+        expect(aliasMap['package:a/foo.dart'], equals('foo'));
+        expect(aliasMap['package:b/foo.dart'], equals('foo2'));
       });
 
       test('preserves non-Code data unchanged', () {

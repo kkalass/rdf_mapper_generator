@@ -26,13 +26,14 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithEmptyIriStrategy');
+      expect(result!.className.code, 'grptm.ClassWithEmptyIriStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
-      expect(result.annotation.iri,
-          equals(IriStrategyInfo(mapper: null, template: null)));
+      expect(result.annotation.iri?.mapper, isNull);
+      expect(result.annotation.iri?.template, '{+iri}');
+
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.fields, hasLength(1));
     });
     test('should process ClassWithEmptyIriStrategyNoRegisterGlobally', () {
       // Act
@@ -45,13 +46,14 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithEmptyIriStrategyNoRegisterGlobally');
+      expect(result!.className.code,
+          'grptm.ClassWithEmptyIriStrategyNoRegisterGlobally');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isFalse);
-      expect(result.annotation.iri,
-          equals(IriStrategyInfo(mapper: null, template: null)));
+      expect(result.annotation.iri?.mapper, isNull);
+      expect(result.annotation.iri?.template, '{+iri}');
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.fields, hasLength(1));
     });
     test('should process ClassWithIriTemplateStrategy', () {
       // Act
@@ -62,7 +64,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriTemplateStrategy');
+      expect(result!.className.code, 'grptm.ClassWithIriTemplateStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
@@ -88,7 +90,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriNamedMapperStrategy');
+      expect(result!.className.code, 'grptm.ClassWithIriNamedMapperStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
@@ -110,7 +112,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriMapperStrategy');
+      expect(result!.className.code, 'grptm.ClassWithIriMapperStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
@@ -139,7 +141,8 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriMapperInstanceStrategy');
+      expect(
+          result!.className.code, 'grptm.ClassWithIriMapperInstanceStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.mapper, isNull);
@@ -150,7 +153,7 @@ void main() {
       expect(result.annotation.iri!.mapper!.type, isNull);
       expect(result.annotation.iri!.mapper!.instance, isNotNull);
       expect(result.annotation.iri!.mapper!.instance!.type!.getDisplayString(),
-          'TestIriMapper');
+          'TestIriMapper2');
       expect(result.annotation.iri!.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));
@@ -164,7 +167,8 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithMapperNamedMapperStrategy');
+      expect(
+          result!.className.code, 'grptm.ClassWithMapperNamedMapperStrategy');
       expect(result.annotation.classIri, isNull);
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri, isNull);
@@ -186,7 +190,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithMapperStrategy');
+      expect(result!.className.code, 'grptm.ClassWithMapperStrategy');
       expect(result.annotation.classIri, isNull);
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri, isNull);
@@ -210,7 +214,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithMapperInstanceStrategy');
+      expect(result!.className.code, 'grptm.ClassWithMapperInstanceStrategy');
       expect(result.annotation.classIri, isNull);
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri, isNull);
@@ -234,7 +238,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'Book');
+      expect(result!.className.code, 'grptm.Book');
       expect(result.annotation.classIri!.value, equals(SchemaBook.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.classIri!.value, isA<IriTerm>());
@@ -304,7 +308,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriMapperStrategy');
+      expect(result!.className.code, 'grptm.ClassWithIriMapperStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri, isNotNull);
@@ -325,7 +329,8 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriMapperInstanceStrategy');
+      expect(
+          result!.className.code, 'grptm.ClassWithIriMapperInstanceStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri, isNotNull);
@@ -346,7 +351,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className, 'ClassWithIriNamedMapperStrategy');
+      expect(result!.className.code, 'grptm.ClassWithIriNamedMapperStrategy');
       expect(result.annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(result.annotation.registerGlobally, isTrue);
       expect(result.annotation.iri, isNotNull);
