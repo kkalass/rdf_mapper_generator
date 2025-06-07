@@ -80,25 +80,15 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     final subject = _iriMapper.toRdfTerm(resource, context);
     {{/hasIriMapperParts}}
     {{/hasMapper}}
-
     {{/iriStrategy}}
     
-    final builder = context.resourceBuilder(subject);
-    
+    return context.resourceBuilder(subject)
     {{#properties}}
     {{#isRdfProperty}}
-    {{#isRequired}}
-    builder.addValue({{predicate}}, {{#hasConverter}}{{converter}}.toRdf({{/hasConverter}}resource.{{propertyName}}{{#hasConverter}}){{/hasConverter}});
-    {{/isRequired}}
-    {{^isRequired}}
-    if (resource.{{propertyName}} != null) {
-      builder.addValue({{predicate}}, {{#hasConverter}}{{converter}}.toRdf({{/hasConverter}}resource.{{propertyName}}{{#hasConverter}}){{/hasConverter}});
-    }
-    {{/isRequired}}
+      .addValue{{^isRequired}}IfNotNull{{/isRequired}}({{predicate}}, resource.{{propertyName}})
     {{/isRdfProperty}}
     {{/properties}}
-
-    return builder.build();
+      .build();
   }
 
   {{#iriStrategy}}

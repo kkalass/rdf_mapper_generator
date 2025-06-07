@@ -96,7 +96,7 @@ class GlobalResourceMapperTemplateData
   final List<ParameterData> constructorParameters;
 
   /// Property mapping information
-  final List<PropertyData> properties = const [];
+  final List<PropertyData> properties;
 
   /// Context variable providers needed for IRI generation
   final List<ContextProviderData> contextProviders;
@@ -116,6 +116,7 @@ class GlobalResourceMapperTemplateData
     required List<ParameterData> constructorParameters,
     required bool needsReader,
     required bool registerGlobally,
+    required List<PropertyData> properties,
   })  : imports = imports,
         className = className,
         mapperClassName = mapperClassName,
@@ -124,7 +125,8 @@ class GlobalResourceMapperTemplateData
         contextProviders = contextProviders,
         constructorParameters = constructorParameters,
         needsReader = needsReader,
-        registerGlobally = registerGlobally;
+        registerGlobally = registerGlobally,
+        properties = properties;
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -388,14 +390,12 @@ class ParameterData {
 /// Data for RDF properties
 class PropertyData {
   final String propertyName;
-  final String dartType;
   final bool isRequired;
   final bool isRdfProperty;
-  final String? predicate;
+  final Code? predicate;
 
   const PropertyData({
     required this.propertyName,
-    required this.dartType,
     required this.isRequired,
     required this.isRdfProperty,
     this.predicate,
@@ -403,9 +403,8 @@ class PropertyData {
 
   Map<String, dynamic> toMap() => {
         'propertyName': propertyName,
-        'dartType': dartType,
         'isRequired': isRequired,
         'isRdfProperty': isRdfProperty,
-        'predicate': predicate,
+        'predicate': predicate?.toMap(),
       };
 }

@@ -49,17 +49,26 @@ class GlobalResourceDataBuilder {
     final resourceConstructorParameters =
         _buildResourceConstructorParameters(resourceInfo);
 
+    final properties = resourceInfo.fields
+        .where((p) => p.propertyInfo != null)
+        .map((p) => PropertyData(
+            isRdfProperty: p.propertyInfo != null,
+            isRequired: p.isRequired,
+            predicate: p.propertyInfo!.annotation.predicate.code,
+            propertyName: p.propertyInfo!.name))
+        .toList();
+
     return GlobalResourceMapperTemplateData(
-      imports: imports,
-      className: className,
-      mapperClassName: mapperClassName,
-      typeIri: typeIri,
-      iriStrategy: iriStrategy,
-      contextProviders: contextProviders,
-      constructorParameters: resourceConstructorParameters,
-      needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
-      registerGlobally: resourceInfo.annotation.registerGlobally,
-    );
+        imports: imports,
+        className: className,
+        mapperClassName: mapperClassName,
+        typeIri: typeIri,
+        iriStrategy: iriStrategy,
+        contextProviders: contextProviders,
+        constructorParameters: resourceConstructorParameters,
+        needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
+        registerGlobally: resourceInfo.annotation.registerGlobally,
+        properties: properties);
   }
 
   /// Builds the list of required imports.
