@@ -1,7 +1,10 @@
 import 'package:build/build.dart';
+import 'package:logging/logging.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+
+final _log = Logger('TemplateRenderer');
 
 /// Renders mustache templates for RDF mapper generation.
 class TemplateRenderer {
@@ -15,9 +18,9 @@ class TemplateRenderer {
   factory TemplateRenderer() => _instance;
 
   /// Renders a global resource mapper using the provided template data.
-  Future<String> _renderGlobalResourceMapper(
+  Future<String> _renderResourceMapper(
       Map<String, dynamic> data, AssetReader reader) async {
-    final template = await _getTemplate('global_resource_mapper', reader);
+    final template = await _getTemplate('resource_mapper', reader);
     return template.renderString(data);
   }
 
@@ -46,10 +49,10 @@ class TemplateRenderer {
     final renderedMappers = <String>[];
     for (final mapperData in data['mappers']) {
       final mapperCode = switch (mapperData['__type__']) {
-        'GlobalResourceMapperTemplateData' => await _renderGlobalResourceMapper(
+        'ResourceMapperTemplateData' => await _renderResourceMapper(
             mapperData as Map<String, dynamic>, reader),
         // Custom mappers are coded by our users, we do not render them here
-        'GlobalResourceMapperCustomTemplateData' => null,
+        'ResourceMapperCustomTemplateData' => null,
         // Add cases for other mapper types if needed
         _ => throw Exception('Unknown mapper type: ${mapperData['__type__']}'),
       };
@@ -103,7 +106,7 @@ class TemplateRenderer {
     for (final import in defaultImports) {
       knownImports[import] = '';
     }
-    print('Resolving code snippets with imports: $knownImports');
+    _log.info('Resolving code snippets with imports: $knownImports');
 
     // Create a copy of the data to avoid modifying the original
     final resolvedData = _deepCopyMap(data);

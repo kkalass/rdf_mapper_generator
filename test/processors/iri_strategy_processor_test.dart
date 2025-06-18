@@ -1,6 +1,6 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:test/test.dart';
 

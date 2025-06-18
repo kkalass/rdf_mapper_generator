@@ -1,4 +1,4 @@
-import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -8,30 +8,35 @@ import 'package:logging/logging.dart';
 final _log = Logger('GlobalResourceDataBuilder');
 
 /// Builds template data from processed resource information.
-class GlobalResourceDataBuilder {
-  static GlobalResourceMapperCustomTemplateData buildGlobalResourceMapperCustom(
-    GlobalResourceInfo resourceInfo,
+class ResourceDataBuilder {
+  static ResourceMapperCustomTemplateData buildResourceMapperCustom(
+    ResourceInfo resourceInfo,
   ) {
     assert(resourceInfo.annotation.mapper != null);
 
     // Build imports
 
-    return GlobalResourceMapperCustomTemplateData(
+    return ResourceMapperCustomTemplateData(
       imports: const [],
     );
   }
 
   /// Builds template data for a global resource mapper.
-  static GlobalResourceMapperTemplateData buildGlobalResourceMapper(
-      GlobalResourceInfo resourceInfo, String mapperImportUri) {
+  static ResourceMapperTemplateData buildResourceMapper(
+      ResourceInfo resourceInfo, String mapperImportUri) {
     assert(resourceInfo.annotation.mapper == null);
+    final isGlobalResource = resourceInfo.annotation is RdfGlobalResourceInfo;
     final className = resourceInfo.className;
     // To get the pure class name without imports, we resolve aliases
     // and use the class name without any import prefixes.
     final mapperClassName = Code.type(
         '${className.resolveAliases(knownImports: Map.fromIterable(className.imports, key: (v) => v, value: (v) => '')).$1}Mapper',
         importUri: mapperImportUri);
-
+    final mapperInterfaceName = isGlobalResource
+        ? Code.type('GlobalResourceMapper')
+        : Code.type('LocalResourceMapper');
+    final termClass =
+        isGlobalResource ? Code.type('IriTerm') : Code.type('BlankNodeTerm');
     // Build imports
     final imports = _buildImports(resourceInfo, className.imports);
 
@@ -42,8 +47,7 @@ class GlobalResourceDataBuilder {
     final iriStrategy = _buildIriStrategy(resourceInfo);
 
     // Build context providers for context variables
-    final contextProviders =
-        _buildContextProviders(resourceInfo.annotation.iri?.templateInfo);
+    final contextProviders = _buildContextProviders(resourceInfo);
 
     // Build constructor parameters
     final resourceConstructorParameters =
@@ -58,10 +62,12 @@ class GlobalResourceDataBuilder {
             propertyName: p.propertyInfo!.name))
         .toList();
 
-    return GlobalResourceMapperTemplateData(
+    return ResourceMapperTemplateData(
         imports: imports,
         className: className,
         mapperClassName: mapperClassName,
+        mapperInterfaceName: mapperInterfaceName,
+        termClass: termClass,
         typeIri: typeIri,
         iriStrategy: iriStrategy,
         contextProviders: contextProviders,
@@ -73,7 +79,7 @@ class GlobalResourceDataBuilder {
 
   /// Builds the list of required imports.
   static List<ImportData> _buildImports(
-      GlobalResourceInfo resourceInfo, Set<String> knownImports) {
+      ResourceInfo resourceInfo, Set<String> knownImports) {
     final imports = <String>{
       'package:rdf_core/rdf_core.dart',
       'package:rdf_mapper/rdf_mapper.dart',
@@ -84,14 +90,18 @@ class GlobalResourceDataBuilder {
   }
 
   /// Builds the type IRI expression.
-  static Code? _buildTypeIri(GlobalResourceInfo resourceInfo) {
+  static Code? _buildTypeIri(ResourceInfo resourceInfo) {
     final classIriInfo = resourceInfo.annotation.classIri;
     return classIriInfo?.code;
   }
 
   /// Builds IRI strategy data.
-  static IriStrategyData _buildIriStrategy(GlobalResourceInfo resourceInfo) {
-    final iriStrategy = resourceInfo.annotation.iri;
+  static IriStrategyData? _buildIriStrategy(ResourceInfo resourceInfo) {
+    final annotation = resourceInfo.annotation;
+    if (annotation is! RdfGlobalResourceInfo) {
+      return null;
+    }
+    final iriStrategy = annotation.iri;
     if (iriStrategy == null) {
       throw Exception(
         'Trying to generate a mapper for resource ${resourceInfo.className}, but iri strategy is not defined. This should not be possible.',
@@ -168,8 +178,17 @@ class GlobalResourceDataBuilder {
     );
   }
 
-  /// Builds context provider data for context variables.
   static List<ContextProviderData> _buildContextProviders(
+      ResourceInfo resourceInfo) {
+    final annotation = resourceInfo.annotation;
+    return [
+      if (annotation is RdfGlobalResourceInfo)
+        ..._buildContextProvidersForIriStrategy(annotation.iri?.templateInfo)
+    ];
+  }
+
+  /// Builds context provider data for context variables.
+  static List<ContextProviderData> _buildContextProvidersForIriStrategy(
       IriTemplateInfo? templateInfo) {
     if (templateInfo == null) return [];
 
@@ -186,7 +205,7 @@ class GlobalResourceDataBuilder {
 
   /// Builds constructor parameter data for the template.
   static List<ParameterData> _buildResourceConstructorParameters(
-      GlobalResourceInfo resourceInfo) {
+      ResourceInfo resourceInfo) {
     final parameters = <ParameterData>[];
 
     // Find the default constructor or use the first one if no default exists

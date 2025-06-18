@@ -2,38 +2,40 @@
 /// 
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type {{className}}.
-class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{#contextProviders}}
   /// Provider for context variable '{{value.variableName}}'
   final String Function() {{value.privateFieldName}};
   {{/contextProviders}}
 
-  {{#iriStrategy.hasMapper}}
+  {{#hasIriStrategyMapper}}
   final {{iriStrategy.mapper.type}} _iriMapper;
-  {{/iriStrategy.hasMapper}}
+  {{/hasIriStrategyMapper}}
 
   /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
   const {{mapperClassName}}({{#hasMapperConstructorParameters}}{
-    {{#iriStrategy.hasMapper}}
+    {{#hasIriStrategyMapper}}
     required {{iriStrategy.mapper.type}} iriMapper
-    {{/iriStrategy.hasMapper}}
+    {{/hasIriStrategyMapper}}
     {{#contextProviders}}
-    {{#iriStrategy.hasMapper}},{{/iriStrategy.hasMapper}}
+    {{#hasIriStrategyMapper}},{{/hasIriStrategyMapper}}
     required String Function() {{value.parameterName}},
     {{/contextProviders}}
-  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#iriStrategy.hasMapper}}_iriMapper = iriMapper{{/iriStrategy.hasMapper}}{{#contextProviders}}{{#iriStrategy.hasMapper}},
-       {{/iriStrategy.hasMapper}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
+  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#hasIriStrategyMapper}}_iriMapper = iriMapper{{/hasIriStrategyMapper}}{{#contextProviders}}{{#hasIriStrategyMapper}},
+       {{/hasIriStrategyMapper}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
        {{/last}}{{/contextProviders}}{{/hasMapperConstructorParameters}};
 
   @override
   IriTerm get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
 
   @override
-  {{className}} fromRdfResource(IriTerm subject, DeserializationContext context) {
+  {{className}} fromRdfResource({{termClass}} subject, DeserializationContext context) {
     {{#needsReader}}
     final reader = context.reader(subject);
     {{/needsReader}}
     
+
+    {{#hasIriStrategy}}
     {{#iriStrategy}}
     // Extract IRI parts
     {{#hasTemplate}}
@@ -45,6 +47,7 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     {{/hasIriMapperParts}}
     {{/hasMapper}}
     {{/iriStrategy}}
+    {{/hasIriStrategy}}
     
     {{#constructorParameters}}
     {{#value.isIriPart}}
@@ -63,11 +66,12 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  ({{termClass}}, List<Triple>) toRdfResource(
     {{className}} resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
+    {{#hasIriStrategy}}
     {{#iriStrategy}}
     {{#hasTemplate}}
     final subject = IriTerm(_buildIri(resource));
@@ -81,6 +85,10 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
     {{/hasIriMapperParts}}
     {{/hasMapper}}
     {{/iriStrategy}}
+    {{/hasIriStrategy}}
+    {{^hasIriStrategy}}
+    final subject = BlankNodeTerm();
+    {{/hasIriStrategy}}
     
     return context.resourceBuilder(subject)
     {{#properties}}
@@ -91,6 +99,7 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
       .build();
   }
 
+  {{#hasIriStrategy}}
   {{#iriStrategy}}
   {{#hasTemplate}}
   /// Builds the IRI for a resource instance using the IRI template.
@@ -125,4 +134,5 @@ class {{mapperClassName}} implements GlobalResourceMapper<{{className}}> {
   }
   {{/hasTemplate}}
   {{/iriStrategy}}
+  {{/hasIriStrategy}}
 }

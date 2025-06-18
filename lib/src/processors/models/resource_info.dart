@@ -12,12 +12,12 @@ sealed class MappableClassInfo {
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
-class GlobalResourceInfo implements MappableClassInfo {
+class ResourceInfo implements MappableClassInfo {
   /// The name of the class
   final Code className;
 
-  /// The RdfGlobalResource annotation instance
-  final RdfGlobalResourceInfo annotation;
+  /// The RdfGlobalResource or RdfLocalResource annotation instance
+  final RdfResourceInfo annotation;
 
   /// List of constructors in the class
   final List<ConstructorInfo> constructors;
@@ -25,12 +25,14 @@ class GlobalResourceInfo implements MappableClassInfo {
   /// List of fields in the class
   final List<FieldInfo> fields;
 
-  const GlobalResourceInfo({
+  const ResourceInfo({
     required this.className,
     required this.annotation,
     required this.constructors,
     required this.fields,
   });
+
+  bool get isGlobalResource => annotation is RdfGlobalResourceInfo;
 
   @override
   int get hashCode =>
@@ -38,7 +40,7 @@ class GlobalResourceInfo implements MappableClassInfo {
 
   @override
   bool operator ==(Object other) {
-    if (other is! GlobalResourceInfo) {
+    if (other is! ResourceInfo) {
       return false;
     }
     return className == other.className &&
@@ -265,28 +267,64 @@ class IriTemplateInfo {
   }
 }
 
-class RdfGlobalResourceInfo
-    extends BaseMappingAnnotationInfo<GlobalResourceMapper> {
+sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
   final IriTermInfo? classIri;
+
+  const RdfResourceInfo(
+      {required this.classIri,
+      required super.registerGlobally,
+      required super.mapper});
+
+  @override
+  int get hashCode => Object.hashAll([classIri, registerGlobally, mapper]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfResourceInfo) {
+      return false;
+    }
+    return classIri == other.classIri &&
+        registerGlobally == other.registerGlobally &&
+        mapper == other.mapper;
+  }
+}
+
+class RdfGlobalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
   final IriStrategyInfo? iri;
   const RdfGlobalResourceInfo(
-      {required this.classIri,
+      {required super.classIri,
       required this.iri,
       required super.registerGlobally,
       required super.mapper});
 
   @override
-  int get hashCode => Object.hashAll([classIri, iri, registerGlobally, mapper]);
+  int get hashCode => Object.hash(super.hashCode, iri);
 
   @override
   bool operator ==(Object other) {
     if (other is! RdfGlobalResourceInfo) {
       return false;
     }
-    return classIri == other.classIri &&
-        iri == other.iri &&
-        registerGlobally == other.registerGlobally &&
-        mapper == other.mapper;
+    return super == other && iri == other.iri;
+  }
+}
+
+class RdfLocalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
+  const RdfLocalResourceInfo(
+      {required super.classIri,
+      required super.registerGlobally,
+      required super.mapper});
+
+  @override
+  // ignore: unnecessary_overrides
+  int get hashCode => super.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfLocalResourceInfo) {
+      return false;
+    }
+    return super == other;
   }
 }
 

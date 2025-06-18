@@ -1,5 +1,7 @@
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
@@ -27,7 +29,7 @@ void main() {
         () {
       final validationContext = ValidationContext();
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final result = ResourceProcessor.processClass(
           validationContext, bookWithMapperClass);
       validationContext.throwIfErrors();
 
@@ -41,7 +43,8 @@ void main() {
       expect(annotation.registerGlobally, isTrue);
 
       // Check IriStrategy
-      final iriStrategy = annotation.iri;
+      expect(annotation, isA<RdfGlobalResourceInfo>());
+      final iriStrategy = (annotation as RdfGlobalResourceInfo).iri;
       expect(iriStrategy, isNotNull);
 
       // For mapper strategy, we should have the type and arguments
@@ -55,7 +58,7 @@ void main() {
         () {
       final validationContext = ValidationContext();
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final result = ResourceProcessor.processClass(
           validationContext, bookWithMapperInstanceClass);
       validationContext.throwIfErrors();
 
@@ -69,7 +72,8 @@ void main() {
       expect(annotation.registerGlobally, isFalse);
 
       // Check IriStrategy
-      final iriStrategy = annotation.iri;
+      expect(annotation, isA<RdfGlobalResourceInfo>());
+      final iriStrategy = (annotation as RdfGlobalResourceInfo).iri;
       expect(iriStrategy, isNotNull);
 
       // For mapper instance strategy, we verify the behavior through the generated code
@@ -81,7 +85,7 @@ void main() {
         () {
       final validationContext = ValidationContext();
       // Act
-      final result = GlobalResourceProcessor.processClass(
+      final result = ResourceProcessor.processClass(
           validationContext, bookWithTemplateClass);
       validationContext.throwIfErrors();
 
@@ -95,7 +99,8 @@ void main() {
       expect(annotation.registerGlobally, isTrue); // Default value
 
       // Check IriStrategy
-      final iriStrategy = annotation.iri;
+      expect(annotation, isA<RdfGlobalResourceInfo>());
+      final iriStrategy = (annotation as RdfGlobalResourceInfo).iri;
       expect(iriStrategy, isNotNull);
 
       // For template strategy, we verify the behavior through the generated code

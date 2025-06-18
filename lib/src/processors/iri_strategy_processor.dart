@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';

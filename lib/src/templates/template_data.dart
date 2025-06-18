@@ -52,14 +52,14 @@ sealed class MappableClassMapperTemplateData {
   Map<String, dynamic> toMap();
 }
 
-// FIXME: implement properly, this is for @RdfGlobalResource where
+// FIXME: implement properly, this is for @RdfGlobalResource or @RdfLocalResource where
 // a custom mapper is used via one of the constructors
-class GlobalResourceMapperCustomTemplateData
+class ResourceMapperCustomTemplateData
     implements MappableClassMapperTemplateData {
   /// Required imports for the generated file
   final List<ImportData> imports;
 
-  const GlobalResourceMapperCustomTemplateData({
+  const ResourceMapperCustomTemplateData({
     required this.imports,
   });
 
@@ -75,8 +75,7 @@ class GlobalResourceMapperCustomTemplateData
 ///
 /// This class contains all the data needed to render the mustache template
 /// for a global resource mapper class.
-class GlobalResourceMapperTemplateData
-    implements MappableClassMapperTemplateData {
+class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   /// Required imports for the generated file
   final List<ImportData> imports;
 
@@ -86,11 +85,14 @@ class GlobalResourceMapperTemplateData
   /// The name of the generated mapper class
   final Code mapperClassName;
 
+  final Code mapperInterfaceName;
+  final Code termClass;
+
   /// The type IRI expression (e.g., 'SchemaBook.classIri')
   final Code? typeIri;
 
   /// IRI strategy information
-  final IriStrategyData iriStrategy;
+  final IriStrategyData? iriStrategy;
 
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
@@ -106,12 +108,14 @@ class GlobalResourceMapperTemplateData
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
-  const GlobalResourceMapperTemplateData({
+  const ResourceMapperTemplateData({
     required List<ImportData> imports,
     required Code className,
     required Code mapperClassName,
+    required this.mapperInterfaceName,
+    required this.termClass,
     required Code? typeIri,
-    required IriStrategyData iriStrategy,
+    required IriStrategyData? iriStrategy,
     required List<ContextProviderData> contextProviders,
     required List<ParameterData> constructorParameters,
     required bool needsReader,
@@ -134,9 +138,13 @@ class GlobalResourceMapperTemplateData
       'imports': imports.map((i) => i.toMap()).toList(),
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
+      'mapperInterfaceName': mapperInterfaceName.toMap(),
+      'termClass': termClass.toMap(),
       'typeIri': typeIri?.toMap(),
       'hasTypeIri': typeIri != null,
-      'iriStrategy': iriStrategy.toMap(),
+      'hasIriStrategy': iriStrategy != null,
+      'hasIriStrategyMapper': iriStrategy?.hasMapper ?? false,
+      'iriStrategy': iriStrategy?.toMap(),
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
       'properties': properties.map((p) => p.toMap()).toList(),
@@ -144,7 +152,7 @@ class GlobalResourceMapperTemplateData
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
       'hasContextProviders': contextProviders.isNotEmpty,
       'hasMapperConstructorParameters':
-          iriStrategy.hasMapper || contextProviders.isNotEmpty,
+          (iriStrategy?.hasMapper ?? false) || contextProviders.isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
     };

@@ -1,40 +1,33 @@
-import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:test/test.dart';
 
 // Import test models
 import '../fixtures/global_resource_processor_test_models.dart';
-// Import the generated init function
-import '../init_test_rdf_mapper.g.dart';
-
-class TestMapper implements IriTermMapper<ClassWithIriNamedMapperStrategy> {
-  @override
-  ClassWithIriNamedMapperStrategy fromRdfTerm(
-      IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
-  }
-
-  @override
-  IriTerm toRdfTerm(
-      ClassWithIriNamedMapperStrategy value, SerializationContext context) {
-    // this of course is pretty nonsensical, but just for testing
-    return IriTerm('http://example.org/persons3/${value.hashCode}');
-  }
-}
+import '../fixtures/global_resource_processor_test_models.rdf_mapper.g.dart';
+import 'init_test_rdf_mapper_util.dart';
 
 void main() {
   late RdfMapper mapper;
-  const baseUri = 'http://example.org/';
 
   setUp(() {
-    mapper = initTestRdfMapper(
-      baseUriProvider: () => baseUri,
+    mapper = defaultInitTestRdfMapper(
       testMapper: TestMapper(),
     );
   });
 
   group('All Mappers Test', () {
     test('Book mapping', () {
+      // Verify global resource registration
+      final isRegistered =
+          mapper.registry.hasGlobalResourceDeserializerFor<Book>();
+      expect(isRegistered, isTrue,
+          reason: 'Book should be registered as a global resource');
+      final isRegisteredAsLocal =
+          mapper.registry.hasLocalResourceDeserializerFor<Book>();
+      expect(isRegisteredAsLocal, isFalse,
+          reason: 'Book should not be registered as a local resource');
+
+      // Create a Book instance
       final book = Book(
         isbn: '1234567890',
         title: 'Test Book',
@@ -114,6 +107,70 @@ void main() {
       final decoded =
           mapper.decodeObject<ClassWithIriMapperInstanceStrategy>(graph);
       expect(decoded, isNotNull);
+    });
+
+    test('ClassNoRegisterGlobally mapping', () {
+      final isRegistered = mapper.registry.hasLocalResourceDeserializerFor<
+          ClassWithEmptyIriStrategyNoRegisterGlobally>();
+      expect(isRegistered, isFalse,
+          reason: 'ClassNoRegisterGlobally should not be registered globally');
+
+      // Create an instance of ClassNoRegisterGlobally
+      final instance = ClassWithEmptyIriStrategyNoRegisterGlobally(
+          iri: 'https://example.org/no-register');
+
+      // Test serialization - should fail with SerializerNotFoundException
+      expect(() => mapper.encodeObject(instance),
+          throwsA(isA<SerializerNotFoundException>()));
+      final graph = """
+@prefix ex: <https://example.org/> .
+@prefix schema: <https://schema.org/> .
+
+ex:no-register a schema:Person .
+""";
+      // Test deserialization - should fail with DeserializerNotFoundException
+      expect(
+          () => mapper
+              .decodeObject<ClassWithEmptyIriStrategyNoRegisterGlobally>(graph),
+          throwsA(isA<DeserializerNotFoundException>()));
+    });
+
+    test('ClassNoRegisterGlobally mapping explicitly registered', () {
+      expect(
+          mapper.registry.hasLocalResourceDeserializerFor<
+              ClassWithEmptyIriStrategyNoRegisterGlobally>(),
+          isFalse,
+          reason: 'ClassNoRegisterGlobally should not be registered globally');
+
+      // Create an instance of ClassNoRegisterGlobally
+      final instance = ClassWithEmptyIriStrategyNoRegisterGlobally(
+          iri: 'https://example.org/no-register');
+
+      // Test serialization
+      final graph = mapper.encodeObject(instance,
+          register: (registry) => registry.registerMapper(
+              ClassWithEmptyIriStrategyNoRegisterGloballyMapper()));
+      expect(graph, isNotNull);
+      expect(
+          mapper.registry.hasLocalResourceDeserializerFor<
+              ClassWithEmptyIriStrategyNoRegisterGlobally>(),
+          isFalse,
+          reason:
+              'ClassNoRegisterGlobally should still not be registered globally, even after local registration');
+
+      // Test deserialization
+      final deserialized = mapper
+          .decodeObject<ClassWithEmptyIriStrategyNoRegisterGlobally>(graph,
+              register: (registry) => registry.registerMapper(
+                  ClassWithEmptyIriStrategyNoRegisterGloballyMapper()));
+      expect(deserialized, isNotNull);
+      expect(deserialized.iri, equals(instance.iri));
+      expect(
+          mapper.registry.hasLocalResourceDeserializerFor<
+              ClassWithEmptyIriStrategyNoRegisterGlobally>(),
+          isFalse,
+          reason:
+              'ClassNoRegisterGlobally should still not be registered globally, even after local registration');
     });
   });
 }

@@ -3,7 +3,7 @@ import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
@@ -45,7 +45,7 @@ class BuilderHelper {
     final resourceInfosWithElements = <(MappableClassInfo, ClassElement2)>[];
 
     for (final classElement in classElements) {
-      final resourceInfo = GlobalResourceProcessor.processClass(
+      final resourceInfo = ResourceProcessor.processClass(
         context.withContext(classElement.name3!),
         classElement,
       );

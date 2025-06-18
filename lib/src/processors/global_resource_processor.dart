@@ -3,68 +3,103 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/models/global_resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
-/// Processes class elements to extract RDF global resource information.
-class GlobalResourceProcessor {
-  /// Processes a class element and returns its GlobalResourceInfo if it's annotated with @RdfGlobalResource.
+/// Processes class elements to extract RDF global and local resource information.
+class ResourceProcessor {
+  /// Processes a class element and returns its ResourceInfo if it's annotated with @RdfGlobalResource or @RdfLocalResource.
   ///
   /// Returns a [MappableClassInfo] containing the processed information if the class is annotated
-  /// with `@RdfGlobalResource`, otherwise returns `null`.
-  static GlobalResourceInfo? processClass(
+  /// with `@RdfGlobalResource` or `@RdfLocalResource`, otherwise returns `null`.
+  static ResourceInfo? processClass(
       ValidationContext context, ClassElement2 classElement) {
-    final annotation =
+    final globalResourceAnnotation =
         getAnnotation(classElement.metadata2, 'RdfGlobalResource');
-    if (annotation == null) {
-      return null;
-    }
+    final localResourceAnnotation =
+        getAnnotation(classElement.metadata2, 'RdfLocalResource');
     final className = classToCode(classElement);
 
     // Create the RdfGlobalResource instance from the annotation
-    final rdfGlobalResource =
-        _createRdfGlobalResource(context, annotation, classElement);
-    final iriTemplateInfo = rdfGlobalResource.iri?.templateInfo;
-    final iriPartNameByPropertyName = Map<String, String>.fromIterable(
-      iriTemplateInfo?.propertyVariables ?? const [],
-      key: (pv) => pv.dartPropertyName,
-      value: (pv) => pv.name,
-    );
+    final rdfResource = _createRdfResource(context, globalResourceAnnotation,
+        localResourceAnnotation, classElement);
+    if (rdfResource == null) {
+      return null; // No valid resource annotation found
+    }
+    final iriPartNameByPropertyName = getIriPartNameByPropertyName(rdfResource);
     final fields = _extractFields(classElement);
     final constructors =
         _extractConstructors(classElement, fields, iriPartNameByPropertyName);
 
-    return GlobalResourceInfo(
+    return ResourceInfo(
       className: className,
-      annotation: rdfGlobalResource,
+      annotation: rdfResource,
       constructors: constructors,
       fields: fields,
     );
   }
 
-  static RdfGlobalResourceInfo _createRdfGlobalResource(
+  static Map<String, String> getIriPartNameByPropertyName(
+      RdfResourceInfo<dynamic> rdfResource) {
+    switch (rdfResource) {
+      case RdfGlobalResourceInfo _:
+        final iriTemplateInfo = rdfResource.iri?.templateInfo;
+        final iriPartNameByPropertyName = Map<String, String>.fromIterable(
+          iriTemplateInfo?.propertyVariables ?? const [],
+          key: (pv) => pv.dartPropertyName,
+          value: (pv) => pv.name,
+        );
+        return iriPartNameByPropertyName;
+      case RdfLocalResourceInfo _:
+        // For local resources, we might not have an IRI template
+        return {};
+    }
+  }
+
+  static RdfResourceInfo? _createRdfResource(
       ValidationContext context,
-      DartObject annotation,
+      DartObject? globalResourceAnnotation,
+      DartObject? localResourceAnnotation,
       ClassElement2 classElement) {
     try {
+      if (globalResourceAnnotation != null && localResourceAnnotation != null) {
+        context.addError(
+          'Class ${classElement.name3} cannot be annotated with both @RdfGlobalResource and @RdfLocalResource.',
+        );
+        return null;
+      }
+
+      final annotation = globalResourceAnnotation ?? localResourceAnnotation;
+      final isGlobalResource = globalResourceAnnotation != null;
+      if (annotation == null) {
+        return null;
+      }
+
       // Get the classIri from the annotation
       final classIri = getIriTermInfo(getField(annotation, 'classIri'));
-
-      // Get the iriStrategy from the annotation
-      final iriStrategy = _getIriStrategy(context, annotation, classElement);
 
       // Get the registerGlobally flag
       final registerGlobally = isRegisterGlobally(annotation);
 
       final mapper = getMapperRefInfo<GlobalResourceMapper>(annotation);
 
+      if (isGlobalResource) {
+        // Get the iriStrategy from the annotation
+        final iriStrategy = _getIriStrategy(context, annotation, classElement);
+        // Create and return the RdfGlobalResource instance
+        return RdfGlobalResourceInfo(
+          classIri: classIri,
+          iri: iriStrategy,
+          registerGlobally: registerGlobally,
+          mapper: mapper,
+        );
+      }
       // Create and return the RdfGlobalResource instance
-      return RdfGlobalResourceInfo(
+      return RdfLocalResourceInfo(
         classIri: classIri,
-        iri: iriStrategy,
         registerGlobally: registerGlobally,
         mapper: mapper,
       );
