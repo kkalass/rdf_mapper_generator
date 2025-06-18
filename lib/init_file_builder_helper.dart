@@ -11,14 +11,14 @@ class _InitFileTemplateData {
   final bool isTest;
   final List<_Mapper> mappers;
   final List<_Provider> providers;
-  final List<_IriMapper> iriMappers;
+  final List<_CustomMapper> namedCustomMappers;
 
   _InitFileTemplateData(
       {required this.generatedOn,
       required this.isTest,
       required this.mappers,
       required this.providers,
-      required this.iriMappers});
+      required this.namedCustomMappers});
 
   Map<String, dynamic> toMap() {
     return {
@@ -27,8 +27,8 @@ class _InitFileTemplateData {
       'mappers': mappers.map((m) => m.toMap()).toList(),
       'providers': providers.map((p) => p.toMap()).toList(),
       'hasProviders': providers.isNotEmpty,
-      'iriMappers': iriMappers.map((i) => i.toMap()).toList(),
-      'hasIriMappers': iriMappers.isNotEmpty,
+      'namedCustomMappers': namedCustomMappers.map((i) => i.toMap()).toList(),
+      'hasNamedCustomMappers': namedCustomMappers.isNotEmpty,
     };
   }
 }
@@ -82,7 +82,7 @@ class _Mapper {
   final String modelImportPath;
   final int importIndex;
   final List<_MustacheListEntry<_ContextProvider>> contextProviders;
-  final List<_IriMapper> iriMapperInfo;
+  final List<_CustomMapper> iriMappers;
 
   _Mapper(
       {required this.name,
@@ -90,7 +90,7 @@ class _Mapper {
       required this.modelImportPath,
       required this.importIndex,
       required this.contextProviders,
-      required this.iriMapperInfo});
+      required this.iriMappers});
 
   Map<String, dynamic> toMap() {
     return {
@@ -100,13 +100,13 @@ class _Mapper {
       '_importIndex': importIndex,
       'hasContextProviders': contextProviders.isNotEmpty,
       'contextProviders': contextProviders.map((cp) => cp.toMap()).toList(),
-      'hasIriMappers': iriMapperInfo.isNotEmpty,
-      'iriMappers': iriMapperInfo.map((i) => i.toMap()).toList(),
+      'hasIriMappers': iriMappers.isNotEmpty,
+      'iriMappers': iriMappers.map((i) => i.toMap()).toList(),
     };
   }
 }
 
-class _IriMapper {
+class _CustomMapper {
   final Code type;
   final Code code;
   final String parameterName;
@@ -114,7 +114,7 @@ class _IriMapper {
   final bool isTypeBased;
   final bool isInstance;
   final String? name;
-  _IriMapper({
+  _CustomMapper({
     required this.type,
     required this.code,
     required this.parameterName,
@@ -162,12 +162,12 @@ class _Provider {
 typedef _InitFileContributions = (
   Iterable<_Mapper>,
   Map<String, _Provider>,
-  Map<String, _IriMapper>
+  Map<String, _CustomMapper>
 );
 const _InitFileContributions noInitFileContributions = (
   const <_Mapper>[],
   const <String, _Provider>{},
-  const <String, _IriMapper>{}
+  const <String, _CustomMapper>{}
 );
 
 class InitFileBuilderHelper {
@@ -230,16 +230,16 @@ class InitFileBuilderHelper {
         log.warning('Error processing cache file $path: $e', e, stackTrace);
       }
     }
-    final (mappers, providers, namedIriMappers) =
+    final (mappers, providers, namedCustomMappers) =
         mergeInitFileContributions(contributions);
     final sortedProviders = _sortProviders(providers);
-    final sortedNamedIriMappers = _sortIriMappers(namedIriMappers);
+    final sortedNamedCustomMappers = _sortCustomMappers(namedCustomMappers);
     return _InitFileTemplateData(
       generatedOn: DateTime.now().toIso8601String(),
       isTest: isTest,
       mappers: mappers.toList(growable: false),
       providers: sortedProviders,
-      iriMappers: sortedNamedIriMappers,
+      namedCustomMappers: sortedNamedCustomMappers,
     );
   }
 
@@ -268,7 +268,7 @@ class InitFileBuilderHelper {
     return (
       all.expand((c) => c.$1).toList(),
       all.fold<Map<String, _Provider>>({}, (acc, c) => {...acc, ...c.$2}),
-      all.fold<Map<String, _IriMapper>>({}, (acc, c) => {...acc, ...c.$3})
+      all.fold<Map<String, _CustomMapper>>({}, (acc, c) => {...acc, ...c.$3})
     );
   }
 
@@ -288,8 +288,8 @@ class InitFileBuilderHelper {
         _indexProviders(contextProviders.map((e) => e.value));
 
     // Extract IRI mappers for this mapper
-    final iriMapperInfo = _extractIriMappers(mapperData);
-    final iriMappersByName = _indexIriMappers(iriMapperInfo);
+    final customIriMappers = _extractCustomIriMappers(mapperData);
+    final customMappersByName = _indexNamedIriMappers(customIriMappers);
 
     // Check if this mapper should be registered globally
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
@@ -303,13 +303,13 @@ class InitFileBuilderHelper {
               modelImportPath: modelImportPath,
               importIndex: importIndex,
               contextProviders: contextProviders,
-              iriMapperInfo: iriMapperInfo)
+              iriMappers: customIriMappers)
         ],
         providersByName,
-        iriMappersByName
+        customMappersByName
       );
     }
-    return (const [], providersByName, iriMappersByName);
+    return (const [], providersByName, customMappersByName);
   }
 
   /// Extracts context providers from mapper data
@@ -346,7 +346,8 @@ class InitFileBuilderHelper {
       };
 
   /// Extracts IRI mappers from mapper data
-  List<_IriMapper> _extractIriMappers(Map<String, dynamic> mapperData) {
+  List<_CustomMapper> _extractCustomIriMappers(
+      Map<String, dynamic> mapperData) {
     final iriStrategy = mapperData['iriStrategy'] as Map<String, dynamic>?;
     if (iriStrategy == null) return [];
 
@@ -379,7 +380,7 @@ class InitFileBuilderHelper {
       throw ArgumentError('No valid code found for IRI mapper: $mapper');
     }
     return [
-      _IriMapper(
+      _CustomMapper(
           type: Code.fromMap(type),
           code: code,
           parameterName: 'iriMapper',
@@ -391,9 +392,12 @@ class InitFileBuilderHelper {
   }
 
   /// Collects IRI mappers into the iriMappers map
-  Map<String, _IriMapper> _indexIriMappers(List<_IriMapper> iriMapperInfos) => {
+  Map<String, _CustomMapper> _indexNamedIriMappers(
+          List<_CustomMapper> iriMapperInfos) =>
+      {
         for (final info in iriMapperInfos)
-          if (info.name != null && info.name!.isNotEmpty) info.name!: info
+          if (info.isNamed && info.name != null && info.name!.isNotEmpty)
+            info.name!: info
       };
 
   /// Builds the final template data from processing results
@@ -419,7 +423,8 @@ class InitFileBuilderHelper {
   }
 
   /// Sorts IRI mappers by parameter name for consistent ordering
-  List<_IriMapper> _sortIriMappers(Map<String, _IriMapper> iriMappers) {
+  List<_CustomMapper> _sortCustomMappers(
+      Map<String, _CustomMapper> iriMappers) {
     return iriMappers.values.toList()
       ..sort((a, b) => (a.name!).compareTo(b.name!));
   }

@@ -20,12 +20,12 @@ import '{{uri}}'{{#hasAlias}} as {{alias}}{{/hasAlias}};
 /// * [{{parameterName}}] {{placeholder}}
 {{/providers}}
 {{/hasProviders}}
-{{#hasIriMappers}}
-/// IRI mapper parameters:
-{{#iriMappers}}
-/// * [{{name}}] IRI mapper of type {{type}}
-{{/iriMappers}}
-{{/hasIriMappers}}
+{{#hasNamedCustomMappers}}
+/// named mapper parameters:
+{{#namedCustomMappers}}
+/// * [{{name}}] mapper of type {{type}}
+{{/namedCustomMappers}}
+{{/hasNamedCustomMappers}}
 RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   RdfMapper? rdfMapper,
   {{#hasProviders}}
@@ -34,12 +34,12 @@ RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   required {{type}} Function() {{parameterName}},
   {{/providers}}
   {{/hasProviders}}
-  {{#hasIriMappers}}
-  // IRI mapper parameters
-  {{#iriMappers}}
+  {{#hasNamedCustomMappers}}
+  // Named mapper parameters
+  {{#namedCustomMappers}}
   required {{type}} {{name}},
-  {{/iriMappers}}
-  {{/hasIriMappers}}
+  {{/namedCustomMappers}}
+  {{/hasNamedCustomMappers}}
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
