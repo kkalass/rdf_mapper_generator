@@ -16,6 +16,7 @@ class Code {
 
   Code._(this._code, this._imports);
 
+  // FIXME: rename to toJson
   Map<String, dynamic> toMap() {
     return {
       'code': _code,
@@ -24,6 +25,7 @@ class Code {
     };
   }
 
+  // FIXME: rename to fromJson
   static Code fromMap(Map<String, dynamic> map) {
     assert(map[typeProperty] == typeMarker, 'Invalid map for Code: $map');
     return Code._(
@@ -99,6 +101,14 @@ class Code {
 
   /// Checks if this code has any import dependencies
   bool get hasImports => _imports.isNotEmpty;
+
+  // The code without any import aliases, suitable for pure code generation or if
+  // you are just interested in the name of a type for example.
+  // To get the pure class name without imports, we resolve aliases
+  // and use the class name without any import prefixes.
+  String get codeWithoutAlias => resolveAliases(
+      knownImports:
+          Map.fromIterable(imports, key: (v) => v, value: (v) => '')).$1;
 
   /// Resolves alias markers in code to actual aliases
   /// Returns a record with the resolved code and a map of import URIs to aliases

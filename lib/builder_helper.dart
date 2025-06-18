@@ -2,7 +2,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
-import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data_builder.dart';

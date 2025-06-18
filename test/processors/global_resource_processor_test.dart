@@ -1,6 +1,6 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_mapper_generator/src/processors/global_resource_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';

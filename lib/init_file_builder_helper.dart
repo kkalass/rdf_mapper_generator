@@ -6,21 +6,157 @@ import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
-/// Internal class to hold processing results during template data building
-class _ProcessingResult {
-  final List<Map<String, dynamic>> mappers;
-  final Set<Map<String, dynamic>> imports;
-  final Set<Map<String, dynamic>> modelImports;
-  final Map<String, Map<String, dynamic>> providers;
-  final Map<String, Map<String, dynamic>> namedIriMappers;
+class _InitFileTemplateData {
+  final String generatedOn;
+  final bool isTest;
+  final List<_Mapper> mappers;
+  final List<_Provider> providers;
+  final List<_IriMapper> iriMappers;
 
-  _ProcessingResult({
-    required this.mappers,
-    required this.imports,
-    required this.modelImports,
-    required this.providers,
-    required this.namedIriMappers,
+  _InitFileTemplateData(
+      {required this.generatedOn,
+      required this.isTest,
+      required this.mappers,
+      required this.providers,
+      required this.iriMappers});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'generatedOn': generatedOn,
+      'isTest': isTest,
+      'mappers': mappers.map((m) => m.toMap()).toList(),
+      'providers': providers.map((p) => p.toMap()).toList(),
+      'hasProviders': providers.isNotEmpty,
+      'iriMappers': iriMappers.map((i) => i.toMap()).toList(),
+      'hasIriMappers': iriMappers.isNotEmpty,
+    };
+  }
+}
+
+class _MustacheListEntry<T> {
+  final Map<String, dynamic> Function(T value) _valueToMap;
+  final T value;
+  final bool last;
+
+  _MustacheListEntry(this._valueToMap, this.value, {this.last = false});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'value': _valueToMap(value),
+      'last': last,
+    };
+  }
+}
+
+class _ContextProvider {
+  /// The name of the context variable
+  final String variableName;
+
+  /// The name of the private field that stores the provider
+  final String privateFieldName;
+
+  /// The name of the constructor parameter
+  final String parameterName;
+
+  /// The placeholder pattern to replace in IRI templates (e.g., '{baseUri}')
+  final String placeholder;
+
+  const _ContextProvider({
+    required this.variableName,
+    required this.privateFieldName,
+    required this.parameterName,
+    required this.placeholder,
   });
+
+  Map<String, dynamic> toMap() => {
+        'variableName': variableName,
+        'privateFieldName': privateFieldName,
+        'parameterName': parameterName,
+        'placeholder': placeholder,
+      };
+}
+
+class _Mapper {
+  final Code name;
+  final Code type;
+  final String modelImportPath;
+  final int importIndex;
+  final List<_MustacheListEntry<_ContextProvider>> contextProviders;
+  final List<_IriMapper> iriMapperInfo;
+
+  _Mapper(
+      {required this.name,
+      required this.type,
+      required this.modelImportPath,
+      required this.importIndex,
+      required this.contextProviders,
+      required this.iriMapperInfo});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name.toMap(),
+      'type': type.toMap(),
+      '_importPath': modelImportPath,
+      '_importIndex': importIndex,
+      'hasContextProviders': contextProviders.isNotEmpty,
+      'contextProviders': contextProviders.map((cp) => cp.toMap()).toList(),
+      'hasIriMappers': iriMapperInfo.isNotEmpty,
+      'iriMappers': iriMapperInfo.map((i) => i.toMap()).toList(),
+    };
+  }
+}
+
+class _IriMapper {
+  final Code type;
+  final Code code;
+  final String parameterName;
+  final bool isNamed;
+  final bool isTypeBased;
+  final bool isInstance;
+  final String? name;
+  _IriMapper({
+    required this.type,
+    required this.code,
+    required this.parameterName,
+    required this.isNamed,
+    required this.isTypeBased,
+    required this.isInstance,
+    required this.name,
+  });
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type.toMap(),
+      'code': code.toMap(),
+      'parameterName': parameterName,
+      'isNamed': isNamed,
+      'isTypeBased': isTypeBased,
+      'isInstance': isInstance,
+      'name': name,
+    };
+  }
+}
+
+class _Provider {
+  final String variableName;
+  final String parameterName;
+  final String placeholder;
+  final String privateFieldName;
+  _Provider({
+    required this.variableName,
+    required this.parameterName,
+    required this.placeholder,
+    required this.privateFieldName,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'variableName': variableName,
+      'parameterName': parameterName,
+      'placeholder': placeholder,
+      'privateFieldName': privateFieldName,
+      'type': 'String', // Default type, can be extended if needed
+    };
+  }
 }
 
 class InitFileBuilderHelper {
@@ -36,10 +172,10 @@ class InitFileBuilderHelper {
       required String currentPackage}) {
     try {
       final sortedJsonFiles = _sortJsonFiles(jsonFiles);
-      final processingResult =
+      final templateData =
           _processJsonFiles(sortedJsonFiles, isTest, outputPath);
 
-      return _buildFinalTemplateData(processingResult, isTest, currentPackage);
+      return _buildFinalTemplateData(templateData, currentPackage);
     } catch (e, stackTrace) {
       log.severe('Error building template data: $e', e, stackTrace);
       rethrow;
@@ -60,15 +196,13 @@ class InitFileBuilderHelper {
   }
 
   /// Processes all JSON files and extracts mapper information
-  _ProcessingResult _processJsonFiles(
+  _InitFileTemplateData _processJsonFiles(
       List<(String path, String package, String content)> sortedJsonFiles,
       bool isTest,
       String outputPath) {
-    final mappers = <Map<String, dynamic>>[];
-    final imports = <Map<String, dynamic>>{};
-    final modelImports = <Map<String, dynamic>>{};
-    final providers = <String, Map<String, dynamic>>{};
-    final namedIriMappers = <String, Map<String, dynamic>>{};
+    final mappers = <_Mapper>[];
+    final providers = <String, _Provider>{};
+    final namedIriMappers = <String, _IriMapper>{};
 
     int importIndex = -1;
     for (final file in sortedJsonFiles) {
@@ -87,13 +221,14 @@ class InitFileBuilderHelper {
         log.warning('Error processing cache file $path: $e', e, stackTrace);
       }
     }
-
-    return _ProcessingResult(
+    final sortedProviders = _sortProviders(providers);
+    final sortedNamedIriMappers = _sortIriMappers(namedIriMappers);
+    return _InitFileTemplateData(
+      generatedOn: DateTime.now().toIso8601String(),
+      isTest: isTest,
       mappers: mappers,
-      imports: imports,
-      modelImports: modelImports,
-      providers: providers,
-      namedIriMappers: namedIriMappers,
+      providers: sortedProviders,
+      iriMappers: sortedNamedIriMappers,
     );
   }
 
@@ -102,14 +237,20 @@ class InitFileBuilderHelper {
       Map<String, dynamic> jsonData,
       String modelImportPath,
       int importIndex,
-      List<Map<String, dynamic>> mappers,
-      Map<String, Map<String, dynamic>> providers,
-      Map<String, Map<String, dynamic>> namedIriMappers) {
+      List<_Mapper> mappers,
+      Map<String, _Provider> providers,
+      Map<String, _IriMapper> namedIriMappers) {
+    print('Processing file: $modelImportPath  importIndex: $importIndex ');
+    print(JsonEncoder.withIndent('  ').convert(jsonData));
     final mappersData = jsonData['mappers'] as List? ?? [];
 
     for (final mapperData in mappersData.cast<Map<String, dynamic>>()) {
-      final className = mapperData['className'] as Map?;
-      final mapperClassName = mapperData['mapperClassName'] as Map?;
+      final mapperType = mapperData['__type__'] as String?;
+      // ResourceMapperTemplateData
+      // CustomMapperTemplateData
+      final className = mapperData['className'] as Map<String, dynamic>?;
+      final mapperClassName =
+          mapperData['mapperClassName'] as Map<String, dynamic>?;
 
       if (className == null || mapperClassName == null) continue;
 
@@ -125,56 +266,54 @@ class InitFileBuilderHelper {
       final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
 
       if (registerGlobally) {
-        mappers.add({
-          'name': mapperClassName,
-          'type': className,
-          '_importPath': modelImportPath,
-          '_importIndex': importIndex,
-          'hasContextProviders': contextProviders.isNotEmpty,
-          'contextProviders': contextProviders,
-          'hasIriMappers': iriMapperInfo.isNotEmpty,
-          'iriMappers': iriMapperInfo,
-        });
+        mappers.add(_Mapper(
+            name: Code.fromMap(mapperClassName),
+            type: Code.fromMap(className),
+            modelImportPath: modelImportPath,
+            importIndex: importIndex,
+            contextProviders: contextProviders,
+            iriMapperInfo: iriMapperInfo));
       }
     }
   }
 
   /// Extracts context providers from mapper data
-  List<Map<String, dynamic>> _extractContextProviders(
+  List<_MustacheListEntry<_ContextProvider>> _extractContextProviders(
       Map<String, dynamic> mapperData) {
-    return (mapperData['contextProviders'] as List?)
+    var data = (mapperData['contextProviders'] as List?)
             ?.cast<Map<String, dynamic>>() ??
         [];
+    return data.map((d) {
+      final value = d['value'] as Map<String, dynamic>;
+      final contextProvider = _ContextProvider(
+          variableName: value['variableName'] as String,
+          privateFieldName: value['privateFieldName'] as String,
+          parameterName: value['parameterName'] as String,
+          placeholder: value['placeholder'] as String);
+      final last = d['last'] as bool;
+      return _MustacheListEntry<_ContextProvider>(
+          (ct) => ct.toMap(), contextProvider,
+          last: last);
+    }).toList();
   }
 
   /// Collects context providers into the providers map
-  void _collectContextProviders(List<Map<String, dynamic>> contextProviders,
-      Map<String, Map<String, dynamic>> providers) {
+  void _collectContextProviders(
+      List<_MustacheListEntry<_ContextProvider>> contextProviders,
+      Map<String, _Provider> providers) {
     for (final ct in contextProviders) {
-      final provider = ct['value'] as Map<String, dynamic>;
-      final variableName = provider['variableName'] as String?;
-      final parameterName = provider['parameterName'] as String?;
-      final placeholder = provider['placeholder'] as String?;
-      final privateFieldName = provider['privateFieldName'] as String?;
-
-      if (variableName != null &&
-          parameterName != null &&
-          placeholder != null &&
-          privateFieldName != null) {
-        providers[variableName] = {
-          'variableName': variableName,
-          'parameterName': parameterName,
-          'placeholder': placeholder,
-          'privateFieldName': privateFieldName,
-          'type': 'String', // Default type, can be extended if needed
-        };
-      }
+      final provider = ct.value;
+      providers[provider.variableName] = _Provider(
+        variableName: provider.variableName,
+        parameterName: provider.parameterName,
+        placeholder: provider.placeholder,
+        privateFieldName: provider.privateFieldName,
+      );
     }
   }
 
   /// Extracts IRI mappers from mapper data
-  List<Map<String, dynamic>> _extractIriMappers(
-      Map<String, dynamic> mapperData) {
+  List<_IriMapper> _extractIriMappers(Map<String, dynamic> mapperData) {
     final iriStrategy = mapperData['iriStrategy'] as Map<String, dynamic>?;
     if (iriStrategy == null) return [];
 
@@ -207,23 +346,22 @@ class InitFileBuilderHelper {
       throw ArgumentError('No valid code found for IRI mapper: $mapper');
     }
     return [
-      {
-        'type': type,
-        'code': code.toMap(),
-        'parameterName': 'iriMapper',
-        'isNamed': isNamed,
-        'isTypeBased': isTypeBased,
-        'isInstance': isInstance,
-        'name': name,
-      }
+      _IriMapper(
+          type: Code.fromMap(type),
+          code: code,
+          parameterName: 'iriMapper',
+          isNamed: isNamed,
+          isTypeBased: isTypeBased,
+          isInstance: isInstance,
+          name: name),
     ];
   }
 
   /// Collects IRI mappers into the iriMappers map
-  void _collectIriMappers(List<Map<String, dynamic>> iriMapperInfos,
-      Map<String, Map<String, dynamic>> iriMappers) {
+  void _collectIriMappers(
+      List<_IriMapper> iriMapperInfos, Map<String, _IriMapper> iriMappers) {
     for (final info in iriMapperInfos) {
-      final name = info['name'] as String?;
+      final name = info.name;
       if (name != null && name.isNotEmpty) {
         iriMappers[name] = info;
       }
@@ -232,25 +370,13 @@ class InitFileBuilderHelper {
 
   /// Builds the final template data from processing results
   Map<String, dynamic> _buildFinalTemplateData(
-      _ProcessingResult result, bool isTest, String currentPackage) {
-    final sortedProviders = _sortProviders(result.providers);
-    final sortedNamedIriMappers = _sortIriMappers(result.namedIriMappers);
-    final sortedImports = _sortImports(result.imports);
-    final sortedModelImports = _sortImports(result.modelImports);
-    final knownImports = Map<String, String>.fromIterable(
-        [...sortedImports, ...sortedModelImports],
-        key: (e) => e['uri'], value: (e) => e['alias'] ?? '');
-    final data = _templateRenderer.resolveCodeSnipplets({
-      'generatedOn': DateTime.now().toIso8601String(),
-      'isTest': isTest,
-      'mappers': result.mappers,
-      'imports': sortedImports,
-      'model_imports': sortedModelImports,
-      'providers': sortedProviders,
-      'hasProviders': sortedProviders.isNotEmpty,
-      'iriMappers': sortedNamedIriMappers,
-      'hasIriMappers': sortedNamedIriMappers.isNotEmpty,
-    }, importAliases: knownImports);
+    _InitFileTemplateData result,
+    String currentPackage,
+  ) {
+    final rawData = result.toMap();
+    final data = _templateRenderer.resolveCodeSnipplets(
+      rawData,
+    );
 
     // Clean up aliasedImports URIs by removing asset:packageName/lib/ or asset:packageName/test/ prefixes
     _fixupAliasedImports(data, currentPackage);
@@ -259,23 +385,15 @@ class InitFileBuilderHelper {
   }
 
   /// Sorts providers by parameter name for consistent ordering
-  List<Map<String, dynamic>> _sortProviders(
-      Map<String, Map<String, dynamic>> providers) {
+  List<_Provider> _sortProviders(Map<String, _Provider> providers) {
     return providers.values.toList()
-      ..sort((a, b) => (a['parameterName'] as String)
-          .compareTo(b['parameterName'] as String));
+      ..sort((a, b) => (a.parameterName!).compareTo(b.parameterName!));
   }
 
   /// Sorts IRI mappers by parameter name for consistent ordering
-  List<Map<String, dynamic>> _sortIriMappers(
-      Map<String, Map<String, dynamic>> iriMappers) {
+  List<_IriMapper> _sortIriMappers(Map<String, _IriMapper> iriMappers) {
     return iriMappers.values.toList()
-      ..sort((a, b) => (a['name'] as String).compareTo(b['name'] as String));
-  }
-
-  /// Sorts imports by value for consistent ordering
-  List<Map<String, dynamic>> _sortImports(Set<Map<String, dynamic>> imports) {
-    return imports.toList()..sort((a, b) => a['uri']!.compareTo(b['uri']!));
+      ..sort((a, b) => (a.name!).compareTo(b.name!));
   }
 
   void _fixupAliasedImports(Map<String, dynamic> data, String currentPackage) {

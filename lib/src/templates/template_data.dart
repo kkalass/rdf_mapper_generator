@@ -52,21 +52,39 @@ sealed class MappableClassMapperTemplateData {
   Map<String, dynamic> toMap();
 }
 
-// FIXME: implement properly, this is for @RdfGlobalResource or @RdfLocalResource where
-// a custom mapper is used via one of the constructors
-class ResourceMapperCustomTemplateData
-    implements MappableClassMapperTemplateData {
+class CustomMapperTemplateData implements MappableClassMapperTemplateData {
   /// Required imports for the generated file
   final List<ImportData> imports;
+  final String? customMapperName;
+  final Code mapperInterfaceType;
+  final Code className;
+  final Code? customMapperType;
+  final Code? customMapperInstance;
+  final bool registerGlobally;
 
-  const ResourceMapperCustomTemplateData({
+  const CustomMapperTemplateData({
     required this.imports,
+    required this.className,
+    required this.mapperInterfaceType,
+    required this.customMapperName,
+    required this.customMapperType,
+    required this.customMapperInstance,
+    required this.registerGlobally,
   });
 
   @override
   Map<String, dynamic> toMap() {
     return {
       'imports': imports.map((i) => i.toMap()).toList(),
+      'className': className.toMap(),
+      'mapperInterfaceType': mapperInterfaceType.toMap(),
+      'customMapperName': customMapperName,
+      'customMapperType': customMapperType?.toMap(),
+      'customMapperInstance': customMapperInstance?.toMap(),
+      'hasCustomMapperName': customMapperName != null,
+      'hasCustomMapperType': customMapperType != null,
+      'hasCustomMapperInstance': customMapperInstance != null,
+      'registerGlobally': registerGlobally,
     };
   }
 }

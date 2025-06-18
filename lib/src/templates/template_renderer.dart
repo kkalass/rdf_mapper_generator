@@ -52,7 +52,7 @@ class TemplateRenderer {
         'ResourceMapperTemplateData' => await _renderResourceMapper(
             mapperData as Map<String, dynamic>, reader),
         // Custom mappers are coded by our users, we do not render them here
-        'ResourceMapperCustomTemplateData' => null,
+        'CustomMapperTemplateData' => null,
         // Add cases for other mapper types if needed
         _ => throw Exception('Unknown mapper type: ${mapperData['__type__']}'),
       };

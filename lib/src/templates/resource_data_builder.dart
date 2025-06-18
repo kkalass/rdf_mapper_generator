@@ -1,40 +1,25 @@
+import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/custom_mapper_data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/utils/iri_parser.dart';
-import 'package:logging/logging.dart';
 
 final _log = Logger('GlobalResourceDataBuilder');
 
 /// Builds template data from processed resource information.
 class ResourceDataBuilder {
-  static ResourceMapperCustomTemplateData buildResourceMapperCustom(
-    ResourceInfo resourceInfo,
-  ) {
-    assert(resourceInfo.annotation.mapper != null);
-
-    // Build imports
-
-    return ResourceMapperCustomTemplateData(
-      imports: const [],
-    );
-  }
-
   /// Builds template data for a global resource mapper.
   static ResourceMapperTemplateData buildResourceMapper(
       ResourceInfo resourceInfo, String mapperImportUri) {
     assert(resourceInfo.annotation.mapper == null);
     final isGlobalResource = resourceInfo.annotation is RdfGlobalResourceInfo;
     final className = resourceInfo.className;
-    // To get the pure class name without imports, we resolve aliases
-    // and use the class name without any import prefixes.
-    final mapperClassName = Code.type(
-        '${className.resolveAliases(knownImports: Map.fromIterable(className.imports, key: (v) => v, value: (v) => '')).$1}Mapper',
+    final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
         importUri: mapperImportUri);
-    final mapperInterfaceName = isGlobalResource
-        ? Code.type('GlobalResourceMapper')
-        : Code.type('LocalResourceMapper');
+    final mapperInterfaceName =
+        CustomMapperDataBuilder.mapperInterfaceNameFor(resourceInfo.annotation);
     final termClass =
         isGlobalResource ? Code.type('IriTerm') : Code.type('BlankNodeTerm');
     // Build imports

@@ -1,5 +1,4 @@
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_generator/src/processors/models/base_mapping_annotation_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
@@ -265,6 +264,14 @@ class IriTemplateInfo {
     }
     return true;
   }
+}
+
+sealed class BaseMappingAnnotationInfo<T> extends BaseMappingInfo<T> {
+  final bool registerGlobally;
+  const BaseMappingAnnotationInfo({
+    this.registerGlobally = true,
+    super.mapper,
+  });
 }
 
 sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
