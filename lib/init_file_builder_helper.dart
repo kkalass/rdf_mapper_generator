@@ -159,6 +159,17 @@ class _Provider {
   }
 }
 
+typedef _InitFileContributions = (
+  Iterable<_Mapper>,
+  Map<String, _Provider>,
+  Map<String, _IriMapper>
+);
+const _InitFileContributions noInitFileContributions = (
+  const <_Mapper>[],
+  const <String, _Provider>{},
+  const <String, _IriMapper>{}
+);
+
 class InitFileBuilderHelper {
   static final _templateRenderer = TemplateRenderer();
   final Logger log = Logger('InitFileBuilderHelper');
@@ -200,10 +211,7 @@ class InitFileBuilderHelper {
       List<(String path, String package, String content)> sortedJsonFiles,
       bool isTest,
       String outputPath) {
-    final mappers = <_Mapper>[];
-    final providers = <String, _Provider>{};
-    final namedIriMappers = <String, _IriMapper>{};
-
+    final List<_InitFileContributions> contributions = [];
     int importIndex = -1;
     for (final file in sortedJsonFiles) {
       importIndex++;
@@ -215,64 +223,93 @@ class InitFileBuilderHelper {
         final modelImportPath = path.replaceAll('.rdf_mapper.cache.json', '');
 
         // Process mappers and context providers from this file
-        _processFileMappers(jsonData, modelImportPath, importIndex, mappers,
-            providers, namedIriMappers);
+        final contribs =
+            _processFileMappers(jsonData, modelImportPath, importIndex);
+        contributions.add(contribs);
       } catch (e, stackTrace) {
         log.warning('Error processing cache file $path: $e', e, stackTrace);
       }
     }
+    final (mappers, providers, namedIriMappers) =
+        mergeInitFileContributions(contributions);
     final sortedProviders = _sortProviders(providers);
     final sortedNamedIriMappers = _sortIriMappers(namedIriMappers);
     return _InitFileTemplateData(
       generatedOn: DateTime.now().toIso8601String(),
       isTest: isTest,
-      mappers: mappers,
+      mappers: mappers.toList(growable: false),
       providers: sortedProviders,
       iriMappers: sortedNamedIriMappers,
     );
   }
 
   /// Processes mappers and context providers from a single JSON file
-  void _processFileMappers(
-      Map<String, dynamic> jsonData,
-      String modelImportPath,
-      int importIndex,
-      List<_Mapper> mappers,
-      Map<String, _Provider> providers,
-      Map<String, _IriMapper> namedIriMappers) {
-    final mappersData = jsonData['mappers'] as List? ?? [];
+  _InitFileContributions _processFileMappers(
+      Map<String, dynamic> jsonData, String modelImportPath, int importIndex) {
+    final mappersData =
+        (jsonData['mappers'] as List? ?? []).cast<Map<String, dynamic>>();
+    final all = mappersData.map<_InitFileContributions>(
+        (mapperData) => switch (mapperData['__type__'] as String?) {
+              'ResourceMapperTemplateData' =>
+                collectResourceMapper(mapperData, modelImportPath, importIndex),
+              // FIXME: implement
+              'CustomMapperTemplateData' => noInitFileContributions,
+              _ => () {
+                  log.warning(
+                      'Unknown mapper type: ${mapperData['__type__']} in $modelImportPath');
+                  return noInitFileContributions;
+                }()
+            });
+    return mergeInitFileContributions(all);
+  }
 
-    for (final mapperData in mappersData.cast<Map<String, dynamic>>()) {
-      final mapperType = mapperData['__type__'] as String?;
-      // ResourceMapperTemplateData
-      // CustomMapperTemplateData
-      final className = mapperData['className'] as Map<String, dynamic>?;
-      final mapperClassName =
-          mapperData['mapperClassName'] as Map<String, dynamic>?;
+  _InitFileContributions mergeInitFileContributions(
+      Iterable<_InitFileContributions> all) {
+    return (
+      all.expand((c) => c.$1).toList(),
+      all.fold<Map<String, _Provider>>({}, (acc, c) => {...acc, ...c.$2}),
+      all.fold<Map<String, _IriMapper>>({}, (acc, c) => {...acc, ...c.$3})
+    );
+  }
 
-      if (className == null || mapperClassName == null) continue;
+  _InitFileContributions collectResourceMapper(Map<String, dynamic> mapperData,
+      String modelImportPath, int importIndex) {
+    final className = mapperData['className'] as Map<String, dynamic>?;
+    final mapperClassName =
+        mapperData['mapperClassName'] as Map<String, dynamic>?;
 
-      // Extract context providers for this mapper
-      final contextProviders = _extractContextProviders(mapperData);
-      _collectContextProviders(contextProviders, providers);
-
-      // Extract IRI mappers for this mapper
-      final iriMapperInfo = _extractIriMappers(mapperData);
-      _collectIriMappers(iriMapperInfo, namedIriMappers);
-
-      // Check if this mapper should be registered globally
-      final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-
-      if (registerGlobally) {
-        mappers.add(_Mapper(
-            name: Code.fromMap(mapperClassName),
-            type: Code.fromMap(className),
-            modelImportPath: modelImportPath,
-            importIndex: importIndex,
-            contextProviders: contextProviders,
-            iriMapperInfo: iriMapperInfo));
-      }
+    if (className == null || mapperClassName == null) {
+      return noInitFileContributions;
     }
+
+    // Extract context providers for this mapper
+    final contextProviders = _extractContextProviders(mapperData);
+    final providersByName =
+        _indexProviders(contextProviders.map((e) => e.value));
+
+    // Extract IRI mappers for this mapper
+    final iriMapperInfo = _extractIriMappers(mapperData);
+    final iriMappersByName = _indexIriMappers(iriMapperInfo);
+
+    // Check if this mapper should be registered globally
+    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+
+    if (registerGlobally) {
+      return (
+        [
+          _Mapper(
+              name: Code.fromMap(mapperClassName),
+              type: Code.fromMap(className),
+              modelImportPath: modelImportPath,
+              importIndex: importIndex,
+              contextProviders: contextProviders,
+              iriMapperInfo: iriMapperInfo)
+        ],
+        providersByName,
+        iriMappersByName
+      );
+    }
+    return (const [], providersByName, iriMappersByName);
   }
 
   /// Extracts context providers from mapper data
@@ -296,19 +333,17 @@ class InitFileBuilderHelper {
   }
 
   /// Collects context providers into the providers map
-  void _collectContextProviders(
-      List<_MustacheListEntry<_ContextProvider>> contextProviders,
-      Map<String, _Provider> providers) {
-    for (final ct in contextProviders) {
-      final provider = ct.value;
-      providers[provider.variableName] = _Provider(
-        variableName: provider.variableName,
-        parameterName: provider.parameterName,
-        placeholder: provider.placeholder,
-        privateFieldName: provider.privateFieldName,
-      );
-    }
-  }
+  Map<String, _Provider> _indexProviders(
+          Iterable<_ContextProvider> contextProviders) =>
+      {
+        for (final provider in contextProviders)
+          provider.variableName: _Provider(
+            variableName: provider.variableName,
+            parameterName: provider.parameterName,
+            placeholder: provider.placeholder,
+            privateFieldName: provider.privateFieldName,
+          ),
+      };
 
   /// Extracts IRI mappers from mapper data
   List<_IriMapper> _extractIriMappers(Map<String, dynamic> mapperData) {
@@ -356,15 +391,10 @@ class InitFileBuilderHelper {
   }
 
   /// Collects IRI mappers into the iriMappers map
-  void _collectIriMappers(
-      List<_IriMapper> iriMapperInfos, Map<String, _IriMapper> iriMappers) {
-    for (final info in iriMapperInfos) {
-      final name = info.name;
-      if (name != null && name.isNotEmpty) {
-        iriMappers[name] = info;
-      }
-    }
-  }
+  Map<String, _IriMapper> _indexIriMappers(List<_IriMapper> iriMapperInfos) => {
+        for (final info in iriMapperInfos)
+          if (info.name != null && info.name!.isNotEmpty) info.name!: info
+      };
 
   /// Builds the final template data from processing results
   Map<String, dynamic> _buildFinalTemplateData(
@@ -385,7 +415,7 @@ class InitFileBuilderHelper {
   /// Sorts providers by parameter name for consistent ordering
   List<_Provider> _sortProviders(Map<String, _Provider> providers) {
     return providers.values.toList()
-      ..sort((a, b) => (a.parameterName!).compareTo(b.parameterName!));
+      ..sort((a, b) => (a.parameterName).compareTo(b.parameterName));
   }
 
   /// Sorts IRI mappers by parameter name for consistent ordering
