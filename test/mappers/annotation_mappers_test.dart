@@ -8,6 +8,7 @@ import '../fixtures/annotation_test_models.dart';
 import '../fixtures/annotation_test_models.rdf_mapper.g.dart';
 import '../fixtures/global_resource_processor_test_models.dart';
 import '../init_test_rdf_mapper.g.dart';
+import 'init_test_rdf_mapper_util.dart';
 
 class TestMapper implements IriTermMapper<ClassWithIriNamedMapperStrategy> {
   @override
@@ -49,11 +50,9 @@ class TestIriTermRecordMapper implements IriTermMapper<(String id,)> {
 
 void main() {
   late RdfMapper mapper;
-  const baseUri = 'http://example.org/';
 
   setUp(() {
-    mapper = initTestRdfMapper(
-        baseUriProvider: () => baseUri, testMapper: TestMapper());
+    mapper = defaultInitTestRdfMapper();
   });
 
   group('All Mappers Test', () {

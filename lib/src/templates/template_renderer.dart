@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 final _log = Logger('TemplateRenderer');
 
@@ -33,12 +34,15 @@ class TemplateRenderer {
   /// Renders a complete file using the file template and multiple mappers.
   Future<String> renderFileTemplate(String mapperImportUri,
       Map<String, dynamic> data, AssetReader reader) async {
+    final modelImportUri =
+        mapperImportUri.replaceAll('.rdf_mapper.g.dart', '.dart');
+    const defaultImports = [importRdfCore, importRdfMapper];
     data = resolveCodeSnipplets(
       data,
-      defaultImports: (data['imports'] as List<dynamic>? ?? [])
-          .map((d) => d['import'] as String)
-          .toList()
-        ..add(mapperImportUri),
+      defaultImports: [...defaultImports, mapperImportUri],
+      importAliases: {
+        modelImportUri: '',
+      },
       baseUris: _createBaseUris(mapperImportUri),
       broaderImports:
           (data['broaderImports'] as Map<String, dynamic>? ?? {}).cast(),
@@ -66,7 +70,7 @@ class TemplateRenderer {
 
     data['mappers'] =
         renderedMappers.map((code) => {'mapperCode': code}).toList();
-
+    data['imports'] = defaultImports;
     final result = template.renderString(data);
     return result;
   }
@@ -111,19 +115,19 @@ class TemplateRenderer {
     // Create a copy of the data to avoid modifying the original
     final resolvedData = _deepCopyMap(data);
 
+    final usedImports = <String, String>{};
     // Recursively traverse and resolve Code instances
-    _traverseAndResolveCode(resolvedData, knownImports, broaderImports);
+    _traverseAndResolveCode(
+        resolvedData, knownImports, usedImports, broaderImports);
 
     // Remove the original imports from knownImports and add aliasedImports
     for (final import in defaultImports) {
       knownImports.remove(import);
-    }
-    for (final alias in importAliases.keys) {
-      knownImports.remove(alias);
+      usedImports.remove(import);
     }
 
     // Add aliasedImports entry for mustache templates
-    final aliasedImports = knownImports.entries
+    final aliasedImports = usedImports.entries
         .map((entry) => {
               'uri': _toRelativeUri(baseUris, entry.key),
               'alias': entry.value,
@@ -150,7 +154,7 @@ class TemplateRenderer {
 
   /// Recursively traverses the data structure and resolves Code instances
   void _traverseAndResolveCode(dynamic data, Map<String, String> knownImports,
-      Map<String, String> broaderImports) {
+      Map<String, String> usedImports, Map<String, String> broaderImports) {
     if (data is Map<String, dynamic>) {
       // Check if this is a Code instance
       if (data.containsKey(Code.typeProperty) &&
@@ -175,12 +179,14 @@ class TemplateRenderer {
 
           // Update knownImports with new imports
           knownImports.addAll(moreImports);
+          usedImports.addAll(moreImports);
 
           // Replace the Code map with the resolved code string
           data[key] = resolvedCode;
         } else {
           // Recursively process the value
-          _traverseAndResolveCode(value, knownImports, broaderImports);
+          _traverseAndResolveCode(
+              value, knownImports, usedImports, broaderImports);
         }
       }
     } else if (data is List) {
@@ -197,12 +203,13 @@ class TemplateRenderer {
 
           // Update knownImports with new imports
           knownImports.addAll(moreImports);
-
+          usedImports.addAll(moreImports);
           // Replace the Code map with the resolved code string
           data[i] = resolvedCode;
         } else {
           // Recursively process the item
-          _traverseAndResolveCode(item, knownImports, broaderImports);
+          _traverseAndResolveCode(
+              item, knownImports, usedImports, broaderImports);
         }
       }
     }
@@ -252,6 +259,7 @@ class TemplateRenderer {
     return {
       'asset:' + normalizedBaseUri,
       'package:' + normalizedBaseUri,
+      'file:' + normalizedBaseUri,
       'test:' + normalizedBaseUri
     };
   }

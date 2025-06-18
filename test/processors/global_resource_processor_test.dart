@@ -226,7 +226,7 @@ void main() {
       expect(annotation.mapper!.type, isNull);
       expect(annotation.mapper!.instance, isNotNull);
       expect(annotation.mapper!.instance!.type!.getDisplayString(),
-          'TestGlobalResourceMapper');
+          'TestGlobalResourceMapper2');
       expect(annotation.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));

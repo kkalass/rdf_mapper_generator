@@ -20,10 +20,9 @@ class ResourceDataBuilder {
         importUri: mapperImportUri);
     final mapperInterfaceName =
         CustomMapperDataBuilder.mapperInterfaceNameFor(resourceInfo.annotation);
-    final termClass =
-        isGlobalResource ? Code.type('IriTerm') : Code.type('BlankNodeTerm');
-    // Build imports
-    final imports = _buildImports(resourceInfo, className.imports);
+    final termClass = isGlobalResource
+        ? Code.type('IriTerm', importUri: importRdfCore)
+        : Code.type('BlankNodeTerm', importUri: importRdfCore);
 
     // Build type IRI expression
     final typeIri = _buildTypeIri(resourceInfo);
@@ -48,7 +47,6 @@ class ResourceDataBuilder {
         .toList();
 
     return ResourceMapperTemplateData(
-        imports: imports,
         className: className,
         mapperClassName: mapperClassName,
         mapperInterfaceName: mapperInterfaceName,
@@ -60,18 +58,6 @@ class ResourceDataBuilder {
         needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
         properties: properties);
-  }
-
-  /// Builds the list of required imports.
-  static List<ImportData> _buildImports(
-      ResourceInfo resourceInfo, Set<String> knownImports) {
-    final imports = <String>{
-      'package:rdf_core/rdf_core.dart',
-      'package:rdf_mapper/rdf_mapper.dart',
-      ...knownImports
-    };
-
-    return imports.map(ImportData.new).toList();
   }
 
   /// Builds the type IRI expression.

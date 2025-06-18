@@ -47,16 +47,7 @@ RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   var registry = rdfMapper.registry;
 
   {{#mappers}}
-  registry.registerMapper<{{type}}>(
-    {{name}}(
-      {{#contextProviders}}
-      {{value.parameterName}}: {{value.parameterName}},
-      {{/contextProviders}}
-      {{#iriMappers}}
-      {{parameterName}}: {{code}},
-      {{/iriMappers}}
-    )
-  );
+  registry.registerMapper<{{type}}>({{code}});
   {{/mappers}}
   
   return rdfMapper;

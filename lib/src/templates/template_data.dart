@@ -46,15 +46,10 @@ class MapperRefData {
 }
 
 sealed class MappableClassMapperTemplateData {
-  /// Required imports for the generated file
-  List<ImportData> get imports;
-
   Map<String, dynamic> toMap();
 }
 
 class CustomMapperTemplateData implements MappableClassMapperTemplateData {
-  /// Required imports for the generated file
-  final List<ImportData> imports;
   final String? customMapperName;
   final Code mapperInterfaceType;
   final Code className;
@@ -63,19 +58,22 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
   final bool registerGlobally;
 
   const CustomMapperTemplateData({
-    required this.imports,
     required this.className,
     required this.mapperInterfaceType,
     required this.customMapperName,
     required this.customMapperType,
     required this.customMapperInstance,
     required this.registerGlobally,
-  });
+  }) : assert(
+          customMapperName != null ||
+              customMapperType != null ||
+              customMapperInstance != null,
+          'At least one of customMapperName, customMapperType or customMapperInstance must be provided',
+        );
 
   @override
   Map<String, dynamic> toMap() {
     return {
-      'imports': imports.map((i) => i.toMap()).toList(),
       'className': className.toMap(),
       'mapperInterfaceType': mapperInterfaceType.toMap(),
       'customMapperName': customMapperName,
@@ -94,9 +92,6 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
 /// This class contains all the data needed to render the mustache template
 /// for a global resource mapper class.
 class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
-  /// Required imports for the generated file
-  final List<ImportData> imports;
-
   /// The name of the Dart class being mapped
   final Code className;
 
@@ -127,7 +122,6 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   final bool registerGlobally;
 
   const ResourceMapperTemplateData({
-    required List<ImportData> imports,
     required Code className,
     required Code mapperClassName,
     required this.mapperInterfaceName,
@@ -139,8 +133,7 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
     required bool needsReader,
     required bool registerGlobally,
     required List<PropertyData> properties,
-  })  : imports = imports,
-        className = className,
+  })  : className = className,
         mapperClassName = mapperClassName,
         typeIri = typeIri,
         iriStrategy = iriStrategy,
@@ -153,7 +146,6 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
     return {
-      'imports': imports.map((i) => i.toMap()).toList(),
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
       'mapperInterfaceName': mapperInterfaceName.toMap(),
@@ -184,9 +176,6 @@ class FileTemplateData {
   /// Header information with source path and generation timestamp
   final FileHeaderData header;
 
-  /// All imports required for the file
-  final List<ImportData> imports;
-
   final BroaderImports broaderImports;
 
   /// All generated mapper classes
@@ -194,7 +183,6 @@ class FileTemplateData {
 
   const FileTemplateData({
     required this.header,
-    required this.imports,
     required this.broaderImports,
     required this.mappers,
   });
@@ -204,7 +192,6 @@ class FileTemplateData {
     return {
       'header': header.toMap(),
       'broaderImports': broaderImports.toMap(),
-      'imports': imports.map((i) => i.toMap()).toList(),
       'mappers': mappers.map((m) => m.toMap()).toList(),
     };
   }

@@ -28,7 +28,7 @@ void main() {
           BroaderImports.create(library));
       expect(result, isNotNull);
       expect(result, contains('class BookMapper'));
-      expect(result, contains('implements GlobalResourceMapper<Book>'));
+      expect(result, contains('implements GlobalResourceMapper<grptm.Book>'));
     });
 
     test('should generate mapper for class with empty IRI strategy', () async {

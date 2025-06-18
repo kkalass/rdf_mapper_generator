@@ -4,6 +4,9 @@ import 'package:analyzer/dart/element/type.dart';
 
 import 'code.dart';
 
+const importRdfMapper = 'package:rdf_mapper/rdf_mapper.dart';
+const importRdfCore = 'package:rdf_core/rdf_core.dart';
+
 List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   return List.generate(values.length, (i) {
     return {'value': values[i], 'last': i == values.length - 1};

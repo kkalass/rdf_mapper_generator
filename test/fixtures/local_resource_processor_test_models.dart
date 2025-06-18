@@ -38,10 +38,11 @@ class ClassWithMapperNamedMapperStrategy {}
 @RdfLocalResource.mapper(TestLocalResourceMapper)
 class ClassWithMapperStrategy {}
 
-@RdfLocalResource.mapperInstance(TestLocalResourceMapper())
+@RdfLocalResource.mapperInstance(TestLocalResourceMapper2())
 class ClassWithMapperInstanceStrategy {}
 
-class TestLocalResourceMapper implements LocalResourceMapper {
+class TestLocalResourceMapper
+    implements LocalResourceMapper<ClassWithMapperStrategy> {
   const TestLocalResourceMapper();
 
   @override
@@ -57,5 +58,28 @@ class TestLocalResourceMapper implements LocalResourceMapper {
   }
 
   @override
-  IriTerm? get typeIri => throw UnimplementedError();
+  IriTerm? get typeIri =>
+      IriTerm('http://example.org/l/ClassWithMapperStrategy');
+}
+
+class TestLocalResourceMapper2
+    implements LocalResourceMapper<ClassWithMapperInstanceStrategy> {
+  const TestLocalResourceMapper2();
+
+  @override
+  fromRdfResource(BlankNodeTerm term, DeserializationContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+      value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm(
+        'http://example.org/l/ClassWithMapperInstanceStrategy',
+      );
 }

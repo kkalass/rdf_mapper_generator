@@ -77,10 +77,11 @@ class ClassWithMapperNamedMapperStrategy {}
 @RdfGlobalResource.mapper(TestGlobalResourceMapper)
 class ClassWithMapperStrategy {}
 
-@RdfGlobalResource.mapperInstance(TestGlobalResourceMapper())
+@RdfGlobalResource.mapperInstance(TestGlobalResourceMapper2())
 class ClassWithMapperInstanceStrategy {}
 
-class TestGlobalResourceMapper implements GlobalResourceMapper {
+class TestGlobalResourceMapper
+    implements GlobalResourceMapper<ClassWithMapperStrategy> {
   const TestGlobalResourceMapper();
 
   @override
@@ -95,7 +96,29 @@ class TestGlobalResourceMapper implements GlobalResourceMapper {
   }
 
   @override
-  IriTerm? get typeIri => throw UnimplementedError();
+  IriTerm? get typeIri =>
+      IriTerm('http://example.org/g/ClassWithMapperStrategy');
+}
+
+class TestGlobalResourceMapper2
+    implements GlobalResourceMapper<ClassWithMapperInstanceStrategy> {
+  const TestGlobalResourceMapper2();
+
+  @override
+  fromRdfResource(IriTerm term, DeserializationContext context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm(
+        'http://example.org/g/ClassWithMapperInstanceStrategy',
+      );
 }
 
 class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {

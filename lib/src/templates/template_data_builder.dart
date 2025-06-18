@@ -22,30 +22,23 @@ class TemplateDataBuilder {
     );
 
     // Collect all imports from all mappers and deduplicate
-    final allImports = <String>{};
     final mapperDatas = <MapperData>[];
 
     for (final (resourceInfo, _) in resourceInfosWithElements) {
       final MappableClassMapperTemplateData mapperData = switch (resourceInfo) {
         ResourceInfo _ => resourceInfo.annotation.mapper != null
             ? CustomMapperDataBuilder.build(
-                resourceInfo.className, resourceInfo.annotation)
+                context, resourceInfo.className, resourceInfo.annotation)
             : // generate custom mapper if specified
             ResourceDataBuilder.buildResourceMapper(
                 resourceInfo, mapperImportUri),
       };
 
-      // Add imports from this mapper
-      allImports.addAll(mapperData.imports.map((i) => i.import));
-
       mapperDatas.add(MapperData(mapperData));
     }
 
-    final imports = allImports.map(ImportData.new).toList();
-
     return FileTemplateData(
       header: header,
-      imports: imports,
       mappers: mapperDatas,
       broaderImports: broaderImports,
     );
