@@ -16,7 +16,6 @@ class Code {
 
   Code._(this._code, this._imports);
 
-  // FIXME: rename to toJson
   Map<String, dynamic> toMap() {
     return {
       'code': _code,
@@ -25,7 +24,6 @@ class Code {
     };
   }
 
-  // FIXME: rename to fromJson
   static Code fromMap(Map<String, dynamic> map) {
     assert(map[typeProperty] == typeMarker, 'Invalid map for Code: $map');
     return Code._(

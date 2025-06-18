@@ -1,5 +1,4 @@
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_core/src/graph/rdf_term.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 
 import '../fixtures/global_resource_processor_test_models.dart' as grptm;

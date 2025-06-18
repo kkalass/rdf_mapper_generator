@@ -330,6 +330,7 @@ void main() {
       test('comparing with different type returns false', () {
         final code = Code.literal('test');
 
+        // ignore: unrelated_type_equality_checks
         expect(code == 'test', isFalse);
       });
     });
