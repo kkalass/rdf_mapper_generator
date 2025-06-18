@@ -240,8 +240,6 @@ class InitFileBuilderHelper {
       List<_Mapper> mappers,
       Map<String, _Provider> providers,
       Map<String, _IriMapper> namedIriMappers) {
-    print('Processing file: $modelImportPath  importIndex: $importIndex ');
-    print(JsonEncoder.withIndent('  ').convert(jsonData));
     final mappersData = jsonData['mappers'] as List? ?? [];
 
     for (final mapperData in mappersData.cast<Map<String, dynamic>>()) {
