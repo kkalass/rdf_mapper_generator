@@ -422,7 +422,6 @@ class RdfLiteralInfo extends BaseMappingAnnotationInfo<LiteralTermMapper> {
   final String? fromLiteralTermMethod;
   final IriTermInfo? datatype;
 
-  // FIXME: what about the information from RdfValue and RdfLanguageTag annotations?
   const RdfLiteralInfo(
       {required super.registerGlobally,
       required super.mapper,
@@ -434,12 +433,7 @@ class RdfLiteralInfo extends BaseMappingAnnotationInfo<LiteralTermMapper> {
                     (toLiteralTermMethod == null)) ||
                 ((fromLiteralTermMethod != null) &&
                     (toLiteralTermMethod != null)),
-            'Either both fromLiteralTermMethod or toLiteralTermMethod must be provided, or none of them.'),
-        assert(
-            (mapper != null) ||
-                ((fromLiteralTermMethod != null) &&
-                    (toLiteralTermMethod != null)),
-            'Either mapper, value or method names must be provided.');
+            'Either both fromLiteralTermMethod or toLiteralTermMethod must be provided, or none of them.');
 
   @override
   int get hashCode => Object.hash(
