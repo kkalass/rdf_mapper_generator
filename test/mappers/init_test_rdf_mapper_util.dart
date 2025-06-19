@@ -3,6 +3,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 import '../fixtures/global_resource_processor_test_models.dart' as grptm;
 import '../fixtures/local_resource_processor_test_models.dart' as lrptm;
+import '../fixtures/iri_processor_test_models.dart' as iptm;
 import '../init_test_rdf_mapper.g.dart';
 
 class TestMapper
@@ -67,6 +68,23 @@ class NamedTestLocalResourceMapper
       IriTerm('http://example.org/l/ClassWithMapperNamedMapperStrategy');
 }
 
+class NamedTestIriMapper implements IriTermMapper<iptm.IriWithNamedMapper> {
+  const NamedTestIriMapper();
+
+  @override
+  iptm.IriWithNamedMapper fromRdfTerm(
+      IriTerm term, DeserializationContext context) {
+    return iptm.IriWithNamedMapper(term.iri);
+  }
+
+  @override
+  IriTerm toRdfTerm(
+      iptm.IriWithNamedMapper value, SerializationContext context) {
+    // this of course is pretty nonsensical, but just for testing
+    return IriTerm(value.value);
+  }
+}
+
 const baseUri = 'http://example.org/';
 
 RdfMapper defaultInitTestRdfMapper({
@@ -79,6 +97,7 @@ RdfMapper defaultInitTestRdfMapper({
       testGlobalResourceMapper,
   LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>?
       testLocalResourceMapper,
+  IriTermMapper<iptm.IriWithNamedMapper>? testIriMapper,
 }) {
   return initTestRdfMapper(
     baseUriProvider: baseUriProvider ?? (() => baseUri),
@@ -87,5 +106,6 @@ RdfMapper defaultInitTestRdfMapper({
         testGlobalResourceMapper ?? NamedTestGlobalResourceMapper(),
     testLocalResourceMapper:
         testLocalResourceMapper ?? NamedTestLocalResourceMapper(),
+    testIriMapper: testIriMapper ?? NamedTestIriMapper(),
   );
 }

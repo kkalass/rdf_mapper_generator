@@ -1,11 +1,9 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
-import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
@@ -29,10 +27,15 @@ class ResourceProcessor {
     if (rdfResource == null) {
       return null; // No valid resource annotation found
     }
-    final iriPartNameByPropertyName = getIriPartNameByPropertyName(rdfResource);
-    final fields = _extractFields(classElement);
-    final constructors =
-        _extractConstructors(classElement, fields, iriPartNameByPropertyName);
+
+    final fields = extractFields(classElement);
+    final constructors = extractConstructors(
+        classElement,
+        fields,
+        switch (rdfResource) {
+          RdfGlobalResourceInfo _ => rdfResource.iri?.templateInfo,
+          RdfLocalResourceInfo _ => null,
+        });
 
     return ResourceInfo(
       className: className,
@@ -40,23 +43,6 @@ class ResourceProcessor {
       constructors: constructors,
       fields: fields,
     );
-  }
-
-  static Map<String, String> getIriPartNameByPropertyName(
-      RdfResourceInfo<dynamic> rdfResource) {
-    switch (rdfResource) {
-      case RdfGlobalResourceInfo _:
-        final iriTemplateInfo = rdfResource.iri?.templateInfo;
-        final iriPartNameByPropertyName = Map<String, String>.fromIterable(
-          iriTemplateInfo?.propertyVariables ?? const [],
-          key: (pv) => pv.dartPropertyName,
-          value: (pv) => pv.name,
-        );
-        return iriPartNameByPropertyName;
-      case RdfLocalResourceInfo _:
-        // For local resources, we might not have an IRI template
-        return {};
-    }
   }
 
   static RdfResourceInfo? _createRdfResource(
@@ -118,74 +104,5 @@ class ResourceProcessor {
     }
     return IriStrategyProcessor.processIriStrategy(
         context, iriValue, classElement);
-  }
-
-  static List<ConstructorInfo> _extractConstructors(ClassElement2 classElement,
-      List<FieldInfo> fields, Map<String, String> iriPartNameByPropertyName) {
-    final constructors = <ConstructorInfo>[];
-    try {
-      final fieldsByName = Map.fromIterable(fields, key: (field) => field.name);
-
-      for (final constructor in classElement.constructors2) {
-        final parameters = <ParameterInfo>[];
-
-        for (final parameter in constructor.formalParameters) {
-          // Find the corresponding field with @RdfProperty annotation, if it exists
-          final fieldInfo = fieldsByName[parameter.name3!];
-
-          parameters.add(ParameterInfo(
-            name: parameter.name3!,
-            type: parameter.type.getDisplayString(),
-            isRequired: parameter.isRequired,
-            isNamed: parameter.isNamed,
-            isPositional: parameter.isPositional,
-            isOptional: parameter.isOptional,
-            propertyInfo: fieldInfo?.propertyInfo,
-            isIriPart: iriPartNameByPropertyName.containsKey(parameter.name3!),
-            iriPartName: iriPartNameByPropertyName[parameter.name3!],
-          ));
-        }
-
-        constructors.add(ConstructorInfo(
-          name: constructor.displayName,
-          isFactory: constructor.isFactory,
-          isConst: constructor.isConst,
-          isDefaultConstructor: constructor.isDefaultConstructor,
-          parameters: parameters,
-        ));
-      }
-    } catch (e) {
-      print('Error extracting constructors: $e');
-    }
-
-    return constructors;
-  }
-
-  static List<FieldInfo> _extractFields(ClassElement2 classElement) {
-    final fields = <FieldInfo>[];
-    final typeSystem = classElement.library2.typeSystem;
-
-    for (final field in classElement.fields2) {
-      if (field.isStatic) continue;
-
-      final propertyInfo = PropertyProcessor.processField(field);
-      final isNullable = field.type.isDartCoreNull ||
-          (field.type is InterfaceType &&
-              (field.type as InterfaceType).isDartCoreNull) ||
-          typeSystem.isNullable(field.type);
-
-      fields.add(FieldInfo(
-        name: field.name3!,
-        type: field.type.getDisplayString(),
-        isFinal: field.isFinal,
-        isLate: field.isLate,
-        isStatic: field.isStatic,
-        isSynthetic: field.isSynthetic,
-        propertyInfo: propertyInfo,
-        isRequired: propertyInfo?.isRequired ?? !isNullable,
-      ));
-    }
-
-    return fields;
   }
 }

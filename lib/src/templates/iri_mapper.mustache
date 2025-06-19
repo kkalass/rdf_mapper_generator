@@ -1,0 +1,68 @@
+/// Generated mapper for [{{className}}] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type {{className}}.
+class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+
+  {{#iriStrategy}}
+  {{#hasTemplate}}
+  static final RegExp _regex = RegExp('{{template.regexPattern}}');
+  {{/hasTemplate}}
+  {{/iriStrategy}}
+
+  {{#contextProviders}}
+  /// Provider for context variable '{{value.variableName}}'
+  final String Function() {{value.privateFieldName}};
+  {{/contextProviders}}
+
+  /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
+  const {{mapperClassName}}({{#hasContextProviders}}{
+    {{#contextProviders}}
+    required String Function() {{value.parameterName}},
+    {{/contextProviders}}
+  }{{/hasContextProviders}}){{#hasContextProviders}} : {{#contextProviders}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
+       {{/last}}{{/contextProviders}}{{/hasContextProviders}};
+
+  @override
+  {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
+    {{#iriStrategy}}
+    {{#hasTemplate}}
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String,String>{}
+        : Map.fromEntries(match.groupNames.map((name) {
+            var namedGroup = match.namedGroup(name)!;
+            return MapEntry(name, namedGroup);
+          }));
+    {{/hasTemplate}}
+    {{/iriStrategy}}
+    
+    return {{className}}(
+      {{#constructorParameters}}
+      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}},{{/last}}
+      {{/constructorParameters}}
+    );
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    {{className}} resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    {{#iriStrategy}}
+    {{#hasTemplate}}
+    var iri = '{{template.template}}';
+    {{#template.propertyVariables}}
+    iri = iri.replaceAll('{{value.placeholder}}', resource.{{value.variableName}}.toString());
+    {{/template.propertyVariables}}
+    {{#contextProviders}}
+    iri = iri.replaceAll('{{value.placeholder}}', {{value.privateFieldName}}());
+    {{/contextProviders}}
+    {{/hasTemplate}}
+    {{/iriStrategy}}
+    return IriTerm(iri);
+  }
+}

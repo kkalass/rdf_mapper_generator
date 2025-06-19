@@ -233,6 +233,7 @@ class InitFileBuilderHelper {
         (mapperData) => switch (mapperData['__type__'] as String?) {
               'ResourceMapperTemplateData' => collectResourceMapper(mapperData),
               'CustomMapperTemplateData' => collectCustomMapper(mapperData),
+              'IriMapperTemplateData' => collectIriMapper(mapperData),
               _ => () {
                   log.warning('Unknown mapper type: ${mapperData['__type__']}');
                   return noInitFileContributions;
@@ -271,23 +272,8 @@ class InitFileBuilderHelper {
 
     // Check if this mapper should be registered globally
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-    final code = Code.combine([
-      mapperClassName,
-      Code.literal('('),
-      ...contextProviders.map((cp) => Code.combine([
-            Code.literal(cp.value.parameterName),
-            Code.literal(':'),
-            Code.literal(cp.value.parameterName),
-            Code.literal(', ')
-          ])),
-      ...customIriMappers.map((i) => Code.combine([
-            Code.literal(i.parameterName),
-            Code.literal(':'),
-            i.code,
-            Code.literal(', ')
-          ])),
-      Code.literal(')')
-    ]);
+    final code = _buildCodeInstantiateMapperWithIriMapper(
+        mapperClassName, contextProviders, customIriMappers);
     if (registerGlobally) {
       return (
         [
@@ -301,6 +287,70 @@ class InitFileBuilderHelper {
       );
     }
     return (const [], providersByName, customMappersByName);
+  }
+
+  Code _buildCodeInstantiateMapperWithIriMapper(
+      Code mapperClassName,
+      List<_MustacheListEntry<_ContextProvider>> contextProviders,
+      List<_CustomMapper> customIriMappers) {
+    var params = [
+      ..._contextProvidersToParams(contextProviders),
+      ...customIriMappers.map((i) => (i.parameterName, i.code)),
+    ];
+    return _buildCodeInstantiateMapper(mapperClassName, params);
+  }
+
+  Iterable<(String, Code)> _contextProvidersToParams(
+      List<_MustacheListEntry<_ContextProvider>> contextProviders) {
+    return contextProviders.map((cp) => (
+          cp.value.parameterName,
+          Code.literal(cp.value.parameterName),
+        ));
+  }
+
+  Code _buildCodeInstantiateMapper(
+      Code mapperClassName, List<(String paramName, Code paramValue)> params) {
+    return Code.combine([
+      mapperClassName,
+      Code.literal('('),
+      ...params.map((cp) => Code.combine(
+          [Code.literal(cp.$1), Code.literal(':'), cp.$2, Code.literal(', ')])),
+      Code.literal(')')
+    ]);
+  }
+
+  _InitFileContributions collectIriMapper(Map<String, dynamic> mapperData) {
+    final className = extractNullableCodeProperty(mapperData, 'className');
+    final mapperClassName =
+        extractNullableCodeProperty(mapperData, 'mapperClassName');
+
+    if (className == null || mapperClassName == null) {
+      return noInitFileContributions;
+    }
+
+    // Extract context providers for this mapper
+    final contextProviders = _extractContextProviders(mapperData);
+    final providersByName =
+        _indexProviders(contextProviders.map((e) => e.value));
+
+    // Check if this mapper should be registered globally
+    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+    final code = _buildCodeInstantiateMapper(
+        mapperClassName, _contextProvidersToParams(contextProviders).toList());
+    ;
+    if (registerGlobally) {
+      return (
+        [
+          _Mapper(
+            code: code,
+            type: className,
+          )
+        ],
+        providersByName,
+        {}
+      );
+    }
+    return (const [], providersByName, {});
   }
 
   _InitFileContributions collectCustomMapper(Map<String, dynamic> mapperData) {

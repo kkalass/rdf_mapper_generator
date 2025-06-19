@@ -2,8 +2,9 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
@@ -46,9 +47,13 @@ class BuilderHelper {
 
     for (final classElement in classElements) {
       final resourceInfo = ResourceProcessor.processClass(
-        context.withContext(classElement.name3!),
-        classElement,
-      );
+            context.withContext(classElement.name3!),
+            classElement,
+          ) ??
+          IriProcessor.processClass(
+            context.withContext(classElement.name3!),
+            classElement,
+          );
 
       if (resourceInfo != null) {
         resourceInfosWithElements.add((resourceInfo, classElement));

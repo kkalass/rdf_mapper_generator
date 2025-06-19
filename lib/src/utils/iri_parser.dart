@@ -4,7 +4,7 @@
 /// using template patterns that support both default and reserved expansion.
 library iri_parser;
 
-import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 
 String buildRegexPattern(String template, Iterable<VariableName> variables) {
   // Convert template to regex pattern by escaping special regex characters

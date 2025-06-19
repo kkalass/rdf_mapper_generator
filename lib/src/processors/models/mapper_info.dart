@@ -11,6 +11,101 @@ sealed class MappableClassInfo {
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
+class IriInfo implements MappableClassInfo {
+  /// The name of the class
+  final Code className;
+
+  /// The RdfIri annotation instance
+  final RdfIriInfo annotation;
+
+  /// List of constructors in the class
+  final List<ConstructorInfo> constructors;
+
+  /// List of fields in the class
+  final List<FieldInfo> fields;
+
+  const IriInfo({
+    required this.className,
+    required this.annotation,
+    required this.constructors,
+    required this.fields,
+  });
+
+  @override
+  int get hashCode =>
+      Object.hashAll([className, annotation, constructors, fields]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! IriInfo) {
+      return false;
+    }
+    return className == other.className &&
+        annotation == other.annotation &&
+        constructors == other.constructors &&
+        fields == other.fields;
+  }
+
+  @override
+  String toString() {
+    return 'IriInfo{\n'
+        '  className: $className,\n'
+        '  annotation: $annotation,\n'
+        '  constructors: $constructors,\n'
+        '  fields: $fields\n'
+        '}';
+  }
+}
+
+/*
+/// Contains information about a class annotated with @RdfGlobalResource
+class LiteralInfo implements MappableClassInfo {
+  /// The name of the class
+  final Code className;
+
+  /// The RdfLiteral annotation instance
+  final RdfLiteralInfo annotation;
+
+  /// List of constructors in the class
+  final List<ConstructorInfo> constructors;
+
+  /// List of fields in the class
+  final List<FieldInfo> fields;
+
+  const LiteralInfo({
+    required this.className,
+    required this.annotation,
+    required this.constructors,
+    required this.fields,
+  });
+
+  @override
+  int get hashCode =>
+      Object.hashAll([className, annotation, constructors, fields]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! LiteralInfo) {
+      return false;
+    }
+    return className == other.className &&
+        annotation == other.annotation &&
+        constructors == other.constructors &&
+        fields == other.fields;
+  }
+
+  @override
+  String toString() {
+    return 'LiteralInfo{\n'
+        '  className: $className,\n'
+        '  annotation: $annotation,\n'
+        '  constructors: $constructors,\n'
+        '  fields: $fields\n'
+        '}';
+  }
+}
+*/
+/// Contains information about a class annotated with @RdfGlobalResource
 class ResourceInfo implements MappableClassInfo {
   /// The name of the class
   final Code className;
@@ -50,7 +145,7 @@ class ResourceInfo implements MappableClassInfo {
 
   @override
   String toString() {
-    return 'GlobalResourceInfo{\n'
+    return 'ResourceInfo{\n'
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
@@ -293,6 +388,72 @@ sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
     return classIri == other.classIri &&
         registerGlobally == other.registerGlobally &&
         mapper == other.mapper;
+  }
+}
+
+class RdfIriInfo extends BaseMappingAnnotationInfo<IriTermMapper> {
+  final String? template;
+  final IriTemplateInfo? templateInfo;
+  final List<IriPartInfo>? iriParts;
+  const RdfIriInfo(
+      {required super.registerGlobally,
+      required super.mapper,
+      required this.template,
+      required this.iriParts,
+      required this.templateInfo})
+      : assert((template == null) != (mapper == null),
+            'Either template or mapper must be provided, but not both.');
+
+  @override
+  int get hashCode => Object.hash(super.hashCode, template, templateInfo);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfIriInfo) {
+      return false;
+    }
+    return super == other &&
+        template == other.template &&
+        templateInfo == other.templateInfo;
+  }
+}
+
+class RdfLiteralInfo extends BaseMappingAnnotationInfo<LiteralTermMapper> {
+  final String? toLiteralTermMethod;
+  final String? fromLiteralTermMethod;
+  final IriTermInfo? datatype;
+  // FIXME: what about the information from RdfValue and RdfLanguageTag annotations?
+  const RdfLiteralInfo(
+      {required super.registerGlobally,
+      required super.mapper,
+      required this.fromLiteralTermMethod,
+      required this.toLiteralTermMethod,
+      required this.datatype})
+      : assert(
+            ((fromLiteralTermMethod == null) &&
+                    (toLiteralTermMethod == null)) ||
+                ((fromLiteralTermMethod != null) &&
+                    (toLiteralTermMethod != null)),
+            'Either both fromLiteralTermMethod or toLiteralTermMethod must be provided, or none of them.'),
+        assert(
+            (mapper != null) ||
+                ((fromLiteralTermMethod != null) &&
+                    (toLiteralTermMethod != null)),
+            'Either mapper, value or method names must be provided.');
+
+  @override
+  int get hashCode => Object.hash(
+      super.hashCode, fromLiteralTermMethod, toLiteralTermMethod, datatype);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfLiteralInfo) {
+      return false;
+    }
+    return super == other &&
+        fromLiteralTermMethod == other.fromLiteralTermMethod &&
+        toLiteralTermMethod == other.toLiteralTermMethod &&
+        datatype == other.datatype;
   }
 }
 

@@ -105,7 +105,7 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   final Code? typeIri;
 
   /// IRI strategy information
-  final IriStrategyData? iriStrategy;
+  final IriData? iriStrategy;
 
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
@@ -127,7 +127,7 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
     required this.mapperInterfaceName,
     required this.termClass,
     required Code? typeIri,
-    required IriStrategyData? iriStrategy,
+    required IriData? iriStrategy,
     required List<ContextProviderData> contextProviders,
     required List<ParameterData> constructorParameters,
     required bool needsReader,
@@ -163,6 +163,70 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
       'hasContextProviders': contextProviders.isNotEmpty,
       'hasMapperConstructorParameters':
           (iriStrategy?.hasMapper ?? false) || contextProviders.isNotEmpty,
+      'needsReader': needsReader,
+      'registerGlobally': registerGlobally,
+    };
+  }
+}
+
+class IriMapperTemplateData implements MappableClassMapperTemplateData {
+  /// The name of the Dart class being mapped
+  final Code className;
+
+  /// The name of the generated mapper class
+  final Code mapperClassName;
+
+  final Code mapperInterfaceName;
+
+  /// IRI strategy information
+  final IriData iriStrategy;
+
+  /// List of parameters for this constructor
+  final List<ParameterData> constructorParameters;
+
+  /// Property mapping information
+  final List<PropertyData> properties;
+
+  /// Context variable providers needed for IRI generation
+  final List<ContextProviderData> contextProviders;
+
+  final bool needsReader;
+
+  /// Whether to register this mapper globally
+  final bool registerGlobally;
+
+  const IriMapperTemplateData({
+    required Code className,
+    required Code mapperClassName,
+    required this.mapperInterfaceName,
+    required IriData iriStrategy,
+    required List<ContextProviderData> contextProviders,
+    required List<ParameterData> constructorParameters,
+    required bool needsReader,
+    required bool registerGlobally,
+    required List<PropertyData> properties,
+  })  : className = className,
+        mapperClassName = mapperClassName,
+        iriStrategy = iriStrategy,
+        contextProviders = contextProviders,
+        constructorParameters = constructorParameters,
+        needsReader = needsReader,
+        registerGlobally = registerGlobally,
+        properties = properties;
+
+  /// Converts this template data to a Map for mustache rendering
+  Map<String, dynamic> toMap() {
+    return {
+      'className': className.toMap(),
+      'mapperClassName': mapperClassName.toMap(),
+      'mapperInterfaceName': mapperInterfaceName.toMap(),
+      'iriStrategy': iriStrategy.toMap(),
+      'constructorParameters':
+          toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
+      'properties': properties.map((p) => p.toMap()).toList(),
+      'contextProviders':
+          toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
+      'hasContextProviders': contextProviders.isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
     };
@@ -333,13 +397,13 @@ class IriPartData {
 }
 
 /// Data for IRI strategy
-class IriStrategyData {
+class IriData {
   final IriTemplateData? template;
   final MapperRefData? mapper;
   final bool hasMapper;
   final List<IriPartData> iriMapperParts;
 
-  const IriStrategyData({
+  const IriData({
     this.template,
     this.mapper,
     this.hasMapper = false,

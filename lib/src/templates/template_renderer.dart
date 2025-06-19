@@ -25,6 +25,12 @@ class TemplateRenderer {
     return template.renderString(data);
   }
 
+  Future<String> _renderIriMapper(
+      Map<String, dynamic> data, AssetReader reader) async {
+    final template = await _getTemplate('iri_mapper', reader);
+    return template.renderString(data);
+  }
+
   Future<String> renderInitFileTemplate(
       Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('init_rdf_mapper', reader);
@@ -57,6 +63,8 @@ class TemplateRenderer {
             mapperData as Map<String, dynamic>, reader),
         // Custom mappers are coded by our users, we do not render them here
         'CustomMapperTemplateData' => null,
+        'IriMapperTemplateData' =>
+          await _renderIriMapper(mapperData as Map<String, dynamic>, reader),
         // Add cases for other mapper types if needed
         _ => throw Exception('Unknown mapper type: ${mapperData['__type__']}'),
       };

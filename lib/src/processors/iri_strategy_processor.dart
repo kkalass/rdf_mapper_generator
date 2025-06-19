@@ -3,7 +3,8 @@ import 'dart:math';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_generator/src/processors/models/resource_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -17,8 +18,24 @@ class IriStrategyProcessor {
   static IriStrategyInfo? processIriStrategy(ValidationContext context,
       DartObject iriValue, ClassElement2 classElement) {
     // Check if we have an iri field (for the standard constructor)
-    var template = getField(iriValue, 'template')?.toStringValue();
+    final templateFieldValue = getField(iriValue, 'template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
+    final (template, templateInfo, iriParts) = processIriPartsAndTemplate(
+        context, classElement, templateFieldValue, mapper);
+    final (iriMapperType, typeWarnings) =
+        _getIriMapperType(classToCode(classElement), iriParts);
+    typeWarnings.forEach(context.addWarning);
+    return IriStrategyInfo(
+      mapper: mapper,
+      template: template,
+      templateInfo: templateInfo,
+      iriMapperType: iriMapperType,
+    );
+  }
+
+  static (String?, IriTemplateInfo?, List<IriPartInfo>)
+      processIriPartsAndTemplate(ValidationContext context,
+          ClassElement2 classElement, String? template, MapperRefInfo? mapper) {
     final iriParts = _findIriPartFields(classElement);
     if (mapper == null && (template == null || template.isEmpty)) {
       if (iriParts.length != 1) {
@@ -33,21 +50,13 @@ class IriStrategyProcessor {
     final templateInfo = template != null
         ? processTemplate(context, template, classElement, iriParts: iriParts)
         : null;
-    final (iriMapperType, typeWarnings) =
-        _getIriMapperType(classToCode(classElement), iriParts);
-    typeWarnings.forEach(context.addWarning);
     if (templateInfo == null && mapper == null) {
       if (iriParts.length != 1) {
         context.addError(
             'No @RdfIriPart annotations found, but no custom mapper is specified. If you are using IriStrategy() default constructor without any arguments, you have to provide @RdfIriPart annotation on exactly one field.');
       }
     }
-    return IriStrategyInfo(
-      mapper: mapper,
-      template: template,
-      templateInfo: templateInfo,
-      iriMapperType: iriMapperType,
-    );
+    return (template, templateInfo, iriParts);
   }
 
   /// Processes an IRI template and extracts information about variables and validation.
@@ -362,7 +371,8 @@ class IriStrategyProcessor {
       return (
         IriMapperType(
             Code.combine([
-              Code.literal('IriTermMapper<'),
+              Code.type('IriTermMapper', importUri: importRdfMapper),
+              Code.literal('<'),
               resourceClassType,
               Code.literal('>')
             ]),
@@ -388,7 +398,8 @@ class IriStrategyProcessor {
     return (
       IriMapperType(
           Code.combine([
-            Code.literal('IriTermMapper<('),
+            Code.type('IriTermMapper', importUri: importRdfMapper),
+            Code.literal('<('),
             Code.combine(
                 iriPartFields
                     .map((f) => Code.combine(
