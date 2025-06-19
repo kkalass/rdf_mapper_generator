@@ -235,6 +235,7 @@ class InitFileBuilderHelper {
               'ResourceMapperTemplateData' => collectResourceMapper(mapperData),
               'CustomMapperTemplateData' => collectCustomMapper(mapperData),
               'IriMapperTemplateData' => collectIriMapper(mapperData),
+              'LiteralMapperTemplateData' => collectLiteralMapper(mapperData),
               _ => () {
                   log.warning('Unknown mapper type: ${mapperData['__type__']}');
                   return noInitFileContributions;
@@ -336,10 +337,10 @@ class InitFileBuilderHelper {
 
     // Check if this mapper should be registered globally
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-    final code = _buildCodeInstantiateMapper(
-        mapperClassName, _contextProvidersToParams(contextProviders).toList());
-    ;
+
     if (registerGlobally) {
+      final code = _buildCodeInstantiateMapper(mapperClassName,
+          _contextProvidersToParams(contextProviders).toList());
       return (
         [
           _Mapper(
@@ -352,6 +353,34 @@ class InitFileBuilderHelper {
       );
     }
     return (const [], providersByName, {});
+  }
+
+  _InitFileContributions collectLiteralMapper(Map<String, dynamic> mapperData) {
+    final className = extractNullableCodeProperty(mapperData, 'className');
+    final mapperClassName =
+        extractNullableCodeProperty(mapperData, 'mapperClassName');
+
+    if (className == null || mapperClassName == null) {
+      return noInitFileContributions;
+    }
+
+    // Check if this mapper should be registered globally
+    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+
+    if (registerGlobally) {
+      final code = _buildCodeInstantiateMapper(mapperClassName, const []);
+      return (
+        [
+          _Mapper(
+            code: code,
+            type: className,
+          )
+        ],
+        const {},
+        const {}
+      );
+    }
+    return noInitFileContributions;
   }
 
   _InitFileContributions collectCustomMapper(Map<String, dynamic> mapperData) {

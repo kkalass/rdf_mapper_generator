@@ -57,8 +57,7 @@ class IriInfo implements MappableClassInfo {
   }
 }
 
-/*
-/// Contains information about a class annotated with @RdfGlobalResource
+/// Contains information about a class annotated with @RdfLiteral
 class LiteralInfo implements MappableClassInfo {
   /// The name of the class
   final Code className;
@@ -104,7 +103,7 @@ class LiteralInfo implements MappableClassInfo {
         '}';
   }
 }
-*/
+
 /// Contains information about a class annotated with @RdfGlobalResource
 class ResourceInfo implements MappableClassInfo {
   /// The name of the class
@@ -422,6 +421,7 @@ class RdfLiteralInfo extends BaseMappingAnnotationInfo<LiteralTermMapper> {
   final String? toLiteralTermMethod;
   final String? fromLiteralTermMethod;
   final IriTermInfo? datatype;
+
   // FIXME: what about the information from RdfValue and RdfLanguageTag annotations?
   const RdfLiteralInfo(
       {required super.registerGlobally,
@@ -578,6 +578,9 @@ class ParameterInfo {
   /// The name of the IRI part variable
   final String? iriPartName;
 
+  final bool isRdfValue;
+  final bool isRdfLanguageTag;
+
   const ParameterInfo({
     required this.name,
     required this.type,
@@ -588,6 +591,8 @@ class ParameterInfo {
     required this.propertyInfo,
     required this.isIriPart,
     required this.iriPartName,
+    required this.isRdfValue,
+    required this.isRdfLanguageTag,
   });
 
   @override
@@ -598,7 +603,11 @@ class ParameterInfo {
         isNamed,
         isPositional,
         isOptional,
-        propertyInfo
+        propertyInfo,
+        isIriPart,
+        iriPartName,
+        isRdfValue,
+        isRdfLanguageTag,
       ]);
 
   @override
@@ -612,7 +621,11 @@ class ParameterInfo {
         isNamed == other.isNamed &&
         isPositional == other.isPositional &&
         isOptional == other.isOptional &&
-        propertyInfo == other.propertyInfo;
+        propertyInfo == other.propertyInfo &&
+        isIriPart == other.isIriPart &&
+        iriPartName == other.iriPartName &&
+        isRdfValue == other.isRdfValue &&
+        isRdfLanguageTag == other.isRdfLanguageTag;
   }
 
   @override
@@ -655,6 +668,9 @@ class FieldInfo {
   /// Whether this field is required (non-nullable)
   final bool isRequired;
 
+  final bool isRdfValue;
+  final bool isRdfLanguageTag;
+
   const FieldInfo({
     required this.name,
     required this.type,
@@ -662,13 +678,25 @@ class FieldInfo {
     required this.isLate,
     required this.isStatic,
     required this.isSynthetic,
+    required this.isRdfValue,
+    required this.isRdfLanguageTag,
     this.propertyInfo,
     this.isRequired = false,
   });
 
   @override
-  int get hashCode => Object.hashAll(
-      [name, type, isFinal, isLate, isStatic, isSynthetic, propertyInfo]);
+  int get hashCode => Object.hashAll([
+        name,
+        type,
+        isFinal,
+        isLate,
+        isStatic,
+        isSynthetic,
+        propertyInfo,
+        isRequired,
+        isRdfValue,
+        isRdfLanguageTag
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -681,7 +709,10 @@ class FieldInfo {
         isLate == other.isLate &&
         isStatic == other.isStatic &&
         isSynthetic == other.isSynthetic &&
-        propertyInfo == other.propertyInfo;
+        propertyInfo == other.propertyInfo &&
+        isRequired == other.isRequired &&
+        isRdfValue == other.isRdfValue &&
+        isRdfLanguageTag == other.isRdfLanguageTag;
   }
 
   @override
@@ -695,6 +726,8 @@ class FieldInfo {
         '  isSynthetic: $isSynthetic,\n'
         '  propertyInfo: $propertyInfo,\n'
         '  isRequired: $isRequired\n'
+        '  isRdfValue: $isRdfValue,\n'
+        '  isRdfLanguageTag: $isRdfLanguageTag\n'
         '}';
   }
 }

@@ -31,6 +31,12 @@ class TemplateRenderer {
     return template.renderString(data);
   }
 
+  Future<String> _renderLiteralMapper(
+      Map<String, dynamic> data, AssetReader reader) async {
+    final template = await _getTemplate('literal_mapper', reader);
+    return template.renderString(data);
+  }
+
   Future<String> renderInitFileTemplate(
       Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('init_rdf_mapper', reader);
@@ -65,6 +71,8 @@ class TemplateRenderer {
         'CustomMapperTemplateData' => null,
         'IriMapperTemplateData' =>
           await _renderIriMapper(mapperData as Map<String, dynamic>, reader),
+        'LiteralMapperTemplateData' => await _renderLiteralMapper(
+            mapperData as Map<String, dynamic>, reader),
         // Add cases for other mapper types if needed
         _ => throw Exception('Unknown mapper type: ${mapperData['__type__']}'),
       };

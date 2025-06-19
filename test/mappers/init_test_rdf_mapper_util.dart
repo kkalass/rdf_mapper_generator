@@ -4,10 +4,12 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import '../fixtures/global_resource_processor_test_models.dart' as grptm;
 import '../fixtures/local_resource_processor_test_models.dart' as lrptm;
 import '../fixtures/iri_processor_test_models.dart' as iptm;
+import '../fixtures/literal_processor_test_models.dart' as lptm;
 import '../init_test_rdf_mapper.g.dart';
 
 class TestMapper
     implements IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> {
+  const TestMapper();
   @override
   grptm.ClassWithIriNamedMapperStrategy fromRdfTerm(
       IriTerm term, DeserializationContext context) {
@@ -85,6 +87,24 @@ class NamedTestIriMapper implements IriTermMapper<iptm.IriWithNamedMapper> {
   }
 }
 
+class NamedTestLiteralMapper
+    implements LiteralTermMapper<lptm.LiteralWithNamedMapper> {
+  const NamedTestLiteralMapper();
+
+  @override
+  lptm.LiteralWithNamedMapper fromRdfTerm(
+      LiteralTerm term, DeserializationContext context) {
+    return lptm.LiteralWithNamedMapper(term.value);
+  }
+
+  @override
+  LiteralTerm toRdfTerm(
+      lptm.LiteralWithNamedMapper value, SerializationContext context) {
+    // this of course is pretty nonsensical, but just for testing
+    return LiteralTerm(value.value);
+  }
+}
+
 const baseUri = 'http://example.org';
 
 RdfMapper defaultInitTestRdfMapper({
@@ -98,14 +118,16 @@ RdfMapper defaultInitTestRdfMapper({
   LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>?
       testLocalResourceMapper,
   IriTermMapper<iptm.IriWithNamedMapper>? testIriMapper,
+  LiteralTermMapper<lptm.LiteralWithNamedMapper>? testLiteralMapper,
 }) {
   return initTestRdfMapper(
     baseUriProvider: baseUriProvider ?? (() => baseUri),
-    testMapper: testMapper ?? TestMapper(),
+    testMapper: testMapper ?? const TestMapper(),
     testGlobalResourceMapper:
-        testGlobalResourceMapper ?? NamedTestGlobalResourceMapper(),
+        testGlobalResourceMapper ?? const NamedTestGlobalResourceMapper(),
     testLocalResourceMapper:
-        testLocalResourceMapper ?? NamedTestLocalResourceMapper(),
-    testIriMapper: testIriMapper ?? NamedTestIriMapper(),
+        testLocalResourceMapper ?? const NamedTestLocalResourceMapper(),
+    testIriMapper: testIriMapper ?? const NamedTestIriMapper(),
+    testLiteralMapper: testLiteralMapper ?? const NamedTestLiteralMapper(),
   );
 }

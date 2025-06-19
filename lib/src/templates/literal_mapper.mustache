@@ -1,0 +1,45 @@
+/// Generated mapper for [{{className}}] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type {{className}}.
+class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+
+  const {{mapperClassName}}();
+
+  @override
+  {{className}} fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+    {{#hasMethods}}
+    return {{className}}.{{fromLiteralTermMethod}}(term);
+    {{/hasMethods}}
+    {{^hasMethods}}
+    return {{className}}(
+      {{#constructorParameters}}
+      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{#value.isRdfValue}}context.fromLiteralTerm(term){{/value.isRdfValue}}{{#value.isRdfLanguageTag}}term.language!{{/value.isRdfLanguageTag}}{{^last}},{{/last}}
+      {{/constructorParameters}});
+    {{/hasMethods}}
+  }
+
+  @override
+  LiteralTerm toRdfTerm(
+    {{className}} value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    {{#hasMethods}}
+    return value.{{toLiteralTermMethod}}();
+    {{/hasMethods}}
+    {{^hasMethods}}
+    {{#hasRdfLanguageTag}}
+    return LiteralTerm.withLanguage(context.toLiteralTerm(value.{{rdfValue.name}}).value, value.{{rdfLanguageTag.name}});
+    {{/hasRdfLanguageTag}}
+    {{^hasRdfLanguageTag}}
+    {{#hasDatatype}}
+    return LiteralTerm(context.toLiteralTerm(value.{{rdfValue.name}}).value, datatype: {{datatype}});
+    {{/hasDatatype}}
+    {{^hasDatatype}}
+    return context.toLiteralTerm(value.{{rdfValue.name}});
+    {{/hasDatatype}}
+    {{/hasRdfLanguageTag}}
+    {{/hasMethods}}
+  }
+}

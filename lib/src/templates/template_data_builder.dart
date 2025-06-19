@@ -34,6 +34,10 @@ class TemplateDataBuilder {
             ? DataBuilder.buildCustomMapper(
                 context, resourceInfo.className, resourceInfo.annotation)
             : DataBuilder.buildIriMapper(resourceInfo, mapperImportUri),
+        LiteralInfo _ => resourceInfo.annotation.mapper != null
+            ? DataBuilder.buildCustomMapper(
+                context, resourceInfo.className, resourceInfo.annotation)
+            : DataBuilder.buildLiteralMapper(resourceInfo, mapperImportUri),
       };
 
       mapperDatas.add(MapperData(mapperData));

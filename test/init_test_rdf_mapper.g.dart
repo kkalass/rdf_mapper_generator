@@ -10,6 +10,8 @@ import 'fixtures/global_resource_processor_test_models.dart' as grptm;
 import 'fixtures/global_resource_processor_test_models.rdf_mapper.g.dart' as grptmrmg;
 import 'fixtures/iri_processor_test_models.dart' as iptm;
 import 'fixtures/iri_processor_test_models.rdf_mapper.g.dart' as iptmrmg;
+import 'fixtures/literal_processor_test_models.dart' as lptm;
+import 'fixtures/literal_processor_test_models.rdf_mapper.g.dart' as lptmrmg;
 import 'fixtures/local_resource_processor_test_models.dart' as lrptm;
 import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart' as lrptmrmg;
 
@@ -21,6 +23,7 @@ import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart' as lrpt
 /// named mapper parameters:
 /// * [testGlobalResourceMapper] mapper 
 /// * [testIriMapper] mapper 
+/// * [testLiteralMapper] mapper 
 /// * [testLocalResourceMapper] mapper 
 /// * [testMapper] mapper 
 RdfMapper initTestRdfMapper({
@@ -30,6 +33,7 @@ RdfMapper initTestRdfMapper({
   // Named mapper parameters
   required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy> testGlobalResourceMapper,
   required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
+  required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
   required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy> testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
 }) {
@@ -59,6 +63,17 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<iptm.IriWithNamedMapper>(testIriMapper);
   registry.registerMapper<iptm.IriWithMapper>(iptm.TestIriMapper());
   registry.registerMapper<iptm.IriWithMapperInstance>(const iptm.TestIriMapper2());
+  registry.registerMapper<lptm.LiteralString>(lptmrmg.LiteralStringMapper());
+  registry.registerMapper<lptm.Rating>(lptmrmg.RatingMapper());
+  registry.registerMapper<lptm.LocalizedText>(lptmrmg.LocalizedTextMapper());
+  registry.registerMapper<lptm.LiteralDouble>(lptmrmg.LiteralDoubleMapper());
+  registry.registerMapper<lptm.LiteralInteger>(lptmrmg.LiteralIntegerMapper());
+  registry.registerMapper<lptm.Temperature>(lptmrmg.TemperatureMapper());
+  registry.registerMapper<lptm.CustomLocalizedText>(lptmrmg.CustomLocalizedTextMapper());
+  registry.registerMapper<lptm.DoubleAsMilliunit>(lptmrmg.DoubleAsMilliunitMapper());
+  registry.registerMapper<lptm.LiteralWithNamedMapper>(testLiteralMapper);
+  registry.registerMapper<lptm.LiteralWithMapper>(lptm.TestLiteralMapper());
+  registry.registerMapper<lptm.LiteralWithMapperInstance>(const lptm.TestLiteralMapper2());
   registry.registerMapper<lrptm.Book>(lrptmrmg.BookMapper());
   registry.registerMapper<lrptm.ClassWithMapperNamedMapperStrategy>(testLocalResourceMapper);
   registry.registerMapper<lrptm.ClassWithMapperStrategy>(lrptm.TestLocalResourceMapper());

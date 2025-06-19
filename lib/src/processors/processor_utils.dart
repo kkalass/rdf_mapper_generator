@@ -174,7 +174,7 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
 
   final constructors = <ConstructorInfo>[];
   try {
-    final fieldsByName = Map.fromIterable(fields, key: (field) => field.name);
+    final fieldsByName = {for (final field in fields) field.name: field};
 
     for (final constructor in classElement.constructors2) {
       final parameters = <ParameterInfo>[];
@@ -193,6 +193,8 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
           propertyInfo: fieldInfo?.propertyInfo,
           isIriPart: iriPartNameByPropertyName.containsKey(parameter.name3!),
           iriPartName: iriPartNameByPropertyName[parameter.name3!],
+          isRdfLanguageTag: fieldInfo?.isRdfLanguageTag ?? false,
+          isRdfValue: fieldInfo?.isRdfValue ?? false,
         ));
       }
 
@@ -223,6 +225,9 @@ List<FieldInfo> extractFields(ClassElement2 classElement) {
         (field.type is InterfaceType &&
             (field.type as InterfaceType).isDartCoreNull) ||
         typeSystem.isNullable(field.type);
+    final isRdfValue = getAnnotation(field.metadata2, 'RdfValue') != null;
+    final isRdfLanguageTag =
+        getAnnotation(field.metadata2, 'RdfLanguageTag') != null;
 
     fields.add(FieldInfo(
       name: field.name3!,
@@ -233,6 +238,8 @@ List<FieldInfo> extractFields(ClassElement2 classElement) {
       isSynthetic: field.isSynthetic,
       propertyInfo: propertyInfo,
       isRequired: propertyInfo?.isRequired ?? !isNullable,
+      isRdfLanguageTag: isRdfLanguageTag,
+      isRdfValue: isRdfValue,
     ));
   }
 

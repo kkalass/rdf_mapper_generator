@@ -3,6 +3,7 @@ import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/literal_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
@@ -51,6 +52,10 @@ class BuilderHelper {
             classElement,
           ) ??
           IriProcessor.processClass(
+            context.withContext(classElement.name3!),
+            classElement,
+          ) ??
+          LiteralProcessor.processClass(
             context.withContext(classElement.name3!),
             classElement,
           );

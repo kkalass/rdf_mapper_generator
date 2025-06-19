@@ -169,6 +169,72 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   }
 }
 
+class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
+  /// The name of the Dart class being mapped
+  final Code className;
+
+  /// The name of the generated mapper class
+  final Code mapperClassName;
+
+  final Code mapperInterfaceName;
+
+  /// List of parameters for this constructor
+  final List<ParameterData> constructorParameters;
+
+  /// Property mapping information
+  final List<PropertyData> properties;
+
+  /// Whether to register this mapper globally
+  final bool registerGlobally;
+
+  final Code? datatype;
+  final String? toLiteralTermMethod;
+  final String? fromLiteralTermMethod;
+  final ParameterData? rdfValue;
+  final ParameterData? rdfLanguageTag;
+
+  const LiteralMapperTemplateData({
+    required Code className,
+    required Code mapperClassName,
+    required this.mapperInterfaceName,
+    required this.datatype,
+    required this.toLiteralTermMethod,
+    required this.fromLiteralTermMethod,
+    required this.rdfValue,
+    required this.rdfLanguageTag,
+    required List<ParameterData> constructorParameters,
+    required bool registerGlobally,
+    required List<PropertyData> properties,
+  })  : className = className,
+        mapperClassName = mapperClassName,
+        constructorParameters = constructorParameters,
+        registerGlobally = registerGlobally,
+        properties = properties;
+
+  /// Converts this template data to a Map for mustache rendering
+  Map<String, dynamic> toMap() {
+    return {
+      'className': className.toMap(),
+      'mapperClassName': mapperClassName.toMap(),
+      'mapperInterfaceName': mapperInterfaceName.toMap(),
+      'datatype': datatype?.toMap(),
+      'toLiteralTermMethod': toLiteralTermMethod,
+      'fromLiteralTermMethod': fromLiteralTermMethod,
+      'hasDatatype': datatype != null,
+      'hasMethods':
+          toLiteralTermMethod != null && fromLiteralTermMethod != null,
+      'constructorParameters':
+          toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
+      'properties': properties.map((p) => p.toMap()).toList(),
+      'registerGlobally': registerGlobally,
+      'rdfValue': rdfValue?.toMap(),
+      'hasRdfValue': rdfValue != null,
+      'rdfLanguageTag': rdfLanguageTag?.toMap(),
+      'hasRdfLanguageTag': rdfLanguageTag != null,
+    };
+  }
+}
+
 class IriMapperTemplateData implements MappableClassMapperTemplateData {
   /// The name of the Dart class being mapped
   final Code className;
@@ -435,7 +501,8 @@ class ParameterData {
   final Code? predicate;
   final Code? defaultValue;
   final bool hasDefaultValue;
-
+  final bool isRdfValue;
+  final bool isRdfLanguageTag;
   const ParameterData({
     required this.name,
     required this.dartType,
@@ -447,6 +514,8 @@ class ParameterData {
     required this.predicate,
     required this.defaultValue,
     required this.hasDefaultValue,
+    required this.isRdfValue,
+    required this.isRdfLanguageTag,
   });
 
   Map<String, dynamic> toMap() => {
@@ -461,6 +530,8 @@ class ParameterData {
         'predicate': predicate?.toMap(),
         'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': hasDefaultValue,
+        'isRdfValue': isRdfValue,
+        'isRdfLanguageTag': isRdfLanguageTag,
       };
 }
 

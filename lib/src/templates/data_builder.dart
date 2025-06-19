@@ -63,7 +63,12 @@ class DataBuilder {
   /// Builds template data for a global resource mapper.
   static ResourceMapperTemplateData buildResourceMapper(
       ResourceInfo resourceInfo, String mapperImportUri) {
-    assert(resourceInfo.annotation.mapper == null);
+    if (resourceInfo.annotation.mapper != null) {
+      throw Exception(
+        'ResourceMapper cannot have a mapper defined in the annotation.',
+      );
+    }
+
     final isGlobalResource = resourceInfo.annotation is RdfGlobalResourceInfo;
     final className = resourceInfo.className;
     final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
@@ -103,10 +108,65 @@ class DataBuilder {
         properties: properties);
   }
 
+  static LiteralMapperTemplateData buildLiteralMapper(
+      LiteralInfo resourceInfo, String mapperImportUri) {
+    final annotation = resourceInfo.annotation;
+    if (annotation.mapper != null) {
+      throw Exception(
+        'LiteralMapper cannot have a mapper defined in the annotation.',
+      );
+    }
+    final className = resourceInfo.className;
+    final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
+        importUri: mapperImportUri);
+    final mapperInterfaceName = _mapperInterfaceNameFor(annotation);
+    final datatype = annotation.datatype?.code;
+    final fromLiteralTermMethod = annotation.fromLiteralTermMethod;
+    final toLiteralTermMethod = annotation.toLiteralTermMethod;
+    final isMethodBased =
+        fromLiteralTermMethod != null || toLiteralTermMethod != null;
+
+    // Build constructor parameters
+    final constructorParameters =
+        _buildConstructorParameters(resourceInfo.constructors);
+
+    if (!isMethodBased &&
+        constructorParameters
+            .any((p) => !(p.isRdfLanguageTag || p.isRdfValue))) {
+      throw Exception(
+        'LiteralMapper must only have Value or LanguagePart part parameters, but found: ${constructorParameters.where((p) => !p.isIriPart).map((p) => p.name)}',
+      );
+    }
+    final rdfValueParameter =
+        constructorParameters.where((p) => p.isRdfValue).singleOrNull;
+    final rdfLanguageTagParameter =
+        constructorParameters.where((p) => p.isRdfLanguageTag).singleOrNull;
+
+    final properties = _buildPropertyData(resourceInfo.fields);
+
+    return LiteralMapperTemplateData(
+        className: className,
+        mapperClassName: mapperClassName,
+        mapperInterfaceName: mapperInterfaceName,
+        datatype: datatype,
+        fromLiteralTermMethod: fromLiteralTermMethod,
+        toLiteralTermMethod: toLiteralTermMethod,
+        constructorParameters: constructorParameters,
+        registerGlobally: resourceInfo.annotation.registerGlobally,
+        properties: properties,
+        rdfValue: rdfValueParameter,
+        rdfLanguageTag: rdfLanguageTagParameter);
+  }
+
   static IriMapperTemplateData buildIriMapper(
       IriInfo resourceInfo, String mapperImportUri) {
     final annotation = resourceInfo.annotation;
-    assert(annotation.mapper == null);
+    if (annotation.mapper != null) {
+      throw Exception(
+        'IriMapper cannot have a mapper defined in the annotation.',
+      );
+    }
+
     final className = resourceInfo.className;
     final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
         importUri: mapperImportUri);
@@ -314,6 +374,8 @@ class DataBuilder {
           predicate: param.propertyInfo?.annotation.predicate.code,
           defaultValue: toCode(param.propertyInfo?.annotation.defaultValue),
           hasDefaultValue: param.propertyInfo?.annotation.defaultValue != null,
+          isRdfLanguageTag: param.isRdfLanguageTag,
+          isRdfValue: param.isRdfValue,
         ),
       );
     }
