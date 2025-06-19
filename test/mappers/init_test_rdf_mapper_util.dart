@@ -85,7 +85,7 @@ class NamedTestIriMapper implements IriTermMapper<iptm.IriWithNamedMapper> {
   }
 }
 
-const baseUri = 'http://example.org/';
+const baseUri = 'http://example.org';
 
 RdfMapper defaultInitTestRdfMapper({
   RdfMapper? rdfMapper,

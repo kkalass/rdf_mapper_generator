@@ -12,7 +12,6 @@ import 'fixtures/iri_processor_test_models.dart' as iptm;
 import 'fixtures/iri_processor_test_models.rdf_mapper.g.dart' as iptmrmg;
 import 'fixtures/local_resource_processor_test_models.dart' as lrptm;
 import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart' as lrptmrmg;
-import 'package:rdf_mapper/rdf_mapper.dart' as rdf_mapper;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
 /// 
@@ -29,10 +28,10 @@ RdfMapper initTestRdfMapper({
   // Provider parameters
   required String Function() baseUriProvider,
   // Named mapper parameters
-  required rdf_mapper.GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy> testGlobalResourceMapper,
-  required rdf_mapper.IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
-  required rdf_mapper.LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy> testLocalResourceMapper,
-  required rdf_mapper.IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
+  required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy> testGlobalResourceMapper,
+  required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
+  required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy> testLocalResourceMapper,
+  required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();

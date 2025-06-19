@@ -1,8 +1,30 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:path/path.dart' as p;
+import 'package:logging/logging.dart';
+
+StreamSubscription<LogRecord>? _currentSubscription;
+
+void setupTestLogging({Level level = Level.WARNING}) {
+  // Set up logging to show warnings and above
+  Logger.root.level = level;
+  if (_currentSubscription != null) {
+    _currentSubscription!.cancel();
+  }
+  _currentSubscription = Logger.root.onRecord.listen((record) {
+    print(
+        '${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
+    if (record.error != null) {
+      print('Error: ${record.error}');
+    }
+    if (record.stackTrace != null) {
+      print('Stack trace: ${record.stackTrace}');
+    }
+  });
+}
 
 Future<(LibraryElement2 library, String path)> analyzeTestFile(
     String filename) async {

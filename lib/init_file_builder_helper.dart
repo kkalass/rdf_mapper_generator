@@ -5,6 +5,7 @@ import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 class _InitFileTemplateData {
   final String generatedOn;
@@ -508,9 +509,8 @@ class InitFileBuilderHelper {
     String currentPackage,
   ) {
     final rawData = result.toMap();
-    final data = _templateRenderer.resolveCodeSnipplets(
-      rawData,
-    );
+    final data = _templateRenderer
+        .resolveCodeSnipplets(rawData, defaultImports: [importRdfMapper]);
 
     // Clean up aliasedImports URIs by removing asset:packageName/lib/ or asset:packageName/test/ prefixes
     _fixupAliasedImports(data, currentPackage);
