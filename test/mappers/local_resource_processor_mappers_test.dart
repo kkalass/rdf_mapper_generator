@@ -108,11 +108,13 @@ _:b0 a schema:Person;
       final isRegistered = mapper.registry
           .hasLocalResourceDeserializerFor<ClassWithPositionalProperty>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithPositionalProperty should be registered as a local resource');
+          reason:
+              'ClassWithPositionalProperty should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
           .hasGlobalResourceDeserializerFor<ClassWithPositionalProperty>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithPositionalProperty should not be registered as a global resource');
+          reason:
+              'ClassWithPositionalProperty should not be registered as a global resource');
 
       // Create an instance
       final instance = ClassWithPositionalProperty('test-name');
@@ -122,7 +124,8 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithPositionalProperty>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithPositionalProperty>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, equals(instance.name));
     });
@@ -132,11 +135,13 @@ _:b0 a schema:Person;
       final isRegistered = mapper.registry
           .hasLocalResourceDeserializerFor<ClassWithNonFinalProperty>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithNonFinalProperty should be registered as a local resource');
+          reason:
+              'ClassWithNonFinalProperty should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
           .hasGlobalResourceDeserializerFor<ClassWithNonFinalProperty>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithNonFinalProperty should not be registered as a global resource');
+          reason:
+              'ClassWithNonFinalProperty should not be registered as a global resource');
 
       // Create an instance
       final instance = ClassWithNonFinalProperty(name: 'test-name');
@@ -146,21 +151,25 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithNonFinalProperty>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithNonFinalProperty>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, equals(instance.name));
     });
 
     test('ClassWithNonFinalPropertyWithDefault mapping', () {
       // Verify local resource registration
-      final isRegistered = mapper.registry
-          .hasLocalResourceDeserializerFor<ClassWithNonFinalPropertyWithDefault>();
+      final isRegistered = mapper.registry.hasLocalResourceDeserializerFor<
+          ClassWithNonFinalPropertyWithDefault>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithNonFinalPropertyWithDefault should be registered as a local resource');
+          reason:
+              'ClassWithNonFinalPropertyWithDefault should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
-          .hasGlobalResourceDeserializerFor<ClassWithNonFinalPropertyWithDefault>();
+          .hasGlobalResourceDeserializerFor<
+              ClassWithNonFinalPropertyWithDefault>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithNonFinalPropertyWithDefault should not be registered as a global resource');
+          reason:
+              'ClassWithNonFinalPropertyWithDefault should not be registered as a global resource');
 
       // Create an instance using default value
       final instance = ClassWithNonFinalPropertyWithDefault();
@@ -170,7 +179,8 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithNonFinalPropertyWithDefault>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithNonFinalPropertyWithDefault>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, equals('me myself and I'));
     });
@@ -180,11 +190,14 @@ _:b0 a schema:Person;
       final isRegistered = mapper.registry
           .hasLocalResourceDeserializerFor<ClassWithNonFinalOptionalProperty>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithNonFinalOptionalProperty should be registered as a local resource');
+          reason:
+              'ClassWithNonFinalOptionalProperty should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
-          .hasGlobalResourceDeserializerFor<ClassWithNonFinalOptionalProperty>();
+          .hasGlobalResourceDeserializerFor<
+              ClassWithNonFinalOptionalProperty>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithNonFinalOptionalProperty should not be registered as a global resource');
+          reason:
+              'ClassWithNonFinalOptionalProperty should not be registered as a global resource');
 
       // Create an instance with null value
       final instance = ClassWithNonFinalOptionalProperty();
@@ -194,7 +207,8 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithNonFinalOptionalProperty>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithNonFinalOptionalProperty>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, isNull);
     });
@@ -204,11 +218,13 @@ _:b0 a schema:Person;
       final isRegistered = mapper.registry
           .hasLocalResourceDeserializerFor<ClassWithLateNonFinalProperty>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithLateNonFinalProperty should be registered as a local resource');
+          reason:
+              'ClassWithLateNonFinalProperty should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
           .hasGlobalResourceDeserializerFor<ClassWithLateNonFinalProperty>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithLateNonFinalProperty should not be registered as a global resource');
+          reason:
+              'ClassWithLateNonFinalProperty should not be registered as a global resource');
 
       // Create an instance and set the late property
       final instance = ClassWithLateNonFinalProperty();
@@ -219,7 +235,8 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithLateNonFinalProperty>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithLateNonFinalProperty>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, equals('late-property-name'));
     });
@@ -229,11 +246,13 @@ _:b0 a schema:Person;
       final isRegistered = mapper.registry
           .hasLocalResourceDeserializerFor<ClassWithLateFinalProperty>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithLateFinalProperty should be registered as a local resource');
+          reason:
+              'ClassWithLateFinalProperty should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
           .hasGlobalResourceDeserializerFor<ClassWithLateFinalProperty>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithLateFinalProperty should not be registered as a global resource');
+          reason:
+              'ClassWithLateFinalProperty should not be registered as a global resource');
 
       // Create an instance and set the late final property
       final instance = ClassWithLateFinalProperty();
@@ -244,24 +263,29 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithLateFinalProperty>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithLateFinalProperty>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, equals('late-final-property-name'));
     });
 
     test('ClassWithMixedFinalAndLateFinalProperty mapping', () {
       // Verify local resource registration
-      final isRegistered = mapper.registry
-          .hasLocalResourceDeserializerFor<ClassWithMixedFinalAndLateFinalProperty>();
+      final isRegistered = mapper.registry.hasLocalResourceDeserializerFor<
+          ClassWithMixedFinalAndLateFinalProperty>();
       expect(isRegistered, isTrue,
-          reason: 'ClassWithMixedFinalAndLateFinalProperty should be registered as a local resource');
+          reason:
+              'ClassWithMixedFinalAndLateFinalProperty should be registered as a local resource');
       final isRegisteredAsGlobal = mapper.registry
-          .hasGlobalResourceDeserializerFor<ClassWithMixedFinalAndLateFinalProperty>();
+          .hasGlobalResourceDeserializerFor<
+              ClassWithMixedFinalAndLateFinalProperty>();
       expect(isRegisteredAsGlobal, isFalse,
-          reason: 'ClassWithMixedFinalAndLateFinalProperty should not be registered as a global resource');
+          reason:
+              'ClassWithMixedFinalAndLateFinalProperty should not be registered as a global resource');
 
       // Create an instance
-      final instance = ClassWithMixedFinalAndLateFinalProperty(name: 'test-name');
+      final instance =
+          ClassWithMixedFinalAndLateFinalProperty(name: 'test-name');
       instance.age = 25;
 
       // Test serialization
@@ -269,7 +293,8 @@ _:b0 a schema:Person;
       expect(graph, isNotNull);
 
       // Test deserialization
-      final deserialized = mapper.decodeObject<ClassWithMixedFinalAndLateFinalProperty>(graph);
+      final deserialized =
+          mapper.decodeObject<ClassWithMixedFinalAndLateFinalProperty>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.name, equals('test-name'));
       expect(deserialized.age, equals(25));
