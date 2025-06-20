@@ -162,5 +162,170 @@ void main() {
       expect(titleField.type, 'String');
       expect(titleField.isFinal, isTrue);
     });
+
+    test('should process ClassWithPositionalProperty', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithPositionalProperty')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'lrptm.ClassWithPositionalProperty');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+
+      // Check constructor has positional parameter
+      final constructor = result.constructors.first;
+      expect(constructor.parameters.first.isPositional, isTrue);
+      expect(constructor.parameters.first.name, equals('name'));
+    });
+
+    test('should process ClassWithNonFinalProperty', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithNonFinalProperty')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'lrptm.ClassWithNonFinalProperty');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+
+      // Check field is not final
+      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      expect(nameField.isFinal, isFalse);
+      expect(nameField.type, equals('String'));
+    });
+
+    test('should process ClassWithNonFinalPropertyWithDefault', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithNonFinalPropertyWithDefault')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(
+          result!.className.code, 'lrptm.ClassWithNonFinalPropertyWithDefault');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+
+      // Check field is not final and has default value
+      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      expect(nameField.isFinal, isFalse);
+      expect(nameField.type, equals('String'));
+    });
+
+    test('should process ClassWithNonFinalOptionalProperty', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithNonFinalOptionalProperty')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'lrptm.ClassWithNonFinalOptionalProperty');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+
+      // Check field is nullable and not final
+      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      expect(nameField.isFinal, isFalse);
+      expect(nameField.type, equals('String?'));
+    });
+
+    test('should process ClassWithLateNonFinalProperty', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithLateNonFinalProperty')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'lrptm.ClassWithLateNonFinalProperty');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+
+      // Check field is late and not final
+      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      expect(nameField.isFinal, isFalse);
+      expect(nameField.type, equals('String'));
+      expect(nameField.isLate, isTrue);
+    });
+
+    test('should process ClassWithLateFinalProperty', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithLateFinalProperty')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'lrptm.ClassWithLateFinalProperty');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+
+      // Check field is late final
+      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      expect(nameField.isFinal, isTrue);
+      expect(nameField.type, equals('String'));
+      expect(nameField.isLate, isTrue);
+    });
+
+    test('should process ClassWithMixedFinalAndLateFinalProperty', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithMixedFinalAndLateFinalProperty')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code,
+          'lrptm.ClassWithMixedFinalAndLateFinalProperty');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(2));
+
+      // Check name field is final
+      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      expect(nameField.isFinal, isTrue);
+      expect(nameField.type, equals('String'));
+      expect(nameField.isLate, isFalse);
+
+      // Check age field is late final
+      final ageField = result.fields.firstWhere((f) => f.name == 'age');
+      expect(ageField.isFinal, isTrue);
+      expect(ageField.type, equals('int'));
+      expect(ageField.isLate, isTrue);
+    });
   });
 }

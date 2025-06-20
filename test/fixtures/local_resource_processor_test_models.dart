@@ -32,6 +32,56 @@ class ClassNoRegisterGlobally {
   ClassNoRegisterGlobally({required this.name});
 }
 
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithPositionalProperty {
+  @RdfProperty(SchemaPerson.name)
+  final String name;
+
+  ClassWithPositionalProperty(this.name);
+}
+
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithNonFinalProperty {
+  @RdfProperty(SchemaPerson.name)
+  String name;
+
+  ClassWithNonFinalProperty({required this.name});
+}
+
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithNonFinalPropertyWithDefault {
+  @RdfProperty(SchemaPerson.name)
+  String name = 'me myself and I';
+}
+
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithNonFinalOptionalProperty {
+  @RdfProperty(SchemaPerson.name)
+  String? name = null;
+}
+
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithLateNonFinalProperty {
+  @RdfProperty(SchemaPerson.name)
+  late String name;
+}
+
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithLateFinalProperty {
+  @RdfProperty(SchemaPerson.name)
+  late final String name;
+}
+
+@RdfLocalResource(SchemaPerson.classIri)
+class ClassWithMixedFinalAndLateFinalProperty {
+  @RdfProperty(SchemaPerson.name)
+  final String name;
+  @RdfProperty(SchemaPerson.foafAge)
+  late final int age;
+
+  ClassWithMixedFinalAndLateFinalProperty({required this.name});
+}
+
 @RdfLocalResource.namedMapper('testLocalResourceMapper')
 class ClassWithMapperNamedMapperStrategy {}
 

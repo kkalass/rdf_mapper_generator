@@ -105,3 +105,286 @@ class ClassNoRegisterGloballyMapper implements LocalResourceMapper<ClassNoRegist
 }
 
 
+/// Generated mapper for [ClassWithPositionalProperty] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithPositionalProperty.
+class ClassWithPositionalPropertyMapper implements LocalResourceMapper<ClassWithPositionalProperty> {
+
+
+  /// Constructor
+  const ClassWithPositionalPropertyMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithPositionalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    final name = reader.require<String>(schema.SchemaPerson.name);
+
+    return ClassWithPositionalProperty(
+      name
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithPositionalProperty resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithNonFinalProperty] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithNonFinalProperty.
+class ClassWithNonFinalPropertyMapper implements LocalResourceMapper<ClassWithNonFinalProperty> {
+
+
+  /// Constructor
+  const ClassWithNonFinalPropertyMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithNonFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    final name = reader.require<String>(schema.SchemaPerson.name);
+
+    return ClassWithNonFinalProperty(
+      name: name
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithNonFinalProperty resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithNonFinalPropertyWithDefault] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithNonFinalPropertyWithDefault.
+class ClassWithNonFinalPropertyWithDefaultMapper implements LocalResourceMapper<ClassWithNonFinalPropertyWithDefault> {
+
+
+  /// Constructor
+  const ClassWithNonFinalPropertyWithDefaultMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithNonFinalPropertyWithDefault fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    return ClassWithNonFinalPropertyWithDefault(
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithNonFinalPropertyWithDefault resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithNonFinalOptionalProperty] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithNonFinalOptionalProperty.
+class ClassWithNonFinalOptionalPropertyMapper implements LocalResourceMapper<ClassWithNonFinalOptionalProperty> {
+
+
+  /// Constructor
+  const ClassWithNonFinalOptionalPropertyMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithNonFinalOptionalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    return ClassWithNonFinalOptionalProperty(
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithNonFinalOptionalProperty resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValueIfNotNull(schema.SchemaPerson.name, resource.name)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithLateNonFinalProperty] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithLateNonFinalProperty.
+class ClassWithLateNonFinalPropertyMapper implements LocalResourceMapper<ClassWithLateNonFinalProperty> {
+
+
+  /// Constructor
+  const ClassWithLateNonFinalPropertyMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithLateNonFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    return ClassWithLateNonFinalProperty(
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithLateNonFinalProperty resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithLateFinalProperty] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithLateFinalProperty.
+class ClassWithLateFinalPropertyMapper implements LocalResourceMapper<ClassWithLateFinalProperty> {
+
+
+  /// Constructor
+  const ClassWithLateFinalPropertyMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithLateFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    return ClassWithLateFinalProperty(
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithLateFinalProperty resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithMixedFinalAndLateFinalProperty] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithMixedFinalAndLateFinalProperty.
+class ClassWithMixedFinalAndLateFinalPropertyMapper implements LocalResourceMapper<ClassWithMixedFinalAndLateFinalProperty> {
+
+
+  /// Constructor
+  const ClassWithMixedFinalAndLateFinalPropertyMapper();
+
+  @override
+  IriTerm get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithMixedFinalAndLateFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    final name = reader.require<String>(schema.SchemaPerson.name);
+
+    return ClassWithMixedFinalAndLateFinalProperty(
+      name: name
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithMixedFinalAndLateFinalProperty resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .addValue(schema.SchemaPerson.foafAge, resource.age)
+      .build();
+  }
+
+}
+
+
