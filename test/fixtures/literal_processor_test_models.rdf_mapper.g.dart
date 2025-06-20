@@ -22,9 +22,9 @@ class LiteralStringMapper implements LiteralTermMapper<LiteralString> {
   const LiteralStringMapper();
 
   @override
-  LiteralString fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  LiteralString fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return LiteralString(
-      foo: context.fromLiteralTerm(term)
+      foo: context.fromLiteralTerm(term, bypassDatatypeCheck: true /*we handle the actual final datatype ourselves, just delegate for convenience*/)
       );
   }
 
@@ -48,9 +48,9 @@ class RatingMapper implements LiteralTermMapper<Rating> {
   const RatingMapper();
 
   @override
-  Rating fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  Rating fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return Rating(
-      context.fromLiteralTerm(term)
+      context.fromLiteralTerm(term, bypassDatatypeCheck: true /*we handle the actual final datatype ourselves, just delegate for convenience*/)
       );
   }
 
@@ -74,9 +74,9 @@ class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
   const LocalizedTextMapper();
 
   @override
-  LocalizedText fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  LocalizedText fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return LocalizedText(
-      context.fromLiteralTerm(term),
+      context.fromLiteralTerm(term, bypassDatatypeCheck: true /*we handle the actual final datatype ourselves, just delegate for convenience*/),
             term.language!
       );
   }
@@ -101,9 +101,9 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
   const LiteralDoubleMapper();
 
   @override
-  LiteralDouble fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  LiteralDouble fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return LiteralDouble(
-      foo: context.fromLiteralTerm(term)
+      foo: context.fromLiteralTerm(term, bypassDatatypeCheck: true /*we handle the actual final datatype ourselves, just delegate for convenience*/)
       );
   }
 
@@ -127,9 +127,9 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
   const LiteralIntegerMapper();
 
   @override
-  LiteralInteger fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  LiteralInteger fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return LiteralInteger(
-      value: context.fromLiteralTerm(term)
+      value: context.fromLiteralTerm(term, bypassDatatypeCheck: true /*we handle the actual final datatype ourselves, just delegate for convenience*/)
       );
   }
 
@@ -153,7 +153,7 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
   const TemperatureMapper();
 
   @override
-  Temperature fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  Temperature fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return Temperature.parse(term);
   }
 
@@ -177,7 +177,7 @@ class CustomLocalizedTextMapper implements LiteralTermMapper<CustomLocalizedText
   const CustomLocalizedTextMapper();
 
   @override
-  CustomLocalizedText fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  CustomLocalizedText fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return CustomLocalizedText.fromRdf(term);
   }
 
@@ -201,7 +201,7 @@ class DoubleAsMilliunitMapper implements LiteralTermMapper<DoubleAsMilliunit> {
   const DoubleAsMilliunitMapper();
 
   @override
-  DoubleAsMilliunit fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  DoubleAsMilliunit fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     return DoubleAsMilliunit.fromMilliunit(term);
   }
 

@@ -90,8 +90,6 @@ class CustomLocalizedText {
       CustomLocalizedText(term.value, term.language ?? 'en');
 }
 
-// FIXME: Fix the rdf_mapper_annotations package to not include the datatype for custom constructor
-// FIXME: fix the RdfLiteral.custom examples where a String is used instead of a LiteralTerm.
 @RdfLiteral.custom(
   toLiteralTermMethod: 'toMilliunit',
   fromLiteralTermMethod: 'fromMilliunit',
@@ -136,7 +134,8 @@ class TestLiteralMapper implements LiteralTermMapper<LiteralWithMapper> {
 
   @override
   LiteralWithMapper fromRdfTerm(
-      LiteralTerm term, DeserializationContext context) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     return LiteralWithMapper(term.value);
   }
 
@@ -152,7 +151,8 @@ class TestLiteralMapper2
 
   @override
   LiteralWithMapperInstance fromRdfTerm(
-      LiteralTerm term, DeserializationContext context) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     return LiteralWithMapperInstance(term.value);
   }
 

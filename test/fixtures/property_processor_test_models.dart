@@ -1,6 +1,6 @@
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
-import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:rdf_vocabularies/xsd.dart';
 
@@ -135,12 +135,20 @@ class GlobalResourceMappingTest {
 
 class LiteralMappingTest {
   @RdfProperty(
-    SchemaBook.bookFormat,
+    IriTerm.prevalidated('http://example.org/book/price'),
     literal: LiteralMapping.namedMapper('testLiteralMapper'),
   )
   final double price;
 
   LiteralMappingTest({required this.price});
+}
+
+class LiteralMappingTestCustomDatatype {
+  @RdfProperty(IriTerm.prevalidated('http://example.org/book/price'),
+      literal: LiteralMapping.mapperInstance(DoubleMapper(Xsd.double)))
+  final double price;
+
+  LiteralMappingTestCustomDatatype({required this.price});
 }
 
 class CollectionNoneTest {
@@ -354,7 +362,8 @@ class LiteralMapperImpl implements LiteralTermMapper<LiteralMapperTest> {
 
   @override
   LiteralMapperTest fromRdfTerm(
-      LiteralTerm term, DeserializationContext context) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     // Implementation here
     throw UnimplementedError();
   }

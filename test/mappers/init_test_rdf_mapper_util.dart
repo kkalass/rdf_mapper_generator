@@ -93,7 +93,8 @@ class NamedTestLiteralMapper
 
   @override
   lptm.LiteralWithNamedMapper fromRdfTerm(
-      LiteralTerm term, DeserializationContext context) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     return lptm.LiteralWithNamedMapper(term.value);
   }
 

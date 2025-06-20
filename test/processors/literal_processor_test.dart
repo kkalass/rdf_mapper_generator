@@ -1,6 +1,5 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_generator/src/processors/literal_processor.dart';
-import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:test/test.dart';
 

@@ -7,14 +7,14 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   const {{mapperClassName}}();
 
   @override
-  {{className}} fromRdfTerm(LiteralTerm term, DeserializationContext context) {
+  {{className}} fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     {{#hasMethods}}
     return {{className}}.{{fromLiteralTermMethod}}(term);
     {{/hasMethods}}
     {{^hasMethods}}
     return {{className}}(
       {{#constructorParameters}}
-      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{#value.isRdfValue}}context.fromLiteralTerm(term){{/value.isRdfValue}}{{#value.isRdfLanguageTag}}term.language!{{/value.isRdfLanguageTag}}{{^last}},{{/last}}
+      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{#value.isRdfValue}}context.fromLiteralTerm(term, bypassDatatypeCheck: true /*we handle the actual final datatype ourselves, just delegate for convenience*/){{/value.isRdfValue}}{{#value.isRdfLanguageTag}}term.language!{{/value.isRdfLanguageTag}}{{^last}},{{/last}}
       {{/constructorParameters}});
     {{/hasMethods}}
   }
