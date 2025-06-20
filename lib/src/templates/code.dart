@@ -14,7 +14,7 @@ class Code {
   static const String _aliasStartMarker = '⟨@';
   static const String _aliasEndMarker = '@⟩';
 
-  Code._(this._code, this._imports);
+  const Code._(this._code, this._imports);
 
   Map<String, dynamic> toMap() {
     return {
@@ -33,10 +33,10 @@ class Code {
   }
 
   /// Creates a Code instance with the given code string and no imports
-  Code.literal(String code) : this._(code, {});
+  const Code.literal(String code) : this._(code, const {});
 
   /// Creates a Code instance for a simple value that doesn't require imports
-  factory Code.value(String code) => Code.literal(code);
+  const Code.value(String code) : this.literal(code);
 
   /// Creates a Code instance for a type reference that may require imports
   factory Code.type(String typeName, {String? importUri}) {

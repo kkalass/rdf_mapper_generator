@@ -170,6 +170,11 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
 }
 
 class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
+  static final rdfLanguageDatatype = Code.combine([
+    Code.type('Rdf', importUri: importRdfVocab),
+    Code.value('.langString')
+  ]).toMap();
+
   /// The name of the Dart class being mapped
   final Code className;
 
@@ -231,6 +236,8 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
       'hasRdfValue': rdfValue != null,
       'rdfLanguageTag': rdfLanguageTag?.toMap(),
       'hasRdfLanguageTag': rdfLanguageTag != null,
+      'rdfLanguageDatatype': rdfLanguageDatatype,
+      'hasCustomDatatype': datatype != null || rdfLanguageTag != null,
     };
   }
 }
