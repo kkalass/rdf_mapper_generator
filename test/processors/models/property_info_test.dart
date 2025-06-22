@@ -91,7 +91,8 @@ void main() {
       expect(result, contains('mapper: null'));
     });
 
-    test('equals returns false for non-GlobalResourceMappingInfo instances', () {
+    test('equals returns false for non-GlobalResourceMappingInfo instances',
+        () {
       final instance = GlobalResourceMappingInfo(mapper: null);
       expect(instance, isNot(equals('not a GlobalResourceMappingInfo')));
     });
