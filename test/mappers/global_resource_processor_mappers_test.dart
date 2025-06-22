@@ -5,7 +5,6 @@ import 'package:test/test.dart';
 import '../fixtures/global_resource_processor_test_models.dart';
 import '../fixtures/global_resource_processor_test_models.rdf_mapper.g.dart';
 import 'init_test_rdf_mapper_util.dart';
-import 'iri_processor_mappers_test.dart';
 
 bool isRegisteredGlobalResourceMapper<T>(RdfMapper mapper) {
   return mapper.registry.hasGlobalResourceDeserializerFor<T>() &&
