@@ -157,7 +157,7 @@ void main() {
           'TestIriMapper2');
       expect(annotation.iri!.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.fields, hasLength(1));
     });
     test('should process ClassWithMapperNamedMapperStrategy', () {
       // Act
@@ -415,6 +415,110 @@ void main() {
           contains('thisId'));
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(1));
+    });
+    test('should process ClassWithIriNamedMapperStrategy1Part', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithIriNamedMapperStrategy1Part')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(
+          result!.className.code, 'grptm.ClassWithIriNamedMapperStrategy1Part');
+      var annotation = result.annotation as RdfGlobalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isFalse);
+      expect(annotation.mapper, isNull);
+      expect(annotation.iri, isNotNull);
+      expect(annotation.iri!.template, isNull);
+      expect(annotation.iri!.mapper, isNotNull);
+      expect(annotation.iri!.mapper!.name, equals('testMapper1Part'));
+      expect(annotation.iri!.mapper!.type, isNull);
+      expect(annotation.iri!.mapper!.instance, isNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
+    });
+
+    test('should process ClassWithIriNamedMapperStrategy2Parts', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithIriNamedMapperStrategy2Parts')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code,
+          'grptm.ClassWithIriNamedMapperStrategy2Parts');
+      var annotation = result.annotation as RdfGlobalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isFalse);
+      expect(annotation.mapper, isNull);
+      expect(annotation.iri, isNotNull);
+      expect(annotation.iri!.template, isNull);
+      expect(annotation.iri!.mapper, isNotNull);
+      expect(annotation.iri!.mapper!.name, equals('testMapper2Parts'));
+      expect(annotation.iri!.mapper!.type, isNull);
+      expect(annotation.iri!.mapper!.instance, isNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(2));
+    });
+
+    test('should process ClassWithIriNamedMapperStrategy2PartsSwapped', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(
+          validationContext,
+          libraryElement
+              .getClass2('ClassWithIriNamedMapperStrategy2PartsSwapped')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code,
+          'grptm.ClassWithIriNamedMapperStrategy2PartsSwapped');
+      var annotation = result.annotation as RdfGlobalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isFalse);
+      expect(annotation.mapper, isNull);
+      expect(annotation.iri, isNotNull);
+      expect(annotation.iri!.template, isNull);
+      expect(annotation.iri!.mapper, isNotNull);
+      expect(annotation.iri!.mapper!.name, equals('testMapper2PartsSwapped'));
+      expect(annotation.iri!.mapper!.type, isNull);
+      expect(annotation.iri!.mapper!.instance, isNull);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(2));
+    });
+    test('should process ClassWithIriNamedMapperStrategy2PartsWithProperties',
+        () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(
+          validationContext,
+          libraryElement.getClass2(
+              'ClassWithIriNamedMapperStrategy2PartsWithProperties')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code,
+          'grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties');
+      var annotation = result.annotation as RdfGlobalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isFalse);
+      expect(annotation.mapper, isNull);
+      expect(annotation.iri, isNotNull);
+      expect(annotation.iri!.template, isNull);
+      expect(annotation.iri!.mapper, isNotNull);
+      expect(annotation.iri!.mapper!.name, equals('testMapper3'));
+      expect(annotation.iri!.mapper!.type, isNull);
+      expect(annotation.iri!.mapper!.instance, isNull);
+      expect(result.constructors, hasLength(1));
+      expect(
+          result.fields, hasLength(5)); // id, version, givenName, surname, age
     });
   });
 }

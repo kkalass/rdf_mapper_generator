@@ -32,7 +32,6 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   @override
   BookWithMapper fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     // Extract IRI parts
     final (id, ) = _iriMapper.fromRdfTerm(subject, context);
@@ -80,7 +79,6 @@ class BookWithMapperInstanceMapper implements GlobalResourceMapper<BookWithMappe
 
   @override
   BookWithMapperInstance fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final (id, ) = _iriMapper.fromRdfTerm(subject, context);
@@ -123,7 +121,6 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
 
   @override
   BookWithTemplate fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);

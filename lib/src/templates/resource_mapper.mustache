@@ -40,7 +40,6 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#needsReader}}
     final reader = context.reader(subject);
     {{/needsReader}}
-    
 
     {{#hasIriStrategy}}
     {{#iriStrategy}}
@@ -50,16 +49,20 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/hasTemplate}}
     {{#hasMapper}}
     {{#hasIriMapperParts}}
-    final ({{#iriMapperParts}}{{value.dartPropertyName}}, {{/iriMapperParts}}) = _iriMapper.fromRdfTerm(subject, context);
+    final ({{#iriMapperParts}}{{^value.isRdfProperty}}{{value.dartPropertyName}}, {{/value.isRdfProperty}}{{#value.isRdfProperty}}_ ,{{/value.isRdfProperty}}{{/iriMapperParts}}) = _iriMapper.fromRdfTerm(subject, context);
     {{/hasIriMapperParts}}
     {{/hasMapper}}
     {{/iriStrategy}}
     {{/hasIriStrategy}}
     
     {{#constructorParametersOrOtherFields}}
+    {{^value.isRdfProperty}}
     {{#value.isIriPart}}
+    {{#iriStrategy.hasTemplate}}
     final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    {{/iriStrategy.hasTemplate}}
     {{/value.isIriPart}}
+    {{/value.isRdfProperty}}
     {{#value.isRdfProperty}}
     final {{value.dartType}} {{value.name}} = reader.{{#value.isRequired}}require{{/value.isRequired}}{{^value.isRequired}}optional{{/value.isRequired}}({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isRdfProperty}}

@@ -31,7 +31,7 @@ class NamedTestGlobalResourceMapper
   @override
   grptm.ClassWithMapperNamedMapperStrategy fromRdfResource(
       IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+    return grptm.ClassWithMapperNamedMapperStrategy();
   }
 
   @override
@@ -39,7 +39,10 @@ class NamedTestGlobalResourceMapper
       grptm.ClassWithMapperNamedMapperStrategy value,
       SerializationContext context,
       {RdfSubject? parentSubject}) {
-    throw UnimplementedError();
+    return context
+        .resourceBuilder(IriTerm(
+            'http://example.org/instance/ClassWithMapperNamedMapperStrategy'))
+        .build();
   }
 
   @override
@@ -54,7 +57,7 @@ class NamedTestLocalResourceMapper
   @override
   lrptm.ClassWithMapperNamedMapperStrategy fromRdfResource(
       BlankNodeTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+    return lrptm.ClassWithMapperNamedMapperStrategy();
   }
 
   @override
@@ -62,7 +65,7 @@ class NamedTestLocalResourceMapper
       lrptm.ClassWithMapperNamedMapperStrategy value,
       SerializationContext context,
       {RdfSubject? parentSubject}) {
-    throw UnimplementedError();
+    return context.resourceBuilder(BlankNodeTerm()).build();
   }
 
   @override

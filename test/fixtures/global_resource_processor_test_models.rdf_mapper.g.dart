@@ -30,7 +30,6 @@ class BookMapper implements GlobalResourceMapper<Book> {
   @override
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -103,7 +102,6 @@ class ClassWithEmptyIriStrategyMapper implements GlobalResourceMapper<ClassWithE
 
   @override
   ClassWithEmptyIriStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -171,7 +169,6 @@ class ClassWithNoRdfTypeMapper implements GlobalResourceMapper<ClassWithNoRdfTyp
   @override
   ClassWithNoRdfType fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -244,7 +241,6 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper implements GlobalResourc
 
   @override
   ClassWithEmptyIriStrategyNoRegisterGlobally fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -311,7 +307,6 @@ class ClassWithIriTemplateStrategyMapper implements GlobalResourceMapper<ClassWi
 
   @override
   ClassWithIriTemplateStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -383,7 +378,6 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper implements GlobalReso
 
   @override
   ClassWithIriTemplateAndContextVariableStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -456,7 +450,6 @@ class ClassWithOtherBaseUriNonGlobalMapper implements GlobalResourceMapper<Class
 
   @override
   ClassWithOtherBaseUriNonGlobal fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
@@ -526,7 +519,6 @@ class ClassWithIriNamedMapperStrategyMapper implements GlobalResourceMapper<Clas
 
   @override
   ClassWithIriNamedMapperStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     
@@ -551,6 +543,195 @@ class ClassWithIriNamedMapperStrategyMapper implements GlobalResourceMapper<Clas
 }
 
 
+/// Generated mapper for [ClassWithIriNamedMapperStrategy1Part] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy1Part.
+class ClassWithIriNamedMapperStrategy1PartMapper implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy1Part> {
+
+  final IriTermMapper<(String id,)> _iriMapper;
+
+  /// Constructor
+  const ClassWithIriNamedMapperStrategy1PartMapper({
+    required IriTermMapper<(String id,)> iriMapper
+  }) : _iriMapper = iriMapper;
+
+  @override
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithIriNamedMapperStrategy1Part fromRdfResource(IriTerm subject, DeserializationContext context) {
+
+    // Extract IRI parts
+    final (id, ) = _iriMapper.fromRdfTerm(subject, context);
+    
+
+    final retval = ClassWithIriNamedMapperStrategy1Part(
+      id: id
+    );
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    ClassWithIriNamedMapperStrategy1Part resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = _iriMapper.toRdfTerm((resource.id, ) , context);
+    
+    return context.resourceBuilder(subject)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithIriNamedMapperStrategy2Parts] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2Parts.
+class ClassWithIriNamedMapperStrategy2PartsMapper implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy2Parts> {
+
+  final IriTermMapper<(String id, int version,)> _iriMapper;
+
+  /// Constructor
+  const ClassWithIriNamedMapperStrategy2PartsMapper({
+    required IriTermMapper<(String id, int version,)> iriMapper
+  }) : _iriMapper = iriMapper;
+
+  @override
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithIriNamedMapperStrategy2Parts fromRdfResource(IriTerm subject, DeserializationContext context) {
+
+    // Extract IRI parts
+    final (id, version, ) = _iriMapper.fromRdfTerm(subject, context);
+    
+
+    final retval = ClassWithIriNamedMapperStrategy2Parts(
+      id: id,
+      version: version
+    );
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    ClassWithIriNamedMapperStrategy2Parts resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = _iriMapper.toRdfTerm((resource.id, resource.version, ) , context);
+    
+    return context.resourceBuilder(subject)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithIriNamedMapperStrategy2PartsSwapped] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2PartsSwapped.
+class ClassWithIriNamedMapperStrategy2PartsSwappedMapper implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy2PartsSwapped> {
+
+  final IriTermMapper<(int version, String id,)> _iriMapper;
+
+  /// Constructor
+  const ClassWithIriNamedMapperStrategy2PartsSwappedMapper({
+    required IriTermMapper<(int version, String id,)> iriMapper
+  }) : _iriMapper = iriMapper;
+
+  @override
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithIriNamedMapperStrategy2PartsSwapped fromRdfResource(IriTerm subject, DeserializationContext context) {
+
+    // Extract IRI parts
+    final (version, id, ) = _iriMapper.fromRdfTerm(subject, context);
+    
+
+    final retval = ClassWithIriNamedMapperStrategy2PartsSwapped(
+      id: id,
+      version: version
+    );
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    ClassWithIriNamedMapperStrategy2PartsSwapped resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = _iriMapper.toRdfTerm((resource.version, resource.id, ) , context);
+    
+    return context.resourceBuilder(subject)
+      .build();
+  }
+
+}
+
+
+/// Generated mapper for [ClassWithIriNamedMapperStrategy2PartsWithProperties] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2PartsWithProperties.
+class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy2PartsWithProperties> {
+
+  final IriTermMapper<(String id, String surname, int version,)> _iriMapper;
+
+  /// Constructor
+  const ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper({
+    required IriTermMapper<(String id, String surname, int version,)> iriMapper
+  }) : _iriMapper = iriMapper;
+
+  @override
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithIriNamedMapperStrategy2PartsWithProperties fromRdfResource(IriTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+
+    // Extract IRI parts
+    final (id, _ ,version, ) = _iriMapper.fromRdfTerm(subject, context);
+    
+    final String givenName = reader.require(schema.SchemaPerson.givenName);
+    final String surname = reader.require(schema.SchemaPerson.foafSurname);
+    final int? age = reader.optional(schema.SchemaPerson.foafAge);
+
+    final retval = ClassWithIriNamedMapperStrategy2PartsWithProperties(
+    );
+    retval.id = id;
+    retval.version = version;
+    retval.givenName = givenName;
+    retval.surname = surname;
+    retval.age = age;
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    ClassWithIriNamedMapperStrategy2PartsWithProperties resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = _iriMapper.toRdfTerm((resource.id, resource.surname, resource.version, ) , context);
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.givenName, resource.givenName)
+      .addValue(schema.SchemaPerson.foafSurname, resource.surname)
+      .addValueIfNotNull(schema.SchemaPerson.foafAge, resource.age)
+      .build();
+  }
+
+}
+
+
 /// Generated mapper for [ClassWithIriMapperStrategy] global resources.
 /// 
 /// This mapper handles serialization and deserialization between Dart objects
@@ -569,7 +750,6 @@ class ClassWithIriMapperStrategyMapper implements GlobalResourceMapper<ClassWith
 
   @override
   ClassWithIriMapperStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
 
     // Extract IRI parts
     
@@ -612,12 +792,14 @@ class ClassWithIriMapperInstanceStrategyMapper implements GlobalResourceMapper<C
 
   @override
   ClassWithIriMapperInstanceStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
-    
+    final reader = context.reader(subject);
 
     // Extract IRI parts
     
+    final String name = reader.require(schema.SchemaPerson.name);
 
     final retval = ClassWithIriMapperInstanceStrategy(
+      name: name
     );
     return retval;
   }
@@ -631,6 +813,7 @@ class ClassWithIriMapperInstanceStrategyMapper implements GlobalResourceMapper<C
     final subject = _iriMapper.toRdfTerm(resource, context);
     
     return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
       .build();
   }
 

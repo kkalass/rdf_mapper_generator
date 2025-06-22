@@ -1,3 +1,4 @@
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:test/test.dart';
 
@@ -5,6 +6,96 @@ import 'package:test/test.dart';
 import '../fixtures/global_resource_processor_test_models.dart';
 import '../fixtures/global_resource_processor_test_models.rdf_mapper.g.dart';
 import 'init_test_rdf_mapper_util.dart';
+
+/// IRI mapper for single part tuple (String id)
+class _TestMapper1Part implements IriTermMapper<(String,)> {
+  const _TestMapper1Part();
+
+  @override
+  (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract ID from IRI like http://example.org/1part/test-id
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/1part/(.+)$').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid IRI format: $iri');
+    }
+    return (match.group(1)!,);
+  }
+
+  @override
+  IriTerm toRdfTerm((String,) value, SerializationContext context) {
+    return IriTerm('http://example.org/1part/${value.$1}');
+  }
+}
+
+/// IRI mapper for two part tuple (String id, int version)
+class _TestMapper2Parts implements IriTermMapper<(String, int)> {
+  const _TestMapper2Parts();
+
+  @override
+  (String, int) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract ID and version from IRI like http://example.org/2parts/test-id/42
+    final iri = term.iri;
+    final match =
+        RegExp(r'http://example\.org/2parts/([^/]+)/(\d+)$').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid IRI format: $iri');
+    }
+    return (match.group(1)!, int.parse(match.group(2)!));
+  }
+
+  @override
+  IriTerm toRdfTerm((String, int) value, SerializationContext context) {
+    return IriTerm('http://example.org/2parts/${value.$1}/${value.$2}');
+  }
+}
+
+/// IRI mapper for swapped two part tuple (int version, String id)
+class _TestMapper2PartsSwapped implements IriTermMapper<(int, String)> {
+  const _TestMapper2PartsSwapped();
+
+  @override
+  (int, String) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract version and ID from IRI like http://example.org/swapped/99/test-id
+    final iri = term.iri;
+    final match =
+        RegExp(r'http://example\.org/swapped/(\d+)/([^/]+)$').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid IRI format: $iri');
+    }
+    return (int.parse(match.group(1)!), match.group(2)!);
+  }
+
+  @override
+  IriTerm toRdfTerm((int, String) value, SerializationContext context) {
+    return IriTerm('http://example.org/swapped/${value.$1}/${value.$2}');
+  }
+}
+
+/// IRI mapper for three part tuple with properties (String id, String surname, int version)
+class _TestMapper3PartsWithProperties
+    implements IriTermMapper<(String, String, int)> {
+  const _TestMapper3PartsWithProperties();
+
+  @override
+  (String, String, int) fromRdfTerm(
+      IriTerm term, DeserializationContext context) {
+    // Extract ID, surname, and version from IRI like http://example.org/3parts/test-id/smith/42
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/3parts/([^/]+)/([^/]+)/(\d+)$')
+        .firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid IRI format: $iri');
+    }
+    return (match.group(1)!, match.group(2)!, int.parse(match.group(3)!));
+  }
+
+  @override
+  IriTerm toRdfTerm((String, String, int) value, SerializationContext context) {
+    return IriTerm(
+        'http://example.org/3parts/${value.$1}/${value.$2}/${value.$3}');
+  }
+}
 
 bool isRegisteredGlobalResourceMapper<T>(RdfMapper mapper) {
   return mapper.registry.hasGlobalResourceDeserializerFor<T>() &&
@@ -91,10 +182,15 @@ void main() {
                 otherBaseUriProvider: () => 'https://other.example.org',
               )));
       expect(graph, isNotNull);
-      expect(graph, contains('https://other.example.org/persons/context-var'));
+      expect(graph, contains('persons: <https://other.example.org/persons/>'));
+      expect(graph, contains('persons:context-var'));
       // Test deserialization
-      final deserialized =
-          mapper.decodeObject<ClassWithOtherBaseUriNonGlobal>(graph);
+      final deserialized = mapper.decodeObject<ClassWithOtherBaseUriNonGlobal>(
+          graph,
+          register: (registry) =>
+              registry.registerMapper(ClassWithOtherBaseUriNonGlobalMapper(
+                otherBaseUriProvider: () => 'https://other.example.org',
+              )));
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(instance.id));
     });
@@ -125,7 +221,8 @@ void main() {
     });
 
     test('ClassWithIriMapperInstanceStrategy mapping', () {
-      final instance = ClassWithIriMapperInstanceStrategy();
+      final instance =
+          ClassWithIriMapperInstanceStrategy(name: 'Test Instance');
       final graph = mapper.encodeObject(instance);
       expect(graph, isNotNull);
       final decoded =
@@ -218,6 +315,218 @@ ex:no-register a schema:Person .
       expect(deserialized, isNotNull);
       expect(deserialized.iri, equals(instance.iri));
       expect(deserialized.name, equals(instance.name));
+      expect(deserialized.age, equals(instance.age));
+    });
+
+    test('ClassWithIriNamedMapperStrategy1Part mapping', () {
+      expect(
+          mapper.registry.hasGlobalResourceDeserializerFor<
+              ClassWithIriNamedMapperStrategy1Part>(),
+          isFalse,
+          reason:
+              'ClassWithIriNamedMapperStrategy1Part should not be registered globally');
+
+      final instance = ClassWithIriNamedMapperStrategy1Part(id: 'test-id');
+
+      // Create IRI mapper for single part tuple
+      final iriMapper = _TestMapper1Part();
+
+      // Test serialization with explicit registration
+      final graph = mapper.encodeObject(instance,
+          register: (r) => r.registerMapper(
+              ClassWithIriNamedMapperStrategy1PartMapper(
+                  iriMapper: iriMapper)));
+      expect(graph, isNotNull);
+      expect(graph, contains('ex:test-id'));
+      expect(graph, contains('<http://example.org/1part/>'));
+
+      // Test deserialization
+      final deserialized =
+          mapper.decodeObject<ClassWithIriNamedMapperStrategy1Part>(graph,
+              register: (r) => r.registerMapper(
+                  ClassWithIriNamedMapperStrategy1PartMapper(
+                      iriMapper: iriMapper)));
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(instance.id));
+    });
+
+    test('ClassWithIriNamedMapperStrategy2Parts mapping', () {
+      expect(
+          mapper.registry.hasGlobalResourceDeserializerFor<
+              ClassWithIriNamedMapperStrategy2Parts>(),
+          isFalse,
+          reason:
+              'ClassWithIriNamedMapperStrategy2Parts should not be registered globally');
+
+      final instance =
+          ClassWithIriNamedMapperStrategy2Parts(id: 'test-id', version: 42);
+
+      // Create IRI mapper for two part tuple
+      final iriMapper = _TestMapper2Parts();
+
+      // Test serialization with explicit registration
+      final graph = mapper.encodeObject(instance,
+          register: (r) => r.registerMapper(
+              ClassWithIriNamedMapperStrategy2PartsMapper(
+                  iriMapper: iriMapper)));
+      expect(graph, isNotNull);
+      expect(graph, contains('http://example.org/2parts/test-id/42'));
+
+      // Test deserialization
+      final deserialized =
+          mapper.decodeObject<ClassWithIriNamedMapperStrategy2Parts>(graph,
+              register: (r) => r.registerMapper(
+                  ClassWithIriNamedMapperStrategy2PartsMapper(
+                      iriMapper: iriMapper)));
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(instance.id));
+      expect(deserialized.version, equals(instance.version));
+    });
+
+    test('ClassWithIriNamedMapperStrategy2PartsSwapped mapping', () {
+      expect(
+          mapper.registry.hasGlobalResourceDeserializerFor<
+              ClassWithIriNamedMapperStrategy2PartsSwapped>(),
+          isFalse,
+          reason:
+              'ClassWithIriNamedMapperStrategy2PartsSwapped should not be registered globally');
+
+      final instance = ClassWithIriNamedMapperStrategy2PartsSwapped(
+          id: 'test-id', version: 99);
+
+      // Create IRI mapper for swapped two part tuple (version, id)
+      final iriMapper = _TestMapper2PartsSwapped();
+
+      // Test serialization with explicit registration
+      final graph = mapper.encodeObject(instance,
+          register: (r) => r.registerMapper(
+              ClassWithIriNamedMapperStrategy2PartsSwappedMapper(
+                  iriMapper: iriMapper)));
+      expect(graph, isNotNull);
+      expect(graph, contains('swapped:test-id'));
+      expect(graph, contains('<http://example.org/swapped/99/>'));
+
+      // Test deserialization
+      final deserialized = mapper
+          .decodeObject<ClassWithIriNamedMapperStrategy2PartsSwapped>(graph,
+              register: (r) => r.registerMapper(
+                  ClassWithIriNamedMapperStrategy2PartsSwappedMapper(
+                      iriMapper: iriMapper)));
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(instance.id));
+      expect(deserialized.version, equals(instance.version));
+    });
+
+    test('ClassWithMapperNamedMapperStrategy mapping', () {
+      // Note: This class uses a named mapper strategy that requires external setup.
+      // The class should be globally registered, but the actual mapper implementation
+      // should fail because testGlobalResourceMapper is not properly implemented.
+      final instance = ClassWithMapperNamedMapperStrategy();
+
+      final turtle = mapper.encodeObject(instance);
+      expect(
+          turtle.trim(),
+          '''
+@prefix g: <http://example.org/g/> .
+@prefix instance: <http://example.org/instance/> .
+
+instance:ClassWithMapperNamedMapperStrategy a g:ClassWithMapperNamedMapperStrategy .
+'''
+              .trim());
+      final deserialized =
+          mapper.decodeObject<ClassWithMapperNamedMapperStrategy>(turtle);
+      expect(deserialized, isA<ClassWithMapperNamedMapperStrategy>());
+    });
+
+    test('ClassWithMapperStrategy mapping', () {
+      expect(
+          mapper.registry
+              .hasGlobalResourceDeserializerFor<ClassWithMapperStrategy>(),
+          isTrue,
+          reason: 'ClassWithMapperStrategy should be registered globally');
+
+      final instance = ClassWithMapperStrategy();
+
+      final turtle = mapper.encodeObject(instance);
+      expect(
+          turtle.trim(),
+          '''
+@prefix g: <http://example.org/g/> .
+@prefix instance: <http://example.org/instance/> .
+
+instance:ClassWithMapperStrategy a g:ClassWithMapperStrategy .
+'''
+              .trim());
+      final deserialized = mapper.decodeObject<ClassWithMapperStrategy>(turtle);
+      expect(deserialized, isA<ClassWithMapperStrategy>());
+    });
+
+    test('ClassWithMapperInstanceStrategy mapping', () {
+      expect(
+          mapper.registry.hasGlobalResourceDeserializerFor<
+              ClassWithMapperInstanceStrategy>(),
+          isTrue,
+          reason:
+              'ClassWithMapperInstanceStrategy should be registered globally');
+
+      final instance = ClassWithMapperInstanceStrategy();
+
+      final turtle = mapper.encodeObject(instance);
+      expect(
+          turtle.trim(),
+          '''
+@prefix g: <http://example.org/g/> .
+@prefix instance: <http://example.org/instance/> .
+
+instance:ClassWithMapperInstanceStrategy a g:ClassWithMapperInstanceStrategy .
+'''
+              .trim());
+      final deserialized =
+          mapper.decodeObject<ClassWithMapperInstanceStrategy>(turtle);
+      expect(deserialized, isA<ClassWithMapperInstanceStrategy>());
+    });
+
+    test('ClassWithIriNamedMapperStrategy2PartsWithProperties mapping', () {
+      expect(
+          mapper.registry.hasGlobalResourceDeserializerFor<
+              ClassWithIriNamedMapperStrategy2PartsWithProperties>(),
+          isFalse,
+          reason:
+              'ClassWithIriNamedMapperStrategy2PartsWithProperties should not be registered globally');
+
+      final instance = ClassWithIriNamedMapperStrategy2PartsWithProperties();
+      instance.id = 'test-id';
+      instance.surname = 'smith';
+      instance.version = 42;
+      instance.givenName = 'John';
+      instance.age = 30;
+
+      // Create IRI mapper for three part tuple with properties
+      final iriMapper = _TestMapper3PartsWithProperties();
+
+      // Test serialization with explicit registration
+      final graph = mapper.encodeObject(instance,
+          register: (r) => r.registerMapper(
+              ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
+                  iriMapper: iriMapper)));
+      expect(graph, isNotNull);
+      expect(graph, contains('http://example.org/3parts/test-id/smith/42'));
+      expect(graph, contains('John')); // givenName
+      expect(graph, contains('smith')); // surname
+      expect(graph, contains('30')); // age
+
+      // Test deserialization
+      final deserialized = mapper
+          .decodeObject<ClassWithIriNamedMapperStrategy2PartsWithProperties>(
+              graph,
+              register: (r) => r.registerMapper(
+                  ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
+                      iriMapper: iriMapper)));
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(instance.id));
+      expect(deserialized.surname, equals(instance.surname));
+      expect(deserialized.version, equals(instance.version));
+      expect(deserialized.givenName, equals(instance.givenName));
       expect(deserialized.age, equals(instance.age));
     });
   });

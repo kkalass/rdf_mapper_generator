@@ -29,7 +29,6 @@ class BookMapper implements LocalResourceMapper<Book> {
   @override
   Book fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String isbn = reader.require(schema.SchemaBook.isbn);
@@ -78,7 +77,6 @@ class ClassNoRegisterGloballyMapper implements LocalResourceMapper<ClassNoRegist
   @override
   ClassNoRegisterGlobally fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -121,7 +119,6 @@ class ClassWithNoRdfTypeMapper implements LocalResourceMapper<ClassWithNoRdfType
   @override
   ClassWithNoRdfType fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -167,7 +164,6 @@ class ClassWithPositionalPropertyMapper implements LocalResourceMapper<ClassWith
   @override
   ClassWithPositionalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -210,7 +206,6 @@ class ClassWithNonFinalPropertyMapper implements LocalResourceMapper<ClassWithNo
   @override
   ClassWithNonFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -253,7 +248,6 @@ class ClassWithNonFinalPropertyWithDefaultMapper implements LocalResourceMapper<
   @override
   ClassWithNonFinalPropertyWithDefault fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -296,7 +290,6 @@ class ClassWithNonFinalOptionalPropertyMapper implements LocalResourceMapper<Cla
   @override
   ClassWithNonFinalOptionalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String? name = reader.optional(schema.SchemaPerson.name);
@@ -339,7 +332,6 @@ class ClassWithLateNonFinalPropertyMapper implements LocalResourceMapper<ClassWi
   @override
   ClassWithLateNonFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -382,7 +374,6 @@ class ClassWithLateFinalPropertyMapper implements LocalResourceMapper<ClassWithL
   @override
   ClassWithLateFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);
@@ -425,7 +416,6 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper implements LocalResourceMapp
   @override
   ClassWithMixedFinalAndLateFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
-    
 
     
     final String name = reader.require(schema.SchemaPerson.name);

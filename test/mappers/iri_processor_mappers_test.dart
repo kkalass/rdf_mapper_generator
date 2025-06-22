@@ -297,20 +297,19 @@ void main() {
       // Create an instance
       final value = IriWithNonConstructorFieldsAndBaseUriNonGlobal();
       value.id = 'test-id-123';
-
-      final term = serialize(value,
-          registry: mapper.registry.clone()
-            ..registerMapper(
-                IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper(
-              myBaseUriProvider: () => 'http://my.example.org/',
-            )));
+      final registry = mapper.registry.clone()
+        ..registerMapper(IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper(
+          myBaseUriProvider: () => 'http://my.example.org',
+        ));
+      final term = serialize(value, registry: registry);
       expect(term, isNotNull);
       expect(
           term.toString(), equals('<http://my.example.org/items/test-id-123>'));
 
       // Test deserialization
       final deserialized =
-          deserialize<IriWithNonConstructorFieldsAndBaseUriNonGlobal>(term);
+          deserialize<IriWithNonConstructorFieldsAndBaseUriNonGlobal>(term,
+              registry: registry);
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(value.id));
     });

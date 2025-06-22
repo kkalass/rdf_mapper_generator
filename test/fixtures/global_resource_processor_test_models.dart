@@ -88,12 +88,74 @@ class ClassWithOtherBaseUriNonGlobal {
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy.namedMapper('testMapper'))
 class ClassWithIriNamedMapperStrategy {}
 
+@RdfGlobalResource(
+    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper1Part'),
+    registerGlobally: false)
+class ClassWithIriNamedMapperStrategy1Part {
+  @RdfIriPart()
+  final String id;
+
+  ClassWithIriNamedMapperStrategy1Part({required this.id});
+}
+
+@RdfGlobalResource(
+    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper2Parts'),
+    registerGlobally: false)
+class ClassWithIriNamedMapperStrategy2Parts {
+  @RdfIriPart.position(1)
+  final String id;
+  @RdfIriPart.position(2)
+  final int version;
+
+  ClassWithIriNamedMapperStrategy2Parts(
+      {required this.id, required this.version});
+}
+
+@RdfGlobalResource(
+    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper2PartsSwapped'),
+    registerGlobally: false)
+class ClassWithIriNamedMapperStrategy2PartsSwapped {
+  @RdfIriPart.position(2)
+  final String id;
+  @RdfIriPart.position(1)
+  final int version;
+
+  ClassWithIriNamedMapperStrategy2PartsSwapped(
+      {required this.id, required this.version});
+}
+
+@RdfGlobalResource(
+    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper3'),
+    registerGlobally: false)
+class ClassWithIriNamedMapperStrategy2PartsWithProperties {
+  @RdfIriPart.position(1)
+  late final String id;
+
+  @RdfIriPart.position(3)
+  late int version;
+
+  @RdfProperty(SchemaPerson.givenName)
+  late String givenName;
+
+  @RdfIriPart.position(2)
+  @RdfProperty(SchemaPerson.foafSurname)
+  late String surname;
+
+  @RdfProperty(SchemaPerson.foafAge)
+  int? age;
+}
+
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy.mapper(TestIriMapper))
 class ClassWithIriMapperStrategy {}
 
 @RdfGlobalResource(
     SchemaPerson.classIri, IriStrategy.mapperInstance(TestIriMapper2()))
-class ClassWithIriMapperInstanceStrategy {}
+class ClassWithIriMapperInstanceStrategy {
+  @RdfProperty(SchemaPerson.name)
+  final String name;
+
+  ClassWithIriMapperInstanceStrategy({required this.name});
+}
 
 @RdfGlobalResource.namedMapper('testGlobalResourceMapper')
 class ClassWithMapperNamedMapperStrategy {}
@@ -110,13 +172,16 @@ class TestGlobalResourceMapper
 
   @override
   fromRdfResource(IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+    return ClassWithMapperStrategy();
   }
 
   @override
   (IriTerm, List<Triple>) toRdfResource(value, SerializationContext context,
       {RdfSubject? parentSubject}) {
-    throw UnimplementedError();
+    return context
+        .resourceBuilder(
+            IriTerm('http://example.org/instance/ClassWithMapperStrategy'))
+        .build();
   }
 
   @override
@@ -130,13 +195,17 @@ class TestGlobalResourceMapper2
 
   @override
   fromRdfResource(IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+    return ClassWithMapperInstanceStrategy();
   }
 
   @override
   (IriTerm, List<Triple>) toRdfResource(value, SerializationContext context,
       {RdfSubject? parentSubject}) {
-    throw UnimplementedError();
+    return context
+        .resourceBuilder(IriTerm(
+          'http://example.org/instance/ClassWithMapperInstanceStrategy',
+        ))
+        .build();
   }
 
   @override
@@ -151,7 +220,8 @@ class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
   @override
   ClassWithIriMapperStrategy fromRdfTerm(
       IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+    throw UnimplementedError(
+        'fromRdfTerm cannot be implemented for TestIriMapper');
   }
 
   @override
@@ -167,7 +237,8 @@ class TestIriMapper2
 
   @override
   fromRdfTerm(IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+    throw UnimplementedError(
+        'fromRdfTerm cannot be implemented for TestIriMapper2');
   }
 
   @override

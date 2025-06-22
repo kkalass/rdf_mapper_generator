@@ -189,6 +189,7 @@ class DataBuilder {
       ]),
       annotation.iriParts,
       annotation.templateInfo,
+      const [] /* no rdf properties for RdfIri annotated classes*/,
     )!;
     if (iriData.template == null) {
       throw Exception(
@@ -266,7 +267,8 @@ class DataBuilder {
         iriStrategy.mapper,
         iriStrategy.iriMapperType?.type,
         iriStrategy.iriMapperType?.parts,
-        iriStrategy.templateInfo);
+        iriStrategy.templateInfo,
+        resourceInfo.fields);
   }
 
   /// Builds IRI strategy data.
@@ -275,7 +277,8 @@ class DataBuilder {
       MapperRefInfo<IriTermMapper>? mapper,
       Code? type,
       List<IriPartInfo>? iriParts,
-      IriTemplateInfo? templateInfo) {
+      IriTemplateInfo? templateInfo,
+      List<FieldInfo>? fields) {
     MapperRefData? mapperRef;
     if (mapper != null && type != null) {
       if (mapper.name != null) {
@@ -303,10 +306,16 @@ class DataBuilder {
         );
       }
     }
+    final rdfPropertyFields = fields
+        ?.where((f) => f.propertyInfo != null)
+        .map((f) => f.propertyInfo!.name)
+        .toSet();
     final iriMapperParts = iriParts
             ?.map((p) => IriPartData(
                   name: p.name,
                   dartPropertyName: p.dartPropertyName,
+                  isRdfProperty:
+                      rdfPropertyFields?.contains(p.dartPropertyName) ?? false,
                 ))
             .toList() ??
         [];

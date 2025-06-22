@@ -479,15 +479,18 @@ class IriTemplateData {
 class IriPartData {
   final String name;
   final String dartPropertyName;
+  final bool isRdfProperty;
 
   const IriPartData({
     required this.name,
     required this.dartPropertyName,
+    required this.isRdfProperty,
   });
 
   Map<String, dynamic> toMap() => {
         'name': name,
         'dartPropertyName': dartPropertyName,
+        'isRdfProperty': isRdfProperty,
       };
 }
 
