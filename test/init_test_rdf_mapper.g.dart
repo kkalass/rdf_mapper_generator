@@ -7,94 +7,184 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'fixtures/annotation_test_models.dart' as atm;
 import 'fixtures/annotation_test_models.rdf_mapper.g.dart' as atmrmg;
 import 'fixtures/global_resource_processor_test_models.dart' as grptm;
-import 'fixtures/global_resource_processor_test_models.rdf_mapper.g.dart' as grptmrmg;
+import 'fixtures/global_resource_processor_test_models.rdf_mapper.g.dart'
+    as grptmrmg;
 import 'fixtures/iri_processor_test_models.dart' as iptm;
 import 'fixtures/iri_processor_test_models.rdf_mapper.g.dart' as iptmrmg;
 import 'fixtures/literal_processor_test_models.dart' as lptm;
 import 'fixtures/literal_processor_test_models.rdf_mapper.g.dart' as lptmrmg;
 import 'fixtures/local_resource_processor_test_models.dart' as lrptm;
-import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart' as lrptmrmg;
+import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart'
+    as lrptmrmg;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
-/// 
+///
 /// [rdfMapper] An optional RdfMapper instance to use. If not provided, a new one will be created.
 /// Provider parameters:
 /// * [baseUriProvider] {+baseUri}
 /// named mapper parameters:
-/// * [testGlobalResourceMapper] mapper 
-/// * [testIriMapper] mapper 
-/// * [testLiteralMapper] mapper 
-/// * [testLocalResourceMapper] mapper 
-/// * [testMapper] mapper 
-/// * [testMapper3] mapper 
+/// * [testGlobalResourceMapper] mapper
+/// * [testIriMapper] mapper
+/// * [testLiteralMapper] mapper
+/// * [testLocalResourceMapper] mapper
+/// * [testMapper] mapper
+/// * [testMapper3] mapper
 RdfMapper initTestRdfMapper({
   RdfMapper? rdfMapper,
   // Provider parameters
   required String Function() baseUriProvider,
   // Named mapper parameters
-  required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy> testGlobalResourceMapper,
+  required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>
+  testGlobalResourceMapper,
   required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
   required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
-  required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy> testLocalResourceMapper,
+  required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>
+  testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
-  required IriTermMapper<(String id, String surname, int version,)> testMapper3,
+  required IriTermMapper<(String id, String surname, int version)> testMapper3,
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
   }
   var registry = rdfMapper.registry;
 
-  registry.registerMapper<atm.BookWithMapper>(atmrmg.BookWithMapperMapper(iriMapper:const atm.TestMapper(prefix: 'https://example.org/books'), ));
-  registry.registerMapper<atm.BookWithTemplate>(atmrmg.BookWithTemplateMapper());
+  registry.registerMapper<atm.BookWithMapper>(
+    atmrmg.BookWithMapperMapper(
+      iriMapper: const atm.TestMapper(prefix: 'https://example.org/books'),
+    ),
+  );
+  registry.registerMapper<atm.BookWithTemplate>(
+    atmrmg.BookWithTemplateMapper(),
+  );
   registry.registerMapper<grptm.Book>(grptmrmg.BookMapper());
-  registry.registerMapper<grptm.ClassWithEmptyIriStrategy>(grptmrmg.ClassWithEmptyIriStrategyMapper());
-  registry.registerMapper<grptm.ClassWithNoRdfType>(grptmrmg.ClassWithNoRdfTypeMapper());
-  registry.registerMapper<grptm.ClassWithIriTemplateStrategy>(grptmrmg.ClassWithIriTemplateStrategyMapper());
-  registry.registerMapper<grptm.ClassWithIriTemplateAndContextVariableStrategy>(grptmrmg.ClassWithIriTemplateAndContextVariableStrategyMapper(baseUriProvider:baseUriProvider, ));
-  registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy>(grptmrmg.ClassWithIriNamedMapperStrategyMapper(iriMapper:testMapper, ));
-  registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties>(grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(iriMapper:testMapper3, ));
-  registry.registerMapper<grptm.ClassWithIriMapperStrategy>(grptmrmg.ClassWithIriMapperStrategyMapper(iriMapper:grptm.TestIriMapper(), ));
-  registry.registerMapper<grptm.ClassWithIriMapperInstanceStrategy>(grptmrmg.ClassWithIriMapperInstanceStrategyMapper(iriMapper:const grptm.TestIriMapper2(), ));
-  registry.registerMapper<grptm.ClassWithMapperNamedMapperStrategy>(testGlobalResourceMapper);
-  registry.registerMapper<grptm.ClassWithMapperStrategy>(grptm.TestGlobalResourceMapper());
-  registry.registerMapper<grptm.ClassWithMapperInstanceStrategy>(const grptm.TestGlobalResourceMapper2());
+  registry.registerMapper<grptm.ClassWithEmptyIriStrategy>(
+    grptmrmg.ClassWithEmptyIriStrategyMapper(),
+  );
+  registry.registerMapper<grptm.ClassWithNoRdfType>(
+    grptmrmg.ClassWithNoRdfTypeMapper(),
+  );
+  registry.registerMapper<grptm.ClassWithIriTemplateStrategy>(
+    grptmrmg.ClassWithIriTemplateStrategyMapper(),
+  );
+  registry.registerMapper<grptm.ClassWithIriTemplateAndContextVariableStrategy>(
+    grptmrmg.ClassWithIriTemplateAndContextVariableStrategyMapper(
+      baseUriProvider: baseUriProvider,
+    ),
+  );
+  registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy>(
+    grptmrmg.ClassWithIriNamedMapperStrategyMapper(iriMapper: testMapper),
+  );
+  registry.registerMapper<
+    grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties
+  >(
+    grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
+      iriMapper: testMapper3,
+    ),
+  );
+  registry.registerMapper<grptm.ClassWithIriMapperStrategy>(
+    grptmrmg.ClassWithIriMapperStrategyMapper(iriMapper: grptm.TestIriMapper()),
+  );
+  registry.registerMapper<grptm.ClassWithIriMapperInstanceStrategy>(
+    grptmrmg.ClassWithIriMapperInstanceStrategyMapper(
+      iriMapper: const grptm.TestIriMapper2(),
+    ),
+  );
+  registry.registerMapper<grptm.ClassWithMapperNamedMapperStrategy>(
+    testGlobalResourceMapper,
+  );
+  registry.registerMapper<grptm.ClassWithMapperStrategy>(
+    grptm.TestGlobalResourceMapper(),
+  );
+  registry.registerMapper<grptm.ClassWithMapperInstanceStrategy>(
+    const grptm.TestGlobalResourceMapper2(),
+  );
   registry.registerMapper<iptm.IriWithOnePart>(iptmrmg.IriWithOnePartMapper());
-  registry.registerMapper<iptm.IriWithOnePartExplicitlyGlobal>(iptmrmg.IriWithOnePartExplicitlyGlobalMapper());
-  registry.registerMapper<iptm.IriWithOnePartNamed>(iptmrmg.IriWithOnePartNamedMapper());
-  registry.registerMapper<iptm.IriWithTwoParts>(iptmrmg.IriWithTwoPartsMapper());
-  registry.registerMapper<iptm.IriWithBaseUriAndTwoParts>(iptmrmg.IriWithBaseUriAndTwoPartsMapper(baseUriProvider:baseUriProvider, ));
-  registry.registerMapper<iptm.IriWithBaseUri>(iptmrmg.IriWithBaseUriMapper(baseUriProvider:baseUriProvider, ));
+  registry.registerMapper<iptm.IriWithOnePartExplicitlyGlobal>(
+    iptmrmg.IriWithOnePartExplicitlyGlobalMapper(),
+  );
+  registry.registerMapper<iptm.IriWithOnePartNamed>(
+    iptmrmg.IriWithOnePartNamedMapper(),
+  );
+  registry.registerMapper<iptm.IriWithTwoParts>(
+    iptmrmg.IriWithTwoPartsMapper(),
+  );
+  registry.registerMapper<iptm.IriWithBaseUriAndTwoParts>(
+    iptmrmg.IriWithBaseUriAndTwoPartsMapper(baseUriProvider: baseUriProvider),
+  );
+  registry.registerMapper<iptm.IriWithBaseUri>(
+    iptmrmg.IriWithBaseUriMapper(baseUriProvider: baseUriProvider),
+  );
   registry.registerMapper<iptm.IriWithNamedMapper>(testIriMapper);
   registry.registerMapper<iptm.IriWithMapper>(iptm.TestIriMapper());
-  registry.registerMapper<iptm.IriWithMapperInstance>(const iptm.TestIriMapper2());
-  registry.registerMapper<iptm.IriWithNonConstructorFields>(iptmrmg.IriWithNonConstructorFieldsMapper());
-  registry.registerMapper<iptm.IriWithMixedFields>(iptmrmg.IriWithMixedFieldsMapper());
+  registry.registerMapper<iptm.IriWithMapperInstance>(
+    const iptm.TestIriMapper2(),
+  );
+  registry.registerMapper<iptm.IriWithNonConstructorFields>(
+    iptmrmg.IriWithNonConstructorFieldsMapper(),
+  );
+  registry.registerMapper<iptm.IriWithMixedFields>(
+    iptmrmg.IriWithMixedFieldsMapper(),
+  );
   registry.registerMapper<lptm.LiteralString>(lptmrmg.LiteralStringMapper());
   registry.registerMapper<lptm.Rating>(lptmrmg.RatingMapper());
   registry.registerMapper<lptm.LocalizedText>(lptmrmg.LocalizedTextMapper());
   registry.registerMapper<lptm.LiteralDouble>(lptmrmg.LiteralDoubleMapper());
   registry.registerMapper<lptm.LiteralInteger>(lptmrmg.LiteralIntegerMapper());
   registry.registerMapper<lptm.Temperature>(lptmrmg.TemperatureMapper());
-  registry.registerMapper<lptm.CustomLocalizedText>(lptmrmg.CustomLocalizedTextMapper());
-  registry.registerMapper<lptm.DoubleAsMilliunit>(lptmrmg.DoubleAsMilliunitMapper());
+  registry.registerMapper<lptm.CustomLocalizedText>(
+    lptmrmg.CustomLocalizedTextMapper(),
+  );
+  registry.registerMapper<lptm.DoubleAsMilliunit>(
+    lptmrmg.DoubleAsMilliunitMapper(),
+  );
   registry.registerMapper<lptm.LiteralWithNamedMapper>(testLiteralMapper);
   registry.registerMapper<lptm.LiteralWithMapper>(lptm.TestLiteralMapper());
-  registry.registerMapper<lptm.LiteralWithMapperInstance>(const lptm.TestLiteralMapper2());
-  registry.registerMapper<lptm.LiteralWithNonConstructorValue>(lptmrmg.LiteralWithNonConstructorValueMapper());
-  registry.registerMapper<lptm.LocalizedTextWithNonConstructorLanguage>(lptmrmg.LocalizedTextWithNonConstructorLanguageMapper());
-  registry.registerMapper<lptm.LiteralLateFinalLocalizedText>(lptmrmg.LiteralLateFinalLocalizedTextMapper());
+  registry.registerMapper<lptm.LiteralWithMapperInstance>(
+    const lptm.TestLiteralMapper2(),
+  );
+  registry.registerMapper<lptm.LiteralWithNonConstructorValue>(
+    lptmrmg.LiteralWithNonConstructorValueMapper(),
+  );
+  registry.registerMapper<lptm.LocalizedTextWithNonConstructorLanguage>(
+    lptmrmg.LocalizedTextWithNonConstructorLanguageMapper(),
+  );
+  registry.registerMapper<lptm.LiteralLateFinalLocalizedText>(
+    lptmrmg.LiteralLateFinalLocalizedTextMapper(),
+  );
   registry.registerMapper<lrptm.Book>(lrptmrmg.BookMapper());
-  registry.registerMapper<lrptm.ClassWithNoRdfType>(lrptmrmg.ClassWithNoRdfTypeMapper());
-  registry.registerMapper<lrptm.ClassWithPositionalProperty>(lrptmrmg.ClassWithPositionalPropertyMapper());
-  registry.registerMapper<lrptm.ClassWithNonFinalProperty>(lrptmrmg.ClassWithNonFinalPropertyMapper());
-  registry.registerMapper<lrptm.ClassWithNonFinalPropertyWithDefault>(lrptmrmg.ClassWithNonFinalPropertyWithDefaultMapper());
-  registry.registerMapper<lrptm.ClassWithNonFinalOptionalProperty>(lrptmrmg.ClassWithNonFinalOptionalPropertyMapper());
-  registry.registerMapper<lrptm.ClassWithLateNonFinalProperty>(lrptmrmg.ClassWithLateNonFinalPropertyMapper());
-  registry.registerMapper<lrptm.ClassWithLateFinalProperty>(lrptmrmg.ClassWithLateFinalPropertyMapper());
-  registry.registerMapper<lrptm.ClassWithMixedFinalAndLateFinalProperty>(lrptmrmg.ClassWithMixedFinalAndLateFinalPropertyMapper());
-  registry.registerMapper<lrptm.ClassWithMapperNamedMapperStrategy>(testLocalResourceMapper);
-  registry.registerMapper<lrptm.ClassWithMapperStrategy>(lrptm.TestLocalResourceMapper());
-  registry.registerMapper<lrptm.ClassWithMapperInstanceStrategy>(const lrptm.TestLocalResourceMapper2());
-  
+  registry.registerMapper<lrptm.ClassWithNoRdfType>(
+    lrptmrmg.ClassWithNoRdfTypeMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithPositionalProperty>(
+    lrptmrmg.ClassWithPositionalPropertyMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithNonFinalProperty>(
+    lrptmrmg.ClassWithNonFinalPropertyMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithNonFinalPropertyWithDefault>(
+    lrptmrmg.ClassWithNonFinalPropertyWithDefaultMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithNonFinalOptionalProperty>(
+    lrptmrmg.ClassWithNonFinalOptionalPropertyMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithLateNonFinalProperty>(
+    lrptmrmg.ClassWithLateNonFinalPropertyMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithLateFinalProperty>(
+    lrptmrmg.ClassWithLateFinalPropertyMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithMixedFinalAndLateFinalProperty>(
+    lrptmrmg.ClassWithMixedFinalAndLateFinalPropertyMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithMapperNamedMapperStrategy>(
+    testLocalResourceMapper,
+  );
+  registry.registerMapper<lrptm.ClassWithMapperStrategy>(
+    lrptm.TestLocalResourceMapper(),
+  );
+  registry.registerMapper<lrptm.ClassWithMapperInstanceStrategy>(
+    const lrptm.TestLocalResourceMapper2(),
+  );
+
   return rdfMapper;
 }

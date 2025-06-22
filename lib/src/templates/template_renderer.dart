@@ -4,6 +4,7 @@ import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
+import 'package:rdf_mapper_generator/src/utils/dart_formatter.dart';
 
 final _log = Logger('TemplateRenderer');
 
@@ -40,7 +41,10 @@ class TemplateRenderer {
   Future<String> renderInitFileTemplate(
       Map<String, dynamic> data, AssetReader reader) async {
     final template = await _getTemplate('init_rdf_mapper', reader);
-    return template.renderString(data);
+    final result = template.renderString(data);
+
+    // Format the generated code using dart_style
+    return DartCodeFormatter.formatCode(result);
   }
 
   /// Renders a complete file using the file template and multiple mappers.
@@ -56,8 +60,7 @@ class TemplateRenderer {
         modelImportUri: '',
       },
       baseUris: _createBaseUris(mapperImportUri),
-      broaderImports:
-          (data['broaderImports'] as Map<String, dynamic>? ?? {}).cast(),
+      broaderImports: _safeCastToStringMap(data['broaderImports']),
     );
     final template = await _getTemplate('file_template', reader);
 
@@ -88,7 +91,9 @@ class TemplateRenderer {
         renderedMappers.map((code) => {'mapperCode': code}).toList();
     data['imports'] = defaultImports;
     final result = template.renderString(data);
-    return result;
+
+    // Format the generated code using dart_style
+    return DartCodeFormatter.formatCode(result);
   }
 
   /// Gets a template by name, loading and caching it if necessary.
@@ -278,5 +283,15 @@ class TemplateRenderer {
       'file:' + normalizedBaseUri,
       'test:' + normalizedBaseUri
     };
+  }
+
+  /// Safely casts a dynamic value to Map<String, String>
+  Map<String, String> _safeCastToStringMap(dynamic value) {
+    if (value == null) return {};
+    if (value is Map<String, String>) return value;
+    if (value is Map) {
+      return value.map((key, val) => MapEntry(key.toString(), val.toString()));
+    }
+    return {};
   }
 }
