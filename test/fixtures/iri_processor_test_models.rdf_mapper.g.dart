@@ -36,9 +36,12 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithOnePart(
-      isbn: iriParts['isbn']!
+    final isbn = iriParts['isbn']!;
+
+    final retval = IriWithOnePart(
+      isbn: isbn
     );
+    return retval;
   }
 
   @override
@@ -78,9 +81,12 @@ class IriWithOnePartExplicitlyGlobalMapper implements IriTermMapper<IriWithOnePa
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithOnePartExplicitlyGlobal(
-      isbn: iriParts['isbn']!
+    final isbn = iriParts['isbn']!;
+
+    final retval = IriWithOnePartExplicitlyGlobal(
+      isbn: isbn
     );
+    return retval;
   }
 
   @override
@@ -120,9 +126,12 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithOnePartNamed(
-      value: iriParts['isbn']!
+    final value = iriParts['isbn']!;
+
+    final retval = IriWithOnePartNamed(
+      value: value
     );
+    return retval;
   }
 
   @override
@@ -162,10 +171,14 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithTwoParts(
-      value: iriParts['value']!,
-      type: iriParts['type']!
+    final value = iriParts['value']!;
+    final type = iriParts['type']!;
+
+    final retval = IriWithTwoParts(
+      value: value,
+      type: type
     );
+    return retval;
   }
 
   @override
@@ -210,10 +223,14 @@ class IriWithBaseUriAndTwoPartsMapper implements IriTermMapper<IriWithBaseUriAnd
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithBaseUriAndTwoParts(
-      value: iriParts['value']!,
-      otherPart: iriParts['type']!
+    final value = iriParts['value']!;
+    final otherPart = iriParts['type']!;
+
+    final retval = IriWithBaseUriAndTwoParts(
+      value: value,
+      otherPart: otherPart
     );
+    return retval;
   }
 
   @override
@@ -259,9 +276,12 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithBaseUri(
-      isbn: iriParts['isbn']!
+    final isbn = iriParts['isbn']!;
+
+    final retval = IriWithBaseUri(
+      isbn: isbn
     );
+    return retval;
   }
 
   @override
@@ -306,9 +326,12 @@ class IriWithBaseUriNoGlobalMapper implements IriTermMapper<IriWithBaseUriNoGlob
             return MapEntry(name, namedGroup);
           }));
     
-    return IriWithBaseUriNoGlobal(
-      isbn: iriParts['isbn']!
+    final isbn = iriParts['isbn']!;
+
+    final retval = IriWithBaseUriNoGlobal(
+      isbn: isbn
     );
+    return retval;
   }
 
   @override
@@ -320,6 +343,152 @@ class IriWithBaseUriNoGlobalMapper implements IriTermMapper<IriWithBaseUriNoGlob
     var iri = '{+baseUri}/books/{isbn}';
     iri = iri.replaceAll('{isbn}', resource.isbn.toString());
     iri = iri.replaceAll('{+baseUri}', _baseUriProvider());
+    return IriTerm(iri);
+  }
+}
+
+
+/// Generated mapper for [IriWithNonConstructorFields] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type IriWithNonConstructorFields.
+class IriWithNonConstructorFieldsMapper implements IriTermMapper<IriWithNonConstructorFields> {
+
+  static final RegExp _regex = RegExp('^http://example\.org/items/(?<id>[^/]*)\$');
+
+
+  /// Constructor
+  const IriWithNonConstructorFieldsMapper();
+
+  @override
+  IriWithNonConstructorFields fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String,String>{}
+        : Map.fromEntries(match.groupNames.map((name) {
+            var namedGroup = match.namedGroup(name)!;
+            return MapEntry(name, namedGroup);
+          }));
+    
+    final id = iriParts['id']!;
+
+    final retval = IriWithNonConstructorFields(
+    );
+    retval.id = id;
+    return retval;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    IriWithNonConstructorFields resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    var iri = 'http://example.org/items/{id}';
+    iri = iri.replaceAll('{id}', resource.id.toString());
+    return IriTerm(iri);
+  }
+}
+
+
+/// Generated mapper for [IriWithNonConstructorFieldsAndBaseUriNonGlobal] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type IriWithNonConstructorFieldsAndBaseUriNonGlobal.
+class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper implements IriTermMapper<IriWithNonConstructorFieldsAndBaseUriNonGlobal> {
+
+  static final RegExp _regex = RegExp('^(?<myBaseUri>.*)/items/(?<id>[^/]*)\$');
+
+  /// Provider for context variable 'myBaseUri'
+  final String Function() _myBaseUriProvider;
+
+  /// Constructor requiring providers for context variables
+  const IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper({
+    required String Function() myBaseUriProvider,
+  }) : _myBaseUriProvider = myBaseUriProvider;
+
+  @override
+  IriWithNonConstructorFieldsAndBaseUriNonGlobal fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String,String>{}
+        : Map.fromEntries(match.groupNames.map((name) {
+            var namedGroup = match.namedGroup(name)!;
+            return MapEntry(name, namedGroup);
+          }));
+    
+    final id = iriParts['id']!;
+
+    final retval = IriWithNonConstructorFieldsAndBaseUriNonGlobal(
+    );
+    retval.id = id;
+    return retval;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    IriWithNonConstructorFieldsAndBaseUriNonGlobal resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    var iri = '{+myBaseUri}/items/{id}';
+    iri = iri.replaceAll('{id}', resource.id.toString());
+    iri = iri.replaceAll('{+myBaseUri}', _myBaseUriProvider());
+    return IriTerm(iri);
+  }
+}
+
+
+/// Generated mapper for [IriWithMixedFields] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type IriWithMixedFields.
+class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
+
+  static final RegExp _regex = RegExp('^http://example\.org/products/(?<brand>[^/]*)/(?<category>[^/]*)/(?<id>[^/]*)\$');
+
+
+  /// Constructor
+  const IriWithMixedFieldsMapper();
+
+  @override
+  IriWithMixedFields fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String,String>{}
+        : Map.fromEntries(match.groupNames.map((name) {
+            var namedGroup = match.namedGroup(name)!;
+            return MapEntry(name, namedGroup);
+          }));
+    
+    final brand = iriParts['brand']!;
+    final id = iriParts['id']!;
+    final productCategory = iriParts['category']!;
+
+    final retval = IriWithMixedFields(
+      brand: brand,
+      id: id
+    );
+    retval.productCategory = productCategory;
+    return retval;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    IriWithMixedFields resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    var iri = 'http://example.org/products/{brand}/{category}/{id}';
+    iri = iri.replaceAll('{brand}', resource.brand.toString());
+    iri = iri.replaceAll('{category}', resource.productCategory.toString());
+    iri = iri.replaceAll('{id}', resource.id.toString());
     return IriTerm(iri);
   }
 }

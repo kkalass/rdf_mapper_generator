@@ -202,11 +202,22 @@ class DataBuilder {
     // Build constructor parameters
     final constructorParameters =
         _buildConstructorParameters(resourceInfo.constructors);
-    if (constructorParameters.any((p) => !p.isIriPart)) {
+
+    // Build non-constructor fields that are IRI parts
+    final nonConstructorFields = _buildNonConstructorFields(
+            constructorParameters, resourceInfo.fields, iriData)
+        .where((p) => p.isIriPart)
+        .toList();
+
+    // Check that all constructor parameters and non-constructor fields are IRI parts
+    final allConstructorParams =
+        constructorParameters.where((p) => !p.isIriPart);
+    if (allConstructorParams.isNotEmpty) {
       throw Exception(
-        'IriMapper must only have IRI part parameters, but found: ${constructorParameters.where((p) => !p.isIriPart).map((p) => p.name)}',
+        'IriMapper constructor must only have IRI part parameters, but found: ${allConstructorParams.map((p) => p.name).join(', ')}',
       );
     }
+
     final properties = _buildPropertyData(resourceInfo.fields);
 
     return IriMapperTemplateData(
@@ -216,6 +227,7 @@ class DataBuilder {
         iriStrategy: iriData,
         contextProviders: contextProviders,
         constructorParameters: constructorParameters,
+        nonConstructorFields: nonConstructorFields,
         needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
         properties: properties);

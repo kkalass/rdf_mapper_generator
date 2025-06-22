@@ -288,7 +288,7 @@ class InitFileBuilderHelper {
         customMappersByName
       );
     }
-    return (const [], providersByName, customMappersByName);
+    return noInitFileContributions;
   }
 
   Code _buildCodeInstantiateMapperWithIriMapper(
@@ -352,7 +352,7 @@ class InitFileBuilderHelper {
         {}
       );
     }
-    return (const [], providersByName, {});
+    return noInitFileContributions;
   }
 
   _InitFileContributions collectLiteralMapper(Map<String, dynamic> mapperData) {

@@ -263,6 +263,80 @@ void main() {
       expect(deserialized, isNotNull);
       expect(deserialized.value, equals(value.value));
     });
+
+    test('IriWithNonConstructorFields mapping', () {
+      // Verify global resource registration
+      expect(isRegisteredIriTermMapper<IriWithNonConstructorFields>(mapper),
+          isTrue,
+          reason:
+              'IriWithNonConstructorFields should be registered as a iri term mapper');
+
+      // Create an instance
+      final value = IriWithNonConstructorFields();
+      value.id = 'test-id-123';
+
+      final term = serialize(value);
+      expect(term, isNotNull);
+      expect(term.toString(), equals('<http://example.org/items/test-id-123>'));
+
+      // Test deserialization
+      final deserialized = deserialize<IriWithNonConstructorFields>(term);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(value.id));
+    });
+
+    test('IriWithNonConstructorFieldsAndBaseUriNonGlobal mapping', () {
+      // Verify global resource registration
+      expect(
+          isRegisteredIriTermMapper<
+              IriWithNonConstructorFieldsAndBaseUriNonGlobal>(mapper),
+          isFalse,
+          reason:
+              'IriWithNonConstructorFieldsAndBaseUriNonGlobal should not be registered as a iri term mapper');
+
+      // Create an instance
+      final value = IriWithNonConstructorFieldsAndBaseUriNonGlobal();
+      value.id = 'test-id-123';
+
+      final term = serialize(value,
+          registry: mapper.registry.clone()
+            ..registerMapper(
+                IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper(
+              myBaseUriProvider: () => 'http://my.example.org/',
+            )));
+      expect(term, isNotNull);
+      expect(
+          term.toString(), equals('<http://my.example.org/items/test-id-123>'));
+
+      // Test deserialization
+      final deserialized =
+          deserialize<IriWithNonConstructorFieldsAndBaseUriNonGlobal>(term);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(value.id));
+    });
+
+    test('IriWithMixedFields mapping', () {
+      // Verify global resource registration
+      expect(isRegisteredIriTermMapper<IriWithMixedFields>(mapper), isTrue,
+          reason:
+              'IriWithMixedFields should be registered as a iri term mapper');
+
+      // Create an instance
+      final value = IriWithMixedFields(brand: 'acme', id: 'prod-789');
+      value.productCategory = 'gadgets';
+
+      final term = serialize(value);
+      expect(term, isNotNull);
+      expect(term.toString(),
+          equals('<http://example.org/products/acme/gadgets/prod-789>'));
+
+      // Test deserialization
+      final deserialized = deserialize<IriWithMixedFields>(term);
+      expect(deserialized, isNotNull);
+      expect(deserialized.brand, equals(value.brand));
+      expect(deserialized.id, equals(value.id));
+      expect(deserialized.productCategory, equals(value.productCategory));
+    });
   });
 }
 

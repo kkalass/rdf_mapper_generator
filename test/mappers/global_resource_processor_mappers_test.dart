@@ -5,6 +5,12 @@ import 'package:test/test.dart';
 import '../fixtures/global_resource_processor_test_models.dart';
 import '../fixtures/global_resource_processor_test_models.rdf_mapper.g.dart';
 import 'init_test_rdf_mapper_util.dart';
+import 'iri_processor_mappers_test.dart';
+
+bool isRegisteredGlobalResourceMapper<T>(RdfMapper mapper) {
+  return mapper.registry.hasGlobalResourceDeserializerFor<T>() &&
+      mapper.registry.hasResourceSerializerFor<T>();
+}
 
 void main() {
   late RdfMapper mapper;
@@ -71,6 +77,25 @@ void main() {
       // Test deserialization
       final deserialized = mapper
           .decodeObject<ClassWithIriTemplateAndContextVariableStrategy>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(instance.id));
+    });
+
+    test('ClassWithOtherBaseUriNonGlobal mapping', () {
+      expect(isRegisteredGlobalResourceMapper(mapper), isFalse);
+      final instance = ClassWithOtherBaseUriNonGlobal(id: 'context-var');
+
+      // Test serialization
+      final graph = mapper.encodeObject(instance,
+          register: (registry) =>
+              registry.registerMapper(ClassWithOtherBaseUriNonGlobalMapper(
+                otherBaseUriProvider: () => 'https://other.example.org',
+              )));
+      expect(graph, isNotNull);
+      expect(graph, contains('https://other.example.org/persons/context-var'));
+      // Test deserialization
+      final deserialized =
+          mapper.decodeObject<ClassWithOtherBaseUriNonGlobal>(graph);
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(instance.id));
     });

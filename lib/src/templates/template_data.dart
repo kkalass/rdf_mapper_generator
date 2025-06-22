@@ -267,6 +267,9 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
 
+  /// List of non-constructor fields that are IRI parts
+  final List<ParameterData> nonConstructorFields;
+
   /// Property mapping information
   final List<PropertyData> properties;
 
@@ -285,6 +288,7 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
     required IriData iriStrategy,
     required List<ContextProviderData> contextProviders,
     required List<ParameterData> constructorParameters,
+    required List<ParameterData> nonConstructorFields,
     required bool needsReader,
     required bool registerGlobally,
     required List<PropertyData> properties,
@@ -293,6 +297,7 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
         iriStrategy = iriStrategy,
         contextProviders = contextProviders,
         constructorParameters = constructorParameters,
+        nonConstructorFields = nonConstructorFields,
         needsReader = needsReader,
         registerGlobally = registerGlobally,
         properties = properties;
@@ -306,6 +311,13 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
       'iriStrategy': iriStrategy.toMap(),
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
+      'nonConstructorFields':
+          toMustacheList(nonConstructorFields.map((p) => p.toMap()).toList()),
+      'hasNonConstructorFields': nonConstructorFields.isNotEmpty,
+      'constructorParametersOrOtherFields': toMustacheList([
+        ...constructorParameters,
+        ...nonConstructorFields
+      ].map((p) => p.toMap()).toList()),
       'properties': properties.map((p) => p.toMap()).toList(),
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),

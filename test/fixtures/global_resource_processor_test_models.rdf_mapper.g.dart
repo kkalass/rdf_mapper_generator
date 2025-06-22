@@ -435,6 +435,79 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper implements GlobalReso
 }
 
 
+/// Generated mapper for [ClassWithOtherBaseUriNonGlobal] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithOtherBaseUriNonGlobal.
+class ClassWithOtherBaseUriNonGlobalMapper implements GlobalResourceMapper<ClassWithOtherBaseUriNonGlobal> {
+  static final RegExp _regex = RegExp('^(?<otherBaseUri>.*)/persons/(?<thisId>[^/]*)\$');
+  /// Provider for context variable 'otherBaseUri'
+  final String Function() _otherBaseUriProvider;
+
+
+  /// Constructor requiring providers for context variables
+  const ClassWithOtherBaseUriNonGlobalMapper({
+    
+    required String Function() otherBaseUriProvider,
+  }) : _otherBaseUriProvider = otherBaseUriProvider;
+
+  @override
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+
+  @override
+  ClassWithOtherBaseUriNonGlobal fromRdfResource(IriTerm subject, DeserializationContext context) {
+    
+
+    // Extract IRI parts
+    final iriParts = _parseIriParts(subject.iri);
+    
+    final id = iriParts['thisId']!;
+
+    final retval = ClassWithOtherBaseUriNonGlobal(
+      id: id
+    );
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    ClassWithOtherBaseUriNonGlobal resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = IriTerm(_buildIri(resource));
+    
+    return context.resourceBuilder(subject)
+      .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(ClassWithOtherBaseUriNonGlobal resource) {
+    var iri = '{+otherBaseUri}/persons/{thisId}';
+    iri = iri.replaceAll('{thisId}', resource.id.toString());
+    iri = iri.replaceAll('{+otherBaseUri}', _otherBaseUriProvider());
+    return iri;
+  }
+
+  /// Parses IRI parts from a complete IRI using a template.
+  ///
+  /// Supports RFC 6570 URI Template standard:
+  /// - {variable} (default): excludes reserved characters like '/'
+  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
+  Map<String, String> _parseIriParts(String iri) {
+    // Try to match the IRI against the regex pattern
+    RegExpMatch? match = _regex.firstMatch(iri);
+
+    return match == null
+        ? {}
+        : Map.fromEntries(match.groupNames.map((name) {
+            var namedGroup = match.namedGroup(name)!;
+            return MapEntry(name, namedGroup);
+          }));
+  }
+}
+
+
 /// Generated mapper for [ClassWithIriNamedMapperStrategy] global resources.
 /// 
 /// This mapper handles serialization and deserialization between Dart objects

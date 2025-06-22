@@ -64,6 +64,8 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<iptm.IriWithNamedMapper>(testIriMapper);
   registry.registerMapper<iptm.IriWithMapper>(iptm.TestIriMapper());
   registry.registerMapper<iptm.IriWithMapperInstance>(const iptm.TestIriMapper2());
+  registry.registerMapper<iptm.IriWithNonConstructorFields>(iptmrmg.IriWithNonConstructorFieldsMapper());
+  registry.registerMapper<iptm.IriWithMixedFields>(iptmrmg.IriWithMixedFieldsMapper());
   registry.registerMapper<lptm.LiteralString>(lptmrmg.LiteralStringMapper());
   registry.registerMapper<lptm.Rating>(lptmrmg.RatingMapper());
   registry.registerMapper<lptm.LocalizedText>(lptmrmg.LocalizedTextMapper());

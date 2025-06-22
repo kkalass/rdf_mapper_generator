@@ -39,11 +39,21 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/hasTemplate}}
     {{/iriStrategy}}
     
-    return {{className}}(
+    {{#constructorParametersOrOtherFields}}
+    final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    {{/constructorParametersOrOtherFields}}
+
+    final retval = {{className}}(
       {{#constructorParameters}}
-      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}},{{/last}}
+      {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{value.name}}{{^last}},{{/last}}
       {{/constructorParameters}}
     );
+    {{#nonConstructorFields}}
+    {{#value.isIriPart}}
+    retval.{{value.name}} = {{value.name}};
+    {{/value.isIriPart}}
+    {{/nonConstructorFields}}
+    return retval;
   }
 
   @override

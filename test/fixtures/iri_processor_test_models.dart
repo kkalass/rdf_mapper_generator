@@ -123,3 +123,32 @@ class TestIriMapper2 implements IriTermMapper<IriWithMapperInstance> {
     return IriTerm(value.value);
   }
 }
+
+/// Test model for non-constructor IRI parts
+@RdfIri('http://example.org/items/{id}')
+class IriWithNonConstructorFields {
+  @RdfIriPart()
+  late final String id;
+}
+
+/// Test model for non-constructor IRI parts
+@RdfIri('{+myBaseUri}/items/{id}', false)
+class IriWithNonConstructorFieldsAndBaseUriNonGlobal {
+  @RdfIriPart()
+  late final String id;
+}
+
+/// Test model with mixed constructor and non-constructor IRI parts
+@RdfIri('http://example.org/products/{brand}/{category}/{id}')
+class IriWithMixedFields {
+  @RdfIriPart()
+  final String brand;
+
+  @RdfIriPart('category')
+  late final String productCategory;
+
+  @RdfIriPart()
+  final String id;
+
+  IriWithMixedFields({required this.brand, required this.id});
+}
