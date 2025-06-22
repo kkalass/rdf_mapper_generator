@@ -157,8 +157,9 @@ void main() {
                 otherBaseUriProvider: () => 'https://other.example.org',
               )));
       expect(graph, isNotNull);
-      expect(graph, contains('persons: <https://other.example.org/persons/>'));
-      expect(graph, contains('persons:context-var'));
+      expect(graph,
+          contains('@prefix persons: <https://other.example.org/persons/> .'));
+      expect(graph, contains('persons:context-var a schema:Person .'));
       // Test deserialization
       final deserialized = mapper.decodeObject<ClassWithOtherBaseUriNonGlobal>(
           graph,

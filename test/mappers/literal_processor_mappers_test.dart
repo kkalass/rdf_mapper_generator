@@ -29,7 +29,7 @@ void main() {
         RdfGraph.fromTriples([Triple(testSubject, testPredicate, term)]);
     final context = DeserializationContextImpl(
         graph: graph, registry: registry ?? mapper.registry);
-    return context.fromLiteralTerm(term);
+    return context.fromLiteralTerm<T>(term);
   }
 
   setUp(() {
@@ -263,6 +263,82 @@ void main() {
       final deserialized = deserialize<LiteralWithMapperInstance>(term);
       expect(deserialized, isNotNull);
       expect(deserialized.value, equals(value.value));
+    });
+
+    test('LiteralWithNonConstructorValue mapping', () {
+      // Verify literal mapper registration
+      expect(
+          isRegisteredLiteralTermMapper<LiteralWithNonConstructorValue>(mapper),
+          isTrue,
+          reason:
+              'LiteralWithNonConstructorValue should be registered as a literal term mapper');
+
+      // Create a LiteralWithNonConstructorValue instance
+      final value = LiteralWithNonConstructorValue()
+        ..value = "test non-constructor value";
+
+      // Test round-trip serialization/deserialization
+      final term = serialize(value);
+      expect(term, isNotNull);
+      expect(term.value, equals('test non-constructor value'));
+
+      // Test deserialization
+      final deserialized = deserialize<LiteralWithNonConstructorValue>(term);
+      expect(deserialized, isNotNull);
+      expect(deserialized.value, equals(value.value));
+    });
+
+    test('LocalizedTextWithNonConstructorLanguage mapping', () {
+      // Verify literal mapper registration
+      expect(
+          isRegisteredLiteralTermMapper<
+              LocalizedTextWithNonConstructorLanguage>(mapper),
+          isTrue,
+          reason:
+              'LocalizedTextWithNonConstructorLanguage should be registered as a literal term mapper');
+
+      // Create a LocalizedTextWithNonConstructorLanguage instance
+      final value = LocalizedTextWithNonConstructorLanguage("Hello world")
+        ..language = "en";
+
+      // Test round-trip serialization/deserialization
+      final term = serialize(value);
+      expect(term, isNotNull);
+      expect(term.value, equals('Hello world'));
+      expect(term.language, equals('en'));
+
+      // Test deserialization
+      final deserialized =
+          deserialize<LocalizedTextWithNonConstructorLanguage>(term);
+      expect(deserialized, isNotNull);
+      expect(deserialized.text, equals(value.text));
+      expect(deserialized.language, equals(value.language));
+    });
+
+    test('LiteralLateFinalLocalizedText mapping', () {
+      // Verify literal mapper registration
+      expect(
+          isRegisteredLiteralTermMapper<LiteralLateFinalLocalizedText>(mapper),
+          isTrue,
+          reason:
+              'LiteralLateFinalLocalizedText should be registered as a literal term mapper');
+
+      // Create a LiteralWithMixedFields instance
+      final value = LiteralLateFinalLocalizedText()
+        ..baseValue = "Test value"
+        ..language = "de";
+
+      // Test round-trip serialization/deserialization
+      final term = serialize(value);
+      expect(term, isNotNull);
+      expect(term.value, equals('Test value'));
+      expect(term.language, equals('de'));
+
+      // Test deserialization
+      final deserialized = deserialize<LiteralLateFinalLocalizedText>(term);
+      expect(deserialized, isNotNull);
+      expect(deserialized.baseValue, equals(value.baseValue));
+      expect(deserialized.language, equals(value.language));
     });
   });
 }

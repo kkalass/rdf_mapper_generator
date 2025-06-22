@@ -80,6 +80,9 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<lptm.LiteralWithNamedMapper>(testLiteralMapper);
   registry.registerMapper<lptm.LiteralWithMapper>(lptm.TestLiteralMapper());
   registry.registerMapper<lptm.LiteralWithMapperInstance>(const lptm.TestLiteralMapper2());
+  registry.registerMapper<lptm.LiteralWithNonConstructorValue>(lptmrmg.LiteralWithNonConstructorValueMapper());
+  registry.registerMapper<lptm.LocalizedTextWithNonConstructorLanguage>(lptmrmg.LocalizedTextWithNonConstructorLanguageMapper());
+  registry.registerMapper<lptm.LiteralLateFinalLocalizedText>(lptmrmg.LiteralLateFinalLocalizedTextMapper());
   registry.registerMapper<lrptm.Book>(lrptmrmg.BookMapper());
   registry.registerMapper<lrptm.ClassWithNoRdfType>(lrptmrmg.ClassWithNoRdfTypeMapper());
   registry.registerMapper<lrptm.ClassWithPositionalProperty>(lrptmrmg.ClassWithPositionalPropertyMapper());

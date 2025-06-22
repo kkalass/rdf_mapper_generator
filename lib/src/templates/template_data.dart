@@ -196,6 +196,9 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
 
+  /// List of non-constructor fields that are RDF value or language tag fields
+  final List<ParameterData> nonConstructorFields;
+
   /// Property mapping information
   final List<PropertyData> properties;
 
@@ -218,11 +221,13 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
     required this.rdfValue,
     required this.rdfLanguageTag,
     required List<ParameterData> constructorParameters,
+    required List<ParameterData> nonConstructorFields,
     required bool registerGlobally,
     required List<PropertyData> properties,
   })  : className = className,
         mapperClassName = mapperClassName,
         constructorParameters = constructorParameters,
+        nonConstructorFields = nonConstructorFields,
         registerGlobally = registerGlobally,
         properties = properties;
 
@@ -240,6 +245,12 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
           toLiteralTermMethod != null && fromLiteralTermMethod != null,
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
+      'nonConstructorFields':
+          toMustacheList(nonConstructorFields.map((p) => p.toMap()).toList()),
+      'constructorParametersOrOtherFields': toMustacheList([
+        ...constructorParameters,
+        ...nonConstructorFields
+      ].map((p) => p.toMap()).toList()),
       'properties': properties.map((p) => p.toMap()).toList(),
       'registerGlobally': registerGlobally,
       'rdfValue': rdfValue?.toMap(),

@@ -135,17 +135,31 @@ class DataBuilder {
     final constructorParameters =
         _buildConstructorParameters(resourceInfo.constructors);
 
+    // Collect non-constructor fields that are RDF value or language tag fields
+    final allNonConstructorFields = _buildNonConstructorFields(
+        constructorParameters, resourceInfo.fields, null);
+    final nonConstructorFields = allNonConstructorFields
+        .where((field) => field.isRdfValue || field.isRdfLanguageTag)
+        .toList();
+
+    // Combine constructor and non-constructor RDF fields for validation
+    final constructorRdfFields = constructorParameters
+        .where((p) => p.isRdfValue || p.isRdfLanguageTag)
+        .toList();
+    final allRdfFields = [...constructorRdfFields, ...nonConstructorFields];
+
     if (!isMethodBased &&
-        constructorParameters
-            .any((p) => !(p.isRdfLanguageTag || p.isRdfValue))) {
+        allRdfFields.any((p) => !(p.isRdfLanguageTag || p.isRdfValue))) {
       throw Exception(
-        'LiteralMapper must only have Value or LanguagePart part parameters, but found: ${constructorParameters.where((p) => !p.isIriPart).map((p) => p.name)}',
+        'LiteralMapper must only have Value or LanguagePart part parameters, but found: ${allRdfFields.where((p) => !(p.isRdfLanguageTag || p.isRdfValue)).map((p) => p.name)}',
       );
     }
+
+    // Find the RDF value and language tag fields from all fields (constructor + non-constructor)
     final rdfValueParameter =
-        constructorParameters.where((p) => p.isRdfValue).singleOrNull;
+        allRdfFields.where((p) => p.isRdfValue).singleOrNull;
     final rdfLanguageTagParameter =
-        constructorParameters.where((p) => p.isRdfLanguageTag).singleOrNull;
+        allRdfFields.where((p) => p.isRdfLanguageTag).singleOrNull;
 
     final properties = _buildPropertyData(resourceInfo.fields);
 
@@ -157,6 +171,7 @@ class DataBuilder {
         fromLiteralTermMethod: fromLiteralTermMethod,
         toLiteralTermMethod: toLiteralTermMethod,
         constructorParameters: constructorParameters,
+        nonConstructorFields: nonConstructorFields,
         registerGlobally: resourceInfo.annotation.registerGlobally,
         properties: properties,
         rdfValue: rdfValueParameter,

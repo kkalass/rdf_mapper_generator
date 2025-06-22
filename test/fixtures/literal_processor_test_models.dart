@@ -162,3 +162,31 @@ class TestLiteralMapper2
     return LiteralTerm(value.value);
   }
 }
+
+@RdfLiteral()
+class LiteralWithNonConstructorValue {
+  @RdfValue()
+  late final String value;
+
+  LiteralWithNonConstructorValue();
+}
+
+@RdfLiteral()
+class LocalizedTextWithNonConstructorLanguage {
+  @RdfValue()
+  final String text;
+
+  @RdfLanguageTag()
+  late final String language;
+
+  LocalizedTextWithNonConstructorLanguage(this.text);
+}
+
+@RdfLiteral()
+class LiteralLateFinalLocalizedText {
+  @RdfValue()
+  late final String baseValue;
+
+  @RdfLanguageTag()
+  late final String language;
+}
