@@ -2,12 +2,14 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
 import '../test_helper.dart';
 
+final stringType = Code.coreType('String');
 void main() {
   group('LocalResourceProcessor', () {
     late LibraryElement2 libraryElement;
@@ -159,7 +161,7 @@ void main() {
       );
 
       expect(titleField, isNotNull);
-      expect(titleField.type, 'String');
+      expect(titleField.type, stringType);
       expect(titleField.isFinal, isTrue);
     });
 
@@ -178,6 +180,27 @@ void main() {
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(1));
+
+      // Check constructor has positional parameter
+      final constructor = result.constructors.first;
+      expect(constructor.parameters.first.isPositional, isTrue);
+      expect(constructor.parameters.first.name, equals('name'));
+    });
+    test('should process ClassWithNoRdfType', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(
+          validationContext, libraryElement.getClass2('ClassWithNoRdfType')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'lrptm.ClassWithNoRdfType');
+      var annotation = result.annotation as RdfLocalResourceInfo;
+      expect(annotation.classIri, isNull);
+      expect(annotation.registerGlobally, isTrue);
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(2));
 
       // Check constructor has positional parameter
       final constructor = result.constructors.first;
@@ -204,7 +227,7 @@ void main() {
       // Check field is not final
       final nameField = result.fields.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
-      expect(nameField.type, equals('String'));
+      expect(nameField.type, equals(stringType));
     });
 
     test('should process ClassWithNonFinalPropertyWithDefault', () {
@@ -227,7 +250,7 @@ void main() {
       // Check field is not final and has default value
       final nameField = result.fields.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
-      expect(nameField.type, equals('String'));
+      expect(nameField.type, equals(stringType));
     });
 
     test('should process ClassWithNonFinalOptionalProperty', () {
@@ -249,7 +272,7 @@ void main() {
       // Check field is nullable and not final
       final nameField = result.fields.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
-      expect(nameField.type, equals('String?'));
+      expect(nameField.type, equals(Code.coreType('String?')));
     });
 
     test('should process ClassWithLateNonFinalProperty', () {
@@ -271,7 +294,7 @@ void main() {
       // Check field is late and not final
       final nameField = result.fields.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
-      expect(nameField.type, equals('String'));
+      expect(nameField.type, equals(stringType));
       expect(nameField.isLate, isTrue);
     });
 
@@ -294,7 +317,7 @@ void main() {
       // Check field is late final
       final nameField = result.fields.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isTrue);
-      expect(nameField.type, equals('String'));
+      expect(nameField.type, equals(stringType));
       expect(nameField.isLate, isTrue);
     });
 
@@ -318,13 +341,13 @@ void main() {
       // Check name field is final
       final nameField = result.fields.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isTrue);
-      expect(nameField.type, equals('String'));
+      expect(nameField.type, equals(stringType));
       expect(nameField.isLate, isFalse);
 
       // Check age field is late final
       final ageField = result.fields.firstWhere((f) => f.name == 'age');
       expect(ageField.isFinal, isTrue);
-      expect(ageField.type, equals('int'));
+      expect(ageField.type, equals(Code.coreType('int')));
       expect(ageField.isLate, isTrue);
     });
   });

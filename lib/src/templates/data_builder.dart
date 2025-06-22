@@ -91,6 +91,10 @@ class DataBuilder {
     // Build constructor parameters
     final resourceConstructorParameters =
         _buildConstructorParameters(resourceInfo.constructors);
+    final nonConstructorFields = _buildNonConstructorFields(
+            resourceConstructorParameters, resourceInfo.fields, iriStrategy)
+        .where((p) => p.isIriPart || p.isRdfProperty)
+        .toList();
 
     final properties = _buildPropertyData(resourceInfo.fields);
 
@@ -103,6 +107,7 @@ class DataBuilder {
         iriStrategy: iriStrategy,
         contextProviders: contextProviders,
         constructorParameters: resourceConstructorParameters,
+        nonConstructorFields: nonConstructorFields,
         needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
         properties: properties);
@@ -350,6 +355,40 @@ class DataBuilder {
   }
 
   /// Builds constructor parameter data for the template.
+  static Iterable<ParameterData> _buildNonConstructorFields(
+      List<ParameterData> constructorParameters,
+      List<FieldInfo> fields,
+      IriData? iriStrategy) {
+    final constructorParameterNames =
+        constructorParameters.map((p) => p.name).toSet();
+    final iriPartNameByPropertyName = {
+      for (var pv in (iriStrategy?.iriMapperParts ?? <IriPartData>[]))
+        pv.dartPropertyName: pv.name
+    };
+
+    return fields
+        .where((f) => !constructorParameterNames.contains(f.name))
+        .map((field) {
+      final predicateCode = field.propertyInfo?.annotation.predicate.code;
+      final defaultValue = field.propertyInfo?.annotation.defaultValue;
+      final iriPartName = iriPartNameByPropertyName[field.name];
+      return ParameterData(
+        name: field.name,
+        dartType: field.type,
+        isRequired: field.isRequired,
+        isIriPart: iriPartName != null,
+        isRdfProperty: predicateCode != null,
+        isNamed: false,
+        iriPartName: iriPartName,
+        predicate: predicateCode,
+        defaultValue: toCode(defaultValue),
+        hasDefaultValue: defaultValue != null,
+        isRdfLanguageTag: field.isRdfLanguageTag,
+        isRdfValue: field.isRdfValue,
+      );
+    });
+  }
+
   static List<ParameterData> _buildConstructorParameters(
       List<ConstructorInfo> constructors) {
     final parameters = <ParameterData>[];

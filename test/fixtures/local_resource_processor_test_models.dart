@@ -32,6 +32,16 @@ class ClassNoRegisterGlobally {
   ClassNoRegisterGlobally({required this.name});
 }
 
+@RdfLocalResource()
+class ClassWithNoRdfType {
+  @RdfProperty(SchemaPerson.name)
+  final String name;
+  @RdfProperty(SchemaPerson.foafAge)
+  final int age;
+
+  ClassWithNoRdfType(this.name, {required this.age});
+}
+
 @RdfLocalResource(SchemaPerson.classIri)
 class ClassWithPositionalProperty {
   @RdfProperty(SchemaPerson.name)

@@ -1,3 +1,5 @@
+const importDartCore = 'dart:core';
+
 /// Represents generated code with its import dependencies and type aliases.
 ///
 /// This class manages code generation where types might come from different
@@ -46,6 +48,10 @@ class Code {
     }
 
     return Code._('${_wrapImportUri(importUri)}$typeName', {importUri});
+  }
+
+  factory Code.coreType(String typeName) {
+    return Code.type(typeName, importUri: importDartCore);
   }
 
   /// Creates a Code instance for a constructor call

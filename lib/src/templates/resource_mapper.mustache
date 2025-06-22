@@ -3,6 +3,13 @@
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type {{className}}.
 class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+  {{#hasIriStrategy}}
+  {{#iriStrategy}}
+  {{#hasTemplate}}
+  static final RegExp _regex = RegExp('{{template.regexPattern}}');
+  {{/hasTemplate}}
+  {{/iriStrategy}}
+  {{/hasIriStrategy}}
   {{#contextProviders}}
   /// Provider for context variable '{{value.variableName}}'
   final String Function() {{value.privateFieldName}};
@@ -26,7 +33,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
        {{/last}}{{/contextProviders}}{{/hasMapperConstructorParameters}};
 
   @override
-  IriTerm get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
+  IriTerm? get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
 
   @override
   {{className}} fromRdfResource({{termClass}} subject, DeserializationContext context) {
@@ -49,20 +56,24 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/iriStrategy}}
     {{/hasIriStrategy}}
     
-    {{#constructorParameters}}
+    {{#constructorParametersOrOtherFields}}
     {{#value.isIriPart}}
     final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isIriPart}}
     {{#value.isRdfProperty}}
-    final {{value.name}} = reader.{{#value.isRequired}}require{{/value.isRequired}}{{^value.isRequired}}optional{{/value.isRequired}}<{{value.dartType}}>({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.dartType}} {{value.name}} = reader.{{#value.isRequired}}require{{/value.isRequired}}{{^value.isRequired}}optional{{/value.isRequired}}({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isRdfProperty}}
+    {{/constructorParametersOrOtherFields}}
 
-    {{/constructorParameters}}
-    return {{className}}(
+    final retval = {{className}}(
       {{#constructorParameters}}
       {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{value.name}}{{^last}},{{/last}}
       {{/constructorParameters}}
     );
+    {{#nonConstructorFields}}
+    retval.{{value.name}} = {{value.name}};
+    {{/nonConstructorFields}}
+    return retval;
   }
 
   @override
@@ -113,8 +124,6 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/contextProviders}}
     return iri;
   }
-
-  static final RegExp _regex = RegExp('{{template.regexPattern}}');
 
   /// Parses IRI parts from a complete IRI using a template.
   ///

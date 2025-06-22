@@ -18,13 +18,14 @@ import 'package:rdf_vocabularies/schema.dart' as schema;
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Book.
 class BookMapper implements GlobalResourceMapper<Book> {
+  static final RegExp _regex = RegExp('^http://example\.org/books/(?<isbn>[^/]*)\$');
 
 
   /// Constructor
   const BookMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => schema.SchemaBook.classIri;
 
   @override
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -35,16 +36,15 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final iriParts = _parseIriParts(subject.iri);
     
     final isbn = iriParts['isbn']!;
+    final String title = reader.require(schema.SchemaBook.name);
+    final String authorId = reader.require(schema.SchemaBook.author);
 
-    final title = reader.require<String>(schema.SchemaBook.name);
-
-    final authorId = reader.require<String>(schema.SchemaBook.author);
-
-    return Book(
+    final retval = Book(
       isbn: isbn,
       title: title,
       authorId: authorId
     );
+    return retval;
   }
 
   @override
@@ -67,8 +67,6 @@ class BookMapper implements GlobalResourceMapper<Book> {
     iri = iri.replaceAll('{isbn}', resource.isbn.toString());
     return iri;
   }
-
-  static final RegExp _regex = RegExp('^http://example\.org/books/(?<isbn>[^/]*)\$');
 
   /// Parses IRI parts from a complete IRI using a template.
   ///
@@ -94,13 +92,14 @@ class BookMapper implements GlobalResourceMapper<Book> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type ClassWithEmptyIriStrategy.
 class ClassWithEmptyIriStrategyMapper implements GlobalResourceMapper<ClassWithEmptyIriStrategy> {
+  static final RegExp _regex = RegExp('^(?<iri>.*)\$');
 
 
   /// Constructor
   const ClassWithEmptyIriStrategyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithEmptyIriStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -111,9 +110,10 @@ class ClassWithEmptyIriStrategyMapper implements GlobalResourceMapper<ClassWithE
     
     final iri = iriParts['iri']!;
 
-    return ClassWithEmptyIriStrategy(
+    final retval = ClassWithEmptyIriStrategy(
       iri: iri
     );
+    return retval;
   }
 
   @override
@@ -135,7 +135,79 @@ class ClassWithEmptyIriStrategyMapper implements GlobalResourceMapper<ClassWithE
     return iri;
   }
 
+  /// Parses IRI parts from a complete IRI using a template.
+  ///
+  /// Supports RFC 6570 URI Template standard:
+  /// - {variable} (default): excludes reserved characters like '/'
+  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
+  Map<String, String> _parseIriParts(String iri) {
+    // Try to match the IRI against the regex pattern
+    RegExpMatch? match = _regex.firstMatch(iri);
+
+    return match == null
+        ? {}
+        : Map.fromEntries(match.groupNames.map((name) {
+            var namedGroup = match.namedGroup(name)!;
+            return MapEntry(name, namedGroup);
+          }));
+  }
+}
+
+
+/// Generated mapper for [ClassWithNoRdfType] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithNoRdfType.
+class ClassWithNoRdfTypeMapper implements GlobalResourceMapper<ClassWithNoRdfType> {
   static final RegExp _regex = RegExp('^(?<iri>.*)\$');
+
+
+  /// Constructor
+  const ClassWithNoRdfTypeMapper();
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  ClassWithNoRdfType fromRdfResource(IriTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    // Extract IRI parts
+    final iriParts = _parseIriParts(subject.iri);
+    
+    final String name = reader.require(schema.SchemaPerson.name);
+    final int? age = reader.optional(schema.SchemaPerson.foafAge);
+    final iri = iriParts['iri']!;
+
+    final retval = ClassWithNoRdfType(
+      name,
+      age: age
+    );
+    retval.iri = iri;
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    ClassWithNoRdfType resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = IriTerm(_buildIri(resource));
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .addValueIfNotNull(schema.SchemaPerson.foafAge, resource.age)
+      .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(ClassWithNoRdfType resource) {
+    var iri = '{+iri}';
+    iri = iri.replaceAll('{+iri}', resource.iri.toString());
+    return iri;
+  }
 
   /// Parses IRI parts from a complete IRI using a template.
   ///
@@ -161,13 +233,14 @@ class ClassWithEmptyIriStrategyMapper implements GlobalResourceMapper<ClassWithE
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type ClassWithEmptyIriStrategyNoRegisterGlobally.
 class ClassWithEmptyIriStrategyNoRegisterGloballyMapper implements GlobalResourceMapper<ClassWithEmptyIriStrategyNoRegisterGlobally> {
+  static final RegExp _regex = RegExp('^(?<iri>.*)\$');
 
 
   /// Constructor
   const ClassWithEmptyIriStrategyNoRegisterGloballyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithEmptyIriStrategyNoRegisterGlobally fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -178,9 +251,10 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper implements GlobalResourc
     
     final iri = iriParts['iri']!;
 
-    return ClassWithEmptyIriStrategyNoRegisterGlobally(
+    final retval = ClassWithEmptyIriStrategyNoRegisterGlobally(
       iri: iri
     );
+    return retval;
   }
 
   @override
@@ -201,8 +275,6 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper implements GlobalResourc
     iri = iri.replaceAll('{+iri}', resource.iri.toString());
     return iri;
   }
-
-  static final RegExp _regex = RegExp('^(?<iri>.*)\$');
 
   /// Parses IRI parts from a complete IRI using a template.
   ///
@@ -228,13 +300,14 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper implements GlobalResourc
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type ClassWithIriTemplateStrategy.
 class ClassWithIriTemplateStrategyMapper implements GlobalResourceMapper<ClassWithIriTemplateStrategy> {
+  static final RegExp _regex = RegExp('^http://example\.org/persons/(?<id>[^/]*)\$');
 
 
   /// Constructor
   const ClassWithIriTemplateStrategyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithIriTemplateStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -245,9 +318,10 @@ class ClassWithIriTemplateStrategyMapper implements GlobalResourceMapper<ClassWi
     
     final id = iriParts['id']!;
 
-    return ClassWithIriTemplateStrategy(
+    final retval = ClassWithIriTemplateStrategy(
       id: id
     );
+    return retval;
   }
 
   @override
@@ -268,8 +342,6 @@ class ClassWithIriTemplateStrategyMapper implements GlobalResourceMapper<ClassWi
     iri = iri.replaceAll('{id}', resource.id.toString());
     return iri;
   }
-
-  static final RegExp _regex = RegExp('^http://example\.org/persons/(?<id>[^/]*)\$');
 
   /// Parses IRI parts from a complete IRI using a template.
   ///
@@ -295,6 +367,7 @@ class ClassWithIriTemplateStrategyMapper implements GlobalResourceMapper<ClassWi
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type ClassWithIriTemplateAndContextVariableStrategy.
 class ClassWithIriTemplateAndContextVariableStrategyMapper implements GlobalResourceMapper<ClassWithIriTemplateAndContextVariableStrategy> {
+  static final RegExp _regex = RegExp('^(?<baseUri>.*)/persons/(?<thisId>[^/]*)\$');
   /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
 
@@ -306,7 +379,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper implements GlobalReso
   }) : _baseUriProvider = baseUriProvider;
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithIriTemplateAndContextVariableStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -317,9 +390,10 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper implements GlobalReso
     
     final id = iriParts['thisId']!;
 
-    return ClassWithIriTemplateAndContextVariableStrategy(
+    final retval = ClassWithIriTemplateAndContextVariableStrategy(
       id: id
     );
+    return retval;
   }
 
   @override
@@ -341,8 +415,6 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper implements GlobalReso
     iri = iri.replaceAll('{+baseUri}', _baseUriProvider());
     return iri;
   }
-
-  static final RegExp _regex = RegExp('^(?<baseUri>.*)/persons/(?<thisId>[^/]*)\$');
 
   /// Parses IRI parts from a complete IRI using a template.
   ///
@@ -377,7 +449,7 @@ class ClassWithIriNamedMapperStrategyMapper implements GlobalResourceMapper<Clas
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -385,8 +457,10 @@ class ClassWithIriNamedMapperStrategyMapper implements GlobalResourceMapper<Clas
 
     // Extract IRI parts
     
-    return ClassWithIriNamedMapperStrategy(
+
+    final retval = ClassWithIriNamedMapperStrategy(
     );
+    return retval;
   }
 
   @override
@@ -418,7 +492,7 @@ class ClassWithIriMapperStrategyMapper implements GlobalResourceMapper<ClassWith
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithIriMapperStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -426,8 +500,10 @@ class ClassWithIriMapperStrategyMapper implements GlobalResourceMapper<ClassWith
 
     // Extract IRI parts
     
-    return ClassWithIriMapperStrategy(
+
+    final retval = ClassWithIriMapperStrategy(
     );
+    return retval;
   }
 
   @override
@@ -459,7 +535,7 @@ class ClassWithIriMapperInstanceStrategyMapper implements GlobalResourceMapper<C
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithIriMapperInstanceStrategy fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -467,8 +543,10 @@ class ClassWithIriMapperInstanceStrategyMapper implements GlobalResourceMapper<C
 
     // Extract IRI parts
     
-    return ClassWithIriMapperInstanceStrategy(
+
+    final retval = ClassWithIriMapperInstanceStrategy(
     );
+    return retval;
   }
 
   @override

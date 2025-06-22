@@ -5,6 +5,7 @@ import 'package:analyzer/dart/element/type.dart';
 import 'code.dart';
 
 const importRdfMapper = 'package:rdf_mapper/rdf_mapper.dart';
+
 const importRdfCore = 'package:rdf_core/rdf_core.dart';
 const importRdfVocab = 'package:rdf_vocabularies/rdf.dart';
 const importXsd = 'package:rdf_vocabularies/xsd.dart';
@@ -151,11 +152,6 @@ String? _getImportUriForType(Element2? element) {
   final source = element.library2?.identifier;
   final sourceUri = element.library2?.uri;
   if (source == null || sourceUri == null) return null;
-
-  // Don't include imports for dart: core types
-  if (sourceUri.scheme == 'dart' && sourceUri.pathSegments.first == 'core') {
-    return null;
-  }
 
   return source.toString();
 }

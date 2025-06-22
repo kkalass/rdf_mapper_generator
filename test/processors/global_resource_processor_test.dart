@@ -300,7 +300,7 @@ void main() {
       );
 
       expect(titleField, isNotNull);
-      expect(titleField.type, 'String');
+      expect(titleField.type.codeWithoutAlias, 'String');
       expect(titleField.isFinal, isTrue);
     });
     test('should process ClassWithIriMapperStrategy', () {
@@ -366,6 +366,52 @@ void main() {
       expect(annotation.iri!.mapper!.name, 'testMapper');
       expect(annotation.iri!.mapper!.type, isNull);
       expect(annotation.iri!.mapper!.instance, isNull);
+    });
+    test('should process ClassWithNoRdfType', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithNoRdfType')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'grptm.ClassWithNoRdfType');
+      var annotation = result.annotation as RdfGlobalResourceInfo;
+      expect(annotation.classIri, isNull);
+      expect(annotation.registerGlobally, isTrue);
+      expect(annotation.iri?.mapper, isNull);
+      expect(annotation.iri?.template, '{+iri}');
+
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(3)); // iri, name, age
+    });
+
+    test('should process ClassWithIriTemplateAndContextVariableStrategy', () {
+      // Act
+      final validationContext = ValidationContext();
+      final result = ResourceProcessor.processClass(validationContext,
+          libraryElement.getClass2('ClassWithIriTemplateAndContextVariableStrategy')!);
+      validationContext.throwIfErrors();
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.className.code, 'grptm.ClassWithIriTemplateAndContextVariableStrategy');
+      var annotation = result.annotation as RdfGlobalResourceInfo;
+      expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
+      expect(annotation.registerGlobally, isTrue);
+      expect(annotation.mapper, isNull);
+      expect(annotation.iri?.mapper, isNull);
+      expect(annotation.iri?.template, equals('{+baseUri}/persons/{thisId}'));
+      expect(annotation.iri?.templateInfo, isNotNull);
+      expect(annotation.iri?.templateInfo?.isValid, isTrue);
+      expect(annotation.iri?.templateInfo?.variables, contains('thisId'));
+      expect(annotation.iri?.templateInfo?.variables, contains('baseUri'));
+      expect(
+          annotation.iri?.templateInfo?.propertyVariables.map((pn) => pn.name),
+          contains('thisId'));
+      expect(result.constructors, hasLength(1));
+      expect(result.fields, hasLength(1));
     });
   });
 }

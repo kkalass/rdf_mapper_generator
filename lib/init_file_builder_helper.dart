@@ -538,8 +538,8 @@ class InitFileBuilderHelper {
     String currentPackage,
   ) {
     final rawData = result.toMap();
-    final data = _templateRenderer
-        .resolveCodeSnipplets(rawData, defaultImports: [importRdfMapper]);
+    final data = _templateRenderer.resolveCodeSnipplets(rawData,
+        defaultImports: [importRdfMapper, importDartCore]);
 
     // Clean up aliasedImports URIs by removing asset:packageName/lib/ or asset:packageName/test/ prefixes
     _fixupAliasedImports(data, currentPackage);

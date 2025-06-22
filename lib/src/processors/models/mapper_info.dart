@@ -549,7 +549,7 @@ class ParameterInfo {
   final String name;
 
   /// The type of the parameter as a string
-  final String type;
+  final Code type;
 
   /// Whether this parameter is required
   final bool isRequired;
@@ -642,7 +642,7 @@ class FieldInfo {
   final String name;
 
   /// The type of the field as a string
-  final String type;
+  final Code type;
 
   /// Whether this field is final
   final bool isFinal;

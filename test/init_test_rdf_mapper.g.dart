@@ -46,6 +46,7 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<atm.BookWithTemplate>(atmrmg.BookWithTemplateMapper());
   registry.registerMapper<grptm.Book>(grptmrmg.BookMapper());
   registry.registerMapper<grptm.ClassWithEmptyIriStrategy>(grptmrmg.ClassWithEmptyIriStrategyMapper());
+  registry.registerMapper<grptm.ClassWithNoRdfType>(grptmrmg.ClassWithNoRdfTypeMapper());
   registry.registerMapper<grptm.ClassWithIriTemplateStrategy>(grptmrmg.ClassWithIriTemplateStrategyMapper());
   registry.registerMapper<grptm.ClassWithIriTemplateAndContextVariableStrategy>(grptmrmg.ClassWithIriTemplateAndContextVariableStrategyMapper(baseUriProvider:baseUriProvider, ));
   registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy>(grptmrmg.ClassWithIriNamedMapperStrategyMapper(iriMapper:testMapper, ));
@@ -75,6 +76,7 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<lptm.LiteralWithMapper>(lptm.TestLiteralMapper());
   registry.registerMapper<lptm.LiteralWithMapperInstance>(const lptm.TestLiteralMapper2());
   registry.registerMapper<lrptm.Book>(lrptmrmg.BookMapper());
+  registry.registerMapper<lrptm.ClassWithNoRdfType>(lrptmrmg.ClassWithNoRdfTypeMapper());
   registry.registerMapper<lrptm.ClassWithPositionalProperty>(lrptmrmg.ClassWithPositionalPropertyMapper());
   registry.registerMapper<lrptm.ClassWithNonFinalProperty>(lrptmrmg.ClassWithNonFinalPropertyMapper());
   registry.registerMapper<lrptm.ClassWithNonFinalPropertyWithDefault>(lrptmrmg.ClassWithNonFinalPropertyWithDefaultMapper());

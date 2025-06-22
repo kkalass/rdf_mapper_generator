@@ -34,6 +34,20 @@ class ClassWithEmptyIriStrategy {
   ClassWithEmptyIriStrategy({required this.iri});
 }
 
+@RdfGlobalResource(null, IriStrategy())
+class ClassWithNoRdfType {
+  @RdfIriPart()
+  late final String iri;
+
+  @RdfProperty(SchemaPerson.name)
+  final String name;
+
+  @RdfProperty(SchemaPerson.foafAge)
+  final int? age;
+
+  ClassWithNoRdfType(this.name, {this.age});
+}
+
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy(),
     registerGlobally: false)
 class ClassWithEmptyIriStrategyNoRegisterGlobally {

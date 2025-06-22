@@ -27,7 +27,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => schema.SchemaBook.classIri;
 
   @override
   BookWithMapper fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -37,13 +37,13 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
     // Extract IRI parts
     final (id, ) = _iriMapper.fromRdfTerm(subject, context);
     
+    final String title = reader.optional(schema.SchemaBook.name) ?? 'Untitled';
 
-    final title = reader.optional<String>(schema.SchemaBook.name) ?? 'Untitled';
-
-    return BookWithMapper(
+    final retval = BookWithMapper(
       id: id,
       title: title
     );
+    return retval;
   }
 
   @override
@@ -76,7 +76,7 @@ class BookWithMapperInstanceMapper implements GlobalResourceMapper<BookWithMappe
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => schema.SchemaBook.classIri;
 
   @override
   BookWithMapperInstance fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -86,9 +86,10 @@ class BookWithMapperInstanceMapper implements GlobalResourceMapper<BookWithMappe
     final (id, ) = _iriMapper.fromRdfTerm(subject, context);
     
 
-    return BookWithMapperInstance(
+    final retval = BookWithMapperInstance(
       id
     );
+    return retval;
   }
 
   @override
@@ -111,13 +112,14 @@ class BookWithMapperInstanceMapper implements GlobalResourceMapper<BookWithMappe
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type BookWithTemplate.
 class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
+  static final RegExp _regex = RegExp('^https://example\.org/books/(?<id>[^/]*)\$');
 
 
   /// Constructor
   const BookWithTemplateMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => schema.SchemaBook.classIri;
 
   @override
   BookWithTemplate fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -128,9 +130,10 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
     
     final id = iriParts['id']!;
 
-    return BookWithTemplate(
+    final retval = BookWithTemplate(
       id
     );
+    return retval;
   }
 
   @override
@@ -151,8 +154,6 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
     iri = iri.replaceAll('{id}', resource.id.toString());
     return iri;
   }
-
-  static final RegExp _regex = RegExp('^https://example\.org/books/(?<id>[^/]*)\$');
 
   /// Parses IRI parts from a complete IRI using a template.
   ///

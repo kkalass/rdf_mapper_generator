@@ -68,7 +68,7 @@ void main() {
       });
 
       test('respects known imports without aliases', () {
-        final code = Code.type('MyClass', importUri: 'dart:core');
+        final code = Code.coreType('MyClass');
         final data = {
           'codeField': code.toMap(),
         };

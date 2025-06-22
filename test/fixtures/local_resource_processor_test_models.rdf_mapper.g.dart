@@ -24,7 +24,7 @@ class BookMapper implements LocalResourceMapper<Book> {
   const BookMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => schema.SchemaBook.classIri;
 
   @override
   Book fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -32,17 +32,16 @@ class BookMapper implements LocalResourceMapper<Book> {
     
 
     
-    final isbn = reader.require<String>(schema.SchemaBook.isbn);
+    final String isbn = reader.require(schema.SchemaBook.isbn);
+    final String title = reader.require(schema.SchemaBook.name);
+    final String authorId = reader.require(schema.SchemaBook.author);
 
-    final title = reader.require<String>(schema.SchemaBook.name);
-
-    final authorId = reader.require<String>(schema.SchemaBook.author);
-
-    return Book(
+    final retval = Book(
       isbn: isbn,
       title: title,
       authorId: authorId
     );
+    return retval;
   }
 
   @override
@@ -74,7 +73,7 @@ class ClassNoRegisterGloballyMapper implements LocalResourceMapper<ClassNoRegist
   const ClassNoRegisterGloballyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassNoRegisterGlobally fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -82,11 +81,12 @@ class ClassNoRegisterGloballyMapper implements LocalResourceMapper<ClassNoRegist
     
 
     
-    final name = reader.require<String>(schema.SchemaPerson.name);
+    final String name = reader.require(schema.SchemaPerson.name);
 
-    return ClassNoRegisterGlobally(
+    final retval = ClassNoRegisterGlobally(
       name: name
     );
+    return retval;
   }
 
   @override
@@ -105,6 +105,52 @@ class ClassNoRegisterGloballyMapper implements LocalResourceMapper<ClassNoRegist
 }
 
 
+/// Generated mapper for [ClassWithNoRdfType] global resources.
+/// 
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type ClassWithNoRdfType.
+class ClassWithNoRdfTypeMapper implements LocalResourceMapper<ClassWithNoRdfType> {
+
+
+  /// Constructor
+  const ClassWithNoRdfTypeMapper();
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  ClassWithNoRdfType fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+    
+
+    
+    final String name = reader.require(schema.SchemaPerson.name);
+    final int age = reader.require(schema.SchemaPerson.foafAge);
+
+    final retval = ClassWithNoRdfType(
+      name,
+      age: age
+    );
+    return retval;
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    ClassWithNoRdfType resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+    
+    return context.resourceBuilder(subject)
+      .addValue(schema.SchemaPerson.name, resource.name)
+      .addValue(schema.SchemaPerson.foafAge, resource.age)
+      .build();
+  }
+
+}
+
+
 /// Generated mapper for [ClassWithPositionalProperty] global resources.
 /// 
 /// This mapper handles serialization and deserialization between Dart objects
@@ -116,7 +162,7 @@ class ClassWithPositionalPropertyMapper implements LocalResourceMapper<ClassWith
   const ClassWithPositionalPropertyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithPositionalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -124,11 +170,12 @@ class ClassWithPositionalPropertyMapper implements LocalResourceMapper<ClassWith
     
 
     
-    final name = reader.require<String>(schema.SchemaPerson.name);
+    final String name = reader.require(schema.SchemaPerson.name);
 
-    return ClassWithPositionalProperty(
+    final retval = ClassWithPositionalProperty(
       name
     );
+    return retval;
   }
 
   @override
@@ -158,7 +205,7 @@ class ClassWithNonFinalPropertyMapper implements LocalResourceMapper<ClassWithNo
   const ClassWithNonFinalPropertyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithNonFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -166,11 +213,12 @@ class ClassWithNonFinalPropertyMapper implements LocalResourceMapper<ClassWithNo
     
 
     
-    final name = reader.require<String>(schema.SchemaPerson.name);
+    final String name = reader.require(schema.SchemaPerson.name);
 
-    return ClassWithNonFinalProperty(
+    final retval = ClassWithNonFinalProperty(
       name: name
     );
+    return retval;
   }
 
   @override
@@ -200,7 +248,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper implements LocalResourceMapper<
   const ClassWithNonFinalPropertyWithDefaultMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithNonFinalPropertyWithDefault fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -208,8 +256,12 @@ class ClassWithNonFinalPropertyWithDefaultMapper implements LocalResourceMapper<
     
 
     
-    return ClassWithNonFinalPropertyWithDefault(
+    final String name = reader.require(schema.SchemaPerson.name);
+
+    final retval = ClassWithNonFinalPropertyWithDefault(
     );
+    retval.name = name;
+    return retval;
   }
 
   @override
@@ -239,7 +291,7 @@ class ClassWithNonFinalOptionalPropertyMapper implements LocalResourceMapper<Cla
   const ClassWithNonFinalOptionalPropertyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithNonFinalOptionalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -247,8 +299,12 @@ class ClassWithNonFinalOptionalPropertyMapper implements LocalResourceMapper<Cla
     
 
     
-    return ClassWithNonFinalOptionalProperty(
+    final String? name = reader.optional(schema.SchemaPerson.name);
+
+    final retval = ClassWithNonFinalOptionalProperty(
     );
+    retval.name = name;
+    return retval;
   }
 
   @override
@@ -278,7 +334,7 @@ class ClassWithLateNonFinalPropertyMapper implements LocalResourceMapper<ClassWi
   const ClassWithLateNonFinalPropertyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithLateNonFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -286,8 +342,12 @@ class ClassWithLateNonFinalPropertyMapper implements LocalResourceMapper<ClassWi
     
 
     
-    return ClassWithLateNonFinalProperty(
+    final String name = reader.require(schema.SchemaPerson.name);
+
+    final retval = ClassWithLateNonFinalProperty(
     );
+    retval.name = name;
+    return retval;
   }
 
   @override
@@ -317,7 +377,7 @@ class ClassWithLateFinalPropertyMapper implements LocalResourceMapper<ClassWithL
   const ClassWithLateFinalPropertyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithLateFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -325,8 +385,12 @@ class ClassWithLateFinalPropertyMapper implements LocalResourceMapper<ClassWithL
     
 
     
-    return ClassWithLateFinalProperty(
+    final String name = reader.require(schema.SchemaPerson.name);
+
+    final retval = ClassWithLateFinalProperty(
     );
+    retval.name = name;
+    return retval;
   }
 
   @override
@@ -356,7 +420,7 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper implements LocalResourceMapp
   const ClassWithMixedFinalAndLateFinalPropertyMapper();
 
   @override
-  IriTerm get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => schema.SchemaPerson.classIri;
 
   @override
   ClassWithMixedFinalAndLateFinalProperty fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
@@ -364,11 +428,14 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper implements LocalResourceMapp
     
 
     
-    final name = reader.require<String>(schema.SchemaPerson.name);
+    final String name = reader.require(schema.SchemaPerson.name);
+    final int age = reader.require(schema.SchemaPerson.foafAge);
 
-    return ClassWithMixedFinalAndLateFinalProperty(
+    final retval = ClassWithMixedFinalAndLateFinalProperty(
       name: name
     );
+    retval.age = age;
+    return retval;
   }
 
   @override

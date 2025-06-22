@@ -51,7 +51,7 @@ class TemplateRenderer {
     const defaultImports = [importRdfCore, importRdfMapper];
     data = resolveCodeSnipplets(
       data,
-      defaultImports: [...defaultImports, mapperImportUri],
+      defaultImports: [...defaultImports, mapperImportUri, importDartCore],
       importAliases: {
         modelImportUri: '',
       },

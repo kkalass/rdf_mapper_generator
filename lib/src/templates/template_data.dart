@@ -109,6 +109,7 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
 
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
+  final List<ParameterData> nonConstructorFields;
 
   /// Property mapping information
   final List<PropertyData> properties;
@@ -133,12 +134,14 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
     required bool needsReader,
     required bool registerGlobally,
     required List<PropertyData> properties,
+    required List<ParameterData> nonConstructorFields,
   })  : className = className,
         mapperClassName = mapperClassName,
         typeIri = typeIri,
         iriStrategy = iriStrategy,
         contextProviders = contextProviders,
         constructorParameters = constructorParameters,
+        nonConstructorFields = nonConstructorFields,
         needsReader = needsReader,
         registerGlobally = registerGlobally,
         properties = properties;
@@ -157,6 +160,13 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
       'iriStrategy': iriStrategy?.toMap(),
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
+      'nonConstructorFields':
+          toMustacheList(nonConstructorFields.map((p) => p.toMap()).toList()),
+      'constructorParametersOrOtherFields': toMustacheList([
+        ...constructorParameters,
+        ...nonConstructorFields
+      ].map((p) => p.toMap()).toList()),
+      'hasNonConstructorFields': nonConstructorFields.isNotEmpty,
       'properties': properties.map((p) => p.toMap()).toList(),
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
@@ -499,7 +509,7 @@ class IriData {
 /// Data for constructor parameters
 class ParameterData {
   final String name;
-  final String dartType;
+  final Code dartType;
   final bool isRequired;
   final bool isIriPart;
   final bool isRdfProperty;
@@ -527,7 +537,7 @@ class ParameterData {
 
   Map<String, dynamic> toMap() => {
         'name': name,
-        'dartType': dartType,
+        'dartType': dartType.toMap(),
         // if default value is provided, then it is not required
         'isRequired': isRequired && !hasDefaultValue,
         'isIriPart': isIriPart && !isRdfProperty,

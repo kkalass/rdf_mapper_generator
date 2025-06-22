@@ -185,7 +185,7 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
 
         parameters.add(ParameterInfo(
           name: parameter.name3!,
-          type: parameter.type.getDisplayString(),
+          type: typeToCode(parameter.type),
           isRequired: parameter.isRequired,
           isNamed: parameter.isNamed,
           isPositional: parameter.isPositional,
@@ -231,7 +231,7 @@ List<FieldInfo> extractFields(ClassElement2 classElement) {
 
     fields.add(FieldInfo(
       name: field.name3!,
-      type: field.type.getDisplayString(),
+      type: typeToCode(field.type),
       isFinal: field.isFinal,
       isLate: field.isLate,
       isStatic: field.isStatic,

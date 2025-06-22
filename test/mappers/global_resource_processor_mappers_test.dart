@@ -172,5 +172,29 @@ ex:no-register a schema:Person .
           reason:
               'ClassNoRegisterGlobally should still not be registered globally, even after local registration');
     });
+
+    test('ClassWithNoRdfType mapping', () {
+      // Verify global resource registration
+      final isRegistered = mapper.registry
+          .hasGlobalResourceDeserializerFor<ClassWithNoRdfType>();
+      expect(isRegistered, isTrue,
+          reason:
+              'ClassWithNoRdfType should be registered as a global resource');
+
+      // Create a ClassWithNoRdfType instance
+      final instance = ClassWithNoRdfType('John Doe', age: 30);
+      instance.iri = 'http://example.org/persons/john';
+
+      // Test serialization
+      final graph = mapper.encodeObject(instance);
+      expect(graph, isNotNull);
+
+      // Test deserialization
+      final deserialized = mapper.decodeObject<ClassWithNoRdfType>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.iri, equals(instance.iri));
+      expect(deserialized.name, equals(instance.name));
+      expect(deserialized.age, equals(instance.age));
+    });
   });
 }
