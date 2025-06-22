@@ -125,8 +125,7 @@ class ClassWithIriNamedMapperStrategy2PartsSwapped {
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper3'),
-    registerGlobally: false)
+    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper3'))
 class ClassWithIriNamedMapperStrategy2PartsWithProperties {
   @RdfIriPart.position(1)
   late final String id;

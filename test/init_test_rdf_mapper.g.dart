@@ -26,6 +26,7 @@ import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart' as lrpt
 /// * [testLiteralMapper] mapper 
 /// * [testLocalResourceMapper] mapper 
 /// * [testMapper] mapper 
+/// * [testMapper3] mapper 
 RdfMapper initTestRdfMapper({
   RdfMapper? rdfMapper,
   // Provider parameters
@@ -36,6 +37,7 @@ RdfMapper initTestRdfMapper({
   required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
   required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy> testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
+  required IriTermMapper<(String id, String surname, int version,)> testMapper3,
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
@@ -50,6 +52,7 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<grptm.ClassWithIriTemplateStrategy>(grptmrmg.ClassWithIriTemplateStrategyMapper());
   registry.registerMapper<grptm.ClassWithIriTemplateAndContextVariableStrategy>(grptmrmg.ClassWithIriTemplateAndContextVariableStrategyMapper(baseUriProvider:baseUriProvider, ));
   registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy>(grptmrmg.ClassWithIriNamedMapperStrategyMapper(iriMapper:testMapper, ));
+  registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties>(grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(iriMapper:testMapper3, ));
   registry.registerMapper<grptm.ClassWithIriMapperStrategy>(grptmrmg.ClassWithIriMapperStrategyMapper(iriMapper:grptm.TestIriMapper(), ));
   registry.registerMapper<grptm.ClassWithIriMapperInstanceStrategy>(grptmrmg.ClassWithIriMapperInstanceStrategyMapper(iriMapper:const grptm.TestIriMapper2(), ));
   registry.registerMapper<grptm.ClassWithMapperNamedMapperStrategy>(testGlobalResourceMapper);

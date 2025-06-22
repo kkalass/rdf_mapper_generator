@@ -109,21 +109,52 @@ class NamedTestLiteralMapper
   }
 }
 
+/// IRI mapper for three part tuple with properties (String id, String surname, int version)
+class TestMapper3PartsWithProperties
+    implements IriTermMapper<(String, String, int)> {
+  const TestMapper3PartsWithProperties();
+
+  @override
+  (String, String, int) fromRdfTerm(
+      IriTerm term, DeserializationContext context) {
+    // Extract ID, surname, and version from IRI like http://example.org/3parts/test-id/smith/42
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/3parts/([^/]+)/([^/]+)/(\d+)$')
+        .firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid IRI format: $iri');
+    }
+    return (match.group(1)!, match.group(2)!, int.parse(match.group(3)!));
+  }
+
+  @override
+  IriTerm toRdfTerm((String, String, int) value, SerializationContext context) {
+    return IriTerm(
+        'http://example.org/3parts/${value.$1}/${value.$2}/${value.$3}');
+  }
+}
+
 const baseUri = 'http://example.org';
 
-RdfMapper defaultInitTestRdfMapper({
-  RdfMapper? rdfMapper,
-  // Provider parameters
-  String Function()? baseUriProvider,
-  // IRI mapper parameters
-  IriTermMapper<grptm.ClassWithIriNamedMapperStrategy>? testMapper,
-  GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>?
-      testGlobalResourceMapper,
-  LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>?
-      testLocalResourceMapper,
-  IriTermMapper<iptm.IriWithNamedMapper>? testIriMapper,
-  LiteralTermMapper<lptm.LiteralWithNamedMapper>? testLiteralMapper,
-}) {
+RdfMapper defaultInitTestRdfMapper(
+    {RdfMapper? rdfMapper,
+    // Provider parameters
+    String Function()? baseUriProvider,
+    // IRI mapper parameters
+    IriTermMapper<grptm.ClassWithIriNamedMapperStrategy>? testMapper,
+    GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>?
+        testGlobalResourceMapper,
+    LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>?
+        testLocalResourceMapper,
+    IriTermMapper<iptm.IriWithNamedMapper>? testIriMapper,
+    LiteralTermMapper<lptm.LiteralWithNamedMapper>? testLiteralMapper,
+    IriTermMapper<
+            (
+              String id,
+              String surname,
+              int version,
+            )>?
+        testMapper3}) {
   return initTestRdfMapper(
     baseUriProvider: baseUriProvider ?? (() => baseUri),
     testMapper: testMapper ?? const TestMapper(),
@@ -133,5 +164,6 @@ RdfMapper defaultInitTestRdfMapper({
         testLocalResourceMapper ?? const NamedTestLocalResourceMapper(),
     testIriMapper: testIriMapper ?? const NamedTestIriMapper(),
     testLiteralMapper: testLiteralMapper ?? const NamedTestLiteralMapper(),
+    testMapper3: testMapper3 ?? const TestMapper3PartsWithProperties(),
   );
 }

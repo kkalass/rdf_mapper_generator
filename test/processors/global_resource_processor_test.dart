@@ -508,7 +508,7 @@ void main() {
           'grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties');
       var annotation = result.annotation as RdfGlobalResourceInfo;
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
-      expect(annotation.registerGlobally, isFalse);
+      expect(annotation.registerGlobally, isTrue);
       expect(annotation.mapper, isNull);
       expect(annotation.iri, isNotNull);
       expect(annotation.iri!.template, isNull);
