@@ -18,6 +18,11 @@ class LocalResourceMappingInfo extends BaseMappingInfo {
     }
     return super == other;
   }
+
+  @override
+  String toString() {
+    return 'LocalResourceMappingInfo{mapper: $mapper}';
+  }
 }
 
 class LiteralMappingInfo extends BaseMappingInfo {
@@ -44,6 +49,14 @@ class LiteralMappingInfo extends BaseMappingInfo {
         language == other.language &&
         datatype == other.datatype;
   }
+
+  @override
+  String toString() {
+    return 'LiteralMappingInfo{'
+        'mapper: $mapper, '
+        'language: $language, '
+        'datatype: $datatype}';
+  }
 }
 
 class GlobalResourceMappingInfo extends BaseMappingInfo {
@@ -60,6 +73,11 @@ class GlobalResourceMappingInfo extends BaseMappingInfo {
       return false;
     }
     return super == other;
+  }
+
+  @override
+  String toString() {
+    return 'GlobalResourceMappingInfo{mapper: $mapper}';
   }
 }
 
@@ -80,6 +98,13 @@ class IriMappingInfo extends BaseMappingInfo {
       return false;
     }
     return super == other && template == other.template;
+  }
+
+  @override
+  String toString() {
+    return 'IriMappingInfo{'
+        'mapper: $mapper, '
+        'template: $template}';
   }
 }
 
@@ -142,6 +167,20 @@ class RdfPropertyInfo implements RdfAnnotation {
         literal == other.literal &&
         globalResource == other.globalResource &&
         collection == other.collection;
+  }
+
+  @override
+  String toString() {
+    return 'RdfPropertyInfo{'
+        'predicate: $predicate, '
+        'include: $include, '
+        'defaultValue: $defaultValue, '
+        'includeDefaultsInSerialization: $includeDefaultsInSerialization, '
+        'iri: $iri, '
+        'localResource: $localResource, '
+        'literal: $literal, '
+        'globalResource: $globalResource, '
+        'collection: $collection}';
   }
 }
 

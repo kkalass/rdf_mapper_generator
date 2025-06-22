@@ -1,0 +1,298 @@
+import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:test/test.dart';
+
+void main() {
+  group('LocalResourceMappingInfo', () {
+    test('equals and hashCode work correctly', () {
+      final instance1 = LocalResourceMappingInfo(mapper: null);
+      final instance2 = LocalResourceMappingInfo(mapper: null);
+
+      expect(instance1, equals(instance2));
+      expect(instance1.hashCode, equals(instance2.hashCode));
+    });
+
+    test('toString returns formatted string representation', () {
+      final instance = LocalResourceMappingInfo(mapper: null);
+      final result = instance.toString();
+      expect(result, contains('LocalResourceMappingInfo{'));
+      expect(result, contains('mapper: null'));
+    });
+
+    test('equals returns false for non-LocalResourceMappingInfo instances', () {
+      final instance = LocalResourceMappingInfo(mapper: null);
+      expect(instance, isNot(equals('not a LocalResourceMappingInfo')));
+    });
+  });
+
+  group('LiteralMappingInfo', () {
+    test('equals and hashCode work correctly', () {
+      final instance1 = LiteralMappingInfo(
+        language: 'en',
+        datatype: null,
+        mapper: null,
+      );
+
+      final instance2 = LiteralMappingInfo(
+        language: 'en',
+        datatype: null,
+        mapper: null,
+      );
+
+      final differentInstance = LiteralMappingInfo(
+        language: 'de',
+        datatype: null,
+        mapper: null,
+      );
+
+      expect(instance1, equals(instance2));
+      expect(instance1.hashCode, equals(instance2.hashCode));
+      expect(instance1, isNot(equals(differentInstance)));
+    });
+
+    test('toString returns formatted string representation', () {
+      final instance = LiteralMappingInfo(
+        language: 'en',
+        datatype: null,
+        mapper: null,
+      );
+      final result = instance.toString();
+      expect(result, contains('LiteralMappingInfo{'));
+      expect(result, contains('language: en'));
+      expect(result, contains('datatype: null'));
+    });
+
+    test('equals returns false for non-LiteralMappingInfo instances', () {
+      final instance = LiteralMappingInfo(
+        language: 'en',
+        datatype: null,
+        mapper: null,
+      );
+      expect(instance, isNot(equals('not a LiteralMappingInfo')));
+    });
+  });
+
+  group('GlobalResourceMappingInfo', () {
+    test('equals and hashCode work correctly', () {
+      final instance1 = GlobalResourceMappingInfo(mapper: null);
+      final instance2 = GlobalResourceMappingInfo(mapper: null);
+
+      expect(instance1, equals(instance2));
+      expect(instance1.hashCode, equals(instance2.hashCode));
+    });
+
+    test('toString returns formatted string representation', () {
+      final instance = GlobalResourceMappingInfo(mapper: null);
+      final result = instance.toString();
+      expect(result, contains('GlobalResourceMappingInfo{'));
+      expect(result, contains('mapper: null'));
+    });
+
+    test('equals returns false for non-GlobalResourceMappingInfo instances', () {
+      final instance = GlobalResourceMappingInfo(mapper: null);
+      expect(instance, isNot(equals('not a GlobalResourceMappingInfo')));
+    });
+  });
+
+  group('IriMappingInfo', () {
+    test('equals and hashCode work correctly', () {
+      final instance1 = IriMappingInfo(
+        template: 'template1',
+        mapper: null,
+      );
+
+      final instance2 = IriMappingInfo(
+        template: 'template1',
+        mapper: null,
+      );
+
+      final differentInstance = IriMappingInfo(
+        template: 'template2',
+        mapper: null,
+      );
+
+      expect(instance1, equals(instance2));
+      expect(instance1.hashCode, equals(instance2.hashCode));
+      expect(instance1, isNot(equals(differentInstance)));
+    });
+
+    test('toString returns formatted string representation', () {
+      final instance = IriMappingInfo(
+        template: 'template1',
+        mapper: null,
+      );
+      final result = instance.toString();
+      expect(result, contains('IriMappingInfo{'));
+      expect(result, contains('template: template1'));
+    });
+
+    test('equals returns false for non-IriMappingInfo instances', () {
+      final instance = IriMappingInfo(
+        template: 'template1',
+        mapper: null,
+      );
+      expect(instance, isNot(equals('not an IriMappingInfo')));
+    });
+  });
+
+  group('RdfPropertyInfo', () {
+    late RdfPropertyInfo testInstance;
+    late RdfPropertyInfo identicalInstance;
+    late RdfPropertyInfo differentInstance;
+
+    setUp(() {
+      final predicate = IriTermInfo(
+        code: Code.literal('http://example.com/predicate'),
+        value: IriTerm('http://example.com/predicate'),
+      );
+
+      testInstance = RdfPropertyInfo(
+        predicate,
+        include: true,
+        defaultValue: null,
+        includeDefaultsInSerialization: false,
+        iri: null,
+        localResource: null,
+        literal: null,
+        globalResource: null,
+        collection: RdfCollectionType.none,
+      );
+
+      identicalInstance = RdfPropertyInfo(
+        predicate,
+        include: true,
+        defaultValue: null,
+        includeDefaultsInSerialization: false,
+        iri: null,
+        localResource: null,
+        literal: null,
+        globalResource: null,
+        collection: RdfCollectionType.none,
+      );
+
+      differentInstance = RdfPropertyInfo(
+        predicate,
+        include: false,
+        defaultValue: null,
+        includeDefaultsInSerialization: false,
+        iri: null,
+        localResource: null,
+        literal: null,
+        globalResource: null,
+        collection: RdfCollectionType.none,
+      );
+    });
+
+    test('equals returns true for identical instances', () {
+      expect(testInstance, equals(identicalInstance));
+    });
+
+    test('equals returns false for different instances', () {
+      expect(testInstance, isNot(equals(differentInstance)));
+    });
+
+    test('equals returns false for non-RdfPropertyInfo instances', () {
+      expect(testInstance, isNot(equals('not an RdfPropertyInfo')));
+    });
+
+    test('hashCode is consistent for identical instances', () {
+      expect(testInstance.hashCode, equals(identicalInstance.hashCode));
+    });
+
+    test('toString returns formatted string representation', () {
+      final result = testInstance.toString();
+      expect(result, contains('RdfPropertyInfo{'));
+      expect(result, contains('predicate:'));
+      expect(result, contains('include: true'));
+      expect(result, contains('collection: RdfCollectionType.none'));
+    });
+  });
+
+  group('PropertyInfo', () {
+    late PropertyInfo testInstance;
+    late PropertyInfo identicalInstance;
+    late PropertyInfo differentInstance;
+
+    setUp(() {
+      final predicate = IriTermInfo(
+        code: Code.literal('http://example.com/predicate'),
+        value: IriTerm('http://example.com/predicate'),
+      );
+      final annotation = RdfPropertyInfo(
+        predicate,
+        include: true,
+        defaultValue: null,
+        includeDefaultsInSerialization: false,
+        iri: null,
+        localResource: null,
+        literal: null,
+        globalResource: null,
+        collection: RdfCollectionType.none,
+      );
+
+      testInstance = PropertyInfo(
+        name: 'testProperty',
+        type: 'String',
+        annotation: annotation,
+        isRequired: true,
+        isFinal: true,
+        isLate: false,
+        isStatic: false,
+        isSynthetic: false,
+      );
+
+      identicalInstance = PropertyInfo(
+        name: 'testProperty',
+        type: 'String',
+        annotation: annotation,
+        isRequired: true,
+        isFinal: true,
+        isLate: false,
+        isStatic: false,
+        isSynthetic: false,
+      );
+
+      differentInstance = PropertyInfo(
+        name: 'differentProperty',
+        type: 'String',
+        annotation: annotation,
+        isRequired: true,
+        isFinal: true,
+        isLate: false,
+        isStatic: false,
+        isSynthetic: false,
+      );
+    });
+
+    test('equals returns true for identical instances', () {
+      expect(testInstance, equals(identicalInstance));
+    });
+
+    test('equals returns false for different instances', () {
+      expect(testInstance, isNot(equals(differentInstance)));
+    });
+
+    test('equals returns false for non-PropertyInfo instances', () {
+      expect(testInstance, isNot(equals('not a PropertyInfo')));
+    });
+
+    test('hashCode is consistent for identical instances', () {
+      expect(testInstance.hashCode, equals(identicalInstance.hashCode));
+    });
+
+    test('toString returns formatted string representation', () {
+      final result = testInstance.toString();
+      expect(result, contains('PropertyInfo{'));
+      expect(result, contains('name: testProperty'));
+      expect(result, contains('type: String'));
+      expect(result, contains('isRequired: true'));
+      expect(result, contains('isFinal: true'));
+      expect(result, contains('isLate: false'));
+      expect(result, contains('isStatic: false'));
+      expect(result, contains('isSynthetic: false'));
+    });
+  });
+}

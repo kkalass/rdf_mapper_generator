@@ -366,6 +366,24 @@ sealed class BaseMappingAnnotationInfo<T> extends BaseMappingInfo<T> {
     this.registerGlobally = true,
     super.mapper,
   });
+
+  @override
+  int get hashCode => Object.hashAll([super.hashCode, registerGlobally]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! BaseMappingAnnotationInfo<T>) {
+      return false;
+    }
+    return super == other && registerGlobally == other.registerGlobally;
+  }
+
+  @override
+  String toString() {
+    return 'BaseMappingAnnotationInfo{'
+        'registerGlobally: $registerGlobally, '
+        'mapper: $mapper}';
+  }
 }
 
 sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
@@ -387,6 +405,14 @@ sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
     return classIri == other.classIri &&
         registerGlobally == other.registerGlobally &&
         mapper == other.mapper;
+  }
+
+  @override
+  String toString() {
+    return 'RdfResourceInfo{'
+        'classIri: $classIri, '
+        'registerGlobally: $registerGlobally, '
+        'mapper: $mapper}';
   }
 }
 
@@ -414,6 +440,15 @@ class RdfIriInfo extends BaseMappingAnnotationInfo<IriTermMapper> {
     return super == other &&
         template == other.template &&
         templateInfo == other.templateInfo;
+  }
+
+  @override
+  String toString() {
+    return 'RdfIriInfo{'
+        'registerGlobally: $registerGlobally, '
+        'mapper: $mapper, '
+        'template: $template, '
+        'templateInfo: $templateInfo}';
   }
 }
 
@@ -449,6 +484,16 @@ class RdfLiteralInfo extends BaseMappingAnnotationInfo<LiteralTermMapper> {
         toLiteralTermMethod == other.toLiteralTermMethod &&
         datatype == other.datatype;
   }
+
+  @override
+  String toString() {
+    return 'RdfLiteralInfo{'
+        'registerGlobally: $registerGlobally, '
+        'mapper: $mapper, '
+        'fromLiteralTermMethod: $fromLiteralTermMethod, '
+        'toLiteralTermMethod: $toLiteralTermMethod, '
+        'datatype: $datatype}';
+  }
 }
 
 class RdfGlobalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
@@ -469,6 +514,15 @@ class RdfGlobalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
     }
     return super == other && iri == other.iri;
   }
+
+  @override
+  String toString() {
+    return 'RdfGlobalResourceInfo{'
+        'classIri: $classIri, '
+        'iri: $iri, '
+        'registerGlobally: $registerGlobally, '
+        'mapper: $mapper}';
+  }
 }
 
 class RdfLocalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
@@ -487,6 +541,14 @@ class RdfLocalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
       return false;
     }
     return super == other;
+  }
+
+  @override
+  String toString() {
+    return 'RdfLocalResourceInfo{'
+        'classIri: $classIri, '
+        'registerGlobally: $registerGlobally, '
+        'mapper: $mapper}';
   }
 }
 
