@@ -370,8 +370,8 @@ void main() {
     test('should process ClassWithNoRdfType', () {
       // Act
       final validationContext = ValidationContext();
-      final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithNoRdfType')!);
+      final result = ResourceProcessor.processClass(
+          validationContext, libraryElement.getClass2('ClassWithNoRdfType')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -390,13 +390,16 @@ void main() {
     test('should process ClassWithIriTemplateAndContextVariableStrategy', () {
       // Act
       final validationContext = ValidationContext();
-      final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriTemplateAndContextVariableStrategy')!);
+      final result = ResourceProcessor.processClass(
+          validationContext,
+          libraryElement
+              .getClass2('ClassWithIriTemplateAndContextVariableStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.className.code, 'grptm.ClassWithIriTemplateAndContextVariableStrategy');
+      expect(result!.className.code,
+          'grptm.ClassWithIriTemplateAndContextVariableStrategy');
       var annotation = result.annotation as RdfGlobalResourceInfo;
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
