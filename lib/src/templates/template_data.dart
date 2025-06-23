@@ -556,6 +556,7 @@ class ParameterData {
   final String name;
   final Code dartType;
   final bool isRequired;
+  final bool isFieldNullable;
   final bool isIriPart;
   final bool isRdfProperty;
   final bool isNamed;
@@ -569,6 +570,7 @@ class ParameterData {
     required this.name,
     required this.dartType,
     required this.isRequired,
+    required this.isFieldNullable,
     required this.isIriPart,
     required this.isRdfProperty,
     required this.isNamed,
@@ -585,6 +587,8 @@ class ParameterData {
         'dartType': dartType.toMap(),
         // if default value is provided, then it is not required
         'isRequired': isRequired && !hasDefaultValue,
+        'isFieldNullable': isFieldNullable,
+        'useOptionalReader': isFieldNullable || hasDefaultValue,
         'isIriPart': isIriPart && !isRdfProperty,
         'isRdfProperty': isRdfProperty,
         'isNamed': isNamed,
@@ -601,6 +605,7 @@ class ParameterData {
 class PropertyData {
   final String propertyName;
   final bool isRequired;
+  final bool isFieldNullable;
   final bool isRdfProperty;
   final bool include;
   final Code? predicate;
@@ -608,6 +613,7 @@ class PropertyData {
   const PropertyData({
     required this.propertyName,
     required this.isRequired,
+    required this.isFieldNullable,
     required this.isRdfProperty,
     required this.include,
     this.predicate,
@@ -616,6 +622,8 @@ class PropertyData {
   Map<String, dynamic> toMap() => {
         'propertyName': propertyName,
         'isRequired': isRequired,
+        'isFieldNullable': isFieldNullable,
+        'useOptionalSerialization': isFieldNullable,
         'isRdfProperty': isRdfProperty,
         'include': include,
         'predicate': predicate?.toMap(),

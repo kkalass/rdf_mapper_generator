@@ -158,7 +158,7 @@ class OptionalPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String? name = reader.require(SchemaBook.name);
+    final String? name = reader.optional(SchemaBook.name);
 
     return OptionalPropertyTest(name: name);
   }
@@ -906,7 +906,7 @@ class FinalPropertyTestMapper
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaBook.name);
-    final String? description = reader.require(SchemaBook.description);
+    final String? description = reader.optional(SchemaBook.description);
 
     return FinalPropertyTest(name: name, description: description);
   }

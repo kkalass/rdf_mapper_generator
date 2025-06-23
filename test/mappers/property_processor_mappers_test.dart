@@ -73,7 +73,7 @@ void main() {
         expect(deserializedNull.name, isNull,
             reason: 'Null values should round-trip correctly');
       }
-    }, skip: 'Not correctly working yet');
+    });
 
     test('DefaultValueTest - default value behavior', () {
       // Create instance with explicit value

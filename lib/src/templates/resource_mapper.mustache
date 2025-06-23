@@ -68,7 +68,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
     {{#value.isRdfProperty}}
-    final {{value.dartType}} {{value.name}} = reader.{{#value.isRequired}}require{{/value.isRequired}}{{^value.isRequired}}optional{{/value.isRequired}}({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.dartType}} {{value.name}} = reader.{{#value.useOptionalReader}}optional{{/value.useOptionalReader}}{{^value.useOptionalReader}}require{{/value.useOptionalReader}}({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isRdfProperty}}
     {{/constructorParametersOrOtherFields}}
 
@@ -114,7 +114,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#properties}}
     {{#isRdfProperty}}
     {{#include}}
-      .addValue{{^isRequired}}IfNotNull{{/isRequired}}({{predicate}}, resource.{{propertyName}})
+      .addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}})
     {{/include}}
     {{/isRdfProperty}}
     {{/properties}}

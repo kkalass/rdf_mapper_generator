@@ -254,6 +254,7 @@ class DataBuilder {
         .map((p) => PropertyData(
             isRdfProperty: p.propertyInfo != null,
             isRequired: p.isRequired,
+            isFieldNullable: !p.isRequired,
             include: p.propertyInfo!.annotation.include,
             predicate: p.propertyInfo!.annotation.predicate.code,
             propertyName: p.propertyInfo!.name))
@@ -442,6 +443,7 @@ class DataBuilder {
         name: field.name,
         dartType: field.type,
         isRequired: field.isRequired,
+        isFieldNullable: !field.isRequired,
         isIriPart: iriPartName != null,
         isRdfProperty: predicateCode != null,
         isNamed: false,
@@ -472,6 +474,10 @@ class DataBuilder {
           name: param.name,
           dartType: param.type,
           isRequired: param.isRequired,
+          // For RDF properties, check if the field is nullable. If not an RDF property, assume non-nullable
+          isFieldNullable: param.propertyInfo != null
+              ? !param.propertyInfo!.isRequired
+              : false,
           isIriPart: param.isIriPart,
           isRdfProperty: param.propertyInfo != null,
           isNamed: param.isNamed,
