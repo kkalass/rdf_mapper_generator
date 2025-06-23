@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:analyzer/dart/analysis/utilities.dart';
-import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';

@@ -14,39 +14,48 @@ class RdfMapperSourceBuilder implements Builder {
   static final _templateRenderer = TemplateRenderer();
 
   @override
-  Future<void> build(BuildStep buildStep) async {
+  Future<void> build(BuildStep buildStep) => buildIt(buildStep.inputId,
+      buildStep.readAsString, buildStep.writeAsString, buildStep);
+
+  Future<void> buildIt(
+      AssetId inputId,
+      Future<String> Function(AssetId id, {Encoding encoding}) readAsString,
+      Future<void> Function(AssetId id, FutureOr<String> contents,
+              {Encoding encoding})
+          writeAsString,
+      AssetReader reader) async {
     // Only process .cache.json files
-    if (!buildStep.inputId.path.endsWith('.rdf_mapper.cache.json')) {
+    if (!inputId.path.endsWith('.rdf_mapper.cache.json')) {
       return;
     }
 
     try {
       // Read and parse the cache file
-      final jsonString = await buildStep.readAsString(buildStep.inputId);
+      final jsonString = await readAsString(inputId);
       final jsonData = jsonDecode(jsonString);
-      String mapperImportUri = getMapperImportUri(buildStep.inputId.package,
-          buildStep.inputId.path.replaceAll('.cache.json', '.g.dart'));
+      String mapperImportUri = getMapperImportUri(
+          inputId.package, inputId.path.replaceAll('.cache.json', '.g.dart'));
 
       // Render the template
       final generatedCode = await _templateRenderer.renderFileTemplate(
         mapperImportUri,
         jsonData,
-        buildStep,
+        reader,
       );
 
       // Generate the output file path by replacing the cache extension
-      final outputPath = buildStep.inputId.path
+      final outputPath = inputId.path
           .replaceAll('.rdf_mapper.cache.json', '.rdf_mapper.g.dart');
       final outputId = AssetId(
-        buildStep.inputId.package,
+        inputId.package,
         outputPath,
       );
 
-      await buildStep.writeAsString(outputId, generatedCode);
-      log.fine('Generated RDF mapper source for ${buildStep.inputId.path}');
+      await writeAsString(outputId, generatedCode);
+      log.fine('Generated RDF mapper source for ${inputId.path}');
     } catch (e, stackTrace) {
       log.severe(
-        'Error processing cache file ${buildStep.inputId.path}: $e',
+        'Error processing cache file ${inputId.path}: $e',
         e,
         stackTrace,
       );
