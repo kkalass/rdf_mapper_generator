@@ -602,12 +602,14 @@ class PropertyData {
   final String propertyName;
   final bool isRequired;
   final bool isRdfProperty;
+  final bool include;
   final Code? predicate;
 
   const PropertyData({
     required this.propertyName,
     required this.isRequired,
     required this.isRdfProperty,
+    required this.include,
     this.predicate,
   });
 
@@ -615,6 +617,7 @@ class PropertyData {
         'propertyName': propertyName,
         'isRequired': isRequired,
         'isRdfProperty': isRdfProperty,
+        'include': include,
         'predicate': predicate?.toMap(),
       };
 }

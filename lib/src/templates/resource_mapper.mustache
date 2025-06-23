@@ -113,7 +113,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     return context.resourceBuilder(subject)
     {{#properties}}
     {{#isRdfProperty}}
+    {{#include}}
       .addValue{{^isRequired}}IfNotNull{{/isRequired}}({{predicate}}, resource.{{propertyName}})
+    {{/include}}
     {{/isRdfProperty}}
     {{/properties}}
       .build();

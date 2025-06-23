@@ -254,6 +254,7 @@ class DataBuilder {
         .map((p) => PropertyData(
             isRdfProperty: p.propertyInfo != null,
             isRequired: p.isRequired,
+            include: p.propertyInfo!.annotation.include,
             predicate: p.propertyInfo!.annotation.predicate.code,
             propertyName: p.propertyInfo!.name))
         .toList();

@@ -135,10 +135,7 @@ class DeserializationOnlyPropertyTestMapper
   }) {
     final subject = BlankNodeTerm();
 
-    return context
-        .resourceBuilder(subject)
-        .addValue(SchemaBook.name, resource.name)
-        .build();
+    return context.resourceBuilder(subject).build();
   }
 }
 
