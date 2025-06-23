@@ -46,6 +46,12 @@ void main() {
         expect(result, isNotNull);
         expect(result, contains('class BookMapper'));
         expect(result, contains('implements GlobalResourceMapper<grptm.Book>'));
+
+        // Book has IRI template, so should use complex implementation
+        expect(result, contains('_buildIri'));
+        expect(result, contains('_parseIriParts'));
+        expect(result, contains('RegExp'));
+        expect(result, contains('iriParts'));
       });
 
       test('should generate mapper for class with empty IRI strategy',
@@ -57,6 +63,16 @@ void main() {
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
         expect(result, contains('class ClassWithEmptyIriStrategyMapper'));
+
+        // Should use simple implementation with direct IRI access
+        expect(result, contains('final iri = subject.iri;'));
+        expect(result, contains('final subject = IriTerm(resource.iri);'));
+
+        // Should NOT contain complex IRI processing methods
+        expect(result, isNot(contains('_buildIri')));
+        expect(result, isNot(contains('_parseIriParts')));
+        expect(result, isNot(contains('RegExp')));
+        expect(result, isNot(contains('iriParts')));
       });
 
       test('should generate mapper for class with IRI template strategy',
@@ -68,6 +84,17 @@ void main() {
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
         expect(result, contains('class ClassWithIriTemplateStrategyMapper'));
+
+        // Should use complex implementation with IRI template processing
+        expect(result, contains('_buildIri'));
+        expect(result, contains('_parseIriParts'));
+        expect(result, contains('RegExp'));
+        expect(result, contains('iriParts'));
+
+        // Should NOT use simple direct IRI access
+        expect(result, isNot(contains('final iri = subject.iri;')));
+        expect(
+            result, isNot(contains('final subject = IriTerm(resource.iri);')));
       });
 
       test(
@@ -640,6 +667,73 @@ void main() {
         expect(
             result, isNot(contains('class LiteralWithMapperInstanceMapper')));
       });
+    });
+
+    test(
+        'should generate different implementations for empty vs template IRI strategies',
+        () async {
+      // Test empty IRI strategy (simple implementation)
+      final emptyIriResult = await BuilderHelper().build(
+          'global_resource_processor_test_models.dart',
+          [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+          assetReader,
+          BroaderImports.create(globalResourceLibrary));
+
+      // Test template IRI strategy (complex implementation)
+      final templateIriResult = await BuilderHelper().build(
+          'global_resource_processor_test_models.dart',
+          [globalResourceLibrary.getClass2('ClassWithIriTemplateStrategy')!],
+          assetReader,
+          BroaderImports.create(globalResourceLibrary));
+
+      // Empty IRI strategy should be simple
+      expect(emptyIriResult, contains('final iri = subject.iri;'));
+      expect(
+          emptyIriResult, contains('final subject = IriTerm(resource.iri);'));
+      expect(emptyIriResult, isNot(contains('_buildIri')));
+      expect(emptyIriResult, isNot(contains('_parseIriParts')));
+
+      // Template IRI strategy should be complex
+      expect(templateIriResult, contains('_buildIri'));
+      expect(templateIriResult, contains('_parseIriParts'));
+      expect(templateIriResult, contains('RegExp'));
+      expect(templateIriResult, isNot(contains('final iri = subject.iri;')));
+      expect(templateIriResult,
+          isNot(contains('final subject = IriTerm(resource.iri);')));
+    });
+    test('should generate correct method structure for empty IRI strategy',
+        () async {
+      final result = await BuilderHelper().build(
+          'global_resource_processor_test_models.dart',
+          [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+          assetReader,
+          BroaderImports.create(globalResourceLibrary));
+
+      // Verify constructor is simple
+      expect(result, contains('const ClassWithEmptyIriStrategyMapper();'));
+
+      // Verify fromRdfResource method uses direct IRI access
+      expect(
+          result, contains('grptm.ClassWithEmptyIriStrategy fromRdfResource('));
+      expect(result, contains('IriTerm subject,'));
+      expect(result, contains('final iri = subject.iri;'));
+      expect(result,
+          contains('return grptm.ClassWithEmptyIriStrategy(iri: iri);'));
+
+      // Verify toRdfResource method uses direct IRI access
+      expect(result, contains('(IriTerm, List<Triple>) toRdfResource('));
+      expect(result, contains('grptm.ClassWithEmptyIriStrategy resource,'));
+      expect(result, contains('final subject = IriTerm(resource.iri);'));
+      expect(
+          result, contains('return context.resourceBuilder(subject).build();'));
+
+      // Verify no helper methods are generated
+      expect(result,
+          isNot(contains('/// Builds the IRI for a resource instance')));
+      expect(
+          result, isNot(contains('/// Parses IRI parts from a complete IRI')));
+      expect(result, isNot(contains('String _buildIri(')));
+      expect(result, isNot(contains('Map<String, String> _parseIriParts(')));
     });
   });
 }
