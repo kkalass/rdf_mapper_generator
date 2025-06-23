@@ -11,7 +11,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'annotation_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart' as schema;
+import 'package:rdf_vocabularies/schema.dart';
 
 /// Generated mapper for [BookWithMapper] global resources.
 ///
@@ -25,7 +25,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
     : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   BookWithMapper fromRdfResource(
@@ -37,7 +37,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
     // Extract IRI parts
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
-    final String title = reader.optional(schema.SchemaBook.name) ?? 'Untitled';
+    final String title = reader.optional(SchemaBook.name) ?? 'Untitled';
 
     return BookWithMapper(id: id, title: title);
   }
@@ -52,7 +52,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.title)
+        .addValue(SchemaBook.name, resource.title)
         .build();
   }
 }
@@ -71,7 +71,7 @@ class BookWithMapperInstanceMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   BookWithMapperInstance fromRdfResource(
@@ -109,7 +109,7 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
   const BookWithTemplateMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   BookWithTemplate fromRdfResource(

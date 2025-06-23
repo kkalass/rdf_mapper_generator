@@ -349,12 +349,15 @@ class FileTemplateData {
 
   final BroaderImports broaderImports;
 
+  final Map<String, String> originalImports;
+
   /// All generated mapper classes
   final List<MapperData> mappers;
 
   const FileTemplateData({
     required this.header,
     required this.broaderImports,
+    required this.originalImports,
     required this.mappers,
   });
 
@@ -363,6 +366,7 @@ class FileTemplateData {
     return {
       'header': header.toMap(),
       'broaderImports': broaderImports.toMap(),
+      'originalImports': originalImports,
       'mappers': mappers.map((m) => m.toMap()).toList(),
     };
   }

@@ -60,14 +60,14 @@ class TemplateRenderer {
     final modelImportUri =
         mapperImportUri.replaceAll('.rdf_mapper.g.dart', '.dart');
     const defaultImports = [importRdfCore, importRdfMapper];
+    final broaderImports = _safeCastToStringMap(data['broaderImports']);
+    final originalImports = _safeCastToStringMap(data['originalImports']);
     data = resolveCodeSnipplets(
       data,
       defaultImports: [...defaultImports, mapperImportUri, importDartCore],
-      importAliases: {
-        modelImportUri: '',
-      },
+      importAliases: {modelImportUri: '', ...originalImports},
       baseUris: _createBaseUris(mapperImportUri),
-      broaderImports: _safeCastToStringMap(data['broaderImports']),
+      broaderImports: broaderImports,
     );
     final template = await _getTemplate('file_template', reader);
 

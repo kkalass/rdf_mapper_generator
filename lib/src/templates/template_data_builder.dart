@@ -42,11 +42,20 @@ class TemplateDataBuilder {
 
       mapperDatas.add(MapperData(mapperData));
     }
-
+    final allLibraryImports = resourceInfosWithElements
+        .expand((e) => e.$2.library2.fragments)
+        .expand((f) => f.libraryImports2);
+    final Map<String, String> originalImports = {
+      for (final import in allLibraryImports)
+        if (import.importedLibrary2 != null)
+          import.importedLibrary2!.identifier: import.prefix2?.name2 ?? '',
+    };
+    print('Original imports: $originalImports');
     return FileTemplateData(
       header: header,
       mappers: mapperDatas,
       broaderImports: broaderImports,
+      originalImports: originalImports,
     );
   }
 }

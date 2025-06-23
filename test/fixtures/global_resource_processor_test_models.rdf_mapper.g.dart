@@ -11,7 +11,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'global_resource_processor_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart' as schema;
+import 'package:rdf_vocabularies/schema.dart';
 
 /// Generated mapper for [Book] global resources.
 ///
@@ -26,7 +26,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
   const BookMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -36,8 +36,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final iriParts = _parseIriParts(subject.iri);
 
     final isbn = iriParts['isbn']!;
-    final String title = reader.require(schema.SchemaBook.name);
-    final String authorId = reader.require(schema.SchemaBook.author);
+    final String title = reader.require(SchemaBook.name);
+    final String authorId = reader.require(SchemaBook.author);
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
@@ -52,8 +52,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.title)
-        .addValue(schema.SchemaBook.author, resource.authorId)
+        .addValue(SchemaBook.name, resource.title)
+        .addValue(SchemaBook.author, resource.authorId)
         .build();
   }
 
@@ -96,7 +96,7 @@ class ClassWithEmptyIriStrategyMapper
   const ClassWithEmptyIriStrategyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithEmptyIriStrategy fromRdfResource(
@@ -173,8 +173,8 @@ class ClassWithNoRdfTypeMapper
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
 
-    final String name = reader.require(schema.SchemaPerson.name);
-    final int? age = reader.optional(schema.SchemaPerson.foafAge);
+    final String name = reader.require(SchemaPerson.name);
+    final int? age = reader.optional(SchemaPerson.foafAge);
     final iri = iriParts['iri']!;
 
     final retval = ClassWithNoRdfType(name, age: age);
@@ -192,8 +192,8 @@ class ClassWithNoRdfTypeMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
-        .addValueIfNotNull(schema.SchemaPerson.foafAge, resource.age)
+        .addValue(SchemaPerson.name, resource.name)
+        .addValueIfNotNull(SchemaPerson.foafAge, resource.age)
         .build();
   }
 
@@ -237,7 +237,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
   const ClassWithEmptyIriStrategyNoRegisterGloballyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithEmptyIriStrategyNoRegisterGlobally fromRdfResource(
@@ -304,7 +304,7 @@ class ClassWithIriTemplateStrategyMapper
   const ClassWithIriTemplateStrategyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriTemplateStrategy fromRdfResource(
@@ -377,7 +377,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
   }) : _baseUriProvider = baseUriProvider;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriTemplateAndContextVariableStrategy fromRdfResource(
@@ -450,7 +450,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
   }) : _otherBaseUriProvider = otherBaseUriProvider;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithOtherBaseUriNonGlobal fromRdfResource(
@@ -518,7 +518,7 @@ class ClassWithIriNamedMapperStrategyMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy fromRdfResource(
@@ -556,7 +556,7 @@ class ClassWithIriNamedMapperStrategy1PartMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy1Part fromRdfResource(
@@ -595,7 +595,7 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy2Parts fromRdfResource(
@@ -638,7 +638,7 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy2PartsSwapped fromRdfResource(
@@ -686,7 +686,7 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy2PartsWithProperties fromRdfResource(
@@ -698,9 +698,9 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
     // Extract IRI parts
     final (id, _, version) = _iriMapper.fromRdfTerm(subject, context);
 
-    final String givenName = reader.require(schema.SchemaPerson.givenName);
-    final String surname = reader.require(schema.SchemaPerson.foafSurname);
-    final int? age = reader.optional(schema.SchemaPerson.foafAge);
+    final String givenName = reader.require(SchemaPerson.givenName);
+    final String surname = reader.require(SchemaPerson.foafSurname);
+    final int? age = reader.optional(SchemaPerson.foafAge);
 
     final retval = ClassWithIriNamedMapperStrategy2PartsWithProperties();
     retval.id = id;
@@ -725,9 +725,9 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.givenName, resource.givenName)
-        .addValue(schema.SchemaPerson.foafSurname, resource.surname)
-        .addValueIfNotNull(schema.SchemaPerson.foafAge, resource.age)
+        .addValue(SchemaPerson.givenName, resource.givenName)
+        .addValue(SchemaPerson.foafSurname, resource.surname)
+        .addValueIfNotNull(SchemaPerson.foafAge, resource.age)
         .build();
   }
 }
@@ -746,7 +746,7 @@ class ClassWithIriMapperStrategyMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriMapperStrategy fromRdfResource(
@@ -784,7 +784,7 @@ class ClassWithIriMapperInstanceStrategyMapper
   }) : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriMapperInstanceStrategy fromRdfResource(
@@ -795,7 +795,7 @@ class ClassWithIriMapperInstanceStrategyMapper
 
     // Extract IRI parts
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     return ClassWithIriMapperInstanceStrategy(name: name);
   }
@@ -810,7 +810,7 @@ class ClassWithIriMapperInstanceStrategyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }

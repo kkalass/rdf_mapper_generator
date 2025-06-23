@@ -11,7 +11,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'local_resource_processor_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart' as schema;
+import 'package:rdf_vocabularies/schema.dart';
 
 /// Generated mapper for [Book] global resources.
 ///
@@ -22,15 +22,15 @@ class BookMapper implements LocalResourceMapper<Book> {
   const BookMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   Book fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(schema.SchemaBook.isbn);
-    final String title = reader.require(schema.SchemaBook.name);
-    final String authorId = reader.require(schema.SchemaBook.author);
+    final String isbn = reader.require(SchemaBook.isbn);
+    final String title = reader.require(SchemaBook.name);
+    final String authorId = reader.require(SchemaBook.author);
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
@@ -45,9 +45,9 @@ class BookMapper implements LocalResourceMapper<Book> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.isbn, resource.isbn)
-        .addValue(schema.SchemaBook.name, resource.title)
-        .addValue(schema.SchemaBook.author, resource.authorId)
+        .addValue(SchemaBook.isbn, resource.isbn)
+        .addValue(SchemaBook.name, resource.title)
+        .addValue(SchemaBook.author, resource.authorId)
         .build();
   }
 }
@@ -62,7 +62,7 @@ class ClassNoRegisterGloballyMapper
   const ClassNoRegisterGloballyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassNoRegisterGlobally fromRdfResource(
@@ -71,7 +71,7 @@ class ClassNoRegisterGloballyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     return ClassNoRegisterGlobally(name: name);
   }
@@ -86,7 +86,7 @@ class ClassNoRegisterGloballyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -110,8 +110,8 @@ class ClassWithNoRdfTypeMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
-    final int age = reader.require(schema.SchemaPerson.foafAge);
+    final String name = reader.require(SchemaPerson.name);
+    final int age = reader.require(SchemaPerson.foafAge);
 
     return ClassWithNoRdfType(name, age: age);
   }
@@ -126,8 +126,8 @@ class ClassWithNoRdfTypeMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
-        .addValue(schema.SchemaPerson.foafAge, resource.age)
+        .addValue(SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.foafAge, resource.age)
         .build();
   }
 }
@@ -142,7 +142,7 @@ class ClassWithPositionalPropertyMapper
   const ClassWithPositionalPropertyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithPositionalProperty fromRdfResource(
@@ -151,7 +151,7 @@ class ClassWithPositionalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     return ClassWithPositionalProperty(name);
   }
@@ -166,7 +166,7 @@ class ClassWithPositionalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -181,7 +181,7 @@ class ClassWithNonFinalPropertyMapper
   const ClassWithNonFinalPropertyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithNonFinalProperty fromRdfResource(
@@ -190,7 +190,7 @@ class ClassWithNonFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     return ClassWithNonFinalProperty(name: name);
   }
@@ -205,7 +205,7 @@ class ClassWithNonFinalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -220,7 +220,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper
   const ClassWithNonFinalPropertyWithDefaultMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithNonFinalPropertyWithDefault fromRdfResource(
@@ -229,7 +229,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     final retval = ClassWithNonFinalPropertyWithDefault();
     retval.name = name;
@@ -246,7 +246,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -261,7 +261,7 @@ class ClassWithNonFinalOptionalPropertyMapper
   const ClassWithNonFinalOptionalPropertyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithNonFinalOptionalProperty fromRdfResource(
@@ -270,7 +270,7 @@ class ClassWithNonFinalOptionalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String? name = reader.optional(schema.SchemaPerson.name);
+    final String? name = reader.optional(SchemaPerson.name);
 
     final retval = ClassWithNonFinalOptionalProperty();
     retval.name = name;
@@ -287,7 +287,7 @@ class ClassWithNonFinalOptionalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValueIfNotNull(schema.SchemaPerson.name, resource.name)
+        .addValueIfNotNull(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -302,7 +302,7 @@ class ClassWithLateNonFinalPropertyMapper
   const ClassWithLateNonFinalPropertyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithLateNonFinalProperty fromRdfResource(
@@ -311,7 +311,7 @@ class ClassWithLateNonFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     final retval = ClassWithLateNonFinalProperty();
     retval.name = name;
@@ -328,7 +328,7 @@ class ClassWithLateNonFinalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -343,7 +343,7 @@ class ClassWithLateFinalPropertyMapper
   const ClassWithLateFinalPropertyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithLateFinalProperty fromRdfResource(
@@ -352,7 +352,7 @@ class ClassWithLateFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
+    final String name = reader.require(SchemaPerson.name);
 
     final retval = ClassWithLateFinalProperty();
     retval.name = name;
@@ -369,7 +369,7 @@ class ClassWithLateFinalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.name, resource.name)
         .build();
   }
 }
@@ -384,7 +384,7 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper
   const ClassWithMixedFinalAndLateFinalPropertyMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaPerson.classIri;
+  IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithMixedFinalAndLateFinalProperty fromRdfResource(
@@ -393,8 +393,8 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaPerson.name);
-    final int age = reader.require(schema.SchemaPerson.foafAge);
+    final String name = reader.require(SchemaPerson.name);
+    final int age = reader.require(SchemaPerson.foafAge);
 
     final retval = ClassWithMixedFinalAndLateFinalProperty(name: name);
     retval.age = age;
@@ -411,8 +411,8 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaPerson.name, resource.name)
-        .addValue(schema.SchemaPerson.foafAge, resource.age)
+        .addValue(SchemaPerson.name, resource.name)
+        .addValue(SchemaPerson.foafAge, resource.age)
         .build();
   }
 }

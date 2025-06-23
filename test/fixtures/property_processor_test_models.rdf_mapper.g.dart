@@ -11,7 +11,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'property_processor_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart' as schema;
+import 'package:rdf_vocabularies/schema.dart';
 
 /// Generated mapper for [SimplePropertyTest] global resources.
 ///
@@ -32,7 +32,7 @@ class SimplePropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaBook.name);
+    final String name = reader.require(SchemaBook.name);
 
     return SimplePropertyTest(name: name);
   }
@@ -47,7 +47,7 @@ class SimplePropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.name)
+        .addValue(SchemaBook.name, resource.name)
         .build();
   }
 }
@@ -71,7 +71,7 @@ class DeserializationOnlyPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaBook.name);
+    final String name = reader.require(SchemaBook.name);
 
     return DeserializationOnlyPropertyTest(name: name);
   }
@@ -86,7 +86,7 @@ class DeserializationOnlyPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.name)
+        .addValue(SchemaBook.name, resource.name)
         .build();
   }
 }
@@ -110,7 +110,7 @@ class OptionalPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String? name = reader.require(schema.SchemaBook.name);
+    final String? name = reader.require(SchemaBook.name);
 
     return OptionalPropertyTest(name: name);
   }
@@ -125,7 +125,7 @@ class OptionalPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValueIfNotNull(schema.SchemaBook.name, resource.name)
+        .addValueIfNotNull(SchemaBook.name, resource.name)
         .build();
   }
 }
@@ -148,8 +148,7 @@ class DefaultValueTestMapper implements LocalResourceMapper<DefaultValueTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String isbn =
-        reader.optional(schema.SchemaBook.isbn) ?? 'default-isbn';
+    final String isbn = reader.optional(SchemaBook.isbn) ?? 'default-isbn';
 
     return DefaultValueTest(isbn: isbn);
   }
@@ -164,7 +163,7 @@ class DefaultValueTestMapper implements LocalResourceMapper<DefaultValueTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.isbn, resource.isbn)
+        .addValue(SchemaBook.isbn, resource.isbn)
         .build();
   }
 }
@@ -188,7 +187,7 @@ class IncludeDefaultsTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final int rating = reader.optional(schema.SchemaBook.numberOfPages) ?? 5;
+    final int rating = reader.optional(SchemaBook.numberOfPages) ?? 5;
 
     return IncludeDefaultsTest(rating: rating);
   }
@@ -203,7 +202,7 @@ class IncludeDefaultsTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.numberOfPages, resource.rating)
+        .addValue(SchemaBook.numberOfPages, resource.rating)
         .build();
   }
 }
@@ -226,7 +225,7 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(schema.SchemaBook.author);
+    final String authorId = reader.require(SchemaBook.author);
 
     return IriMappingTest(authorId: authorId);
   }
@@ -241,7 +240,7 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authorId)
+        .addValue(SchemaBook.author, resource.authorId)
         .build();
   }
 }
@@ -265,7 +264,7 @@ class IriMappingNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(schema.SchemaBook.author);
+    final String authorId = reader.require(SchemaBook.author);
 
     return IriMappingNamedMapperTest(authorId: authorId);
   }
@@ -280,7 +279,7 @@ class IriMappingNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authorId)
+        .addValue(SchemaBook.author, resource.authorId)
         .build();
   }
 }
@@ -304,7 +303,7 @@ class IriMappingMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(schema.SchemaBook.author);
+    final String authorId = reader.require(SchemaBook.author);
 
     return IriMappingMapperTest(authorId: authorId);
   }
@@ -319,7 +318,7 @@ class IriMappingMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authorId)
+        .addValue(SchemaBook.author, resource.authorId)
         .build();
   }
 }
@@ -343,7 +342,7 @@ class IriMappingMapperInstanceTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(schema.SchemaBook.author);
+    final String authorId = reader.require(SchemaBook.author);
 
     return IriMappingMapperInstanceTest(authorId: authorId);
   }
@@ -358,7 +357,7 @@ class IriMappingMapperInstanceTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authorId)
+        .addValue(SchemaBook.author, resource.authorId)
         .build();
   }
 }
@@ -382,7 +381,7 @@ class LocalResourceMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(schema.SchemaBook.author);
+    final Object author = reader.require(SchemaBook.author);
 
     return LocalResourceMappingTest(author: author);
   }
@@ -397,7 +396,7 @@ class LocalResourceMappingTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.author)
+        .addValue(SchemaBook.author, resource.author)
         .build();
   }
 }
@@ -421,7 +420,7 @@ class GlobalResourceMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(schema.SchemaBook.publisher);
+    final Object publisher = reader.require(SchemaBook.publisher);
 
     return GlobalResourceMappingTest(publisher: publisher);
   }
@@ -436,7 +435,7 @@ class GlobalResourceMappingTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.publisher, resource.publisher)
+        .addValue(SchemaBook.publisher, resource.publisher)
         .build();
   }
 }
@@ -548,7 +547,7 @@ class CollectionNoneTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader.require(schema.SchemaBook.author);
+    final List<String> authors = reader.require(SchemaBook.author);
 
     return CollectionNoneTest(authors: authors);
   }
@@ -563,7 +562,7 @@ class CollectionNoneTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authors)
+        .addValue(SchemaBook.author, resource.authors)
         .build();
   }
 }
@@ -587,7 +586,7 @@ class CollectionAutoTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader.require(schema.SchemaBook.author);
+    final List<String> authors = reader.require(SchemaBook.author);
 
     return CollectionAutoTest(authors: authors);
   }
@@ -602,7 +601,7 @@ class CollectionAutoTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authors)
+        .addValue(SchemaBook.author, resource.authors)
         .build();
   }
 }
@@ -625,7 +624,7 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader.require(schema.SchemaBook.author);
+    final List<String> authors = reader.require(SchemaBook.author);
 
     return CollectionTest(authors: authors);
   }
@@ -640,7 +639,7 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.authors)
+        .addValue(SchemaBook.author, resource.authors)
         .build();
   }
 }
@@ -664,9 +663,7 @@ class MapNoCollectionTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Map<String, String> reviews = reader.require(
-      schema.SchemaBook.reviews,
-    );
+    final Map<String, String> reviews = reader.require(SchemaBook.reviews);
 
     return MapNoCollectionTest(reviews: reviews);
   }
@@ -681,7 +678,7 @@ class MapNoCollectionTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.reviews, resource.reviews)
+        .addValue(SchemaBook.reviews, resource.reviews)
         .build();
   }
 }
@@ -705,9 +702,7 @@ class MapLocalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Map<String, String> reviews = reader.require(
-      schema.SchemaBook.reviews,
-    );
+    final Map<String, String> reviews = reader.require(SchemaBook.reviews);
 
     return MapLocalResourceMapperTest(reviews: reviews);
   }
@@ -722,7 +717,7 @@ class MapLocalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.reviews, resource.reviews)
+        .addValue(SchemaBook.reviews, resource.reviews)
         .build();
   }
 }
@@ -745,7 +740,7 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
   ) {
     final reader = context.reader(subject);
 
-    final Set<String> keywords = reader.require(schema.SchemaBook.keywords);
+    final Set<String> keywords = reader.require(SchemaBook.keywords);
 
     return SetTest(keywords: keywords);
   }
@@ -760,7 +755,7 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.keywords, resource.keywords)
+        .addValue(SchemaBook.keywords, resource.keywords)
         .build();
   }
 }
@@ -783,7 +778,7 @@ class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
   ) {
     final reader = context.reader(subject);
 
-    final BookFormatType format = reader.require(schema.SchemaBook.bookFormat);
+    final BookFormatType format = reader.require(SchemaBook.bookFormat);
 
     return EnumTypeTest(format: format);
   }
@@ -798,7 +793,7 @@ class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.bookFormat, resource.format)
+        .addValue(SchemaBook.bookFormat, resource.format)
         .build();
   }
 }
@@ -823,7 +818,7 @@ class ComplexDefaultValueTestMapper
     final reader = context.reader(subject);
 
     final Map<String, dynamic> complexValue =
-        reader.optional(schema.SchemaBook.isbn) ?? {'id': '1', 'name': 'Test'};
+        reader.optional(SchemaBook.isbn) ?? {'id': '1', 'name': 'Test'};
 
     return ComplexDefaultValueTest(complexValue: complexValue);
   }
@@ -838,7 +833,7 @@ class ComplexDefaultValueTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.isbn, resource.complexValue)
+        .addValue(SchemaBook.isbn, resource.complexValue)
         .build();
   }
 }
@@ -862,8 +857,8 @@ class FinalPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaBook.name);
-    final String? description = reader.require(schema.SchemaBook.description);
+    final String name = reader.require(SchemaBook.name);
+    final String? description = reader.require(SchemaBook.description);
 
     return FinalPropertyTest(name: name, description: description);
   }
@@ -878,8 +873,8 @@ class FinalPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.name)
-        .addValueIfNotNull(schema.SchemaBook.description, resource.description)
+        .addValue(SchemaBook.name, resource.name)
+        .addValueIfNotNull(SchemaBook.description, resource.description)
         .build();
   }
 }
@@ -902,8 +897,8 @@ class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaBook.name);
-    final String? description = reader.optional(schema.SchemaBook.description);
+    final String name = reader.require(SchemaBook.name);
+    final String? description = reader.optional(SchemaBook.description);
 
     final retval = LatePropertyTest();
     retval.name = name;
@@ -921,8 +916,8 @@ class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.name)
-        .addValueIfNotNull(schema.SchemaBook.description, resource.description)
+        .addValue(SchemaBook.name, resource.name)
+        .addValueIfNotNull(SchemaBook.description, resource.description)
         .build();
   }
 }
@@ -946,8 +941,8 @@ class MutablePropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(schema.SchemaBook.name);
-    final String? description = reader.optional(schema.SchemaBook.description);
+    final String name = reader.require(SchemaBook.name);
+    final String? description = reader.optional(SchemaBook.description);
 
     return MutablePropertyTest(name: name, description: description);
   }
@@ -962,8 +957,8 @@ class MutablePropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.name, resource.name)
-        .addValueIfNotNull(schema.SchemaBook.description, resource.description)
+        .addValue(SchemaBook.name, resource.name)
+        .addValueIfNotNull(SchemaBook.description, resource.description)
         .build();
   }
 }
@@ -986,7 +981,7 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String description = reader.require(schema.SchemaBook.description);
+    final String description = reader.require(SchemaBook.description);
 
     return LanguageTagTest(description: description);
   }
@@ -1001,7 +996,7 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.description, resource.description)
+        .addValue(SchemaBook.description, resource.description)
         .build();
   }
 }
@@ -1024,7 +1019,7 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
   ) {
     final reader = context.reader(subject);
 
-    final DateTime date = reader.require(schema.SchemaBook.dateCreated);
+    final DateTime date = reader.require(SchemaBook.dateCreated);
 
     return DatatypeTest(date: date);
   }
@@ -1039,7 +1034,7 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.dateCreated, resource.date)
+        .addValue(SchemaBook.dateCreated, resource.date)
         .build();
   }
 }
@@ -1063,7 +1058,7 @@ class GlobalResourceNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(schema.SchemaBook.publisher);
+    final Object publisher = reader.require(SchemaBook.publisher);
 
     return GlobalResourceNamedMapperTest(publisher: publisher);
   }
@@ -1078,7 +1073,7 @@ class GlobalResourceNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.publisher, resource.publisher)
+        .addValue(SchemaBook.publisher, resource.publisher)
         .build();
   }
 }
@@ -1102,7 +1097,7 @@ class LiteralNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(schema.SchemaBook.isbn);
+    final String isbn = reader.require(SchemaBook.isbn);
 
     return LiteralNamedMapperTest(isbn: isbn);
   }
@@ -1117,7 +1112,7 @@ class LiteralNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.isbn, resource.isbn)
+        .addValue(SchemaBook.isbn, resource.isbn)
         .build();
   }
 }
@@ -1141,7 +1136,7 @@ class LiteralTypeMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final double price = reader.require(schema.SchemaBook.bookFormat);
+    final double price = reader.require(SchemaBook.bookFormat);
 
     return LiteralTypeMapperTest(price: price);
   }
@@ -1156,7 +1151,7 @@ class LiteralTypeMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.bookFormat, resource.price)
+        .addValue(SchemaBook.bookFormat, resource.price)
         .build();
   }
 }
@@ -1171,7 +1166,7 @@ class GlobalResourceTypeMapperTestMapper
   const GlobalResourceTypeMapperTestMapper();
 
   @override
-  IriTerm? get typeIri => schema.SchemaBook.classIri;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   GlobalResourceTypeMapperTest fromRdfResource(
@@ -1180,7 +1175,7 @@ class GlobalResourceTypeMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Publisher publisher = reader.require(schema.SchemaBook.publisher);
+    final Publisher publisher = reader.require(SchemaBook.publisher);
 
     return GlobalResourceTypeMapperTest(publisher: publisher);
   }
@@ -1195,7 +1190,7 @@ class GlobalResourceTypeMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.publisher, resource.publisher)
+        .addValue(SchemaBook.publisher, resource.publisher)
         .build();
   }
 }
@@ -1219,7 +1214,7 @@ class GlobalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(schema.SchemaBook.publisher);
+    final Object publisher = reader.require(SchemaBook.publisher);
 
     return GlobalResourceMapperTest(publisher: publisher);
   }
@@ -1234,7 +1229,7 @@ class GlobalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.publisher, resource.publisher)
+        .addValue(SchemaBook.publisher, resource.publisher)
         .build();
   }
 }
@@ -1258,7 +1253,7 @@ class GlobalResourceInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(schema.SchemaBook.publisher);
+    final Object publisher = reader.require(SchemaBook.publisher);
 
     return GlobalResourceInstanceMapperTest(publisher: publisher);
   }
@@ -1273,7 +1268,7 @@ class GlobalResourceInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.publisher, resource.publisher)
+        .addValue(SchemaBook.publisher, resource.publisher)
         .build();
   }
 }
@@ -1297,7 +1292,7 @@ class LocalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Author author = reader.require(schema.SchemaBook.author);
+    final Author author = reader.require(SchemaBook.author);
 
     return LocalResourceMapperTest(author: author);
   }
@@ -1312,7 +1307,7 @@ class LocalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.author)
+        .addValue(SchemaBook.author, resource.author)
         .build();
   }
 }
@@ -1336,7 +1331,7 @@ class LocalResourceMapperObjectPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(schema.SchemaBook.author);
+    final Object author = reader.require(SchemaBook.author);
 
     return LocalResourceMapperObjectPropertyTest(author: author);
   }
@@ -1351,7 +1346,7 @@ class LocalResourceMapperObjectPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.author)
+        .addValue(SchemaBook.author, resource.author)
         .build();
   }
 }
@@ -1375,7 +1370,7 @@ class LocalResourceInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Author author = reader.require(schema.SchemaBook.author);
+    final Author author = reader.require(SchemaBook.author);
 
     return LocalResourceInstanceMapperTest(author: author);
   }
@@ -1390,7 +1385,7 @@ class LocalResourceInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.author, resource.author)
+        .addValue(SchemaBook.author, resource.author)
         .build();
   }
 }
@@ -1414,7 +1409,7 @@ class LiteralMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final int pageCount = reader.require(schema.SchemaBook.numberOfPages);
+    final int pageCount = reader.require(SchemaBook.numberOfPages);
 
     return LiteralMapperTest(pageCount: pageCount);
   }
@@ -1429,7 +1424,7 @@ class LiteralMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.numberOfPages, resource.pageCount)
+        .addValue(SchemaBook.numberOfPages, resource.pageCount)
         .build();
   }
 }
@@ -1453,7 +1448,7 @@ class LiteralInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(schema.SchemaBook.isbn);
+    final String isbn = reader.require(SchemaBook.isbn);
 
     return LiteralInstanceMapperTest(isbn: isbn);
   }
@@ -1468,7 +1463,7 @@ class LiteralInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(schema.SchemaBook.isbn, resource.isbn)
+        .addValue(SchemaBook.isbn, resource.isbn)
         .build();
   }
 }

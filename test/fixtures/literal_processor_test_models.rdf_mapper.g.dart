@@ -12,7 +12,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 // Other imports
 import 'literal_processor_test_models.dart';
 import 'package:rdf_vocabularies/rdf.dart' as rdf;
-import 'package:rdf_vocabularies/xsd.dart' as xsd;
+import 'package:rdf_vocabularies/xsd.dart';
 
 /// Generated mapper for [LiteralString] global resources.
 ///
@@ -134,11 +134,11 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
   }) {
-    if (!bypassDatatypeCheck && term.datatype != xsd.Xsd.double) {
+    if (!bypassDatatypeCheck && term.datatype != Xsd.double) {
       throw DeserializerDatatypeMismatchException(
         'Failed to parse LiteralDouble: ${term.value}. ',
         actual: term.datatype,
-        expected: xsd.Xsd.double,
+        expected: Xsd.double,
         targetType: LiteralDouble,
         mapperRuntimeType: this.runtimeType,
       );
@@ -160,7 +160,7 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
   }) {
     return LiteralTerm(
       context.toLiteralTerm(value.foo).value,
-      datatype: xsd.Xsd.double,
+      datatype: Xsd.double,
     );
   }
 }
@@ -178,11 +178,11 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
   }) {
-    if (!bypassDatatypeCheck && term.datatype != xsd.Xsd.integer) {
+    if (!bypassDatatypeCheck && term.datatype != Xsd.integer) {
       throw DeserializerDatatypeMismatchException(
         'Failed to parse LiteralInteger: ${term.value}. ',
         actual: term.datatype,
-        expected: xsd.Xsd.integer,
+        expected: Xsd.integer,
         targetType: LiteralInteger,
         mapperRuntimeType: this.runtimeType,
       );
@@ -204,7 +204,7 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
   }) {
     return LiteralTerm(
       context.toLiteralTerm(value.value).value,
-      datatype: xsd.Xsd.integer,
+      datatype: Xsd.integer,
     );
   }
 }
