@@ -200,6 +200,7 @@ class VariableName {
     required this.name,
     required this.canBeUri,
   });
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

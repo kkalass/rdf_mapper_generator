@@ -58,10 +58,6 @@ class SimplePropertyTestMapper
 /// and RDF triples for resources of type SimpleCustomPropertyTest.
 class SimpleCustomPropertyTestMapper
     implements GlobalResourceMapper<SimpleCustomPropertyTest> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<name>[^/]*)\$',
-  );
-
   /// Constructor
   const SimpleCustomPropertyTestMapper();
 
@@ -102,7 +98,7 @@ class SimpleCustomPropertyTestMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(SimpleCustomPropertyTest resource) {
-    final name = resource.name.toString();
+    final name = resource.name;
     return 'http://example.org/books/${name}';
   }
 }

@@ -135,7 +135,7 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(BookWithTemplate resource) {
-    final id = resource.id.toString();
+    final id = resource.id;
     return 'https://example.org/books/${id}';
   }
 

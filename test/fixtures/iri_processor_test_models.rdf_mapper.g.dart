@@ -49,7 +49,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn.toString();
+    final isbn = resource.isbn;
     return IriTerm('http://example.org/books/${isbn}');
   }
 }
@@ -95,7 +95,7 @@ class IriWithOnePartExplicitlyGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn.toString();
+    final isbn = resource.isbn;
     return IriTerm('http://example.org/books/${isbn}');
   }
 }
@@ -140,7 +140,7 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final value = resource.value.toString();
+    final value = resource.value;
     return IriTerm('http://example.org/books/${value}');
   }
 }
@@ -183,8 +183,8 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final value = resource.value.toString();
-    final type = resource.type.toString();
+    final value = resource.value;
+    final type = resource.type;
     return IriTerm('http://example.org/${type}/${value}');
   }
 }
@@ -236,8 +236,8 @@ class IriWithBaseUriAndTwoPartsMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final value = resource.value.toString();
-    final otherPart = resource.otherPart.toString();
+    final value = resource.value;
+    final otherPart = resource.otherPart;
     final baseUri = _baseUriProvider();
     return IriTerm('${baseUri}/${otherPart}/${value}');
   }
@@ -282,7 +282,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn.toString();
+    final isbn = resource.isbn;
     final baseUri = _baseUriProvider();
     return IriTerm('${baseUri}/books/${isbn}');
   }
@@ -332,7 +332,7 @@ class IriWithBaseUriNoGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn.toString();
+    final isbn = resource.isbn;
     final baseUri = _baseUriProvider();
     return IriTerm('${baseUri}/books/${isbn}');
   }
@@ -381,7 +381,7 @@ class IriWithNonConstructorFieldsMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final id = resource.id.toString();
+    final id = resource.id;
     return IriTerm('http://example.org/items/${id}');
   }
 }
@@ -432,7 +432,7 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final id = resource.id.toString();
+    final id = resource.id;
     final myBaseUri = _myBaseUriProvider();
     return IriTerm('${myBaseUri}/items/${id}');
   }
@@ -479,9 +479,9 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final brand = resource.brand.toString();
-    final productCategory = resource.productCategory.toString();
-    final id = resource.id.toString();
+    final brand = resource.brand;
+    final productCategory = resource.productCategory;
+    final id = resource.id;
     return IriTerm(
       'http://example.org/products/${brand}/${productCategory}/${id}',
     );

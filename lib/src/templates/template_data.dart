@@ -443,15 +443,18 @@ class ContextProviderData {
 class VariableNameData {
   final String variableName;
   final String placeholder;
+  final bool isString;
 
   const VariableNameData({
     required this.variableName,
     required this.placeholder,
+    required this.isString,
   });
 
   Map<String, dynamic> toMap() => {
         'variableName': variableName,
         'placeholder': placeholder,
+        'isString': isString,
       };
 }
 

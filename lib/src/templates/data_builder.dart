@@ -179,36 +179,35 @@ class DataBuilder {
   }
 
   static IriMapperTemplateData buildIriMapper(
-      IriInfo resourceInfo, String mapperImportUri) {
-    final annotation = resourceInfo.annotation;
+      IriInfo iriInfo, String mapperImportUri) {
+    final annotation = iriInfo.annotation;
     if (annotation.mapper != null) {
       throw Exception(
         'IriMapper cannot have a mapper defined in the annotation.',
       );
     }
 
-    final className = resourceInfo.className;
+    final className = iriInfo.className;
     final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
         importUri: mapperImportUri);
     final mapperInterfaceName = _mapperInterfaceNameFor(annotation);
 
     // Build IRI strategy data
     final iriData = _buildIriData(
-      annotation.template,
-      annotation.mapper,
-      Code.combine([
-        mapperInterfaceName,
-        Code.literal('<'),
-        className,
-        Code.literal('>')
-      ]),
-      annotation.iriParts,
-      annotation.templateInfo,
-      const [] /* no rdf properties for RdfIri annotated classes*/,
-    )!;
+        annotation.template,
+        annotation.mapper,
+        Code.combine([
+          mapperInterfaceName,
+          Code.literal('<'),
+          className,
+          Code.literal('>')
+        ]),
+        annotation.iriParts,
+        annotation.templateInfo,
+        iriInfo.fields)!;
     if (iriData.template == null) {
       throw Exception(
-        'Trying to generate an IRI mapper for resource ${resourceInfo.className}, but IRI template is not defined. This should not be possible.',
+        'Trying to generate an IRI mapper for resource ${iriInfo.className}, but IRI template is not defined. This should not be possible.',
       );
     }
     // Build context providers for context variables
@@ -217,11 +216,11 @@ class DataBuilder {
 
     // Build constructor parameters
     final constructorParameters =
-        _buildConstructorParameters(resourceInfo.constructors);
+        _buildConstructorParameters(iriInfo.constructors);
 
     // Build non-constructor fields that are IRI parts
     final nonConstructorFields = _buildNonConstructorFields(
-            constructorParameters, resourceInfo.fields, iriData)
+            constructorParameters, iriInfo.fields, iriData)
         .where((p) => p.isIriPart)
         .toList();
 
@@ -234,7 +233,7 @@ class DataBuilder {
       );
     }
 
-    final properties = _buildPropertyData(resourceInfo.fields);
+    final properties = _buildPropertyData(iriInfo.fields);
 
     return IriMapperTemplateData(
         className: className,
@@ -244,8 +243,8 @@ class DataBuilder {
         contextProviders: contextProviders,
         constructorParameters: constructorParameters,
         nonConstructorFields: nonConstructorFields,
-        needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
-        registerGlobally: resourceInfo.annotation.registerGlobally,
+        needsReader: iriInfo.fields.any((p) => p.propertyInfo != null),
+        registerGlobally: iriInfo.annotation.registerGlobally,
         properties: properties);
   }
 
@@ -335,31 +334,44 @@ class DataBuilder {
             .toList() ??
         [];
     return IriData(
-      template: template == null ? null : _buildTemplateData(templateInfo!),
+      template: template == null
+          ? null
+          : _buildTemplateData(templateInfo!, fields ?? []),
       mapper: mapperRef,
       hasMapper: mapperRef != null,
       iriMapperParts: iriMapperParts,
     );
   }
 
-  static VariableNameData _buildVariableNameData(VariableName variable) {
+  static VariableNameData _buildVariableNameData(
+      VariableName variable, bool isString) {
     return VariableNameData(
+      isString: isString,
       variableName: variable.dartPropertyName,
       placeholder:
           variable.canBeUri ? '{+${variable.name}}' : '{${variable.name}}',
     );
   }
 
-  static IriTemplateData _buildTemplateData(IriTemplateInfo iriTemplateInfo) {
+  static final _stringType = Code.coreType('String');
+
+  static IriTemplateData _buildTemplateData(
+      IriTemplateInfo iriTemplateInfo, List<FieldInfo> fields) {
+    final isStringByFieldName = {
+      for (var field in fields) field.name: _stringType == field.type,
+    };
+    VariableNameData buildVariableNameData(VariableName variable) =>
+        _buildVariableNameData(
+            variable, isStringByFieldName[variable.dartPropertyName] ?? false);
     return IriTemplateData(
       template: iriTemplateInfo.template,
       propertyVariables:
-          iriTemplateInfo.propertyVariables.map(_buildVariableNameData).toSet(),
+          iriTemplateInfo.propertyVariables.map(buildVariableNameData).toSet(),
       contextVariables: iriTemplateInfo.contextVariableNames
-          .map(_buildVariableNameData)
+          .map(buildVariableNameData)
           .toSet(),
       variables:
-          iriTemplateInfo.variableNames.map(_buildVariableNameData).toSet(),
+          iriTemplateInfo.variableNames.map(buildVariableNameData).toSet(),
       regexPattern:
           '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\\\$',
       interpolatedTemplate: _buildInterpolatedTemplate(iriTemplateInfo),
@@ -393,9 +405,9 @@ class DataBuilder {
   static List<ContextProviderData> _buildContextProvidersForIriTemplate(
       IriTemplateInfo? templateInfo) {
     if (templateInfo == null) return [];
-
     return templateInfo.contextVariableNames.map((variable) {
-      final d = _buildVariableNameData(variable);
+      final d = _buildVariableNameData(
+          variable, false /* not relevant here actually */);
       return ContextProviderData(
         variableName: d.variableName,
         privateFieldName: '_${d.variableName}Provider',

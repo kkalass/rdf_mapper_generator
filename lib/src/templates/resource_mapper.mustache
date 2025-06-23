@@ -6,7 +6,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{#hasIriStrategy}}
   {{#iriStrategy}}
   {{#hasTemplate}}
+  {{#hasNonRdfPropertyIriParts}}
   static final RegExp _regex = RegExp('{{template.regexPattern}}');
+  {{/hasNonRdfPropertyIriParts}}
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}
@@ -123,7 +125,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri({{className}} resource) {
     {{#template.propertyVariables}}
-    final {{value.variableName}} = resource.{{value.variableName}}.toString();
+    final {{value.variableName}} = resource.{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}};
     {{/template.propertyVariables}}
     {{#contextProviders}}
     final {{value.variableName}} = {{value.privateFieldName}}();

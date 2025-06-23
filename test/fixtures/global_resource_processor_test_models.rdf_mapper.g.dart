@@ -59,7 +59,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(Book resource) {
-    final isbn = resource.isbn.toString();
+    final isbn = resource.isbn;
     return 'http://example.org/books/${isbn}';
   }
 
@@ -123,7 +123,7 @@ class ClassWithEmptyIriStrategyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithEmptyIriStrategy resource) {
-    final iri = resource.iri.toString();
+    final iri = resource.iri;
     return '${iri}';
   }
 
@@ -197,7 +197,7 @@ class ClassWithNoRdfTypeMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithNoRdfType resource) {
-    final iri = resource.iri.toString();
+    final iri = resource.iri;
     return '${iri}';
   }
 
@@ -262,7 +262,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithEmptyIriStrategyNoRegisterGlobally resource) {
-    final iri = resource.iri.toString();
+    final iri = resource.iri;
     return '${iri}';
   }
 
@@ -328,7 +328,7 @@ class ClassWithIriTemplateStrategyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithIriTemplateStrategy resource) {
-    final id = resource.id.toString();
+    final id = resource.id;
     return 'http://example.org/persons/${id}';
   }
 
@@ -400,7 +400,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithIriTemplateAndContextVariableStrategy resource) {
-    final id = resource.id.toString();
+    final id = resource.id;
     final baseUri = _baseUriProvider();
     return '${baseUri}/persons/${id}';
   }
@@ -472,7 +472,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithOtherBaseUriNonGlobal resource) {
-    final id = resource.id.toString();
+    final id = resource.id;
     final otherBaseUri = _otherBaseUriProvider();
     return '${otherBaseUri}/persons/${id}';
   }

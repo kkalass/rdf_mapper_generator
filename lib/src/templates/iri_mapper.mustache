@@ -67,7 +67,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#iriStrategy}}
     {{#hasTemplate}}
     {{#template.propertyVariables}}
-    final {{value.variableName}} = resource.{{value.variableName}}.toString();
+    final {{value.variableName}} = resource.{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}};
     {{/template.propertyVariables}}
     {{#contextProviders}}
     final {{value.variableName}} = {{value.privateFieldName}}();
