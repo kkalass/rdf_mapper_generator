@@ -52,6 +52,84 @@ class SimplePropertyTestMapper
   }
 }
 
+/// Generated mapper for [SimpleCustomPropertyTest] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type SimpleCustomPropertyTest.
+class SimpleCustomPropertyTestMapper
+    implements GlobalResourceMapper<SimpleCustomPropertyTest> {
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/books/(?<name>[^/]*)\$',
+  );
+
+  /// Constructor
+  const SimpleCustomPropertyTestMapper();
+
+  @override
+  IriTerm? get typeIri =>
+      const IriTerm.prevalidated('http://example.org/types/Book');
+
+  @override
+  SimpleCustomPropertyTest fromRdfResource(
+    IriTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    // Extract IRI parts
+    final iriParts = _parseIriParts(subject.iri);
+
+    final String name = reader.require(
+      const IriTerm.prevalidated('http://example.org/types/Book/name'),
+    );
+
+    return SimpleCustomPropertyTest(name: name);
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    SimpleCustomPropertyTest resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = IriTerm(_buildIri(resource));
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          const IriTerm.prevalidated('http://example.org/types/Book/name'),
+          resource.name,
+        )
+        .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(SimpleCustomPropertyTest resource) {
+    var iri = 'http://example.org/books/{name}';
+    iri = iri.replaceAll('{name}', resource.name.toString());
+    return iri;
+  }
+
+  /// Parses IRI parts from a complete IRI using a template.
+  ///
+  /// Supports RFC 6570 URI Template standard:
+  /// - {variable} (default): excludes reserved characters like '/'
+  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
+  Map<String, String> _parseIriParts(String iri) {
+    // Try to match the IRI against the regex pattern
+    RegExpMatch? match = _regex.firstMatch(iri);
+
+    return match == null
+        ? {}
+        : Map.fromEntries(
+            match.groupNames.map((name) {
+              var namedGroup = match.namedGroup(name)!;
+              return MapEntry(name, namedGroup);
+            }),
+          );
+  }
+}
+
 /// Generated mapper for [DeserializationOnlyPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects

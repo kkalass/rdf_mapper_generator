@@ -190,6 +190,9 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<pptm.SimplePropertyTest>(
     pptmrmg.SimplePropertyTestMapper(),
   );
+  registry.registerMapper<pptm.SimpleCustomPropertyTest>(
+    pptmrmg.SimpleCustomPropertyTestMapper(),
+  );
   registry.registerMapper<pptm.DeserializationOnlyPropertyTest>(
     pptmrmg.DeserializationOnlyPropertyTestMapper(),
   );

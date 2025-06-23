@@ -26,6 +26,16 @@ class SimplePropertyTest {
   SimplePropertyTest({required this.name});
 }
 
+@RdfGlobalResource(IriTerm.prevalidated('http://example.org/types/Book'),
+    IriStrategy('http://example.org/books/{name}'))
+class SimpleCustomPropertyTest {
+  @RdfProperty(IriTerm.prevalidated('http://example.org/types/Book/name'))
+  @RdfIriPart()
+  final String name;
+
+  SimpleCustomPropertyTest({required this.name});
+}
+
 @RdfLocalResource()
 class DeserializationOnlyPropertyTest {
   @RdfProperty(SchemaBook.name, include: false)
