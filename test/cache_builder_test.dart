@@ -29,7 +29,7 @@ void main() {
 
     // The following tests use actual file analysis which requires full build environment
     // These can be considered integration tests and may need proper build configuration
-    
+
     test('build method exists and accepts BuildStep', () {
       // This test verifies the method signature without actually executing the build
       expect(builder.build, isA<Function>());
@@ -45,7 +45,7 @@ void main() {
     test('factory method creates builder with options', () {
       final options = BuilderOptions({'test': 'value'});
       final factoryBuilder = rdfMapperCacheBuilder(options);
-      
+
       expect(factoryBuilder, isA<RdfMapperCacheBuilder>());
       expect(factoryBuilder.buildExtensions, equals(builder.buildExtensions));
     });
@@ -53,7 +53,8 @@ void main() {
     test('builder has correct build extensions mapping', () {
       expect(builder.buildExtensions, hasLength(1));
       expect(builder.buildExtensions.keys.first, equals('.dart'));
-      expect(builder.buildExtensions.values.first, equals(['.rdf_mapper.cache.json']));
+      expect(builder.buildExtensions.values.first,
+          equals(['.rdf_mapper.cache.json']));
     });
   });
 }

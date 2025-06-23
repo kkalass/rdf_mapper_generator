@@ -35,7 +35,8 @@ void main() {
       expect(result.broaderImports, equals(broaderImports));
     });
 
-    test('buildFileTemplate creates FileTemplateData with empty resource list', () {
+    test('buildFileTemplate creates FileTemplateData with empty resource list',
+        () {
       final sourcePath = 'lib/empty.dart';
       final mapperImportUri = 'asset:test/lib/empty.rdf_mapper.g.dart';
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
@@ -70,10 +71,10 @@ void main() {
 
       // Verify the timestamp is a valid ISO8601 string
       expect(() => DateTime.parse(result.header.generatedOn), returnsNormally);
-      
+
       final parsedDate = DateTime.parse(result.header.generatedOn);
       final now = DateTime.now();
-      
+
       // Should be generated within the last few seconds
       expect(now.difference(parsedDate).inSeconds, lessThan(5));
     });
@@ -115,7 +116,8 @@ void main() {
       expect(result.broaderImports, same(broaderImports));
     });
 
-    test('buildFileTemplate creates different timestamps on multiple calls', () async {
+    test('buildFileTemplate creates different timestamps on multiple calls',
+        () async {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
@@ -140,12 +142,14 @@ void main() {
       );
 
       // Timestamps should be different (or at least not identical)
-      expect(result1.header.generatedOn, isNot(equals(result2.header.generatedOn)));
+      expect(result1.header.generatedOn,
+          isNot(equals(result2.header.generatedOn)));
     });
 
     test('buildFileTemplate preserves mapper import URI in header context', () {
       final sourcePath = 'lib/complex/nested/test.dart';
-      final mapperImportUri = 'asset:test/lib/complex/nested/test.rdf_mapper.g.dart';
+      final mapperImportUri =
+          'asset:test/lib/complex/nested/test.rdf_mapper.g.dart';
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
@@ -171,7 +175,8 @@ void main() {
       ];
 
       for (final sourcePath in testCases) {
-        final mapperImportUri = 'asset:test/$sourcePath'.replaceAll('.dart', '.rdf_mapper.g.dart');
+        final mapperImportUri =
+            'asset:test/$sourcePath'.replaceAll('.dart', '.rdf_mapper.g.dart');
         final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
         final result = TemplateDataBuilder.buildFileTemplate(
@@ -223,7 +228,8 @@ void main() {
       );
 
       // Test with nested context
-      final nestedContext = ValidationContext('ParentContext').withContext('ChildContext');
+      final nestedContext =
+          ValidationContext('ParentContext').withContext('ChildContext');
       final result2 = TemplateDataBuilder.buildFileTemplate(
         nestedContext,
         sourcePath,
@@ -295,11 +301,13 @@ void main() {
       );
 
       expect(result.broaderImports, same(testBroaderImports));
-      
+
       final broaderImportsMap = result.broaderImports.toMap();
       expect(broaderImportsMap, isA<Map<String, dynamic>>());
-      expect(broaderImportsMap['package:test/src/internal.dart'], equals('package:test/test.dart'));
-      expect(broaderImportsMap['package:core/src/core.dart'], equals('package:core/core.dart'));
+      expect(broaderImportsMap['package:test/src/internal.dart'],
+          equals('package:test/test.dart'));
+      expect(broaderImportsMap['package:core/src/core.dart'],
+          equals('package:core/core.dart'));
     });
   });
 }

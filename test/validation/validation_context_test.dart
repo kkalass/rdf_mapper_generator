@@ -5,7 +5,7 @@ void main() {
   group('ValidationException Tests', () {
     test('constructor creates exception with errors only', () {
       final exception = ValidationException(errors: ['Error 1', 'Error 2']);
-      
+
       expect(exception.errors, equals(['Error 1', 'Error 2']));
       expect(exception.warnings, isEmpty);
     });
@@ -15,7 +15,7 @@ void main() {
         errors: ['Error 1'],
         warnings: ['Warning 1', 'Warning 2'],
       );
-      
+
       expect(exception.errors, equals(['Error 1']));
       expect(exception.warnings, equals(['Warning 1', 'Warning 2']));
     });
@@ -23,7 +23,7 @@ void main() {
     test('toString formats errors only correctly', () {
       final exception = ValidationException(errors: ['Error 1', 'Error 2']);
       final output = exception.toString();
-      
+
       expect(output, contains('Validation Errors:'));
       expect(output, contains('• Error 1'));
       expect(output, contains('• Error 2'));
@@ -36,7 +36,7 @@ void main() {
         warnings: ['Warning 1', 'Warning 2'],
       );
       final output = exception.toString();
-      
+
       expect(output, contains('Validation Warnings:'));
       expect(output, contains('• Warning 1'));
       expect(output, contains('• Warning 2'));
@@ -50,7 +50,7 @@ void main() {
         warnings: [],
       );
       final output = exception.toString();
-      
+
       expect(output, isNot(contains('Validation Warnings:')));
       expect(output, contains('Validation Errors:'));
       expect(output, contains('• Error 1'));
@@ -60,7 +60,7 @@ void main() {
   group('ValidationContext Tests', () {
     test('constructor creates context without context string', () {
       final context = ValidationContext();
-      
+
       expect(context.isValid, isTrue);
       expect(context.hasWarnings, isFalse);
       expect(context.errors, isEmpty);
@@ -69,7 +69,7 @@ void main() {
 
     test('constructor creates context with context string', () {
       final context = ValidationContext('Test Context');
-      
+
       expect(context.isValid, isTrue);
       expect(context.hasWarnings, isFalse);
       expect(context.errors, isEmpty);
@@ -79,7 +79,7 @@ void main() {
     test('addError adds formatted error message', () {
       final context = ValidationContext('Test Context');
       context.addError('Test error');
-      
+
       expect(context.isValid, isFalse);
       expect(context.errors, hasLength(1));
       expect(context.errors.first, equals('[Test Context] Test error'));
@@ -88,7 +88,7 @@ void main() {
     test('addError adds unformatted error when no context', () {
       final context = ValidationContext();
       context.addError('Test error');
-      
+
       expect(context.isValid, isFalse);
       expect(context.errors, hasLength(1));
       expect(context.errors.first, equals('Test error'));
@@ -97,7 +97,7 @@ void main() {
     test('addWarning adds formatted warning message', () {
       final context = ValidationContext('Test Context');
       context.addWarning('Test warning');
-      
+
       expect(context.isValid, isTrue);
       expect(context.hasWarnings, isTrue);
       expect(context.warnings, hasLength(1));
@@ -107,7 +107,7 @@ void main() {
     test('addWarning adds unformatted warning when no context', () {
       final context = ValidationContext();
       context.addWarning('Test warning');
-      
+
       expect(context.isValid, isTrue);
       expect(context.hasWarnings, isTrue);
       expect(context.warnings, hasLength(1));
@@ -117,9 +117,9 @@ void main() {
     test('withContext creates child context with combined context', () {
       final parent = ValidationContext('Parent');
       final child = parent.withContext('Child');
-      
+
       child.addError('Child error');
-      
+
       expect(child.errors.first, equals('[Parent > Child] Child error'));
       expect(parent.errors.first, equals('[Parent > Child] Child error'));
     });
@@ -127,9 +127,9 @@ void main() {
     test('withContext creates child context from root context', () {
       final parent = ValidationContext();
       final child = parent.withContext('Child');
-      
+
       child.addError('Child error');
-      
+
       expect(child.errors.first, equals('[Child] Child error'));
       expect(parent.errors.first, equals('[Child] Child error'));
     });
@@ -138,17 +138,19 @@ void main() {
       final root = ValidationContext('Root');
       final child1 = root.withContext('Child1');
       final child2 = child1.withContext('Child2');
-      
+
       child2.addError('Nested error');
-      
-      expect(child2.errors.first, equals('[Root > Child1 > Child2] Nested error'));
-      expect(root.errors.first, equals('[Root > Child1 > Child2] Nested error'));
+
+      expect(
+          child2.errors.first, equals('[Root > Child1 > Child2] Nested error'));
+      expect(
+          root.errors.first, equals('[Root > Child1 > Child2] Nested error'));
     });
 
     test('check with true condition does nothing', () {
       final context = ValidationContext();
       context.check(true, errorMessage: 'Should not appear');
-      
+
       expect(context.isValid, isTrue);
       expect(context.hasWarnings, isFalse);
       expect(context.errors, isEmpty);
@@ -158,7 +160,7 @@ void main() {
     test('check with false condition adds error', () {
       final context = ValidationContext();
       context.check(false, errorMessage: 'Test error');
-      
+
       expect(context.isValid, isFalse);
       expect(context.errors, hasLength(1));
       expect(context.errors.first, equals('Test error'));
@@ -166,8 +168,9 @@ void main() {
 
     test('check with false condition and warning message adds warning', () {
       final context = ValidationContext();
-      context.check(false, errorMessage: 'Test error', warningMessage: 'Test warning');
-      
+      context.check(false,
+          errorMessage: 'Test error', warningMessage: 'Test warning');
+
       expect(context.isValid, isTrue);
       expect(context.hasWarnings, isTrue);
       expect(context.warnings, hasLength(1));
@@ -178,7 +181,7 @@ void main() {
     test('isValid returns false when errors exist', () {
       final context = ValidationContext();
       context.addError('Test error');
-      
+
       expect(context.isValid, isFalse);
     });
 
@@ -186,7 +189,7 @@ void main() {
       final parent = ValidationContext();
       final child = parent.withContext('Child');
       child.addError('Child error');
-      
+
       expect(parent.isValid, isFalse);
       expect(child.isValid, isFalse);
     });
@@ -194,14 +197,14 @@ void main() {
     test('isValid returns true when only warnings exist', () {
       final context = ValidationContext();
       context.addWarning('Test warning');
-      
+
       expect(context.isValid, isTrue);
     });
 
     test('hasWarnings returns true when warnings exist', () {
       final context = ValidationContext();
       context.addWarning('Test warning');
-      
+
       expect(context.hasWarnings, isTrue);
     });
 
@@ -209,7 +212,7 @@ void main() {
       final parent = ValidationContext();
       final child = parent.withContext('Child');
       child.addWarning('Child warning');
-      
+
       expect(parent.hasWarnings, isTrue);
       expect(child.hasWarnings, isTrue);
     });
@@ -217,20 +220,20 @@ void main() {
     test('hasWarnings returns false when no warnings exist', () {
       final context = ValidationContext();
       context.addError('Test error');
-      
+
       expect(context.hasWarnings, isFalse);
     });
 
     test('errors aggregates errors from children', () {
       final parent = ValidationContext();
       parent.addError('Parent error');
-      
+
       final child1 = parent.withContext('Child1');
       child1.addError('Child1 error');
-      
+
       final child2 = parent.withContext('Child2');
       child2.addError('Child2 error');
-      
+
       expect(parent.errors, hasLength(3));
       expect(parent.errors, contains('Parent error'));
       expect(parent.errors.any((e) => e.contains('Child1 error')), isTrue);
@@ -240,13 +243,13 @@ void main() {
     test('warnings aggregates warnings from children', () {
       final parent = ValidationContext();
       parent.addWarning('Parent warning');
-      
+
       final child1 = parent.withContext('Child1');
       child1.addWarning('Child1 warning');
-      
+
       final child2 = parent.withContext('Child2');
       child2.addWarning('Child2 warning');
-      
+
       expect(parent.warnings, hasLength(3));
       expect(parent.warnings, contains('Parent warning'));
       expect(parent.warnings.any((w) => w.contains('Child1 warning')), isTrue);
@@ -256,7 +259,7 @@ void main() {
     test('throwIfErrors does nothing when valid', () {
       final context = ValidationContext();
       context.addWarning('Just a warning');
-      
+
       expect(() => context.throwIfErrors(), returnsNormally);
     });
 
@@ -264,7 +267,7 @@ void main() {
       final context = ValidationContext();
       context.addError('Test error');
       context.addWarning('Test warning');
-      
+
       expect(
         () => context.throwIfErrors(),
         throwsA(isA<ValidationException>()
@@ -277,32 +280,35 @@ void main() {
       final parent = ValidationContext();
       final child = parent.withContext('Child');
       child.addError('Child error');
-      
+
       expect(
         () => parent.throwIfErrors(),
-        throwsA(isA<ValidationException>()
-            .having((e) => e.errors.any((error) => error.contains('Child error')), 'has child error', isTrue)),
+        throwsA(isA<ValidationException>().having(
+            (e) => e.errors.any((error) => error.contains('Child error')),
+            'has child error',
+            isTrue)),
       );
     });
 
     test('multiple operations work together correctly', () {
       final context = ValidationContext('Main');
-      
+
       context.addError('Main error');
       context.addWarning('Main warning');
-      
+
       final child1 = context.withContext('Child1');
       child1.check(false, errorMessage: 'Child1 check failed');
       child1.check(true, errorMessage: 'Should not appear');
-      
+
       final child2 = context.withContext('Child2');
-      child2.check(false, errorMessage: 'Child2 error', warningMessage: 'Child2 warning');
-      
+      child2.check(false,
+          errorMessage: 'Child2 error', warningMessage: 'Child2 warning');
+
       expect(context.isValid, isFalse);
       expect(context.hasWarnings, isTrue);
       expect(context.errors, hasLength(2));
       expect(context.warnings, hasLength(2));
-      
+
       expect(
         () => context.throwIfErrors(),
         throwsA(isA<ValidationException>()),
@@ -313,10 +319,10 @@ void main() {
       final context = ValidationContext();
       context.addError('Test error');
       context.addWarning('Test warning');
-      
+
       final errors = context.errors;
       final warnings = context.warnings;
-      
+
       expect(() => errors.add('New error'), throwsUnsupportedError);
       expect(() => warnings.add('New warning'), throwsUnsupportedError);
     });

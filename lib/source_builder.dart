@@ -55,6 +55,7 @@ class RdfMapperSourceBuilder implements Builder {
   }
 
   @override
-  Map<String, List<String>> get buildExtensions => 
-      const {'.rdf_mapper.cache.json': ['.rdf_mapper.g.dart']};
+  Map<String, List<String>> get buildExtensions => const {
+        '.rdf_mapper.cache.json': ['.rdf_mapper.g.dart']
+      };
 }
