@@ -307,8 +307,12 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
 /// and RDF triples for resources of type IriMappingNamedMapperTest.
 class IriMappingNamedMapperTestMapper
     implements LocalResourceMapper<IriMappingNamedMapperTest> {
+  final IriTermMapper<String> _authorIdMapper;
+
   /// Constructor
-  const IriMappingNamedMapperTestMapper();
+  const IriMappingNamedMapperTestMapper({
+    required IriTermMapper<String> iriMapper,
+  }) : _authorIdMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -320,7 +324,10 @@ class IriMappingNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(SchemaBook.author);
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIdMapper,
+    );
 
     return IriMappingNamedMapperTest(authorId: authorId);
   }
@@ -335,7 +342,11 @@ class IriMappingNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.authorId)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer: _authorIdMapper,
+        )
         .build();
   }
 }
@@ -346,8 +357,12 @@ class IriMappingNamedMapperTestMapper
 /// and RDF triples for resources of type IriMappingMapperTest.
 class IriMappingMapperTestMapper
     implements LocalResourceMapper<IriMappingMapperTest> {
+  final IriTermMapper<String> _authorIdMapper;
+
   /// Constructor
-  const IriMappingMapperTestMapper();
+  const IriMappingMapperTestMapper({
+    IriTermMapper<String> authorIdMapper = const IriMapperImpl(),
+  }) : _authorIdMapper = authorIdMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -359,7 +374,10 @@ class IriMappingMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(SchemaBook.author);
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIdMapper,
+    );
 
     return IriMappingMapperTest(authorId: authorId);
   }
@@ -374,7 +392,11 @@ class IriMappingMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.authorId)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer: _authorIdMapper,
+        )
         .build();
   }
 }
@@ -385,8 +407,12 @@ class IriMappingMapperTestMapper
 /// and RDF triples for resources of type IriMappingMapperInstanceTest.
 class IriMappingMapperInstanceTestMapper
     implements LocalResourceMapper<IriMappingMapperInstanceTest> {
+  final IriTermMapper<String> _authorIdMapper;
+
   /// Constructor
-  const IriMappingMapperInstanceTestMapper();
+  const IriMappingMapperInstanceTestMapper({
+    IriTermMapper<String> authorIdMapper = const IriMapperImpl(),
+  }) : _authorIdMapper = authorIdMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -398,7 +424,10 @@ class IriMappingMapperInstanceTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(SchemaBook.author);
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIdMapper,
+    );
 
     return IriMappingMapperInstanceTest(authorId: authorId);
   }
@@ -413,7 +442,11 @@ class IriMappingMapperInstanceTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.authorId)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer: _authorIdMapper,
+        )
         .build();
   }
 }
@@ -424,8 +457,12 @@ class IriMappingMapperInstanceTestMapper
 /// and RDF triples for resources of type LocalResourceMappingTest.
 class LocalResourceMappingTestMapper
     implements LocalResourceMapper<LocalResourceMappingTest> {
+  final LocalResourceMapper<Object> _authorMapper;
+
   /// Constructor
-  const LocalResourceMappingTestMapper();
+  const LocalResourceMappingTestMapper({
+    required LocalResourceMapper<Object> testLocalMapper,
+  }) : _authorMapper = testLocalMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -437,7 +474,10 @@ class LocalResourceMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(SchemaBook.author);
+    final Object author = reader.require(
+      SchemaBook.author,
+      localResourceDeserializer: _authorMapper,
+    );
 
     return LocalResourceMappingTest(author: author);
   }
@@ -452,7 +492,11 @@ class LocalResourceMappingTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.author)
+        .addValue(
+          SchemaBook.author,
+          resource.author,
+          resourceSerializer: _authorMapper,
+        )
         .build();
   }
 }
@@ -463,8 +507,12 @@ class LocalResourceMappingTestMapper
 /// and RDF triples for resources of type GlobalResourceMappingTest.
 class GlobalResourceMappingTestMapper
     implements LocalResourceMapper<GlobalResourceMappingTest> {
+  final GlobalResourceMapper<Object> _publisherMapper;
+
   /// Constructor
-  const GlobalResourceMappingTestMapper();
+  const GlobalResourceMappingTestMapper({
+    required GlobalResourceMapper<Object> testGlobalMapper,
+  }) : _publisherMapper = testGlobalMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -476,7 +524,10 @@ class GlobalResourceMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(SchemaBook.publisher);
+    final Object publisher = reader.require(
+      SchemaBook.publisher,
+      globalResourceDeserializer: _publisherMapper,
+    );
 
     return GlobalResourceMappingTest(publisher: publisher);
   }
@@ -491,7 +542,11 @@ class GlobalResourceMappingTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.publisher, resource.publisher)
+        .addValue(
+          SchemaBook.publisher,
+          resource.publisher,
+          resourceSerializer: _publisherMapper,
+        )
         .build();
   }
 }
@@ -502,8 +557,12 @@ class GlobalResourceMappingTestMapper
 /// and RDF triples for resources of type LiteralMappingTest.
 class LiteralMappingTestMapper
     implements LocalResourceMapper<LiteralMappingTest> {
+  final LiteralTermMapper<double> _priceMapper;
+
   /// Constructor
-  const LiteralMappingTestMapper();
+  const LiteralMappingTestMapper({
+    required LiteralTermMapper<double> testLiteralMapper,
+  }) : _priceMapper = testLiteralMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -517,6 +576,7 @@ class LiteralMappingTestMapper
 
     final double price = reader.require(
       const IriTerm.prevalidated('http://example.org/book/price'),
+      literalTermDeserializer: _priceMapper,
     );
 
     return LiteralMappingTest(price: price);
@@ -535,6 +595,7 @@ class LiteralMappingTestMapper
         .addValue(
           const IriTerm.prevalidated('http://example.org/book/price'),
           resource.price,
+          literalTermSerializer: _priceMapper,
         )
         .build();
   }
@@ -546,8 +607,12 @@ class LiteralMappingTestMapper
 /// and RDF triples for resources of type LiteralMappingTestCustomDatatype.
 class LiteralMappingTestCustomDatatypeMapper
     implements LocalResourceMapper<LiteralMappingTestCustomDatatype> {
+  final LiteralTermMapper<double> _priceMapper;
+
   /// Constructor
-  const LiteralMappingTestCustomDatatypeMapper();
+  const LiteralMappingTestCustomDatatypeMapper({
+    LiteralTermMapper<double> priceMapper = const DoubleMapper(),
+  }) : _priceMapper = priceMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -561,6 +626,7 @@ class LiteralMappingTestCustomDatatypeMapper
 
     final double price = reader.require(
       const IriTerm.prevalidated('http://example.org/book/price'),
+      literalTermDeserializer: _priceMapper,
     );
 
     return LiteralMappingTestCustomDatatype(price: price);
@@ -579,6 +645,7 @@ class LiteralMappingTestCustomDatatypeMapper
         .addValue(
           const IriTerm.prevalidated('http://example.org/book/price'),
           resource.price,
+          literalTermSerializer: _priceMapper,
         )
         .build();
   }
@@ -745,8 +812,12 @@ class MapNoCollectionTestMapper
 /// and RDF triples for resources of type MapLocalResourceMapperTest.
 class MapLocalResourceMapperTestMapper
     implements LocalResourceMapper<MapLocalResourceMapperTest> {
+  final LocalResourceMapper<Map<String, String>> _reviewsMapper;
+
   /// Constructor
-  const MapLocalResourceMapperTestMapper();
+  const MapLocalResourceMapperTestMapper({
+    required LocalResourceMapper<Map<String, String>> mapEntryMapper,
+  }) : _reviewsMapper = mapEntryMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -758,7 +829,10 @@ class MapLocalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Map<String, String> reviews = reader.require(SchemaBook.reviews);
+    final Map<String, String> reviews = reader.require(
+      SchemaBook.reviews,
+      localResourceDeserializer: _reviewsMapper,
+    );
 
     return MapLocalResourceMapperTest(reviews: reviews);
   }
@@ -773,7 +847,11 @@ class MapLocalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.reviews, resource.reviews)
+        .addValue(
+          SchemaBook.reviews,
+          resource.reviews,
+          resourceSerializer: _reviewsMapper,
+        )
         .build();
   }
 }
@@ -1104,8 +1182,12 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
 /// and RDF triples for resources of type GlobalResourceNamedMapperTest.
 class GlobalResourceNamedMapperTestMapper
     implements LocalResourceMapper<GlobalResourceNamedMapperTest> {
+  final GlobalResourceMapper<Object> _publisherMapper;
+
   /// Constructor
-  const GlobalResourceNamedMapperTestMapper();
+  const GlobalResourceNamedMapperTestMapper({
+    required GlobalResourceMapper<Object> testNamedMapper,
+  }) : _publisherMapper = testNamedMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1117,7 +1199,10 @@ class GlobalResourceNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(SchemaBook.publisher);
+    final Object publisher = reader.require(
+      SchemaBook.publisher,
+      globalResourceDeserializer: _publisherMapper,
+    );
 
     return GlobalResourceNamedMapperTest(publisher: publisher);
   }
@@ -1132,7 +1217,11 @@ class GlobalResourceNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.publisher, resource.publisher)
+        .addValue(
+          SchemaBook.publisher,
+          resource.publisher,
+          resourceSerializer: _publisherMapper,
+        )
         .build();
   }
 }
@@ -1143,8 +1232,12 @@ class GlobalResourceNamedMapperTestMapper
 /// and RDF triples for resources of type LiteralNamedMapperTest.
 class LiteralNamedMapperTestMapper
     implements LocalResourceMapper<LiteralNamedMapperTest> {
+  final LiteralTermMapper<String> _isbnMapper;
+
   /// Constructor
-  const LiteralNamedMapperTestMapper();
+  const LiteralNamedMapperTestMapper({
+    required LiteralTermMapper<String> testCustomMapper,
+  }) : _isbnMapper = testCustomMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1156,7 +1249,10 @@ class LiteralNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(SchemaBook.isbn);
+    final String isbn = reader.require(
+      SchemaBook.isbn,
+      literalTermDeserializer: _isbnMapper,
+    );
 
     return LiteralNamedMapperTest(isbn: isbn);
   }
@@ -1171,7 +1267,11 @@ class LiteralNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.isbn, resource.isbn)
+        .addValue(
+          SchemaBook.isbn,
+          resource.isbn,
+          literalTermSerializer: _isbnMapper,
+        )
         .build();
   }
 }
@@ -1182,8 +1282,12 @@ class LiteralNamedMapperTestMapper
 /// and RDF triples for resources of type LiteralTypeMapperTest.
 class LiteralTypeMapperTestMapper
     implements LocalResourceMapper<LiteralTypeMapperTest> {
+  final LiteralTermMapper<double> _priceMapper;
+
   /// Constructor
-  const LiteralTypeMapperTestMapper();
+  const LiteralTypeMapperTestMapper({
+    LiteralTermMapper<double> priceMapper = const LiteralDoubleMapperImpl(),
+  }) : _priceMapper = priceMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1195,7 +1299,10 @@ class LiteralTypeMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final double price = reader.require(SchemaBook.bookFormat);
+    final double price = reader.require(
+      SchemaBook.bookFormat,
+      literalTermDeserializer: _priceMapper,
+    );
 
     return LiteralTypeMapperTest(price: price);
   }
@@ -1210,7 +1317,11 @@ class LiteralTypeMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.bookFormat, resource.price)
+        .addValue(
+          SchemaBook.bookFormat,
+          resource.price,
+          literalTermSerializer: _priceMapper,
+        )
         .build();
   }
 }
@@ -1221,8 +1332,13 @@ class LiteralTypeMapperTestMapper
 /// and RDF triples for resources of type GlobalResourceTypeMapperTest.
 class GlobalResourceTypeMapperTestMapper
     implements LocalResourceMapper<GlobalResourceTypeMapperTest> {
+  final GlobalResourceMapper<Publisher> _publisherMapper;
+
   /// Constructor
-  const GlobalResourceTypeMapperTestMapper();
+  const GlobalResourceTypeMapperTestMapper({
+    GlobalResourceMapper<Publisher> publisherMapper =
+        const GlobalPublisherMapperImpl(),
+  }) : _publisherMapper = publisherMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -1234,7 +1350,10 @@ class GlobalResourceTypeMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Publisher publisher = reader.require(SchemaBook.publisher);
+    final Publisher publisher = reader.require(
+      SchemaBook.publisher,
+      globalResourceDeserializer: _publisherMapper,
+    );
 
     return GlobalResourceTypeMapperTest(publisher: publisher);
   }
@@ -1249,7 +1368,11 @@ class GlobalResourceTypeMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.publisher, resource.publisher)
+        .addValue(
+          SchemaBook.publisher,
+          resource.publisher,
+          resourceSerializer: _publisherMapper,
+        )
         .build();
   }
 }
@@ -1260,8 +1383,13 @@ class GlobalResourceTypeMapperTestMapper
 /// and RDF triples for resources of type GlobalResourceMapperTest.
 class GlobalResourceMapperTestMapper
     implements LocalResourceMapper<GlobalResourceMapperTest> {
+  final GlobalResourceMapper<Object> _publisherMapper;
+
   /// Constructor
-  const GlobalResourceMapperTestMapper();
+  const GlobalResourceMapperTestMapper({
+    GlobalResourceMapper<Object> publisherMapper =
+        const GlobalPublisherMapperImpl(),
+  }) : _publisherMapper = publisherMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1273,7 +1401,10 @@ class GlobalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(SchemaBook.publisher);
+    final Object publisher = reader.require(
+      SchemaBook.publisher,
+      globalResourceDeserializer: _publisherMapper,
+    );
 
     return GlobalResourceMapperTest(publisher: publisher);
   }
@@ -1288,7 +1419,11 @@ class GlobalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.publisher, resource.publisher)
+        .addValue(
+          SchemaBook.publisher,
+          resource.publisher,
+          resourceSerializer: _publisherMapper,
+        )
         .build();
   }
 }
@@ -1299,8 +1434,13 @@ class GlobalResourceMapperTestMapper
 /// and RDF triples for resources of type GlobalResourceInstanceMapperTest.
 class GlobalResourceInstanceMapperTestMapper
     implements LocalResourceMapper<GlobalResourceInstanceMapperTest> {
+  final GlobalResourceMapper<Object> _publisherMapper;
+
   /// Constructor
-  const GlobalResourceInstanceMapperTestMapper();
+  const GlobalResourceInstanceMapperTestMapper({
+    GlobalResourceMapper<Object> publisherMapper =
+        const GlobalPublisherMapperImpl(),
+  }) : _publisherMapper = publisherMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1312,7 +1452,10 @@ class GlobalResourceInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(SchemaBook.publisher);
+    final Object publisher = reader.require(
+      SchemaBook.publisher,
+      globalResourceDeserializer: _publisherMapper,
+    );
 
     return GlobalResourceInstanceMapperTest(publisher: publisher);
   }
@@ -1327,7 +1470,11 @@ class GlobalResourceInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.publisher, resource.publisher)
+        .addValue(
+          SchemaBook.publisher,
+          resource.publisher,
+          resourceSerializer: _publisherMapper,
+        )
         .build();
   }
 }
@@ -1338,8 +1485,13 @@ class GlobalResourceInstanceMapperTestMapper
 /// and RDF triples for resources of type LocalResourceMapperTest.
 class LocalResourceMapperTestMapper
     implements LocalResourceMapper<LocalResourceMapperTest> {
+  final LocalResourceMapper<Author> _authorMapper;
+
   /// Constructor
-  const LocalResourceMapperTestMapper();
+  const LocalResourceMapperTestMapper({
+    LocalResourceMapper<Author> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
+  }) : _authorMapper = authorMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1351,7 +1503,10 @@ class LocalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Author author = reader.require(SchemaBook.author);
+    final Author author = reader.require(
+      SchemaBook.author,
+      localResourceDeserializer: _authorMapper,
+    );
 
     return LocalResourceMapperTest(author: author);
   }
@@ -1366,7 +1521,11 @@ class LocalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.author)
+        .addValue(
+          SchemaBook.author,
+          resource.author,
+          resourceSerializer: _authorMapper,
+        )
         .build();
   }
 }
@@ -1377,8 +1536,13 @@ class LocalResourceMapperTestMapper
 /// and RDF triples for resources of type LocalResourceMapperObjectPropertyTest.
 class LocalResourceMapperObjectPropertyTestMapper
     implements LocalResourceMapper<LocalResourceMapperObjectPropertyTest> {
+  final LocalResourceMapper<Object> _authorMapper;
+
   /// Constructor
-  const LocalResourceMapperObjectPropertyTestMapper();
+  const LocalResourceMapperObjectPropertyTestMapper({
+    LocalResourceMapper<Object> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
+  }) : _authorMapper = authorMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1390,7 +1554,10 @@ class LocalResourceMapperObjectPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(SchemaBook.author);
+    final Object author = reader.require(
+      SchemaBook.author,
+      localResourceDeserializer: _authorMapper,
+    );
 
     return LocalResourceMapperObjectPropertyTest(author: author);
   }
@@ -1405,7 +1572,11 @@ class LocalResourceMapperObjectPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.author)
+        .addValue(
+          SchemaBook.author,
+          resource.author,
+          resourceSerializer: _authorMapper,
+        )
         .build();
   }
 }
@@ -1416,8 +1587,13 @@ class LocalResourceMapperObjectPropertyTestMapper
 /// and RDF triples for resources of type LocalResourceInstanceMapperTest.
 class LocalResourceInstanceMapperTestMapper
     implements LocalResourceMapper<LocalResourceInstanceMapperTest> {
+  final LocalResourceMapper<Author> _authorMapper;
+
   /// Constructor
-  const LocalResourceInstanceMapperTestMapper();
+  const LocalResourceInstanceMapperTestMapper({
+    LocalResourceMapper<Author> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
+  }) : _authorMapper = authorMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1429,7 +1605,10 @@ class LocalResourceInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Author author = reader.require(SchemaBook.author);
+    final Author author = reader.require(
+      SchemaBook.author,
+      localResourceDeserializer: _authorMapper,
+    );
 
     return LocalResourceInstanceMapperTest(author: author);
   }
@@ -1444,7 +1623,11 @@ class LocalResourceInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.author)
+        .addValue(
+          SchemaBook.author,
+          resource.author,
+          resourceSerializer: _authorMapper,
+        )
         .build();
   }
 }
@@ -1455,8 +1638,12 @@ class LocalResourceInstanceMapperTestMapper
 /// and RDF triples for resources of type LiteralMapperTest.
 class LiteralMapperTestMapper
     implements LocalResourceMapper<LiteralMapperTest> {
+  final LiteralTermMapper<int> _pageCountMapper;
+
   /// Constructor
-  const LiteralMapperTestMapper();
+  const LiteralMapperTestMapper({
+    LiteralTermMapper<int> pageCountMapper = const IntMapper(),
+  }) : _pageCountMapper = pageCountMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1468,7 +1655,10 @@ class LiteralMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final int pageCount = reader.require(SchemaBook.numberOfPages);
+    final int pageCount = reader.require(
+      SchemaBook.numberOfPages,
+      literalTermDeserializer: _pageCountMapper,
+    );
 
     return LiteralMapperTest(pageCount: pageCount);
   }
@@ -1483,7 +1673,11 @@ class LiteralMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.numberOfPages, resource.pageCount)
+        .addValue(
+          SchemaBook.numberOfPages,
+          resource.pageCount,
+          literalTermSerializer: _pageCountMapper,
+        )
         .build();
   }
 }
@@ -1494,8 +1688,12 @@ class LiteralMapperTestMapper
 /// and RDF triples for resources of type LiteralInstanceMapperTest.
 class LiteralInstanceMapperTestMapper
     implements LocalResourceMapper<LiteralInstanceMapperTest> {
+  final LiteralTermMapper<String> _isbnMapper;
+
   /// Constructor
-  const LiteralInstanceMapperTestMapper();
+  const LiteralInstanceMapperTestMapper({
+    LiteralTermMapper<String> isbnMapper = const LiteralStringMapperImpl(),
+  }) : _isbnMapper = isbnMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1507,7 +1705,10 @@ class LiteralInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(SchemaBook.isbn);
+    final String isbn = reader.require(
+      SchemaBook.isbn,
+      literalTermDeserializer: _isbnMapper,
+    );
 
     return LiteralInstanceMapperTest(isbn: isbn);
   }
@@ -1522,7 +1723,11 @@ class LiteralInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.isbn, resource.isbn)
+        .addValue(
+          SchemaBook.isbn,
+          resource.isbn,
+          literalTermSerializer: _isbnMapper,
+        )
         .build();
   }
 }

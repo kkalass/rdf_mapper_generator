@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
@@ -396,8 +397,8 @@ class InitFileBuilderHelper {
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
 
     if (registerGlobally) {
-      final code = customMapperCode(
-          customMapperType, customMapperInstance, customMapperName, mapperData);
+      final code = DataBuilder.customMapperCode(
+          customMapperType, customMapperInstance, customMapperName);
       final customMapper = _CustomMapper(
         type: mapperInterfaceType,
         code: code,
@@ -488,8 +489,8 @@ class InitFileBuilderHelper {
     final instanceInitializationCode =
         extractNullableCodeProperty(mapper, 'instanceInitializationCode');
     if (type == null) return [];
-    final code = customMapperCode(
-        implementationType, instanceInitializationCode, name, mapper);
+    final code = DataBuilder.customMapperCode(
+        implementationType, instanceInitializationCode, name);
     return [
       _CustomMapper(
           type: type,
@@ -500,27 +501,6 @@ class InitFileBuilderHelper {
           isInstance: isInstance,
           name: name),
     ];
-  }
-
-  Code customMapperCode(
-      Code? implementationType,
-      Code? instanceInitializationCode,
-      String? name,
-      Map<String, dynamic> mapperData) {
-    Code? code;
-    if (implementationType != null) {
-      // instantiate the constructor with empty parameters
-      code = Code.combine([implementationType, Code.literal('()')]);
-    } else if (instanceInitializationCode != null) {
-      code = instanceInitializationCode;
-    }
-    if (code == null && name != null) {
-      code = Code.literal(name);
-    }
-    if (code == null) {
-      throw ArgumentError('No valid code found for IRI mapper $mapperData');
-    }
-    return code;
   }
 
   /// Collects IRI mappers into the iriMappers map

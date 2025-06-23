@@ -2,6 +2,7 @@ import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -12,18 +13,47 @@ final _log = Logger('GlobalResourceDataBuilder');
 
 /// Builds template data from processed resource information.
 class DataBuilder {
+  static Code customMapperCode(
+      Code? implementationType, Code? instanceInitializationCode, String? name,
+      {bool constContext = false}) {
+    Code? code;
+    if (implementationType != null) {
+      // instantiate the constructor with empty parameters
+      code = Code.combine([
+        if (constContext) Code.literal('const '),
+        implementationType,
+        Code.literal('()')
+      ]);
+    } else if (instanceInitializationCode != null) {
+      code = instanceInitializationCode;
+    }
+    if (code == null && name != null) {
+      code = Code.literal(name);
+    }
+    if (code == null) {
+      throw ArgumentError('No valid code found for IRI mapper ');
+    }
+    return code;
+  }
+
+  static Code mapperRefInfoToCode(MapperRefInfo mapper,
+      {bool constContext = false}) {
+    var customMapperName = mapper.name;
+    var customMapperType =
+        mapper.type == null ? null : typeToCode(mapper.type!.toTypeValue()!);
+    var customMapperInstance =
+        mapper.instance == null ? null : toCode(mapper.instance);
+    return customMapperCode(
+        customMapperType, customMapperInstance, customMapperName,
+        constContext: constContext);
+  }
+
   static CustomMapperTemplateData buildCustomMapper(ValidationContext context,
       Code className, BaseMappingAnnotationInfo annotation) {
     assert(annotation.mapper != null);
     final mapper = annotation.mapper!;
-    final mapperInterfaceName = _mapperInterfaceNameFor(annotation);
-
-    final mapperInterfaceType = Code.combine([
-      mapperInterfaceName,
-      Code.literal('<'),
-      className,
-      Code.literal('>'),
-    ]);
+    Code mapperInterfaceType =
+        _buildMapperInterfaceTypeFromBaseMapper(annotation, className);
     // Build imports
 
     var customMapperName = mapper.name;
@@ -46,6 +76,22 @@ class DataBuilder {
       customMapperInstance: customMapperInstance,
       registerGlobally: annotation.registerGlobally,
     );
+  }
+
+  static Code _buildMapperInterfaceTypeFromBaseMapper(
+      BaseMappingAnnotationInfo<dynamic> annotation, Code className) {
+    final mapperInterface = _mapperInterfaceNameFor(annotation);
+    return _buildMapperInterfaceType(mapperInterface, className);
+  }
+
+  static Code _buildMapperInterfaceType(Code mapperInterface, Code className) {
+    final mapperInterfaceType = Code.combine([
+      mapperInterface,
+      Code.literal('<'),
+      className,
+      Code.literal('>'),
+    ]);
+    return mapperInterfaceType;
   }
 
   static Code _mapperInterfaceNameFor(
@@ -100,18 +146,39 @@ class DataBuilder {
     final List<ConstructorParameterData> mapperConstructorParameters = [
       if (iriStrategy?.hasMapper ?? false)
         ConstructorParameterData(
-          fieldName: '_iriMapper',
-          parameterName: 'iriMapper',
-          type: iriStrategy!.mapper!.type,
-        ),
+            fieldName: '_iriMapper',
+            parameterName: 'iriMapper',
+            type: iriStrategy!.mapper!.type,
+            defaultValue: null),
       ...contextProviders.map((provider) => ConstructorParameterData(
-            fieldName: provider.privateFieldName,
-            parameterName: provider.parameterName,
-            type: Code.combine([
-              Code.coreType('String'),
-              Code.literal(' Function()'),
-            ]),
-          )),
+          fieldName: provider.privateFieldName,
+          parameterName: provider.parameterName,
+          type: Code.combine([
+            Code.coreType('String'),
+            Code.literal(' Function()'),
+          ]),
+          defaultValue: null)),
+      ...resourceInfo.fields.expand((f) {
+        final iriMapper = f.propertyInfo?.annotation.iri?.mapper;
+        final literalMapper = f.propertyInfo?.annotation.literal?.mapper;
+        final globalResourceMapper =
+            f.propertyInfo?.annotation.globalResource?.mapper;
+        final localResourceMapper =
+            f.propertyInfo?.annotation.localResource?.mapper;
+        return [
+          if (iriMapper != null)
+            mappingToConstructorParameter(f, iriMapper, 'IriTermMapper'),
+          if (literalMapper != null)
+            mappingToConstructorParameter(
+                f, literalMapper, 'LiteralTermMapper'),
+          if (globalResourceMapper != null)
+            mappingToConstructorParameter(
+                f, globalResourceMapper, 'GlobalResourceMapper'),
+          if (localResourceMapper != null)
+            mappingToConstructorParameter(
+                f, localResourceMapper, 'LocalResourceMapper'),
+        ];
+      })
     ];
     return ResourceMapperTemplateData(
         className: className,
@@ -128,6 +195,21 @@ class DataBuilder {
         properties: properties,
         mapperConstructorParameters: mapperConstructorParameters);
   }
+
+  static ConstructorParameterData mappingToConstructorParameter(
+      FieldInfo f, MapperRefInfo<dynamic> iriMapper, String mapperInterface) {
+    return ConstructorParameterData(
+        fieldName: _buildMapperFieldName(f.name),
+        parameterName: iriMapper.name ?? f.name + 'Mapper',
+        type: _buildMapperInterfaceType(
+            Code.type(mapperInterface, importUri: importRdfMapper), f.type),
+        defaultValue: iriMapper.name == null
+            ? mapperRefInfoToCode(iriMapper, constContext: true)
+            : null);
+  }
+
+  static String _buildMapperFieldName(String fieldName) =>
+      '_' + fieldName + 'Mapper';
 
   static LiteralMapperTemplateData buildLiteralMapper(
       LiteralInfo resourceInfo, String mapperImportUri) {
@@ -265,20 +347,28 @@ class DataBuilder {
   }
 
   static List<PropertyData> _buildPropertyData(List<FieldInfo> fields) {
-    return fields
-        .where((p) => p.propertyInfo != null)
-        .map((p) => PropertyData(
-            isRdfProperty: p.propertyInfo != null,
-            isRequired: p.isRequired,
-            isFieldNullable: !p.isRequired,
-            include: p.propertyInfo!.annotation.include,
-            predicate: p.propertyInfo!.annotation.predicate.code,
-            propertyName: p.propertyInfo!.name,
-            defaultValue: toCode(p.propertyInfo!.annotation.defaultValue),
-            hasDefaultValue: p.propertyInfo!.annotation.defaultValue != null,
-            includeDefaultsInSerialization:
-                p.propertyInfo!.annotation.includeDefaultsInSerialization))
-        .toList();
+    return fields.where((p) => p.propertyInfo != null).map((p) {
+      final (
+        mapperFieldName,
+        mapperParameterSerializer,
+        mapperParameterDeserializer
+      ) = _extractPropertyMapperInfos(p.name, p.propertyInfo);
+      return PropertyData(
+        isRdfProperty: p.propertyInfo != null,
+        isRequired: p.isRequired,
+        isFieldNullable: !p.isRequired,
+        include: p.propertyInfo!.annotation.include,
+        predicate: p.propertyInfo!.annotation.predicate.code,
+        propertyName: p.propertyInfo!.name,
+        defaultValue: toCode(p.propertyInfo!.annotation.defaultValue),
+        hasDefaultValue: p.propertyInfo!.annotation.defaultValue != null,
+        includeDefaultsInSerialization:
+            p.propertyInfo!.annotation.includeDefaultsInSerialization,
+        mapperFieldName: mapperFieldName,
+        mapperParameterSerializer: mapperParameterSerializer,
+        mapperParameterDeserializer: mapperParameterDeserializer,
+      );
+    }).toList();
   }
 
   /// Builds the type IRI expression.
@@ -459,6 +549,11 @@ class DataBuilder {
       final predicateCode = field.propertyInfo?.annotation.predicate.code;
       final defaultValue = field.propertyInfo?.annotation.defaultValue;
       final iriPartName = iriPartNameByPropertyName[field.name];
+      final (
+        mapperFieldName,
+        mapperParameterSerializer,
+        mapperParameterDeserializer
+      ) = _extractPropertyMapperInfos(field.name, field.propertyInfo);
       return ParameterData(
         name: field.name,
         dartType: field.type,
@@ -473,6 +568,9 @@ class DataBuilder {
         hasDefaultValue: defaultValue != null,
         isRdfLanguageTag: field.isRdfLanguageTag,
         isRdfValue: field.isRdfValue,
+        mapperFieldName: mapperFieldName,
+        mapperParameterSerializer: mapperParameterSerializer,
+        mapperParameterDeserializer: mapperParameterDeserializer,
       );
     });
   }
@@ -489,6 +587,12 @@ class DataBuilder {
 
     // Process each parameter in the constructor
     for (final param in defaultConstructor.parameters) {
+      final (
+        mapperFieldName,
+        mapperParameterSerializer,
+        mapperParameterDeserializer
+      ) = _extractPropertyMapperInfos(param.name, param.propertyInfo);
+
       parameters.add(
         ParameterData(
           name: param.name,
@@ -507,10 +611,63 @@ class DataBuilder {
           hasDefaultValue: param.propertyInfo?.annotation.defaultValue != null,
           isRdfLanguageTag: param.isRdfLanguageTag,
           isRdfValue: param.isRdfValue,
+          mapperFieldName: mapperFieldName,
+          mapperParameterSerializer: mapperParameterSerializer,
+          mapperParameterDeserializer: mapperParameterDeserializer,
         ),
       );
     }
 
     return parameters;
+  }
+
+  static const (
+    String? mapperFieldName,
+    String? mapperParameterSerializer,
+    String? mapperParameterDeserializer
+  ) noMapperInfos = (
+    null,
+    null,
+    null,
+  );
+
+  static (
+    String? mapperFieldName,
+    String? mapperParameterSerializer,
+    String? mapperParameterDeserializer
+  ) _extractPropertyMapperInfos(String fieldName, PropertyInfo? propertyInfo) {
+    final iri = propertyInfo?.annotation.iri;
+    if (iri != null && iri.mapper != null) {
+      return (
+        _buildMapperFieldName(fieldName),
+        'iriTermSerializer',
+        'iriTermDeserializer'
+      );
+    }
+    final literal = propertyInfo?.annotation.literal;
+    if (literal != null && literal.mapper != null) {
+      return (
+        _buildMapperFieldName(fieldName),
+        'literalTermSerializer',
+        'literalTermDeserializer'
+      );
+    }
+    final globalResource = propertyInfo?.annotation.globalResource;
+    if (globalResource != null && globalResource.mapper != null) {
+      return (
+        _buildMapperFieldName(fieldName),
+        'resourceSerializer',
+        'globalResourceDeserializer'
+      );
+    }
+    final localResource = propertyInfo?.annotation.localResource;
+    if (localResource != null && localResource.mapper != null) {
+      return (
+        _buildMapperFieldName(fieldName),
+        'resourceSerializer',
+        'localResourceDeserializer'
+      );
+    }
+    return noMapperInfos;
   }
 }

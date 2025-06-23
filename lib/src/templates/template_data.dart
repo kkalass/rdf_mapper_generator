@@ -181,6 +181,9 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
               .map((p) => p.toMap())
               .toList()),
       'hasMapperConstructorParameters': mapperConstructorParameters.isNotEmpty,
+      'hasMapperConstructorParameterAssignments': mapperConstructorParameters
+          .where((p) => p.needsAssignment)
+          .isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
     };
@@ -563,19 +566,23 @@ class ConstructorParameterData {
   final Code type;
   final String parameterName;
   final String fieldName;
+  final Code? defaultValue;
 
   bool get needsAssignment => parameterName != fieldName;
 
   ConstructorParameterData(
       {required this.type,
       required this.parameterName,
-      required this.fieldName});
+      required this.fieldName,
+      required this.defaultValue});
 
   Map<String, dynamic> toMap() => {
         'type': type.toMap(),
         'parameterName': parameterName,
         'fieldName': fieldName,
         'needsAssignment': needsAssignment,
+        'defaultValue': defaultValue?.toMap(),
+        'hasDefaultValue': defaultValue != null,
       };
 }
 
@@ -594,6 +601,9 @@ class ParameterData {
   final bool hasDefaultValue;
   final bool isRdfValue;
   final bool isRdfLanguageTag;
+  final String? mapperFieldName;
+  final String? mapperParameterSerializer;
+  final String? mapperParameterDeserializer;
 
   const ParameterData({
     required this.name,
@@ -609,6 +619,9 @@ class ParameterData {
     required this.hasDefaultValue,
     required this.isRdfValue,
     required this.isRdfLanguageTag,
+    required this.mapperFieldName,
+    required this.mapperParameterSerializer,
+    required this.mapperParameterDeserializer,
   });
 
   Map<String, dynamic> toMap() => {
@@ -627,6 +640,10 @@ class ParameterData {
         'hasDefaultValue': hasDefaultValue,
         'isRdfValue': isRdfValue,
         'isRdfLanguageTag': isRdfLanguageTag,
+        'hasMapper': mapperFieldName != null,
+        'mapperFieldName': mapperFieldName,
+        'mapperParameterSerializer': mapperParameterSerializer,
+        'mapperParameterDeserializer': mapperParameterDeserializer,
       };
 }
 
@@ -641,6 +658,9 @@ class PropertyData {
   final Code? defaultValue;
   final bool hasDefaultValue;
   final bool includeDefaultsInSerialization;
+  final String? mapperFieldName;
+  final String? mapperParameterSerializer;
+  final String? mapperParameterDeserializer;
 
   const PropertyData({
     required this.propertyName,
@@ -652,6 +672,9 @@ class PropertyData {
     this.defaultValue,
     required this.hasDefaultValue,
     required this.includeDefaultsInSerialization,
+    required this.mapperFieldName,
+    required this.mapperParameterSerializer,
+    required this.mapperParameterDeserializer,
   });
 
   Map<String, dynamic> toMap() => {
@@ -667,5 +690,9 @@ class PropertyData {
         'includeDefaultsInSerialization': includeDefaultsInSerialization,
         'useConditionalSerialization':
             hasDefaultValue && !includeDefaultsInSerialization,
+        'mapperFieldName': mapperFieldName,
+        'mapperParameterSerializer': mapperParameterSerializer,
+        'mapperParameterDeserializer': mapperParameterDeserializer,
+        'hasMapper': mapperFieldName != null,
       };
 }

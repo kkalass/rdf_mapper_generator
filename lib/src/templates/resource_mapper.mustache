@@ -20,9 +20,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
   const {{mapperClassName}}({{#hasMapperConstructorParameters}}{
     {{#mapperConstructorParameters}}
-    required {{#value.needsAssignment}}{{value.type}} {{/value.needsAssignment}}{{^value.needsAssignment}}this.{{/value.needsAssignment}}{{value.parameterName}}{{^last}}, {{/last}}
+    {{^value.hasDefaultValue}}required {{/value.hasDefaultValue}}{{#value.needsAssignment}}{{value.type}} {{/value.needsAssignment}}{{^value.needsAssignment}}this.{{/value.needsAssignment}}{{value.parameterName}}{{#value.hasDefaultValue}} = {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}}, {{/last}}
     {{/mapperConstructorParameters}}
-  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#mapperConstructorParameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructorParameterAssignments}}{{/hasMapperConstructorParameters}};
+  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameterAssignments}} : {{#mapperConstructorParameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructorParameterAssignments}}{{/hasMapperConstructorParameterAssignments}};
 
   @override
   IriTerm? get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
@@ -58,7 +58,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
     {{#value.isRdfProperty}}
-    final {{value.dartType}} {{value.name}} = reader.{{#value.useOptionalReader}}optional{{/value.useOptionalReader}}{{^value.useOptionalReader}}require{{/value.useOptionalReader}}({{value.predicate}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.dartType}} {{value.name}} = reader.{{#value.useOptionalReader}}optional{{/value.useOptionalReader}}{{^value.useOptionalReader}}require{{/value.useOptionalReader}}({{value.predicate}}{{#value.hasMapper}}, {{value.mapperParameterDeserializer}}: {{value.mapperFieldName}}{{/value.hasMapper}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isRdfProperty}}
     {{/constructorParametersOrOtherFields}}
 
@@ -105,10 +105,10 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#isRdfProperty}}
     {{#include}}
     {{#useConditionalSerialization}}
-      .when(resource.{{propertyName}} != {{defaultValue}}, (b) => b.addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}))
+      .when(resource.{{propertyName}} != {{defaultValue}}, (b) => b.addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperFieldName}}{{/hasMapper}}))
     {{/useConditionalSerialization}}
     {{^useConditionalSerialization}}
-      .addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}})
+      .addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperFieldName}}{{/hasMapper}})
     {{/useConditionalSerialization}}
     {{/include}}
     {{/isRdfProperty}}
