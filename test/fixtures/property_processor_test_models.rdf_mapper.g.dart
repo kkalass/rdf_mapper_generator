@@ -149,7 +149,7 @@ class OptionalPropertyTestMapper
   const OptionalPropertyTestMapper();
 
   @override
-  IriTerm? get typeIri => null;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   OptionalPropertyTest fromRdfResource(
@@ -182,16 +182,16 @@ class OptionalPropertyTestMapper
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type DefaultValueTest.
-class DefaultValueTestMapper implements LocalResourceMapper<DefaultValueTest> {
+class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
   /// Constructor
   const DefaultValueTestMapper();
 
   @override
-  IriTerm? get typeIri => null;
+  IriTerm? get typeIri => SchemaBook.classIri;
 
   @override
   DefaultValueTest fromRdfResource(
-    BlankNodeTerm subject,
+    IriTerm subject,
     DeserializationContext context,
   ) {
     final reader = context.reader(subject);
@@ -202,17 +202,22 @@ class DefaultValueTestMapper implements LocalResourceMapper<DefaultValueTest> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (IriTerm, List<Triple>) toRdfResource(
     DefaultValueTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = BlankNodeTerm();
+    final subject = IriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.isbn, resource.isbn)
         .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(DefaultValueTest resource) {
+    return 'http://example.org/books/singleton';
   }
 }
 

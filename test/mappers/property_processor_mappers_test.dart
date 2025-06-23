@@ -65,17 +65,14 @@ void main() {
       final serializedNull = mapper.encodeObject(testInstanceNull);
       expect(serializedNull, isNotNull);
 
-      // Only test deserialization if we have non-empty serialization
-      if (serializedNull.isNotEmpty) {
-        final deserializedNull =
-            mapper.decodeObject<OptionalPropertyTest>(serializedNull);
-        expect(deserializedNull, isNotNull);
-        expect(deserializedNull.name, isNull,
-            reason: 'Null values should round-trip correctly');
-      }
+      final deserializedNull =
+          mapper.decodeObject<OptionalPropertyTest>(serializedNull);
+      expect(deserializedNull, isNotNull);
+      expect(deserializedNull.name, isNull,
+          reason: 'Null values should round-trip correctly');
     });
 
-    test('DefaultValueTest - default value behavior', () {
+    test('DefaultValueTest - custom value behavior', () {
       // Create instance with explicit value
       final testInstance = DefaultValueTest(isbn: 'custom-isbn');
 
@@ -84,6 +81,19 @@ void main() {
       final deserialized = mapper.decodeObject<DefaultValueTest>(serialized);
       expect(deserialized, isNotNull);
       expect(deserialized.isbn, equals('custom-isbn'),
+          reason: 'Custom values should override defaults');
+    });
+
+    test('DefaultValueTest - default value behavior', () {
+      final turtle = '''
+@prefix books: <http://example.org/books/> .
+@prefix schema: <https://schema.org/> .
+
+books:singleton a schema:Book .
+''';
+      final deserialized = mapper.decodeObject<DefaultValueTest>(turtle);
+      expect(deserialized, isNotNull);
+      expect(deserialized.isbn, equals('default-isbn'),
           reason: 'Custom values should override defaults');
     });
 

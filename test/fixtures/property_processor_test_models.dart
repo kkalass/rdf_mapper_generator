@@ -44,7 +44,7 @@ class DeserializationOnlyPropertyTest {
   DeserializationOnlyPropertyTest({required this.name});
 }
 
-@RdfLocalResource()
+@RdfLocalResource(SchemaBook.classIri)
 class OptionalPropertyTest {
   @RdfProperty(SchemaBook.name)
   final String? name;
@@ -52,7 +52,8 @@ class OptionalPropertyTest {
   OptionalPropertyTest({required this.name});
 }
 
-@RdfLocalResource()
+@RdfGlobalResource(
+    SchemaBook.classIri, IriStrategy('http://example.org/books/singleton'))
 class DefaultValueTest {
   @RdfProperty(SchemaBook.isbn, defaultValue: 'default-isbn')
   final String isbn;
