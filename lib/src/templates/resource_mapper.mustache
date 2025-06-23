@@ -114,7 +114,12 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#properties}}
     {{#isRdfProperty}}
     {{#include}}
+    {{#useConditionalSerialization}}
+      .when(resource.{{propertyName}} != {{defaultValue}}, (b) => b.addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}))
+    {{/useConditionalSerialization}}
+    {{^useConditionalSerialization}}
       .addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}})
+    {{/useConditionalSerialization}}
     {{/include}}
     {{/isRdfProperty}}
     {{/properties}}

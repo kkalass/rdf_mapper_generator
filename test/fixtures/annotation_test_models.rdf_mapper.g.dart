@@ -51,7 +51,10 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.name, resource.title)
+        .when(
+          resource.title != 'Untitled',
+          (b) => b.addValue(SchemaBook.name, resource.title),
+        )
         .build();
   }
 }

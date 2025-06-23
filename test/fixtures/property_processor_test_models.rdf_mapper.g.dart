@@ -211,7 +211,10 @@ class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.isbn, resource.isbn)
+        .when(
+          resource.isbn != 'default-isbn',
+          (b) => b.addValue(SchemaBook.isbn, resource.isbn),
+        )
         .build();
   }
 
@@ -886,7 +889,10 @@ class ComplexDefaultValueTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.isbn, resource.complexValue)
+        .when(
+          resource.complexValue != {'id': '1', 'name': 'Test'},
+          (b) => b.addValue(SchemaBook.isbn, resource.complexValue),
+        )
         .build();
   }
 }

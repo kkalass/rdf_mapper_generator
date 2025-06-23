@@ -609,6 +609,9 @@ class PropertyData {
   final bool isRdfProperty;
   final bool include;
   final Code? predicate;
+  final Code? defaultValue;
+  final bool hasDefaultValue;
+  final bool includeDefaultsInSerialization;
 
   const PropertyData({
     required this.propertyName,
@@ -617,6 +620,9 @@ class PropertyData {
     required this.isRdfProperty,
     required this.include,
     this.predicate,
+    this.defaultValue,
+    required this.hasDefaultValue,
+    required this.includeDefaultsInSerialization,
   });
 
   Map<String, dynamic> toMap() => {
@@ -627,5 +633,10 @@ class PropertyData {
         'isRdfProperty': isRdfProperty,
         'include': include,
         'predicate': predicate?.toMap(),
+        'defaultValue': defaultValue?.toMap(),
+        'hasDefaultValue': hasDefaultValue,
+        'includeDefaultsInSerialization': includeDefaultsInSerialization,
+        'useConditionalSerialization':
+            hasDefaultValue && !includeDefaultsInSerialization,
       };
 }

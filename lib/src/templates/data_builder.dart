@@ -257,7 +257,11 @@ class DataBuilder {
             isFieldNullable: !p.isRequired,
             include: p.propertyInfo!.annotation.include,
             predicate: p.propertyInfo!.annotation.predicate.code,
-            propertyName: p.propertyInfo!.name))
+            propertyName: p.propertyInfo!.name,
+            defaultValue: toCode(p.propertyInfo!.annotation.defaultValue),
+            hasDefaultValue: p.propertyInfo!.annotation.defaultValue != null,
+            includeDefaultsInSerialization:
+                p.propertyInfo!.annotation.includeDefaultsInSerialization))
         .toList();
   }
 

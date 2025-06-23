@@ -82,6 +82,7 @@ void main() {
       expect(deserialized, isNotNull);
       expect(deserialized.isbn, equals('custom-isbn'),
           reason: 'Custom values should override defaults');
+      expect(serialized, contains('schema:isbn "custom-isbn" .'));
     });
 
     test('DefaultValueTest - default value behavior', () {
@@ -95,6 +96,9 @@ books:singleton a schema:Book .
       expect(deserialized, isNotNull);
       expect(deserialized.isbn, equals('default-isbn'),
           reason: 'Custom values should override defaults');
+      final serialized = mapper.encodeObject(deserialized);
+      expect(serialized, isNot(contains('schema:isbn')),
+          reason: 'Default values should not be serialized');
     });
 
     test('IncludeDefaultsTest - includeDefaultsInSerialization behavior', () {
@@ -105,7 +109,9 @@ books:singleton a schema:Book .
       // Test round-trip to verify behavior
       final serialized = mapper.encodeObject(testInstance);
       expect(serialized, isNotNull);
-
+      expect(serialized, contains('schema:numberOfPages 5'),
+          reason:
+              'Default values should be included when includeDefaultsInSerialization: true');
       final deserialized = mapper.decodeObject<IncludeDefaultsTest>(serialized);
       expect(deserialized, isNotNull);
       expect(deserialized.rating, equals(5),
