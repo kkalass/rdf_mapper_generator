@@ -6,7 +6,7 @@ final _log = Logger('DartFormatter');
 /// Interface for formatting Dart code.
 abstract class CodeFormatter {
   /// Formats the given Dart code.
-  /// 
+  ///
   /// Returns the formatted code on success, or the original unformatted code
   /// if formatting fails.
   String formatCode(String code);
@@ -15,11 +15,12 @@ abstract class CodeFormatter {
 /// Implementation of CodeFormatter using dart_style.
 class DartCodeFormatter implements CodeFormatter {
   final DartFormatter _formatter;
-  
-  DartCodeFormatter({DartFormatter? formatter}) 
-      : _formatter = formatter ?? DartFormatter(
-          languageVersion: DartFormatter.latestLanguageVersion,
-        );
+
+  DartCodeFormatter({DartFormatter? formatter})
+      : _formatter = formatter ??
+            DartFormatter(
+              languageVersion: DartFormatter.latestLanguageVersion,
+            );
 
   @override
   String formatCode(String code) {
