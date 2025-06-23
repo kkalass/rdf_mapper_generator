@@ -273,7 +273,6 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
     '^(?<baseUri>.*)/persons/(?<thisId>[^/]*)\$',
   );
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
 
   /// Constructor requiring providers for context variables
@@ -345,7 +344,6 @@ class ClassWithOtherBaseUriNonGlobalMapper
     '^(?<otherBaseUri>.*)/persons/(?<thisId>[^/]*)\$',
   );
 
-  /// Provider for context variable 'otherBaseUri'
   final String Function() _otherBaseUriProvider;
 
   /// Constructor requiring providers for context variables

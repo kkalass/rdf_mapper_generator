@@ -97,7 +97,22 @@ class DataBuilder {
         .toList();
 
     final properties = _buildPropertyData(resourceInfo.fields);
-
+    final List<ConstructorParameterData> mapperConstructorParameters = [
+      if (iriStrategy?.hasMapper ?? false)
+        ConstructorParameterData(
+          fieldName: '_iriMapper',
+          parameterName: 'iriMapper',
+          type: iriStrategy!.mapper!.type,
+        ),
+      ...contextProviders.map((provider) => ConstructorParameterData(
+            fieldName: provider.privateFieldName,
+            parameterName: provider.parameterName,
+            type: Code.combine([
+              Code.coreType('String'),
+              Code.literal(' Function()'),
+            ]),
+          )),
+    ];
     return ResourceMapperTemplateData(
         className: className,
         mapperClassName: mapperClassName,
@@ -110,7 +125,8 @@ class DataBuilder {
         nonConstructorFields: nonConstructorFields,
         needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
-        properties: properties);
+        properties: properties,
+        mapperConstructorParameters: mapperConstructorParameters);
   }
 
   static LiteralMapperTemplateData buildLiteralMapper(

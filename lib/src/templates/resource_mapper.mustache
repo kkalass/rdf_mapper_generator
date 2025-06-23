@@ -12,36 +12,17 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}
-  {{#contextProviders}}
-  /// Provider for context variable '{{value.variableName}}'
-  final String Function() {{value.privateFieldName}};
-  {{/contextProviders}}
 
-  {{#customMappers}}
-  final {{value.mapper.type}} {{value.mapper.fieldName}}{{^value.mapper.isConstructorInjected}} = {{value.mapper.instantiationCode}}{{/value.mapper.isConstructorInjected}};
-  {{/customMappers}}
-
-  {{#hasIriStrategyMapper}}
-  final {{iriStrategy.mapper.type}} _iriMapper;
-  {{/hasIriStrategyMapper}}
+  {{#mapperConstructorParameters}}
+  final {{value.type}} {{value.fieldName}};
+  {{/mapperConstructorParameters}}
 
   /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
   const {{mapperClassName}}({{#hasMapperConstructorParameters}}{
-    {{#hasIriStrategyMapper}}
-    required {{iriStrategy.mapper.type}} iriMapper
-    {{/hasIriStrategyMapper}}
-    {{#contextProviders}}
-    {{#hasIriStrategyMapper}},{{/hasIriStrategyMapper}}
-    required String Function() {{value.parameterName}},
-    {{/contextProviders}}
-    {{#customMappers}}
-    {{#value.mapper.isConstructorInjected}}
-    required {{value.mapper.type}} {{value.mapper.parameterName}},
-    {{/value.mapper.isConstructorInjected}}
-    {{/customMappers}}
-  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#hasIriStrategyMapper}}_iriMapper = iriMapper{{/hasIriStrategyMapper}}{{#contextProviders}}{{#hasIriStrategyMapper}},
-       {{/hasIriStrategyMapper}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
-       {{/last}}{{/contextProviders}}{{/hasMapperConstructorParameters}};
+    {{#mapperConstructorParameters}}
+    required {{#value.needsAssignment}}{{value.type}} {{/value.needsAssignment}}{{^value.needsAssignment}}this.{{/value.needsAssignment}}{{value.parameterName}}{{^last}}, {{/last}}
+    {{/mapperConstructorParameters}}
+  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#mapperConstructorParameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructorParameterAssignments}}{{/hasMapperConstructorParameters}};
 
   @override
   IriTerm? get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};

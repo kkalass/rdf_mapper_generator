@@ -122,6 +122,8 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
+  final List<ConstructorParameterData> mapperConstructorParameters;
+
   const ResourceMapperTemplateData({
     required Code className,
     required Code mapperClassName,
@@ -135,6 +137,7 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
     required bool registerGlobally,
     required List<PropertyData> properties,
     required List<ParameterData> nonConstructorFields,
+    required this.mapperConstructorParameters,
   })  : className = className,
         mapperClassName = mapperClassName,
         typeIri = typeIri,
@@ -156,7 +159,6 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
       'typeIri': typeIri?.toMap(),
       'hasTypeIri': typeIri != null,
       'hasIriStrategy': iriStrategy != null,
-      'hasIriStrategyMapper': iriStrategy?.hasMapper ?? false,
       'iriStrategy': iriStrategy?.toMap(),
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
@@ -171,8 +173,14 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
       'hasContextProviders': contextProviders.isNotEmpty,
-      'hasMapperConstructorParameters':
-          (iriStrategy?.hasMapper ?? false) || contextProviders.isNotEmpty,
+      'mapperConstructorParameters': toMustacheList(
+          mapperConstructorParameters.map((p) => p.toMap()).toList()),
+      'mapperConstructorParameterAssignments': toMustacheList(
+          mapperConstructorParameters
+              .where((p) => p.needsAssignment)
+              .map((p) => p.toMap())
+              .toList()),
+      'hasMapperConstructorParameters': mapperConstructorParameters.isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
     };
@@ -551,6 +559,26 @@ class IriData {
       };
 }
 
+class ConstructorParameterData {
+  final Code type;
+  final String parameterName;
+  final String fieldName;
+
+  bool get needsAssignment => parameterName != fieldName;
+
+  ConstructorParameterData(
+      {required this.type,
+      required this.parameterName,
+      required this.fieldName});
+
+  Map<String, dynamic> toMap() => {
+        'type': type.toMap(),
+        'parameterName': parameterName,
+        'fieldName': fieldName,
+        'needsAssignment': needsAssignment,
+      };
+}
+
 /// Data for constructor parameters
 class ParameterData {
   final String name;
@@ -566,6 +594,7 @@ class ParameterData {
   final bool hasDefaultValue;
   final bool isRdfValue;
   final bool isRdfLanguageTag;
+
   const ParameterData({
     required this.name,
     required this.dartType,

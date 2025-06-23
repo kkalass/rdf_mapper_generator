@@ -471,9 +471,25 @@ void main() {
                   "useConditionalSerialization": false
                 }
               ],
+              "customMappers": [
+                {
+                  "value": {
+                    "mapper": {
+                      "type": {
+                        "code": "IriTermMapper<String>",
+                        "imports": [],
+                        "__type__": "\$Code\$"
+                      },
+                      "fieldName": "_authorIdMapper",
+                      "parameterName": "iriMapper",
+                      "isConstructorInjected": true,
+                    }
+                  }
+                },
+              ],
               "contextProviders": [],
               "hasContextProviders": false,
-              "hasMapperConstructorParameters": false,
+              "hasMapperConstructorParameters": true,
               "needsReader": true,
               "registerGlobally": true
             }
