@@ -89,8 +89,6 @@ class BookMapper implements GlobalResourceMapper<Book> {
 /// and RDF triples for resources of type ClassWithEmptyIriStrategy.
 class ClassWithEmptyIriStrategyMapper
     implements GlobalResourceMapper<ClassWithEmptyIriStrategy> {
-  static final RegExp _regex = RegExp('^(?<iri>.*)\$');
-
   /// Constructor
   const ClassWithEmptyIriStrategyMapper();
 
@@ -102,10 +100,7 @@ class ClassWithEmptyIriStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
-
-    final iri = iriParts['iri']!;
+    final iri = subject.iri;
 
     return ClassWithEmptyIriStrategy(iri: iri);
   }
@@ -116,34 +111,9 @@ class ClassWithEmptyIriStrategyMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = IriTerm(resource.iri);
 
     return context.resourceBuilder(subject).build();
-  }
-
-  /// Builds the IRI for a resource instance using the IRI template.
-  String _buildIri(ClassWithEmptyIriStrategy resource) {
-    final iri = resource.iri;
-    return '${iri}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 
@@ -153,8 +123,6 @@ class ClassWithEmptyIriStrategyMapper
 /// and RDF triples for resources of type ClassWithNoRdfType.
 class ClassWithNoRdfTypeMapper
     implements GlobalResourceMapper<ClassWithNoRdfType> {
-  static final RegExp _regex = RegExp('^(?<iri>.*)\$');
-
   /// Constructor
   const ClassWithNoRdfTypeMapper();
 
@@ -168,12 +136,9 @@ class ClassWithNoRdfTypeMapper
   ) {
     final reader = context.reader(subject);
 
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
-
     final String name = reader.require(SchemaPerson.name);
     final int? age = reader.optional(SchemaPerson.foafAge);
-    final iri = iriParts['iri']!;
+    final iri = subject.iri;
 
     final retval = ClassWithNoRdfType(name, age: age);
     retval.iri = iri;
@@ -186,38 +151,13 @@ class ClassWithNoRdfTypeMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = IriTerm(resource.iri);
 
     return context
         .resourceBuilder(subject)
         .addValue(SchemaPerson.name, resource.name)
         .addValueIfNotNull(SchemaPerson.foafAge, resource.age)
         .build();
-  }
-
-  /// Builds the IRI for a resource instance using the IRI template.
-  String _buildIri(ClassWithNoRdfType resource) {
-    final iri = resource.iri;
-    return '${iri}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 
@@ -228,8 +168,6 @@ class ClassWithNoRdfTypeMapper
 class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
     implements
         GlobalResourceMapper<ClassWithEmptyIriStrategyNoRegisterGlobally> {
-  static final RegExp _regex = RegExp('^(?<iri>.*)\$');
-
   /// Constructor
   const ClassWithEmptyIriStrategyNoRegisterGloballyMapper();
 
@@ -241,10 +179,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
-
-    final iri = iriParts['iri']!;
+    final iri = subject.iri;
 
     return ClassWithEmptyIriStrategyNoRegisterGlobally(iri: iri);
   }
@@ -255,34 +190,9 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = IriTerm(resource.iri);
 
     return context.resourceBuilder(subject).build();
-  }
-
-  /// Builds the IRI for a resource instance using the IRI template.
-  String _buildIri(ClassWithEmptyIriStrategyNoRegisterGlobally resource) {
-    final iri = resource.iri;
-    return '${iri}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 

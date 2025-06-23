@@ -337,6 +337,8 @@ class DataBuilder {
       template: template == null
           ? null
           : _buildTemplateData(templateInfo!, fields ?? []),
+      hasFullIriPartTemplate:
+          iriParts?.length == 1 && template == '{+${iriParts![0].name}}',
       mapper: mapperRef,
       hasMapper: mapperRef != null,
       iriMapperParts: iriMapperParts,

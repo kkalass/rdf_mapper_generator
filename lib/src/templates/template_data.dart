@@ -521,12 +521,14 @@ class IriPartData {
 /// Data for IRI strategy
 class IriData {
   final IriTemplateData? template;
+  final bool hasFullIriPartTemplate;
   final MapperRefData? mapper;
   final bool hasMapper;
   final List<IriPartData> iriMapperParts;
 
   const IriData({
     this.template,
+    required this.hasFullIriPartTemplate,
     this.mapper,
     this.hasMapper = false,
     required this.iriMapperParts,
@@ -542,8 +544,10 @@ class IriData {
         'iriMapperParts':
             toMustacheList(iriMapperParts.map((p) => p.toMap()).toList()),
         'hasIriMapperParts': iriMapperParts.isNotEmpty,
-        'hasNonRdfPropertyIriParts': iriMapperParts
-            .any((p) => !p.isRdfProperty && p.dartPropertyName.isNotEmpty),
+        'requiresIriParsing': !hasFullIriPartTemplate &
+            iriMapperParts
+                .any((p) => !p.isRdfProperty && p.dartPropertyName.isNotEmpty),
+        'hasFullIriPartTemplate': hasFullIriPartTemplate
       };
 }
 

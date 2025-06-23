@@ -6,9 +6,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{#hasIriStrategy}}
   {{#iriStrategy}}
   {{#hasTemplate}}
-  {{#hasNonRdfPropertyIriParts}}
+  {{#requiresIriParsing}}
   static final RegExp _regex = RegExp('{{template.regexPattern}}');
-  {{/hasNonRdfPropertyIriParts}}
+  {{/requiresIriParsing}}
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}
@@ -46,10 +46,10 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#hasIriStrategy}}
     {{#iriStrategy}}
     {{#hasTemplate}}
-    {{#hasNonRdfPropertyIriParts}}
+    {{#requiresIriParsing}}
     // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
-    {{/hasNonRdfPropertyIriParts}}
+    {{/requiresIriParsing}}
     {{/hasTemplate}}
     {{#hasMapper}}
     {{#hasIriMapperParts}}
@@ -63,7 +63,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{^value.isRdfProperty}}
     {{#value.isIriPart}}
     {{#iriStrategy.hasTemplate}}
-    final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.name}} = {{^iriStrategy.hasFullIriPartTemplate}}iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{/iriStrategy.hasFullIriPartTemplate}}{{#iriStrategy.hasFullIriPartTemplate}}subject.iri{{/iriStrategy.hasFullIriPartTemplate}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/iriStrategy.hasTemplate}}
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
@@ -94,7 +94,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#hasIriStrategy}}
     {{#iriStrategy}}
     {{#hasTemplate}}
-    final subject = IriTerm(_buildIri(resource));
+    final subject = IriTerm({{^hasFullIriPartTemplate}}_buildIri(resource){{/hasFullIriPartTemplate}}{{#hasFullIriPartTemplate}}resource.{{#template.propertyVariables}}{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}}{{/template.propertyVariables}}{{/hasFullIriPartTemplate}});
     {{/hasTemplate}}
     {{#hasMapper}}
     {{#hasIriMapperParts}}
@@ -122,6 +122,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{#hasIriStrategy}}
   {{#iriStrategy}}
   {{#hasTemplate}}
+  {{^hasFullIriPartTemplate}}
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri({{className}} resource) {
     {{#template.propertyVariables}}
@@ -132,8 +133,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/contextProviders}}
     return '{{template.interpolatedTemplate}}';
   }
+  {{/hasFullIriPartTemplate}}
 
-  {{#hasNonRdfPropertyIriParts}}
+  {{#requiresIriParsing}}
   /// Parses IRI parts from a complete IRI using a template.
   ///
   /// Supports RFC 6570 URI Template standard:
@@ -150,7 +152,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
             return MapEntry(name, namedGroup);
           }));
   }
-  {{/hasNonRdfPropertyIriParts}}
+  {{/requiresIriParsing}}
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}
