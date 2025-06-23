@@ -18,6 +18,7 @@ bool mapEquals(Map<String, dynamic>? a, Map<String, dynamic>? b) {
   return true;
 }
 
+@RdfLocalResource()
 class SimplePropertyTest {
   @RdfProperty(SchemaBook.name)
   final String name;
@@ -25,6 +26,7 @@ class SimplePropertyTest {
   SimplePropertyTest({required this.name});
 }
 
+@RdfLocalResource()
 class DeserializationOnlyPropertyTest {
   @RdfProperty(SchemaBook.name, include: false)
   final String name;
@@ -32,6 +34,7 @@ class DeserializationOnlyPropertyTest {
   DeserializationOnlyPropertyTest({required this.name});
 }
 
+@RdfLocalResource()
 class OptionalPropertyTest {
   @RdfProperty(SchemaBook.name)
   final String? name;
@@ -39,6 +42,7 @@ class OptionalPropertyTest {
   OptionalPropertyTest({required this.name});
 }
 
+@RdfLocalResource()
 class DefaultValueTest {
   @RdfProperty(SchemaBook.isbn, defaultValue: 'default-isbn')
   final String isbn;
@@ -46,6 +50,7 @@ class DefaultValueTest {
   DefaultValueTest({required this.isbn});
 }
 
+@RdfLocalResource()
 class IncludeDefaultsTest {
   @RdfProperty(
     SchemaBook.numberOfPages,
@@ -57,6 +62,7 @@ class IncludeDefaultsTest {
   IncludeDefaultsTest({required this.rating});
 }
 
+@RdfLocalResource()
 class IriMappingTest {
   @RdfProperty(
     SchemaBook.author,
@@ -67,6 +73,7 @@ class IriMappingTest {
   IriMappingTest({required this.authorId});
 }
 
+@RdfLocalResource()
 class IriMappingNamedMapperTest {
   @RdfProperty(
     SchemaBook.author,
@@ -77,6 +84,7 @@ class IriMappingNamedMapperTest {
   IriMappingNamedMapperTest({required this.authorId});
 }
 
+@RdfLocalResource()
 class IriMappingMapperTest {
   @RdfProperty(
     SchemaBook.author,
@@ -87,6 +95,7 @@ class IriMappingMapperTest {
   IriMappingMapperTest({required this.authorId});
 }
 
+@RdfLocalResource()
 class IriMappingMapperInstanceTest {
   @RdfProperty(
     SchemaBook.author,
@@ -97,22 +106,32 @@ class IriMappingMapperInstanceTest {
   IriMappingMapperInstanceTest({required this.authorId});
 }
 
-class IriMapperImpl implements IriTermMapper<IriMappingTest> {
+class IriMapperImpl implements IriTermMapper<String> {
   const IriMapperImpl();
 
   @override
-  IriMappingTest fromRdfTerm(IriTerm term, DeserializationContext context) {
-    // Implementation here
-    throw UnimplementedError();
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract authorId from IRI like 'http://example.org/authors/{authorId}'
+    final iriValue = term.iri;
+    const prefix = 'http://example.org/authors/';
+
+    if (iriValue.startsWith(prefix)) {
+      return iriValue.substring(prefix.length);
+    }
+
+    throw ArgumentError(
+        'Invalid IRI format: $iriValue. Expected format: ${prefix}{authorId}');
   }
 
   @override
-  IriTerm toRdfTerm(IriMappingTest value, SerializationContext context) {
-    // Implementation here
-    throw UnimplementedError();
+  IriTerm toRdfTerm(String value, SerializationContext context) {
+    // Generate IRI from authorId using template
+    final iriValue = 'http://example.org/authors/$value';
+    return IriTerm(iriValue);
   }
 }
 
+@RdfLocalResource()
 class LocalResourceMappingTest {
   @RdfProperty(
     SchemaBook.author,
@@ -123,6 +142,7 @@ class LocalResourceMappingTest {
   LocalResourceMappingTest({required this.author});
 }
 
+@RdfLocalResource()
 class GlobalResourceMappingTest {
   @RdfProperty(
     SchemaBook.publisher,
@@ -133,6 +153,7 @@ class GlobalResourceMappingTest {
   GlobalResourceMappingTest({required this.publisher});
 }
 
+@RdfLocalResource()
 class LiteralMappingTest {
   @RdfProperty(
     IriTerm.prevalidated('http://example.org/book/price'),
@@ -143,6 +164,7 @@ class LiteralMappingTest {
   LiteralMappingTest({required this.price});
 }
 
+@RdfLocalResource()
 class LiteralMappingTestCustomDatatype {
   @RdfProperty(IriTerm.prevalidated('http://example.org/book/price'),
       literal: LiteralMapping.mapperInstance(DoubleMapper(Xsd.double)))
@@ -151,6 +173,7 @@ class LiteralMappingTestCustomDatatype {
   LiteralMappingTestCustomDatatype({required this.price});
 }
 
+@RdfLocalResource()
 class CollectionNoneTest {
   @RdfProperty(SchemaBook.author, collection: RdfCollectionType.none)
   final List<String> authors;
@@ -158,6 +181,7 @@ class CollectionNoneTest {
   CollectionNoneTest({required this.authors});
 }
 
+@RdfLocalResource()
 class CollectionAutoTest {
   @RdfProperty(SchemaBook.author, collection: RdfCollectionType.auto)
   final List<String> authors;
@@ -165,6 +189,7 @@ class CollectionAutoTest {
   CollectionAutoTest({required this.authors});
 }
 
+@RdfLocalResource()
 class CollectionTest {
   @RdfProperty(SchemaBook.author)
   final List<String> authors;
@@ -172,6 +197,7 @@ class CollectionTest {
   CollectionTest({required this.authors});
 }
 
+@RdfLocalResource()
 class MapNoCollectionTest {
   @RdfProperty(SchemaBook.reviews, collection: RdfCollectionType.none)
   final Map<String, String> reviews;
@@ -179,6 +205,7 @@ class MapNoCollectionTest {
   MapNoCollectionTest({required this.reviews});
 }
 
+@RdfLocalResource()
 class MapLocalResourceMapperTest {
   @RdfProperty(
     SchemaBook.reviews,
@@ -189,6 +216,7 @@ class MapLocalResourceMapperTest {
   MapLocalResourceMapperTest({required this.reviews});
 }
 
+@RdfLocalResource()
 class SetTest {
   @RdfProperty(SchemaBook.keywords)
   final Set<String> keywords;
@@ -196,6 +224,7 @@ class SetTest {
   SetTest({required this.keywords});
 }
 
+@RdfLocalResource()
 class EnumTypeTest {
   @RdfProperty(SchemaBook.bookFormat)
   final BookFormatType format;
@@ -205,6 +234,7 @@ class EnumTypeTest {
 
 enum BookFormatType { hardcover, paperback, ebook, audioBook }
 
+@RdfLocalResource()
 class ComplexDefaultValueTest {
   @RdfProperty(
     SchemaBook.isbn,
@@ -215,6 +245,7 @@ class ComplexDefaultValueTest {
   ComplexDefaultValueTest({required this.complexValue});
 }
 
+@RdfLocalResource()
 class FinalPropertyTest {
   @RdfProperty(SchemaBook.name)
   final String name;
@@ -225,6 +256,7 @@ class FinalPropertyTest {
   FinalPropertyTest({required this.name, required this.description});
 }
 
+@RdfLocalResource()
 class LatePropertyTest {
   @RdfProperty(SchemaBook.name)
   late String name;
@@ -235,6 +267,7 @@ class LatePropertyTest {
   LatePropertyTest();
 }
 
+@RdfLocalResource()
 class MutablePropertyTest {
   @RdfProperty(SchemaBook.name)
   String name;
@@ -245,6 +278,7 @@ class MutablePropertyTest {
   MutablePropertyTest({required this.name, this.description});
 }
 
+@RdfLocalResource()
 class LanguageTagTest {
   @RdfProperty(
     SchemaBook.description,
@@ -255,6 +289,7 @@ class LanguageTagTest {
   LanguageTagTest({required this.description});
 }
 
+@RdfLocalResource()
 class DatatypeTest {
   @RdfProperty(
     SchemaBook.dateCreated,
@@ -271,6 +306,7 @@ class NoAnnotationTest {
 }
 
 /// Test model for named mappers
+@RdfLocalResource()
 class GlobalResourceNamedMapperTest {
   @RdfProperty(
     SchemaBook.publisher,
@@ -282,6 +318,7 @@ class GlobalResourceNamedMapperTest {
 }
 
 /// Test model for custom mapper with parameters
+@RdfLocalResource()
 class LiteralNamedMapperTest {
   @RdfProperty(
     SchemaBook.isbn,
@@ -293,10 +330,11 @@ class LiteralNamedMapperTest {
 }
 
 /// Test model for type-based mappers
+@RdfLocalResource()
 class LiteralTypeMapperTest {
   @RdfProperty(
     SchemaBook.bookFormat,
-    literal: LiteralMapping.mapper(LiteralMapperImpl),
+    literal: LiteralMapping.mapper(LiteralDoubleMapperImpl),
   )
   final double price;
 
@@ -304,82 +342,107 @@ class LiteralTypeMapperTest {
 }
 
 /// Test model for type-based mappers using mapper() constructor
+@RdfLocalResource(SchemaBook.classIri)
 class GlobalResourceTypeMapperTest {
   @RdfProperty(
-    SchemaBook.bookFormat,
-    globalResource: GlobalResourceMapping.mapper(GlobalResourceMapperImpl),
+    SchemaBook.publisher,
+    globalResource: GlobalResourceMapping.mapper(GlobalPublisherMapperImpl),
   )
-  final Object format;
+  final Publisher publisher;
 
-  const GlobalResourceTypeMapperTest({required this.format});
+  const GlobalResourceTypeMapperTest({required this.publisher});
+}
+
+class Publisher {
+  final String iri;
+  final String name;
+  Publisher({required this.name, required this.iri});
 }
 
 // Example implementation of GlobalResourceMapper
-class GlobalResourceMapperImpl
-    implements GlobalResourceMapper<GlobalResourceMapperTest> {
-  const GlobalResourceMapperImpl();
+class GlobalPublisherMapperImpl implements GlobalResourceMapper<Publisher> {
+  const GlobalPublisherMapperImpl();
+
   @override
-  GlobalResourceMapperTest fromRdfResource(
-      IriTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+  Publisher fromRdfResource(IriTerm term, DeserializationContext context) {
+    final reader = context.reader(term);
+    return Publisher(iri: term.iri, name: reader.require(SchemaPerson.name));
   }
 
   @override
   (IriTerm, List<Triple>) toRdfResource(
-      GlobalResourceMapperTest value, SerializationContext context,
+      Publisher publisher, SerializationContext context,
       {RdfSubject? parentSubject}) {
-    throw UnimplementedError();
+    return context
+        .resourceBuilder(IriTerm(publisher.iri))
+        .addValue(SchemaPerson.name, LiteralTerm(publisher.name))
+        .build();
   }
 
   @override
-  IriTerm? get typeIri => throw UnimplementedError();
+  IriTerm? get typeIri => Schema.Person;
+}
+
+class Author {
+  final String name;
+  Author({required this.name});
 }
 
 // Example implementation of LocalResourceMapper
-class LocalResourceMapperImpl
-    implements LocalResourceMapper<LocalResourceMapperTest> {
-  const LocalResourceMapperImpl();
+class LocalResourceAuthorMapperImpl implements LocalResourceMapper<Author> {
+  const LocalResourceAuthorMapperImpl();
   @override
-  LocalResourceMapperTest fromRdfResource(
-      BlankNodeTerm term, DeserializationContext context) {
-    throw UnimplementedError();
+  Author fromRdfResource(BlankNodeTerm term, DeserializationContext context) {
+    final reader = context.reader(term);
+    return Author(name: reader.require(SchemaPerson.name));
   }
 
   @override
   (BlankNodeTerm, List<Triple>) toRdfResource(
-      LocalResourceMapperTest value, SerializationContext context,
+      Author author, SerializationContext context,
       {RdfSubject? parentSubject}) {
-    throw UnimplementedError();
+    final builder = context.resourceBuilder(BlankNodeTerm());
+    return builder
+        .addValue(SchemaPerson.name, LiteralTerm(author.name))
+        .build();
   }
 
   @override
-  IriTerm? get typeIri => throw UnimplementedError();
+  IriTerm? get typeIri => SchemaPerson.classIri;
 }
 
 // Example implementation of LiteralTermMapper
-class LiteralMapperImpl implements LiteralTermMapper<LiteralMapperTest> {
-  const LiteralMapperImpl();
+class LiteralDoubleMapperImpl implements LiteralTermMapper<double> {
+  const LiteralDoubleMapperImpl();
 
   @override
-  LiteralMapperTest fromRdfTerm(
-      LiteralTerm term, DeserializationContext context,
+  double fromRdfTerm(LiteralTerm term, DeserializationContext context,
       {bool bypassDatatypeCheck = false}) {
-    // Implementation here
-    throw UnimplementedError();
+    // Parse double value from literal term
+    final value = term.value;
+    final parsed = double.tryParse(value);
+
+    if (parsed == null) {
+      throw FormatException(
+          'Cannot parse "$value" as double from literal term: $term');
+    }
+
+    return parsed;
   }
 
   @override
-  LiteralTerm toRdfTerm(LiteralMapperTest value, SerializationContext context) {
-    // Implementation here
-    throw UnimplementedError();
+  LiteralTerm toRdfTerm(double value, SerializationContext context) {
+    // Convert double to literal term with appropriate datatype
+    return LiteralTerm(value.toString(), datatype: Xsd.double);
   }
 }
 
 /// Test model for global resource mapper using mapper() constructor
+@RdfLocalResource()
 class GlobalResourceMapperTest {
   @RdfProperty(
     SchemaBook.publisher,
-    globalResource: GlobalResourceMapping.mapper(GlobalResourceMapperImpl),
+    globalResource: GlobalResourceMapping.mapper(GlobalPublisherMapperImpl),
   )
   final Object publisher;
 
@@ -387,11 +450,12 @@ class GlobalResourceMapperTest {
 }
 
 /// Test model for global resource mapper using mapperInstance() constructor
+@RdfLocalResource()
 class GlobalResourceInstanceMapperTest {
   @RdfProperty(
     SchemaBook.publisher,
     globalResource:
-        GlobalResourceMapping.mapperInstance(GlobalResourceMapperImpl()),
+        GlobalResourceMapping.mapperInstance(GlobalPublisherMapperImpl()),
   )
   final Object publisher;
 
@@ -399,33 +463,59 @@ class GlobalResourceInstanceMapperTest {
 }
 
 /// Test model for local resource mapper using mapper() constructor
+@RdfLocalResource()
 class LocalResourceMapperTest {
   @RdfProperty(
     SchemaBook.author,
-    localResource: LocalResourceMapping.mapper(LocalResourceMapperImpl),
+    localResource: LocalResourceMapping.mapper(LocalResourceAuthorMapperImpl),
   )
-  final Object author;
+  final Author author;
 
   const LocalResourceMapperTest({required this.author});
 }
 
+/// Test model for local resource mapper using mapper() constructor
+@RdfLocalResource()
+class LocalResourceMapperObjectPropertyTest {
+  @RdfProperty(
+    SchemaBook.author,
+    localResource: LocalResourceMapping.mapper(LocalResourceAuthorMapperImpl),
+  )
+  final Object author;
+
+  const LocalResourceMapperObjectPropertyTest({required this.author});
+}
+
 /// Test model for local resource mapper using mapperInstance() constructor
+@RdfLocalResource()
 class LocalResourceInstanceMapperTest {
   @RdfProperty(
     SchemaBook.author,
     localResource:
-        LocalResourceMapping.mapperInstance(LocalResourceMapperImpl()),
+        LocalResourceMapping.mapperInstance(LocalResourceAuthorMapperImpl()),
   )
-  final Object author;
+  final Author author;
 
   const LocalResourceInstanceMapperTest({required this.author});
 }
 
+class LocalResourceInstanceMapperObjectPropertyTest {
+  @RdfProperty(
+    SchemaBook.author,
+    localResource:
+        LocalResourceMapping.mapperInstance(LocalResourceAuthorMapperImpl()),
+  )
+  final Object author;
+
+  const LocalResourceInstanceMapperObjectPropertyTest({required this.author});
+}
+
 /// Test model for literal mapper using mapper() constructor
+@RdfLocalResource()
 class LiteralMapperTest {
   @RdfProperty(
     SchemaBook.numberOfPages,
-    literal: LiteralMapping.mapper(LiteralMapperImpl),
+    literal: LiteralMapping.mapper(IntMapper),
   )
   final int pageCount;
 
@@ -433,12 +523,29 @@ class LiteralMapperTest {
 }
 
 /// Test model for literal mapper using mapperInstance() constructor
+@RdfLocalResource()
 class LiteralInstanceMapperTest {
   @RdfProperty(
     SchemaBook.isbn,
-    literal: LiteralMapping.mapperInstance(const LiteralMapperImpl()),
+    literal: LiteralMapping.mapperInstance(const LiteralStringMapperImpl()),
   )
   final String isbn;
 
   const LiteralInstanceMapperTest({required this.isbn});
+}
+
+// Additional mapper implementation for string literals
+class LiteralStringMapperImpl implements LiteralTermMapper<String> {
+  const LiteralStringMapperImpl();
+
+  @override
+  String fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    return term.value;
+  }
+
+  @override
+  LiteralTerm toRdfTerm(String value, SerializationContext context) {
+    return LiteralTerm(value);
+  }
 }

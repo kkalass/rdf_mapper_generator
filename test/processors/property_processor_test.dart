@@ -471,7 +471,7 @@ void main() {
       expect(annotation.localResource!.mapper!.instance, isNotNull);
       expect(
           annotation.localResource!.mapper!.instance!.type!.getDisplayString(),
-          "LocalResourceMapperImpl");
+          "LocalResourceAuthorMapperImpl");
     });
 
     test('should process LiteralTypeMapperTest', () {
@@ -496,7 +496,7 @@ void main() {
           annotation.literal!.mapper!.type!.type!.getDisplayString(), 'Type');
       expect(
           annotation.literal!.mapper!.type!.toTypeValue()!.getDisplayString(),
-          'LiteralMapperImpl');
+          'LiteralDoubleMapperImpl');
 
       expect(annotation.predicate.value, equals(SchemaBook.bookFormat));
     });
@@ -505,9 +505,10 @@ void main() {
       // Arrange
       final field = libraryElement
           .getClass2('GlobalResourceTypeMapperTest')!
-          .getField2('format');
+          .getField2('publisher');
       expect(field, isNotNull,
-          reason: 'Field "format" not found in GlobalResourceTypeMapperTest');
+          reason:
+              'Field "publisher" not found in GlobalResourceTypeMapperTest');
 
       // Act
       final result = PropertyProcessor.processField(field!);
@@ -516,7 +517,7 @@ void main() {
       expect(result, isNotNull);
       final annotation = result!.annotation;
       expect(annotation.globalResource, isNotNull);
-      expect(annotation.predicate.value, equals(SchemaBook.bookFormat));
+      expect(annotation.predicate.value, equals(SchemaBook.publisher));
     });
 
     test('should process global resource mapper using mapper() constructor',
@@ -615,8 +616,247 @@ void main() {
       expect(annotation.literal!.mapper!.type, isNull);
       expect(annotation.literal!.mapper!.instance, isNotNull);
       expect(annotation.literal!.mapper!.instance!.type!.getDisplayString(),
-          'LiteralMapperImpl');
+          'LiteralStringMapperImpl');
       expect(annotation.predicate.value, equals(SchemaBook.isbn));
+    });
+
+    test('should process literal mapping with custom datatype', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('LiteralMappingTestCustomDatatype')!
+          .getField2('price');
+      expect(field, isNotNull,
+          reason:
+              'Field "price" not found in LiteralMappingTestCustomDatatype');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      final annotation = result!.annotation;
+      expect(annotation.literal, isNotNull);
+      expect(annotation.literal!.mapper, isNotNull);
+      expect(annotation.literal!.mapper!.instance, isNotNull);
+      expect(annotation.literal!.mapper!.instance!.type!.getDisplayString(),
+          'DoubleMapper');
+      expect(annotation.predicate.value.iri, 'http://example.org/book/price');
+    });
+
+    test('should process property with complex default value', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('ComplexDefaultValueTest')!
+          .getField2('complexValue');
+      expect(field, isNotNull,
+          reason: 'Field "complexValue" not found in ComplexDefaultValueTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      final annotation = result!.annotation;
+      final defaultValue = annotation.defaultValue!;
+      expect(defaultValue, isNotNull);
+      expect(defaultValue.toMapValue(), isNotNull);
+      expect(annotation.predicate.value, equals(SchemaBook.isbn));
+    });
+
+    test('should process final properties', () {
+      // Arrange
+      final field =
+          libraryElement.getClass2('FinalPropertyTest')!.getField2('name');
+      expect(field, isNotNull,
+          reason: 'Field "name" not found in FinalPropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.isFinal, isTrue);
+      expect(result.isRequired, isTrue);
+      expect(result.annotation.predicate.value, equals(SchemaBook.name));
+    });
+
+    test('should process final optional properties', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('FinalPropertyTest')!
+          .getField2('description');
+      expect(field, isNotNull,
+          reason: 'Field "description" not found in FinalPropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.isFinal, isTrue);
+      expect(result.isRequired, isFalse);
+      expect(result.annotation.predicate.value, equals(SchemaBook.description));
+    });
+
+    test('should process late properties', () {
+      // Arrange
+      final field =
+          libraryElement.getClass2('LatePropertyTest')!.getField2('name');
+      expect(field, isNotNull,
+          reason: 'Field "name" not found in LatePropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.isFinal, isFalse);
+      expect(result.isRequired, isTrue);
+      expect(result.annotation.predicate.value, equals(SchemaBook.name));
+    });
+
+    test('should process late optional properties', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('LatePropertyTest')!
+          .getField2('description');
+      expect(field, isNotNull,
+          reason: 'Field "description" not found in LatePropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.isFinal, isFalse);
+      expect(result.isRequired, isFalse);
+      expect(result.annotation.predicate.value, equals(SchemaBook.description));
+    });
+
+    test('should process mutable properties', () {
+      // Arrange
+      final field =
+          libraryElement.getClass2('MutablePropertyTest')!.getField2('name');
+      expect(field, isNotNull,
+          reason: 'Field "name" not found in MutablePropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.isFinal, isFalse);
+      expect(result.isRequired, isTrue);
+      expect(result.annotation.predicate.value, equals(SchemaBook.name));
+    });
+
+    test('should process mutable optional properties', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('MutablePropertyTest')!
+          .getField2('description');
+      expect(field, isNotNull,
+          reason: 'Field "description" not found in MutablePropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.isFinal, isFalse);
+      expect(result.isRequired, isFalse);
+      expect(result.annotation.predicate.value, equals(SchemaBook.description));
+    });
+
+    test('should process property with language tag', () {
+      // Arrange
+      final field =
+          libraryElement.getClass2('LanguageTagTest')!.getField2('description');
+      expect(field, isNotNull,
+          reason: 'Field "description" not found in LanguageTagTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      final annotation = result!.annotation;
+      expect(annotation.literal, isNotNull);
+      expect(annotation.literal!.language, 'en');
+      expect(annotation.predicate.value, equals(SchemaBook.description));
+    });
+
+    test('should process property with custom datatype', () {
+      // Arrange
+      final field = libraryElement.getClass2('DatatypeTest')!.getField2('date');
+      expect(field, isNotNull,
+          reason: 'Field "date" not found in DatatypeTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      final annotation = result!.annotation;
+      expect(annotation.literal, isNotNull);
+      expect(annotation.literal!.datatype, isNotNull);
+      expect(annotation.literal!.datatype!.value.iri,
+          'http://www.w3.org/2001/XMLSchema#dateTime');
+      expect(annotation.predicate.value, equals(SchemaBook.dateCreated));
+    });
+
+    test('should process local resource mapper with Object property type', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('LocalResourceMapperObjectPropertyTest')!
+          .getField2('author');
+      expect(field, isNotNull,
+          reason:
+              'Field "author" not found in LocalResourceMapperObjectPropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.type, 'Object');
+      final annotation = result.annotation;
+      expect(annotation.localResource, isNotNull);
+      expect(annotation.localResource!.mapper, isNotNull);
+      expect(annotation.localResource!.mapper!.type, isNotNull);
+      expect(
+          annotation.localResource!.mapper!.type!
+              .toTypeValue()!
+              .getDisplayString(),
+          'LocalResourceAuthorMapperImpl');
+      expect(annotation.predicate.value, equals(SchemaBook.author));
+    });
+
+    test(
+        'should process local resource mapper instance with Object property type',
+        () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('LocalResourceInstanceMapperObjectPropertyTest')!
+          .getField2('author');
+      expect(field, isNotNull,
+          reason:
+              'Field "author" not found in LocalResourceInstanceMapperObjectPropertyTest');
+
+      // Act
+      final result = PropertyProcessor.processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.type, 'Object');
+      final annotation = result.annotation;
+      expect(annotation.localResource, isNotNull);
+      expect(annotation.localResource!.mapper, isNotNull);
+      expect(annotation.localResource!.mapper!.instance, isNotNull);
+      expect(
+          annotation.localResource!.mapper!.instance!.type!.getDisplayString(),
+          'LocalResourceAuthorMapperImpl');
+      expect(annotation.predicate.value, equals(SchemaBook.author));
     });
   });
 }
