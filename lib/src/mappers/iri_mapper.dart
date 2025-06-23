@@ -30,13 +30,15 @@ abstract class LibraryInfo {
 }
 
 /// Maps between Dart objects and RDF IRIs.
+@Deprecated('Unused?')
 class IriMapper {
   /// Generates an IRI for the given [element] based on its type and annotations.
   ///
   /// Returns the generated IRI as a string, or `null` if no IRI could be generated.
+
   static String? generateIri(dynamic element, [Map<String, dynamic>? context]) {
     if (element is! NamedElement) return null;
-    
+
     // First, check for @IriTerm or @IriTemplate annotations
     final iri = _getIriFromAnnotation(element);
     if (iri != null) {
@@ -50,7 +52,7 @@ class IriMapper {
   /// Extracts an IRI from the element's annotations if present.
   static String? _getIriFromAnnotation(dynamic element) {
     if (element is! NamedElement) return null;
-    
+
     // Check for @IriTerm annotation
     final iriTerm = _getAnnotationValue(element, 'IriTerm', 'iri');
     if (iriTerm != null) {
@@ -68,9 +70,10 @@ class IriMapper {
   }
 
   /// Generates a default IRI based on the element's type and name.
-  static String? _generateDefaultIri(dynamic element, [Map<String, dynamic>? context]) {
+  static String? _generateDefaultIri(dynamic element,
+      [Map<String, dynamic>? context]) {
     if (element is! NamedElement) return null;
-    
+
     final elementName = element.name;
     if (elementName == null || elementName.isEmpty) {
       return null;
@@ -84,14 +87,15 @@ class IriMapper {
 
     String packageName = 'example';
     if (library is LibraryInfo) {
-      final libraryName = library.identifier.replaceAll('package:', '').replaceAll('/', '.');
+      final libraryName =
+          library.identifier.replaceAll('package:', '').replaceAll('/', '.');
       packageName = libraryName.split('.').first;
     }
 
     // Generate a namespaced IRI
     final typeName = element.library != null ? element.name : '';
     final name = elementName.isNotEmpty ? elementName : '';
-    
+
     // Create a basic IRI using package name and element details
     final typePart = typeName?.isNotEmpty == true ? '$typeName/' : '';
     final namePart = name.isNotEmpty ? name : '';
@@ -99,12 +103,13 @@ class IriMapper {
   }
 
   /// Helper method to get a value from an annotation on an element.
-  static dynamic _getAnnotationValue(dynamic element, String annotationName, String fieldName) {
+  static dynamic _getAnnotationValue(
+      dynamic element, String annotationName, String fieldName) {
     if (element is! NamedElement) return null;
-    
+
     final metadata = element.metadata;
     if (metadata is! List) return null;
-    
+
     for (final annotation in metadata) {
       dynamic value;
       if (annotation is AnnotationValue) {
@@ -113,7 +118,7 @@ class IriMapper {
         // Handle mock annotation
         value = (annotation as dynamic).computeConstantValue();
       }
-      
+
       if (value is AnnotationValue) {
         if (value.type?.name == annotationName) {
           final field = value.getField(fieldName);
@@ -129,9 +134,9 @@ class IriMapper {
   /// Converts a Dart type to an XSD datatype IRI.
   static String? dartTypeToXsdType(dynamic type) {
     if (type is! TypeInfo) return null;
-    
+
     final typeName = type.getDisplayString(withNullability: false);
-    
+
     switch (typeName) {
       case 'String':
         return 'http://www.w3.org/2001/XMLSchema#string';
@@ -151,7 +156,7 @@ class IriMapper {
   /// Gets the base IRI for a given library or package.
   static String? getBaseIri(dynamic library) {
     if (library is! LibraryInfo) return null;
-    
+
     // First, check for package-level annotations
     for (final annotation in library.metadata) {
       dynamic value;
@@ -161,7 +166,7 @@ class IriMapper {
         // Handle mock annotation
         value = (annotation as dynamic).computeConstantValue();
       }
-      
+
       if (value is AnnotationValue && value.type?.name == 'BaseIri') {
         final iri = value.getField('iri')?.toStringValue();
         if (iri != null) {
@@ -171,7 +176,8 @@ class IriMapper {
     }
 
     // Fall back to package name based IRI
-    final packageName = library.identifier.replaceAll('package:', '').split('/').first;
+    final packageName =
+        library.identifier.replaceAll('package:', '').split('/').first;
     if (packageName.isNotEmpty) {
       return 'https://example.org/ns/$packageName/';
     }

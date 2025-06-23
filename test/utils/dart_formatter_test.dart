@@ -1,8 +1,15 @@
 import 'package:test/test.dart';
 import 'package:rdf_mapper_generator/src/utils/dart_formatter.dart';
+import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
 void main() {
   group('DartCodeFormatter', () {
+    late CodeFormatter formatter;
+
+    setUp(() {
+      formatter = DartCodeFormatter();
+    });
+
     test('formats valid Dart code correctly', () {
       const unformattedCode = '''
 class TestClass{
@@ -19,7 +26,7 @@ TestClass(this.name,this.age);
 }
 ''';
 
-      final result = DartCodeFormatter.formatCode(unformattedCode);
+      final result = formatter.formatCode(unformattedCode);
       expect(result, equals(expectedFormattedCode));
     });
 
@@ -32,7 +39,7 @@ class TestClass {
 ''';
 
       // Should return the original code when formatting fails
-      final result = DartCodeFormatter.formatCode(invalidCode);
+      final result = formatter.formatCode(invalidCode);
       expect(result, equals(invalidCode));
     });
 
@@ -51,7 +58,7 @@ return Book(title: title, author: author);
 }
 ''';
 
-      final result = DartCodeFormatter.formatCode(complexCode);
+      final result = formatter.formatCode(complexCode);
 
       // Verify the result is properly formatted (contains proper indentation)
       expect(result, contains('  final IriTerm typeIri'));
@@ -72,11 +79,32 @@ int age;
 }
 ''';
 
-      final result = DartCodeFormatter.formatCode(codeWithComments);
+      final result = formatter.formatCode(codeWithComments);
 
       expect(result, contains('/// This is a documentation comment'));
       expect(result, contains('// This is a regular comment'));
       expect(result, contains('/* Multi-line'));
+    });
+  });
+
+  group('NoOpCodeFormatter', () {
+    test('returns code unchanged', () {
+      const code = 'class  Test{int x;}';
+      final formatter = NoOpCodeFormatter();
+
+      final result = formatter.formatCode(code);
+
+      expect(result, equals(code));
+    });
+  });
+
+  group('Dependency Injection', () {
+    test('TemplateRenderer can be injected with custom formatter', () {
+      final customFormatter = NoOpCodeFormatter();
+      final renderer = TemplateRenderer(codeFormatter: customFormatter);
+
+      // This test just verifies the DI works - renderer should use the injected formatter
+      expect(renderer, isNotNull);
     });
   });
 }

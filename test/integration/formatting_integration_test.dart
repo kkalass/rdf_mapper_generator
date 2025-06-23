@@ -91,7 +91,8 @@ void main() {
       expect(result, contains('    final reader'));
 
       // Verify it can be parsed as valid Dart code (no syntax errors)
-      expect(() => DartCodeFormatter.formatCode(result), returnsNormally);
+      final formatter = DartCodeFormatter();
+      expect(() => formatter.formatCode(result), returnsNormally);
 
       // Check for proper indentation patterns
       final lines = result.split('\n');
@@ -117,7 +118,8 @@ class TestClass {
 }
 ''';
 
-      final result = DartCodeFormatter.formatCode(invalidCode);
+      final formatter = DartCodeFormatter();
+      final result = formatter.formatCode(invalidCode);
 
       // Should return the original code when formatting fails
       expect(result, equals(invalidCode));

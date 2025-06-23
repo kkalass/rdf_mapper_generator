@@ -15,9 +15,16 @@ class TemplateRenderer {
   /// Cached templates
   final Map<String, Future<Template>> _templateCache = {};
 
-  TemplateRenderer._();
+  /// Code formatter for generated Dart code
+  final CodeFormatter _codeFormatter;
 
-  factory TemplateRenderer() => _instance;
+  TemplateRenderer._({CodeFormatter? codeFormatter})
+      : _codeFormatter = codeFormatter ?? DartCodeFormatter();
+
+  factory TemplateRenderer({CodeFormatter? codeFormatter}) =>
+      codeFormatter == null
+          ? _instance
+          : TemplateRenderer._(codeFormatter: codeFormatter);
 
   /// Renders a global resource mapper using the provided template data.
   Future<String> _renderResourceMapper(
@@ -43,8 +50,8 @@ class TemplateRenderer {
     final template = await _getTemplate('init_rdf_mapper', reader);
     final result = template.renderString(data);
 
-    // Format the generated code using dart_style
-    return DartCodeFormatter.formatCode(result);
+    // Format the generated code using the injected formatter
+    return _codeFormatter.formatCode(result);
   }
 
   /// Renders a complete file using the file template and multiple mappers.
@@ -92,8 +99,8 @@ class TemplateRenderer {
     data['imports'] = defaultImports;
     final result = template.renderString(data);
 
-    // Format the generated code using dart_style
-    return DartCodeFormatter.formatCode(result);
+    // Format the generated code using the injected formatter
+    return _codeFormatter.formatCode(result);
   }
 
   /// Gets a template by name, loading and caching it if necessary.
@@ -285,7 +292,7 @@ class TemplateRenderer {
     };
   }
 
-  /// Safely casts a dynamic value to Map<String, String>
+  /// Safely casts a dynamic value to Map&lt;String, String&gt;
   Map<String, String> _safeCastToStringMap(dynamic value) {
     if (value == null) return {};
     if (value is Map<String, String>) return value;

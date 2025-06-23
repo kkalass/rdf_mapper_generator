@@ -3,17 +3,26 @@ import 'package:logging/logging.dart';
 
 final _log = Logger('DartFormatter');
 
-/// Utility class for formatting generated Dart code.
-class DartCodeFormatter {
-  static final DartFormatter _formatter = DartFormatter(
-    languageVersion: DartFormatter.latestLanguageVersion,
-  );
-
-  /// Formats the given Dart code using dart_style.
-  ///
+/// Interface for formatting Dart code.
+abstract class CodeFormatter {
+  /// Formats the given Dart code.
+  /// 
   /// Returns the formatted code on success, or the original unformatted code
-  /// if formatting fails (with appropriate logging).
-  static String formatCode(String code) {
+  /// if formatting fails.
+  String formatCode(String code);
+}
+
+/// Implementation of CodeFormatter using dart_style.
+class DartCodeFormatter implements CodeFormatter {
+  final DartFormatter _formatter;
+  
+  DartCodeFormatter({DartFormatter? formatter}) 
+      : _formatter = formatter ?? DartFormatter(
+          languageVersion: DartFormatter.latestLanguageVersion,
+        );
+
+  @override
+  String formatCode(String code) {
     try {
       return _formatter.format(code);
     } catch (e, stackTrace) {
@@ -26,4 +35,10 @@ class DartCodeFormatter {
       return code;
     }
   }
+}
+
+/// No-op formatter for testing or when formatting is disabled.
+class NoOpCodeFormatter implements CodeFormatter {
+  @override
+  String formatCode(String code) => code;
 }
