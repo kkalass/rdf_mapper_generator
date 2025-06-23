@@ -131,7 +131,8 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/contextProviders}}
     return iri;
   }
-
+  
+  {{#hasNonRdfPropertyIriParts}}
   /// Parses IRI parts from a complete IRI using a template.
   ///
   /// Supports RFC 6570 URI Template standard:
@@ -148,6 +149,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
             return MapEntry(name, namedGroup);
           }));
   }
+  {{/hasNonRdfPropertyIriParts}}
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}

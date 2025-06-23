@@ -34,7 +34,6 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   ) {
     final reader = context.reader(subject);
 
-    // Extract IRI parts
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title = reader.optional(SchemaBook.name) ?? 'Untitled';
@@ -78,7 +77,6 @@ class BookWithMapperInstanceMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     return BookWithMapperInstance(id);

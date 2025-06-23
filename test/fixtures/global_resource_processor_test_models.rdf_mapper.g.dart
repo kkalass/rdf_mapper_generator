@@ -525,8 +525,6 @@ class ClassWithIriNamedMapperStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-
     return ClassWithIriNamedMapperStrategy();
   }
 
@@ -563,7 +561,6 @@ class ClassWithIriNamedMapperStrategy1PartMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     return ClassWithIriNamedMapperStrategy1Part(id: id);
@@ -602,7 +599,6 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
     final (id, version) = _iriMapper.fromRdfTerm(subject, context);
 
     return ClassWithIriNamedMapperStrategy2Parts(id: id, version: version);
@@ -645,7 +641,6 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
     final (version, id) = _iriMapper.fromRdfTerm(subject, context);
 
     return ClassWithIriNamedMapperStrategy2PartsSwapped(
@@ -695,7 +690,6 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
   ) {
     final reader = context.reader(subject);
 
-    // Extract IRI parts
     final (id, _, version) = _iriMapper.fromRdfTerm(subject, context);
 
     final String givenName = reader.require(SchemaPerson.givenName);
@@ -753,8 +747,6 @@ class ClassWithIriMapperStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-
     return ClassWithIriMapperStrategy();
   }
 
@@ -792,8 +784,6 @@ class ClassWithIriMapperInstanceStrategyMapper
     DeserializationContext context,
   ) {
     final reader = context.reader(subject);
-
-    // Extract IRI parts
 
     final String name = reader.require(SchemaPerson.name);
 

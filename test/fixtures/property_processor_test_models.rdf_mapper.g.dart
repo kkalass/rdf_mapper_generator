@@ -76,8 +76,6 @@ class SimpleCustomPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    // Extract IRI parts
-
     final String name = reader.require(
       const IriTerm.prevalidated('http://example.org/types/Book/name'),
     );
@@ -107,25 +105,6 @@ class SimpleCustomPropertyTestMapper
     var iri = 'http://example.org/books/{name}';
     iri = iri.replaceAll('{name}', resource.name.toString());
     return iri;
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 
