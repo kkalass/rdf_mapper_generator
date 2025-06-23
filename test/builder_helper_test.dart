@@ -17,20 +17,20 @@ void main() {
 
     setUpAll(() async {
       assetReader = await PackageAssetReader.currentIsolate();
-      
+
       // Initialize test environments for all test files
       final globalResult = await test_helper
           .analyzeTestFile('global_resource_processor_test_models.dart');
       globalResourceLibrary = globalResult.$1;
-      
+
       final localResult = await test_helper
           .analyzeTestFile('local_resource_processor_test_models.dart');
       localResourceLibrary = localResult.$1;
-      
-      final iriResult = await test_helper
-          .analyzeTestFile('iri_processor_test_models.dart');
+
+      final iriResult =
+          await test_helper.analyzeTestFile('iri_processor_test_models.dart');
       iriLibrary = iriResult.$1;
-      
+
       final literalResult = await test_helper
           .analyzeTestFile('literal_processor_test_models.dart');
       literalLibrary = literalResult.$1;
@@ -48,7 +48,8 @@ void main() {
         expect(result, contains('implements GlobalResourceMapper<grptm.Book>'));
       });
 
-      test('should generate mapper for class with empty IRI strategy', () async {
+      test('should generate mapper for class with empty IRI strategy',
+          () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
@@ -68,14 +69,15 @@ void main() {
         expect(result, isNotNull);
         expect(result, contains('class ClassWithIriTemplateStrategyMapper'));
       });
-      
+
       test(
           'should generate mapper for class with IRI template strategy and context variable',
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [
-              globalResourceLibrary.getClass2('ClassWithIriTemplateAndContextVariableStrategy')!
+              globalResourceLibrary
+                  .getClass2('ClassWithIriTemplateAndContextVariableStrategy')!
             ],
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -88,14 +90,18 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithIriNamedMapperStrategy')!],
+            [
+              globalResourceLibrary
+                  .getClass2('ClassWithIriNamedMapperStrategy')!
+            ],
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
         expect(result, contains('class ClassWithIriNamedMapperStrategyMapper'));
       });
 
-      test('should generate mapper for class with IRI mapper strategy', () async {
+      test('should generate mapper for class with IRI mapper strategy',
+          () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithIriMapperStrategy')!],
@@ -109,7 +115,10 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithIriMapperInstanceStrategy')!],
+            [
+              globalResourceLibrary
+                  .getClass2('ClassWithIriMapperInstanceStrategy')!
+            ],
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -121,7 +130,10 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithMapperNamedMapperStrategy')!],
+            [
+              globalResourceLibrary
+                  .getClass2('ClassWithMapperNamedMapperStrategy')!
+            ],
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -129,7 +141,8 @@ void main() {
             isNot(contains('class ClassWithMapperNamedMapperStrategyMapper')));
       });
 
-      test('should NOT generate mapper for class with mapper strategy', () async {
+      test('should NOT generate mapper for class with mapper strategy',
+          () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithMapperStrategy')!],
@@ -143,7 +156,10 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithMapperInstanceStrategy')!],
+            [
+              globalResourceLibrary
+                  .getClass2('ClassWithMapperInstanceStrategy')!
+            ],
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -181,7 +197,10 @@ void main() {
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
         expect(result, contains('class ClassNoRegisterGloballyMapper'));
-        expect(result, contains('implements LocalResourceMapper<lrptm.ClassNoRegisterGlobally>'));
+        expect(
+            result,
+            contains(
+                'implements LocalResourceMapper<lrptm.ClassNoRegisterGlobally>'));
       });
 
       test('should generate mapper for ClassWithNoRdfType', () async {
@@ -214,27 +233,38 @@ void main() {
         expect(result, contains('class ClassWithNonFinalPropertyMapper'));
       });
 
-      test('should generate mapper for ClassWithNonFinalPropertyWithDefault', () async {
+      test('should generate mapper for ClassWithNonFinalPropertyWithDefault',
+          () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithNonFinalPropertyWithDefault')!],
+            [
+              localResourceLibrary
+                  .getClass2('ClassWithNonFinalPropertyWithDefault')!
+            ],
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
-        expect(result, contains('class ClassWithNonFinalPropertyWithDefaultMapper'));
+        expect(result,
+            contains('class ClassWithNonFinalPropertyWithDefaultMapper'));
       });
 
-      test('should generate mapper for ClassWithNonFinalOptionalProperty', () async {
+      test('should generate mapper for ClassWithNonFinalOptionalProperty',
+          () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithNonFinalOptionalProperty')!],
+            [
+              localResourceLibrary
+                  .getClass2('ClassWithNonFinalOptionalProperty')!
+            ],
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
-        expect(result, contains('class ClassWithNonFinalOptionalPropertyMapper'));
+        expect(
+            result, contains('class ClassWithNonFinalOptionalPropertyMapper'));
       });
 
-      test('should generate mapper for ClassWithLateNonFinalProperty', () async {
+      test('should generate mapper for ClassWithLateNonFinalProperty',
+          () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithLateNonFinalProperty')!],
@@ -254,24 +284,34 @@ void main() {
         expect(result, contains('class ClassWithLateFinalPropertyMapper'));
       });
 
-      test('should generate mapper for ClassWithMixedFinalAndLateFinalProperty', () async {
+      test('should generate mapper for ClassWithMixedFinalAndLateFinalProperty',
+          () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithMixedFinalAndLateFinalProperty')!],
+            [
+              localResourceLibrary
+                  .getClass2('ClassWithMixedFinalAndLateFinalProperty')!
+            ],
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
-        expect(result, contains('class ClassWithMixedFinalAndLateFinalPropertyMapper'));
+        expect(result,
+            contains('class ClassWithMixedFinalAndLateFinalPropertyMapper'));
       });
 
-      test('should NOT generate mapper for ClassWithMapperNamedMapperStrategy', () async {
+      test('should NOT generate mapper for ClassWithMapperNamedMapperStrategy',
+          () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithMapperNamedMapperStrategy')!],
+            [
+              localResourceLibrary
+                  .getClass2('ClassWithMapperNamedMapperStrategy')!
+            ],
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
-        expect(result, isNot(contains('class ClassWithMapperNamedMapperStrategyMapper')));
+        expect(result,
+            isNot(contains('class ClassWithMapperNamedMapperStrategyMapper')));
       });
 
       test('should NOT generate mapper for ClassWithMapperStrategy', () async {
@@ -284,14 +324,18 @@ void main() {
         expect(result, isNot(contains('class ClassWithMapperStrategyMapper')));
       });
 
-      test('should NOT generate mapper for ClassWithMapperInstanceStrategy', () async {
+      test('should NOT generate mapper for ClassWithMapperInstanceStrategy',
+          () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithMapperInstanceStrategy')!],
+            [
+              localResourceLibrary.getClass2('ClassWithMapperInstanceStrategy')!
+            ],
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
-        expect(result, isNot(contains('class ClassWithMapperInstanceStrategyMapper')));
+        expect(result,
+            isNot(contains('class ClassWithMapperInstanceStrategyMapper')));
       });
     });
 
@@ -304,10 +348,12 @@ void main() {
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
         expect(result, contains('class IriWithOnePartMapper'));
-        expect(result, contains('implements IriTermMapper<iptm.IriWithOnePart>'));
+        expect(
+            result, contains('implements IriTermMapper<iptm.IriWithOnePart>'));
       });
 
-      test('should generate mapper for IriWithOnePartExplicitlyGlobal', () async {
+      test('should generate mapper for IriWithOnePartExplicitlyGlobal',
+          () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithOnePartExplicitlyGlobal')!],
@@ -377,14 +423,22 @@ void main() {
         expect(result, contains('class IriWithNonConstructorFieldsMapper'));
       });
 
-      test('should generate mapper for IriWithNonConstructorFieldsAndBaseUriNonGlobal', () async {
+      test(
+          'should generate mapper for IriWithNonConstructorFieldsAndBaseUriNonGlobal',
+          () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithNonConstructorFieldsAndBaseUriNonGlobal')!],
+            [
+              iriLibrary
+                  .getClass2('IriWithNonConstructorFieldsAndBaseUriNonGlobal')!
+            ],
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
-        expect(result, contains('class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper'));
+        expect(
+            result,
+            contains(
+                'class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper'));
       });
 
       test('should generate mapper for IriWithMixedFields', () async {
@@ -437,7 +491,8 @@ void main() {
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
         expect(result, contains('class LiteralStringMapper'));
-        expect(result, contains('implements LiteralTermMapper<lptm.LiteralString>'));
+        expect(result,
+            contains('implements LiteralTermMapper<lptm.LiteralString>'));
       });
 
       test('should generate mapper for Rating', () async {
@@ -480,7 +535,8 @@ void main() {
         expect(result, contains('class LiteralIntegerMapper'));
       });
 
-      test('should generate mapper for Temperature with custom methods', () async {
+      test('should generate mapper for Temperature with custom methods',
+          () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('Temperature')!],
@@ -516,7 +572,8 @@ void main() {
         expect(result, contains('fromMilliunit'));
       });
 
-      test('should generate mapper for LiteralWithNonConstructorValue', () async {
+      test('should generate mapper for LiteralWithNonConstructorValue',
+          () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralWithNonConstructorValue')!],
@@ -526,17 +583,23 @@ void main() {
         expect(result, contains('class LiteralWithNonConstructorValueMapper'));
       });
 
-      test('should generate mapper for LocalizedTextWithNonConstructorLanguage', () async {
+      test('should generate mapper for LocalizedTextWithNonConstructorLanguage',
+          () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LocalizedTextWithNonConstructorLanguage')!],
+            [
+              literalLibrary
+                  .getClass2('LocalizedTextWithNonConstructorLanguage')!
+            ],
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
-        expect(result, contains('class LocalizedTextWithNonConstructorLanguageMapper'));
+        expect(result,
+            contains('class LocalizedTextWithNonConstructorLanguageMapper'));
       });
 
-      test('should generate mapper for LiteralLateFinalLocalizedText', () async {
+      test('should generate mapper for LiteralLateFinalLocalizedText',
+          () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralLateFinalLocalizedText')!],
@@ -566,14 +629,16 @@ void main() {
         expect(result, isNot(contains('class LiteralWithMapperMapper')));
       });
 
-      test('should NOT generate mapper for LiteralWithMapperInstance', () async {
+      test('should NOT generate mapper for LiteralWithMapperInstance',
+          () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralWithMapperInstance')!],
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
-        expect(result, isNot(contains('class LiteralWithMapperInstanceMapper')));
+        expect(
+            result, isNot(contains('class LiteralWithMapperInstanceMapper')));
       });
     });
   });
