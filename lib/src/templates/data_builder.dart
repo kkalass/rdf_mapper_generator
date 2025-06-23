@@ -362,7 +362,22 @@ class DataBuilder {
           iriTemplateInfo.variableNames.map(_buildVariableNameData).toSet(),
       regexPattern:
           '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\\\$',
+      interpolatedTemplate: _buildInterpolatedTemplate(iriTemplateInfo),
     );
+  }
+
+  static String _buildInterpolatedTemplate(IriTemplateInfo iriTemplateInfo) {
+    String interpolatedTemplate = iriTemplateInfo.template;
+
+    // Replace variables with Dart string interpolation syntax
+    for (final variable in iriTemplateInfo.variableNames) {
+      final placeholder =
+          variable.canBeUri ? '{+${variable.name}}' : '{${variable.name}}';
+      interpolatedTemplate = interpolatedTemplate.replaceAll(
+          placeholder, '\${${variable.dartPropertyName}}');
+    }
+
+    return interpolatedTemplate;
   }
 
   static List<ContextProviderData> _buildContextProvidersForResource(

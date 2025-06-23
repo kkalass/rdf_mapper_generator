@@ -59,9 +59,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(Book resource) {
-    var iri = 'http://example.org/books/{isbn}';
-    iri = iri.replaceAll('{isbn}', resource.isbn.toString());
-    return iri;
+    final isbn = resource.isbn.toString();
+    return 'http://example.org/books/${isbn}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.
@@ -124,9 +123,8 @@ class ClassWithEmptyIriStrategyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithEmptyIriStrategy resource) {
-    var iri = '{+iri}';
-    iri = iri.replaceAll('{+iri}', resource.iri.toString());
-    return iri;
+    final iri = resource.iri.toString();
+    return '${iri}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.
@@ -199,9 +197,8 @@ class ClassWithNoRdfTypeMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithNoRdfType resource) {
-    var iri = '{+iri}';
-    iri = iri.replaceAll('{+iri}', resource.iri.toString());
-    return iri;
+    final iri = resource.iri.toString();
+    return '${iri}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.
@@ -265,9 +262,8 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithEmptyIriStrategyNoRegisterGlobally resource) {
-    var iri = '{+iri}';
-    iri = iri.replaceAll('{+iri}', resource.iri.toString());
-    return iri;
+    final iri = resource.iri.toString();
+    return '${iri}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.
@@ -332,9 +328,8 @@ class ClassWithIriTemplateStrategyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithIriTemplateStrategy resource) {
-    var iri = 'http://example.org/persons/{id}';
-    iri = iri.replaceAll('{id}', resource.id.toString());
-    return iri;
+    final id = resource.id.toString();
+    return 'http://example.org/persons/${id}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.
@@ -405,10 +400,9 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithIriTemplateAndContextVariableStrategy resource) {
-    var iri = '{+baseUri}/persons/{thisId}';
-    iri = iri.replaceAll('{thisId}', resource.id.toString());
-    iri = iri.replaceAll('{+baseUri}', _baseUriProvider());
-    return iri;
+    final id = resource.id.toString();
+    final baseUri = _baseUriProvider();
+    return '${baseUri}/persons/${id}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.
@@ -478,10 +472,9 @@ class ClassWithOtherBaseUriNonGlobalMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(ClassWithOtherBaseUriNonGlobal resource) {
-    var iri = '{+otherBaseUri}/persons/{thisId}';
-    iri = iri.replaceAll('{thisId}', resource.id.toString());
-    iri = iri.replaceAll('{+otherBaseUri}', _otherBaseUriProvider());
-    return iri;
+    final id = resource.id.toString();
+    final otherBaseUri = _otherBaseUriProvider();
+    return '${otherBaseUri}/persons/${id}';
   }
 
   /// Parses IRI parts from a complete IRI using a template.

@@ -471,12 +471,16 @@ class IriTemplateData {
   /// The regex pattern built from the template.
   final String regexPattern;
 
+  /// The template converted to Dart string interpolation syntax.
+  final String interpolatedTemplate;
+
   const IriTemplateData({
     required this.template,
     required this.variables,
     required this.propertyVariables,
     required this.contextVariables,
     required this.regexPattern,
+    required this.interpolatedTemplate,
   });
 
   Map<String, dynamic> toMap() {
@@ -488,6 +492,7 @@ class IriTemplateData {
       'contextVariables':
           toMustacheList(contextVariables.map((c) => c.toMap()).toList()),
       'regexPattern': regexPattern,
+      'interpolatedTemplate': interpolatedTemplate,
     };
   }
 }

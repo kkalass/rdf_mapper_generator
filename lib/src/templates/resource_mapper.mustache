@@ -122,16 +122,15 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{#hasTemplate}}
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri({{className}} resource) {
-    var iri = '{{template.template}}';
     {{#template.propertyVariables}}
-    iri = iri.replaceAll('{{value.placeholder}}', resource.{{value.variableName}}.toString());
+    final {{value.variableName}} = resource.{{value.variableName}}.toString();
     {{/template.propertyVariables}}
     {{#contextProviders}}
-    iri = iri.replaceAll('{{value.placeholder}}', {{value.privateFieldName}}());
+    final {{value.variableName}} = {{value.privateFieldName}}();
     {{/contextProviders}}
-    return iri;
+    return '{{template.interpolatedTemplate}}';
   }
-  
+
   {{#hasNonRdfPropertyIriParts}}
   /// Parses IRI parts from a complete IRI using a template.
   ///

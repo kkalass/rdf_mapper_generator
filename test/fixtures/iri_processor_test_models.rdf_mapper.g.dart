@@ -49,9 +49,8 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = 'http://example.org/books/{isbn}';
-    iri = iri.replaceAll('{isbn}', resource.isbn.toString());
-    return IriTerm(iri);
+    final isbn = resource.isbn.toString();
+    return IriTerm('http://example.org/books/${isbn}');
   }
 }
 
@@ -96,9 +95,8 @@ class IriWithOnePartExplicitlyGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = 'http://example.org/books/{isbn}';
-    iri = iri.replaceAll('{isbn}', resource.isbn.toString());
-    return IriTerm(iri);
+    final isbn = resource.isbn.toString();
+    return IriTerm('http://example.org/books/${isbn}');
   }
 }
 
@@ -142,9 +140,8 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = 'http://example.org/books/{isbn}';
-    iri = iri.replaceAll('{isbn}', resource.value.toString());
-    return IriTerm(iri);
+    final value = resource.value.toString();
+    return IriTerm('http://example.org/books/${value}');
   }
 }
 
@@ -186,10 +183,9 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = 'http://example.org/{type}/{value}';
-    iri = iri.replaceAll('{value}', resource.value.toString());
-    iri = iri.replaceAll('{type}', resource.type.toString());
-    return IriTerm(iri);
+    final value = resource.value.toString();
+    final type = resource.type.toString();
+    return IriTerm('http://example.org/${type}/${value}');
   }
 }
 
@@ -240,11 +236,10 @@ class IriWithBaseUriAndTwoPartsMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = '{+baseUri}/{type}/{value}';
-    iri = iri.replaceAll('{value}', resource.value.toString());
-    iri = iri.replaceAll('{type}', resource.otherPart.toString());
-    iri = iri.replaceAll('{+baseUri}', _baseUriProvider());
-    return IriTerm(iri);
+    final value = resource.value.toString();
+    final otherPart = resource.otherPart.toString();
+    final baseUri = _baseUriProvider();
+    return IriTerm('${baseUri}/${otherPart}/${value}');
   }
 }
 
@@ -287,10 +282,9 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = '{+baseUri}/books/{isbn}';
-    iri = iri.replaceAll('{isbn}', resource.isbn.toString());
-    iri = iri.replaceAll('{+baseUri}', _baseUriProvider());
-    return IriTerm(iri);
+    final isbn = resource.isbn.toString();
+    final baseUri = _baseUriProvider();
+    return IriTerm('${baseUri}/books/${isbn}');
   }
 }
 
@@ -338,10 +332,9 @@ class IriWithBaseUriNoGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = '{+baseUri}/books/{isbn}';
-    iri = iri.replaceAll('{isbn}', resource.isbn.toString());
-    iri = iri.replaceAll('{+baseUri}', _baseUriProvider());
-    return IriTerm(iri);
+    final isbn = resource.isbn.toString();
+    final baseUri = _baseUriProvider();
+    return IriTerm('${baseUri}/books/${isbn}');
   }
 }
 
@@ -388,9 +381,8 @@ class IriWithNonConstructorFieldsMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = 'http://example.org/items/{id}';
-    iri = iri.replaceAll('{id}', resource.id.toString());
-    return IriTerm(iri);
+    final id = resource.id.toString();
+    return IriTerm('http://example.org/items/${id}');
   }
 }
 
@@ -440,10 +432,9 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = '{+myBaseUri}/items/{id}';
-    iri = iri.replaceAll('{id}', resource.id.toString());
-    iri = iri.replaceAll('{+myBaseUri}', _myBaseUriProvider());
-    return IriTerm(iri);
+    final id = resource.id.toString();
+    final myBaseUri = _myBaseUriProvider();
+    return IriTerm('${myBaseUri}/items/${id}');
   }
 }
 
@@ -488,10 +479,11 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    var iri = 'http://example.org/products/{brand}/{category}/{id}';
-    iri = iri.replaceAll('{brand}', resource.brand.toString());
-    iri = iri.replaceAll('{category}', resource.productCategory.toString());
-    iri = iri.replaceAll('{id}', resource.id.toString());
-    return IriTerm(iri);
+    final brand = resource.brand.toString();
+    final productCategory = resource.productCategory.toString();
+    final id = resource.id.toString();
+    return IriTerm(
+      'http://example.org/products/${brand}/${productCategory}/${id}',
+    );
   }
 }

@@ -66,15 +66,14 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   }) {
     {{#iriStrategy}}
     {{#hasTemplate}}
-    var iri = '{{template.template}}';
     {{#template.propertyVariables}}
-    iri = iri.replaceAll('{{value.placeholder}}', resource.{{value.variableName}}.toString());
+    final {{value.variableName}} = resource.{{value.variableName}}.toString();
     {{/template.propertyVariables}}
     {{#contextProviders}}
-    iri = iri.replaceAll('{{value.placeholder}}', {{value.privateFieldName}}());
+    final {{value.variableName}} = {{value.privateFieldName}}();
     {{/contextProviders}}
+    return IriTerm('{{template.interpolatedTemplate}}');
     {{/hasTemplate}}
     {{/iriStrategy}}
-    return IriTerm(iri);
   }
 }

@@ -102,9 +102,8 @@ class SimpleCustomPropertyTestMapper
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(SimpleCustomPropertyTest resource) {
-    var iri = 'http://example.org/books/{name}';
-    iri = iri.replaceAll('{name}', resource.name.toString());
-    return iri;
+    final name = resource.name.toString();
+    return 'http://example.org/books/${name}';
   }
 }
 
