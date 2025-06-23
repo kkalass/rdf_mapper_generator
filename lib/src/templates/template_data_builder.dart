@@ -50,7 +50,6 @@ class TemplateDataBuilder {
         if (import.importedLibrary2 != null)
           import.importedLibrary2!.identifier: import.prefix2?.name2 ?? '',
     };
-    print('Original imports: $originalImports');
     return FileTemplateData(
       header: header,
       mappers: mapperDatas,

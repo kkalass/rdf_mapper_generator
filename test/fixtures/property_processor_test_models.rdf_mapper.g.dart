@@ -77,7 +77,6 @@ class SimpleCustomPropertyTestMapper
     final reader = context.reader(subject);
 
     // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
 
     final String name = reader.require(
       const IriTerm.prevalidated('http://example.org/types/Book/name'),

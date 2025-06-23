@@ -43,9 +43,11 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
 
     {{#hasIriStrategy}}
     {{#iriStrategy}}
-    // Extract IRI parts
     {{#hasTemplate}}
+    {{#hasNonRdfPropertyIriParts}}
+    // Extract IRI parts
     final iriParts = _parseIriParts(subject.iri);
+    {{/hasNonRdfPropertyIriParts}}
     {{/hasTemplate}}
     {{#hasMapper}}
     {{#hasIriMapperParts}}

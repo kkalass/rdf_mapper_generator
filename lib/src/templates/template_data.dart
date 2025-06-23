@@ -534,6 +534,8 @@ class IriData {
         'iriMapperParts':
             toMustacheList(iriMapperParts.map((p) => p.toMap()).toList()),
         'hasIriMapperParts': iriMapperParts.isNotEmpty,
+        'hasNonRdfPropertyIriParts': iriMapperParts
+            .any((p) => !p.isRdfProperty && p.dartPropertyName.isNotEmpty),
       };
 }
 
