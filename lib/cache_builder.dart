@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
@@ -16,32 +17,50 @@ class RdfMapperCacheBuilder implements Builder {
   static final _builderHelper = BuilderHelper();
 
   @override
-  Future<void> build(BuildStep buildStep) async {
+  Future<void> build(BuildStep buildStep) => buildIt(
+      buildStep.inputId,
+      buildStep.readAsString,
+      buildStep.writeAsString,
+      (inputId, {bool allowSyntaxErrors = false}) async => (await buildStep
+              .resolver
+              .libraryFor(inputId, allowSyntaxErrors: allowSyntaxErrors))
+          // The library element from build system is LibraryElement, cast to Element2
+          as LibraryElement2);
+
+  Future<void> buildIt(
+      AssetId inputId,
+      Future<String> Function(AssetId id, {Encoding encoding}) readAsString,
+      Future<void> Function(AssetId id, FutureOr<String> contents,
+              {Encoding encoding})
+          writeAsString,
+      Future<LibraryElement2> Function(AssetId assetId,
+              {bool allowSyntaxErrors})
+          libraryFor) async {
     // Only process .dart files, skip generated files
-    if (!buildStep.inputId.path.endsWith('.dart') ||
-        buildStep.inputId.path.contains('.g.dart') ||
-        buildStep.inputId.path.contains('.rdf_mapper.g.dart')) {
+    if (!inputId.path.endsWith('.dart') ||
+        inputId.path.contains('.g.dart') ||
+        inputId.path.contains('.rdf_mapper.g.dart')) {
       return;
     }
 
     try {
-      final sourceContent = await buildStep.readAsString(buildStep.inputId);
+      final sourceContent = await readAsString(inputId);
 
       // Parse the source file using the analyzer
       final parseResult = parseString(
         content: sourceContent,
-        path: buildStep.inputId.path,
+        path: inputId.path,
       );
 
       if (parseResult.errors.isNotEmpty) {
         log.warning(
-          'Parse errors in ${buildStep.inputId.path}: ${parseResult.errors}',
+          'Parse errors in ${inputId.path}: ${parseResult.errors}',
         );
         return;
       }
 
       // Get the library element for the parsed file
-      final library = await _resolveLibrary(buildStep);
+      final library = await _resolveLibrary(libraryFor, inputId);
       if (library == null) {
         return;
       }
@@ -52,23 +71,21 @@ class RdfMapperCacheBuilder implements Builder {
           .toList();
 
       final generatedTemplateData = await _builderHelper.buildTemplateData(
-          buildStep.inputId.path,
-          buildStep.inputId.package,
+          inputId.path,
+          inputId.package,
           classes,
           BroaderImports.create(library));
 
       // Only create output file if we generated code
       if (generatedTemplateData != null) {
-        final outputId =
-            buildStep.inputId.changeExtension('.rdf_mapper.cache.json');
-        await buildStep.writeAsString(
-            outputId, jsonEncode(generatedTemplateData));
+        final outputId = inputId.changeExtension('.rdf_mapper.cache.json');
+        await writeAsString(outputId, jsonEncode(generatedTemplateData));
 
-        log.info('Generated RDF mapper cache for ${buildStep.inputId.path}');
+        log.info('Generated RDF mapper cache for ${inputId.path}');
       }
     } catch (e, stackTrace) {
       log.severe(
-        'Error processing ${buildStep.inputId.path}: $e',
+        'Error processing ${inputId.path}: $e',
         e,
         stackTrace,
       );
@@ -78,17 +95,16 @@ class RdfMapperCacheBuilder implements Builder {
   }
 
   /// Resolves the library for the current build step.
-  Future<LibraryElement2?> _resolveLibrary(BuildStep buildStep) async {
+  Future<LibraryElement2?> _resolveLibrary(
+      Future<LibraryElement2> Function(AssetId assetId,
+              {bool allowSyntaxErrors})
+          libraryFor,
+      AssetId inputId) async {
     try {
       // For build system integration, we need to use the resolver
-      final resolver = buildStep.resolver;
-      final library = await resolver.libraryFor(buildStep.inputId);
-
-      // The library element from build system is LibraryElement, cast to Element2
-      return library as LibraryElement2;
+      return await libraryFor(inputId);
     } catch (e) {
-      log.warning(
-          'Could not resolve library for ${buildStep.inputId.path}: $e');
+      log.warning('Could not resolve library for ${inputId.path}: $e');
       return null;
     }
   }
