@@ -13,6 +13,7 @@ void main() {
     late LibraryElement2 localResourceLibrary;
     late LibraryElement2 iriLibrary;
     late LibraryElement2 literalLibrary;
+    late LibraryElement2 propertyLibrary;
     late AssetReader assetReader;
 
     setUpAll(() async {
@@ -34,6 +35,10 @@ void main() {
       final literalResult = await test_helper
           .analyzeTestFile('literal_processor_test_models.dart');
       literalLibrary = literalResult.$1;
+
+      final propertyResult = await test_helper
+          .analyzeTestFile('property_processor_test_models.dart');
+      propertyLibrary = propertyResult.$1;
     });
 
     group('Global Resource Mappers', () {
@@ -734,6 +739,23 @@ void main() {
           result, isNot(contains('/// Parses IRI parts from a complete IRI')));
       expect(result, isNot(contains('String _buildIri(')));
       expect(result, isNot(contains('Map<String, String> _parseIriParts(')));
+    });
+
+    group('Property Test Mappers', () {
+      test('should generate mapper for IriMappingNamedMapperTestMapper',
+          () async {
+        final result = await BuilderHelper().build(
+            'property_processor_test_models.dart',
+            [propertyLibrary.getClass2('IriMappingNamedMapperTest')!],
+            assetReader,
+            BroaderImports.create(literalLibrary));
+        expect(result, isNotNull);
+        expect(result, contains('class IriMappingNamedMapperTestMapper\n'));
+        expect(
+            result,
+            contains(
+                'implements LocalResourceMapper<pptm.IriMappingNamedMapperTest>'));
+      });
     });
   });
 }

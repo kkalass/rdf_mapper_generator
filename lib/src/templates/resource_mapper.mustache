@@ -17,6 +17,10 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   final String Function() {{value.privateFieldName}};
   {{/contextProviders}}
 
+  {{#customMappers}}
+  final {{value.mapper.type}} {{value.mapper.fieldName}}{{^value.mapper.isConstructorInjected}} = {{value.mapper.instantiationCode}}{{/value.mapper.isConstructorInjected}};
+  {{/customMappers}}
+
   {{#hasIriStrategyMapper}}
   final {{iriStrategy.mapper.type}} _iriMapper;
   {{/hasIriStrategyMapper}}
@@ -30,6 +34,11 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#hasIriStrategyMapper}},{{/hasIriStrategyMapper}}
     required String Function() {{value.parameterName}},
     {{/contextProviders}}
+    {{#customMappers}}
+    {{#value.mapper.isConstructorInjected}}
+    required {{value.mapper.type}} {{value.mapper.parameterName}},
+    {{/value.mapper.isConstructorInjected}}
+    {{/customMappers}}
   }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameters}} : {{#hasIriStrategyMapper}}_iriMapper = iriMapper{{/hasIriStrategyMapper}}{{#contextProviders}}{{#hasIriStrategyMapper}},
        {{/hasIriStrategyMapper}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
        {{/last}}{{/contextProviders}}{{/hasMapperConstructorParameters}};
