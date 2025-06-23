@@ -68,15 +68,17 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/value.isRdfProperty}}
     {{/constructorParametersOrOtherFields}}
 
-    final retval = {{className}}(
+    {{#hasNonConstructorFields}}final retval = {{/hasNonConstructorFields}}{{^hasNonConstructorFields}}return {{/hasNonConstructorFields}}{{className}}(
       {{#constructorParameters}}
       {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{value.name}}{{^last}},{{/last}}
       {{/constructorParameters}}
     );
+    {{#hasNonConstructorFields}}
     {{#nonConstructorFields}}
     retval.{{value.name}} = {{value.name}};
     {{/nonConstructorFields}}
     return retval;
+    {{/hasNonConstructorFields}}
   }
 
   @override

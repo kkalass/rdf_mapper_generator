@@ -36,14 +36,16 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     final {{value.dartType}} {{value.name}} = {{#value.isRdfValue}}context.fromLiteralTerm(term, bypassDatatypeCheck: {{^hasCustomDatatype}}bypassDatatypeCheck{{/hasCustomDatatype}}{{#hasCustomDatatype}}true /*we handle the actual final datatype ourselves, just delegate for convenience*/{{/hasCustomDatatype}}){{/value.isRdfValue}}{{#value.isRdfLanguageTag}}term.language!{{/value.isRdfLanguageTag}};
     {{/constructorParametersOrOtherFields}}
 
-    final retval = {{className}}(
+    {{#hasNonConstructorFields}}final retval = {{/hasNonConstructorFields}}{{^hasNonConstructorFields}}return {{/hasNonConstructorFields}}{{className}}(
       {{#constructorParameters}}
       {{#value.isNamed}}{{value.name}}: {{/value.isNamed}}{{value.name}}{{^last}},{{/last}}
       {{/constructorParameters}});
+    {{#hasNonConstructorFields}}
     {{#nonConstructorFields}}
     retval.{{value.name}} = {{value.name}};
     {{/nonConstructorFields}}
     return retval;
+    {{/hasNonConstructorFields}}
     {{/hasMethods}}
   }
 

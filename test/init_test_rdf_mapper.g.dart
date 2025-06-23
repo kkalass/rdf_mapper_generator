@@ -16,6 +16,8 @@ import 'fixtures/literal_processor_test_models.rdf_mapper.g.dart' as lptmrmg;
 import 'fixtures/local_resource_processor_test_models.dart' as lrptm;
 import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart'
     as lrptmrmg;
+import 'fixtures/property_processor_test_models.dart' as pptm;
+import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
 ///
@@ -184,6 +186,107 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<lrptm.ClassWithMapperInstanceStrategy>(
     const lrptm.TestLocalResourceMapper2(),
+  );
+  registry.registerMapper<pptm.SimplePropertyTest>(
+    pptmrmg.SimplePropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.DeserializationOnlyPropertyTest>(
+    pptmrmg.DeserializationOnlyPropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.OptionalPropertyTest>(
+    pptmrmg.OptionalPropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.DefaultValueTest>(
+    pptmrmg.DefaultValueTestMapper(),
+  );
+  registry.registerMapper<pptm.IncludeDefaultsTest>(
+    pptmrmg.IncludeDefaultsTestMapper(),
+  );
+  registry.registerMapper<pptm.IriMappingTest>(pptmrmg.IriMappingTestMapper());
+  registry.registerMapper<pptm.IriMappingNamedMapperTest>(
+    pptmrmg.IriMappingNamedMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.IriMappingMapperTest>(
+    pptmrmg.IriMappingMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.IriMappingMapperInstanceTest>(
+    pptmrmg.IriMappingMapperInstanceTestMapper(),
+  );
+  registry.registerMapper<pptm.LocalResourceMappingTest>(
+    pptmrmg.LocalResourceMappingTestMapper(),
+  );
+  registry.registerMapper<pptm.GlobalResourceMappingTest>(
+    pptmrmg.GlobalResourceMappingTestMapper(),
+  );
+  registry.registerMapper<pptm.LiteralMappingTest>(
+    pptmrmg.LiteralMappingTestMapper(),
+  );
+  registry.registerMapper<pptm.LiteralMappingTestCustomDatatype>(
+    pptmrmg.LiteralMappingTestCustomDatatypeMapper(),
+  );
+  registry.registerMapper<pptm.CollectionNoneTest>(
+    pptmrmg.CollectionNoneTestMapper(),
+  );
+  registry.registerMapper<pptm.CollectionAutoTest>(
+    pptmrmg.CollectionAutoTestMapper(),
+  );
+  registry.registerMapper<pptm.CollectionTest>(pptmrmg.CollectionTestMapper());
+  registry.registerMapper<pptm.MapNoCollectionTest>(
+    pptmrmg.MapNoCollectionTestMapper(),
+  );
+  registry.registerMapper<pptm.MapLocalResourceMapperTest>(
+    pptmrmg.MapLocalResourceMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.SetTest>(pptmrmg.SetTestMapper());
+  registry.registerMapper<pptm.EnumTypeTest>(pptmrmg.EnumTypeTestMapper());
+  registry.registerMapper<pptm.ComplexDefaultValueTest>(
+    pptmrmg.ComplexDefaultValueTestMapper(),
+  );
+  registry.registerMapper<pptm.FinalPropertyTest>(
+    pptmrmg.FinalPropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.LatePropertyTest>(
+    pptmrmg.LatePropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.MutablePropertyTest>(
+    pptmrmg.MutablePropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.LanguageTagTest>(
+    pptmrmg.LanguageTagTestMapper(),
+  );
+  registry.registerMapper<pptm.DatatypeTest>(pptmrmg.DatatypeTestMapper());
+  registry.registerMapper<pptm.GlobalResourceNamedMapperTest>(
+    pptmrmg.GlobalResourceNamedMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LiteralNamedMapperTest>(
+    pptmrmg.LiteralNamedMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LiteralTypeMapperTest>(
+    pptmrmg.LiteralTypeMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.GlobalResourceTypeMapperTest>(
+    pptmrmg.GlobalResourceTypeMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.GlobalResourceMapperTest>(
+    pptmrmg.GlobalResourceMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.GlobalResourceInstanceMapperTest>(
+    pptmrmg.GlobalResourceInstanceMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LocalResourceMapperTest>(
+    pptmrmg.LocalResourceMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LocalResourceMapperObjectPropertyTest>(
+    pptmrmg.LocalResourceMapperObjectPropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.LocalResourceInstanceMapperTest>(
+    pptmrmg.LocalResourceInstanceMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LiteralMapperTest>(
+    pptmrmg.LiteralMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LiteralInstanceMapperTest>(
+    pptmrmg.LiteralInstanceMapperTestMapper(),
   );
 
   return rdfMapper;

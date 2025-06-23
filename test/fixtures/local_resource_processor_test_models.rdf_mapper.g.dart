@@ -32,8 +32,7 @@ class BookMapper implements LocalResourceMapper<Book> {
     final String title = reader.require(schema.SchemaBook.name);
     final String authorId = reader.require(schema.SchemaBook.author);
 
-    final retval = Book(isbn: isbn, title: title, authorId: authorId);
-    return retval;
+    return Book(isbn: isbn, title: title, authorId: authorId);
   }
 
   @override
@@ -74,8 +73,7 @@ class ClassNoRegisterGloballyMapper
 
     final String name = reader.require(schema.SchemaPerson.name);
 
-    final retval = ClassNoRegisterGlobally(name: name);
-    return retval;
+    return ClassNoRegisterGlobally(name: name);
   }
 
   @override
@@ -115,8 +113,7 @@ class ClassWithNoRdfTypeMapper
     final String name = reader.require(schema.SchemaPerson.name);
     final int age = reader.require(schema.SchemaPerson.foafAge);
 
-    final retval = ClassWithNoRdfType(name, age: age);
-    return retval;
+    return ClassWithNoRdfType(name, age: age);
   }
 
   @override
@@ -156,8 +153,7 @@ class ClassWithPositionalPropertyMapper
 
     final String name = reader.require(schema.SchemaPerson.name);
 
-    final retval = ClassWithPositionalProperty(name);
-    return retval;
+    return ClassWithPositionalProperty(name);
   }
 
   @override
@@ -196,8 +192,7 @@ class ClassWithNonFinalPropertyMapper
 
     final String name = reader.require(schema.SchemaPerson.name);
 
-    final retval = ClassWithNonFinalProperty(name: name);
-    return retval;
+    return ClassWithNonFinalProperty(name: name);
   }
 
   @override

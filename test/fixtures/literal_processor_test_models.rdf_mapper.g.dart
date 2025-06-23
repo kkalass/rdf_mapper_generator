@@ -32,8 +32,7 @@ class LiteralStringMapper implements LiteralTermMapper<LiteralString> {
       bypassDatatypeCheck: bypassDatatypeCheck,
     );
 
-    final retval = LiteralString(foo: foo);
-    return retval;
+    return LiteralString(foo: foo);
   }
 
   @override
@@ -64,8 +63,7 @@ class RatingMapper implements LiteralTermMapper<Rating> {
       bypassDatatypeCheck: bypassDatatypeCheck,
     );
 
-    final retval = Rating(stars);
-    return retval;
+    return Rating(stars);
   }
 
   @override
@@ -107,8 +105,7 @@ class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
     );
     final String language = term.language!;
 
-    final retval = LocalizedText(text, language);
-    return retval;
+    return LocalizedText(text, language);
   }
 
   @override
@@ -152,8 +149,7 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
           true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
     );
 
-    final retval = LiteralDouble(foo: foo);
-    return retval;
+    return LiteralDouble(foo: foo);
   }
 
   @override
@@ -197,8 +193,7 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
           true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
     );
 
-    final retval = LiteralInteger(value: value);
-    return retval;
+    return LiteralInteger(value: value);
   }
 
   @override

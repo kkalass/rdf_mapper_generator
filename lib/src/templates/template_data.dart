@@ -247,6 +247,7 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
       'nonConstructorFields':
           toMustacheList(nonConstructorFields.map((p) => p.toMap()).toList()),
+      'hasNonConstructorFields': nonConstructorFields.isNotEmpty,
       'constructorParametersOrOtherFields': toMustacheList([
         ...constructorParameters,
         ...nonConstructorFields

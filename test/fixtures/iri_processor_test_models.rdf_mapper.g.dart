@@ -40,8 +40,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
 
     final isbn = iriParts['isbn']!;
 
-    final retval = IriWithOnePart(isbn: isbn);
-    return retval;
+    return IriWithOnePart(isbn: isbn);
   }
 
   @override
@@ -88,8 +87,7 @@ class IriWithOnePartExplicitlyGlobalMapper
 
     final isbn = iriParts['isbn']!;
 
-    final retval = IriWithOnePartExplicitlyGlobal(isbn: isbn);
-    return retval;
+    return IriWithOnePartExplicitlyGlobal(isbn: isbn);
   }
 
   @override
@@ -135,8 +133,7 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
 
     final value = iriParts['isbn']!;
 
-    final retval = IriWithOnePartNamed(value: value);
-    return retval;
+    return IriWithOnePartNamed(value: value);
   }
 
   @override
@@ -180,8 +177,7 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
     final value = iriParts['value']!;
     final type = iriParts['type']!;
 
-    final retval = IriWithTwoParts(value: value, type: type);
-    return retval;
+    return IriWithTwoParts(value: value, type: type);
   }
 
   @override
@@ -235,11 +231,7 @@ class IriWithBaseUriAndTwoPartsMapper
     final value = iriParts['value']!;
     final otherPart = iriParts['type']!;
 
-    final retval = IriWithBaseUriAndTwoParts(
-      value: value,
-      otherPart: otherPart,
-    );
-    return retval;
+    return IriWithBaseUriAndTwoParts(value: value, otherPart: otherPart);
   }
 
   @override
@@ -286,8 +278,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 
     final isbn = iriParts['isbn']!;
 
-    final retval = IriWithBaseUri(isbn: isbn);
-    return retval;
+    return IriWithBaseUri(isbn: isbn);
   }
 
   @override
@@ -338,8 +329,7 @@ class IriWithBaseUriNoGlobalMapper
 
     final isbn = iriParts['isbn']!;
 
-    final retval = IriWithBaseUriNoGlobal(isbn: isbn);
-    return retval;
+    return IriWithBaseUriNoGlobal(isbn: isbn);
   }
 
   @override

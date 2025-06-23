@@ -39,8 +39,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 
     final String title = reader.optional(schema.SchemaBook.name) ?? 'Untitled';
 
-    final retval = BookWithMapper(id: id, title: title);
-    return retval;
+    return BookWithMapper(id: id, title: title);
   }
 
   @override
@@ -82,8 +81,7 @@ class BookWithMapperInstanceMapper
     // Extract IRI parts
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
-    final retval = BookWithMapperInstance(id);
-    return retval;
+    return BookWithMapperInstance(id);
   }
 
   @override
@@ -123,8 +121,7 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
 
     final id = iriParts['id']!;
 
-    final retval = BookWithTemplate(id);
-    return retval;
+    return BookWithTemplate(id);
   }
 
   @override

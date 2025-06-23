@@ -39,8 +39,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final String title = reader.require(schema.SchemaBook.name);
     final String authorId = reader.require(schema.SchemaBook.author);
 
-    final retval = Book(isbn: isbn, title: title, authorId: authorId);
-    return retval;
+    return Book(isbn: isbn, title: title, authorId: authorId);
   }
 
   @override
@@ -109,8 +108,7 @@ class ClassWithEmptyIriStrategyMapper
 
     final iri = iriParts['iri']!;
 
-    final retval = ClassWithEmptyIriStrategy(iri: iri);
-    return retval;
+    return ClassWithEmptyIriStrategy(iri: iri);
   }
 
   @override
@@ -251,8 +249,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 
     final iri = iriParts['iri']!;
 
-    final retval = ClassWithEmptyIriStrategyNoRegisterGlobally(iri: iri);
-    return retval;
+    return ClassWithEmptyIriStrategyNoRegisterGlobally(iri: iri);
   }
 
   @override
@@ -319,8 +316,7 @@ class ClassWithIriTemplateStrategyMapper
 
     final id = iriParts['id']!;
 
-    final retval = ClassWithIriTemplateStrategy(id: id);
-    return retval;
+    return ClassWithIriTemplateStrategy(id: id);
   }
 
   @override
@@ -393,8 +389,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 
     final id = iriParts['thisId']!;
 
-    final retval = ClassWithIriTemplateAndContextVariableStrategy(id: id);
-    return retval;
+    return ClassWithIriTemplateAndContextVariableStrategy(id: id);
   }
 
   @override
@@ -467,8 +462,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
 
     final id = iriParts['thisId']!;
 
-    final retval = ClassWithOtherBaseUriNonGlobal(id: id);
-    return retval;
+    return ClassWithOtherBaseUriNonGlobal(id: id);
   }
 
   @override
@@ -533,8 +527,7 @@ class ClassWithIriNamedMapperStrategyMapper
   ) {
     // Extract IRI parts
 
-    final retval = ClassWithIriNamedMapperStrategy();
-    return retval;
+    return ClassWithIriNamedMapperStrategy();
   }
 
   @override
@@ -573,8 +566,7 @@ class ClassWithIriNamedMapperStrategy1PartMapper
     // Extract IRI parts
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
-    final retval = ClassWithIriNamedMapperStrategy1Part(id: id);
-    return retval;
+    return ClassWithIriNamedMapperStrategy1Part(id: id);
   }
 
   @override
@@ -613,11 +605,7 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
     // Extract IRI parts
     final (id, version) = _iriMapper.fromRdfTerm(subject, context);
 
-    final retval = ClassWithIriNamedMapperStrategy2Parts(
-      id: id,
-      version: version,
-    );
-    return retval;
+    return ClassWithIriNamedMapperStrategy2Parts(id: id, version: version);
   }
 
   @override
@@ -660,11 +648,10 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
     // Extract IRI parts
     final (version, id) = _iriMapper.fromRdfTerm(subject, context);
 
-    final retval = ClassWithIriNamedMapperStrategy2PartsSwapped(
+    return ClassWithIriNamedMapperStrategy2PartsSwapped(
       id: id,
       version: version,
     );
-    return retval;
   }
 
   @override
@@ -768,8 +755,7 @@ class ClassWithIriMapperStrategyMapper
   ) {
     // Extract IRI parts
 
-    final retval = ClassWithIriMapperStrategy();
-    return retval;
+    return ClassWithIriMapperStrategy();
   }
 
   @override
@@ -811,8 +797,7 @@ class ClassWithIriMapperInstanceStrategyMapper
 
     final String name = reader.require(schema.SchemaPerson.name);
 
-    final retval = ClassWithIriMapperInstanceStrategy(name: name);
-    return retval;
+    return ClassWithIriMapperInstanceStrategy(name: name);
   }
 
   @override
