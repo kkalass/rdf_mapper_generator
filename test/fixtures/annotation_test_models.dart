@@ -38,8 +38,7 @@ class BookWithMapper {
     include: true,
     includeDefaultsInSerialization: false,
     defaultValue: 'Untitled',
-    // FIXME: was iri: IriMapping('https://example.org/books/{id}/{title}'),
-    iri: IriMapping('https://example.org/books/{title}'),
+    iri: IriMapping('https://example.org/books/{id}/{title}'),
   )
   final String title;
 

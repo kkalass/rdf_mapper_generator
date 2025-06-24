@@ -709,6 +709,29 @@ class ParameterInfo {
   }
 }
 
+final class ProvidesInfo {
+  final String name;
+  final String dartPropertyName;
+
+  const ProvidesInfo({required this.name, required this.dartPropertyName});
+
+  @override
+  int get hashCode => Object.hash(name, dartPropertyName);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! ProvidesInfo) {
+      return false;
+    }
+    return name == other.name && dartPropertyName == other.dartPropertyName;
+  }
+
+  @override
+  String toString() {
+    return 'ProvidesInfo{name: $name, dartPropertyName: $dartPropertyName}';
+  }
+}
+
 /// Information about a field
 class FieldInfo {
   /// The name of the field
@@ -738,6 +761,8 @@ class FieldInfo {
   final bool isRdfValue;
   final bool isRdfLanguageTag;
 
+  final ProvidesInfo? provides;
+
   const FieldInfo({
     required this.name,
     required this.type,
@@ -747,6 +772,7 @@ class FieldInfo {
     required this.isSynthetic,
     required this.isRdfValue,
     required this.isRdfLanguageTag,
+    this.provides = null,
     this.propertyInfo,
     this.isRequired = false,
   });
@@ -762,7 +788,8 @@ class FieldInfo {
         propertyInfo,
         isRequired,
         isRdfValue,
-        isRdfLanguageTag
+        isRdfLanguageTag,
+        provides,
       ]);
 
   @override
@@ -779,7 +806,8 @@ class FieldInfo {
         propertyInfo == other.propertyInfo &&
         isRequired == other.isRequired &&
         isRdfValue == other.isRdfValue &&
-        isRdfLanguageTag == other.isRdfLanguageTag;
+        isRdfLanguageTag == other.isRdfLanguageTag &&
+        provides == other.provides;
   }
 
   @override
@@ -795,6 +823,7 @@ class FieldInfo {
         '  isRequired: $isRequired\n'
         '  isRdfValue: $isRdfValue,\n'
         '  isRdfLanguageTag: $isRdfLanguageTag\n'
+        '  provides: $provides\n'
         '}';
   }
 }

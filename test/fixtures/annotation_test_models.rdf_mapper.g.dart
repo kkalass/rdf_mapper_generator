@@ -19,14 +19,10 @@ import 'package:rdf_vocabularies/schema.dart';
 /// and RDF triples for resources of type BookWithMapper.
 class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   final IriTermMapper<(String id,)> _iriMapper;
-  final IriTermMapper<String> _titleMapper;
 
   /// Constructor
-  const BookWithMapperMapper({
-    required IriTermMapper<(String id,)> iriMapper,
-    IriTermMapper<String> titleMapper = const BookWithMapperTitleMapper(),
-  }) : _iriMapper = iriMapper,
-       _titleMapper = titleMapper;
+  const BookWithMapperMapper({required IriTermMapper<(String id,)> iriMapper})
+    : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -41,7 +37,13 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title =
-        reader.optional(SchemaBook.name, iriTermDeserializer: _titleMapper) ??
+        reader.optional(
+          SchemaBook.name,
+          iriTermDeserializer: BookWithMapperTitleMapper(
+            idProvider: () =>
+                throw Exception('Must not call provider for deserialization'),
+          ),
+        ) ??
         'Untitled';
 
     return BookWithMapper(id: id, title: title);
@@ -62,7 +64,9 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
           (b) => b.addValue(
             SchemaBook.name,
             resource.title,
-            iriTermSerializer: _titleMapper,
+            iriTermSerializer: BookWithMapperTitleMapper(
+              idProvider: () => resource.id,
+            ),
           ),
         )
         .build();
@@ -75,11 +79,15 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 /// and RDF terms for iri terms of type String.
 class BookWithMapperTitleMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^https://example\.org/books/(?<title>[^/]*)\$',
+    '^https://example\.org/books/(?<id>[^/]*)/(?<title>[^/]*)\$',
   );
 
-  /// Constructor
-  const BookWithMapperTitleMapper();
+  /// Provider for context variable 'id'
+  final String Function() _idProvider;
+
+  /// Constructor requiring providers for context variables
+  const BookWithMapperTitleMapper({required String Function() idProvider})
+    : _idProvider = idProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -104,7 +112,8 @@ class BookWithMapperTitleMapper implements IriTermMapper<String> {
     RdfSubject? parentSubject,
   }) {
     final title = iriTermValue.toString();
-    return IriTerm('https://example.org/books/${title}');
+    final id = _idProvider();
+    return IriTerm('https://example.org/books/${id}/${title}');
   }
 }
 

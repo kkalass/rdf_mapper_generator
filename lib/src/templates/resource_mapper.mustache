@@ -64,7 +64,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
     {{#value.isRdfProperty}}
-    final {{value.dartType}} {{value.name}} = reader.{{#value.useOptionalReader}}optional{{/value.useOptionalReader}}{{^value.useOptionalReader}}require{{/value.useOptionalReader}}({{value.predicate}}{{#value.hasMapper}}, {{value.mapperParameterDeserializer}}: {{value.mapperFieldName}}{{/value.hasMapper}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.dartType}} {{value.name}} = reader.{{#value.useOptionalReader}}optional{{/value.useOptionalReader}}{{^value.useOptionalReader}}require{{/value.useOptionalReader}}({{value.predicate}}{{#value.hasMapper}}, {{value.mapperParameterDeserializer}}: {{value.mapperDeserializerCode}}{{/value.hasMapper}}){{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/value.isRdfProperty}}
     {{/constructorParametersOrOtherFields}}
 
@@ -111,10 +111,10 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#isRdfProperty}}
     {{#include}}
     {{#useConditionalSerialization}}
-      .when(resource.{{propertyName}} != {{defaultValue}}, (b) => b.addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperFieldName}}{{/hasMapper}}))
+      .when(resource.{{propertyName}} != {{defaultValue}}, (b) => b.addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperSerializerCode}}{{/hasMapper}}))
     {{/useConditionalSerialization}}
     {{^useConditionalSerialization}}
-      .addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperFieldName}}{{/hasMapper}})
+      .addValue{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperSerializerCode}}{{/hasMapper}})
     {{/useConditionalSerialization}}
     {{/include}}
     {{/isRdfProperty}}

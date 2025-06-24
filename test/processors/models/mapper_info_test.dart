@@ -924,4 +924,27 @@ void main() {
       expect(result, contains('isRequired: true'));
     });
   });
+
+  group('ProvidesInfo', () {
+    test('equals and hashCode work correctly', () {
+      final instance1 = ProvidesInfo(
+        name: 'testProvides',
+        dartPropertyName: 'testProperty',
+      );
+
+      final instance2 = ProvidesInfo(
+        name: 'testProvides',
+        dartPropertyName: 'testProperty',
+      );
+
+      final differentInstance = ProvidesInfo(
+        name: 'differentProvides',
+        dartPropertyName: 'testProperty',
+      );
+
+      expect(instance1, equals(instance2));
+      expect(instance1.hashCode, equals(instance2.hashCode));
+      expect(instance1, isNot(equals(differentInstance)));
+    });
+  });
 }

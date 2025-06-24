@@ -110,5 +110,199 @@ void main() {
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(book.id));
     });
+
+    test('BookWithMapper successful mapping with valid title (no spaces)', () {
+      final book = BookWithMapper(
+        id: '123',
+        title: 'TestBook',
+      );
+
+      // Test serialization
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+      expect(graph.triples, isNotEmpty);
+
+      // Verify the generated IRI follows the pattern
+      final subject = graph.triples.first.subject as IriTerm;
+      expect(subject.iri, startsWith('https://example.org/books/'));
+      expect(subject.iri, contains('123'));
+
+      // Verify type triple exists
+      final typeTriples = graph.triples.where((t) =>
+          t.predicate ==
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'));
+      expect(typeTriples, isNotEmpty);
+      expect((typeTriples.first.object as IriTerm).iri,
+          equals('https://schema.org/Book'));
+
+      // Test deserialization
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(book.id));
+      expect(deserialized.title, equals(book.title));
+    });
+
+    test('BookWithMapper with default title value when not included', () {
+      final book = BookWithMapper(
+        id: '456',
+        title: 'Untitled', // This is the default value
+      );
+
+      // Test serialization - title should not be included due to default value
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+
+      // Verify no title property is serialized when it equals default
+      final titleTriples = graph.triples
+          .where((t) => t.predicate == IriTerm('https://schema.org/name'));
+      expect(titleTriples, isEmpty);
+
+      // Test deserialization - should get default value
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(book.id));
+      expect(deserialized.title, equals('Untitled'));
+    });
+
+    test('BookWithMapper with non-default title gets serialized', () {
+      final book = BookWithMapper(
+        id: '789',
+        title: 'CustomTitle',
+      );
+
+      // Test serialization
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+
+      // Verify title property is serialized
+      final titleTriples = graph.triples
+          .where((t) => t.predicate == IriTerm('https://schema.org/name'));
+      expect(titleTriples, isNotEmpty);
+
+      // Verify the IRI mapping for title property includes both id and title
+      final titleTriple = titleTriples.first;
+      final titleIri = (titleTriple.object as IriTerm).iri;
+      expect(titleIri, equals('https://example.org/books/789/CustomTitle'));
+
+      // Test deserialization
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(book.id));
+      expect(deserialized.title, equals(book.title));
+    });
+
+    test('BookWithMapper IRI mapping extraction during deserialization', () {
+      // Create a manual graph with custom IRI structure
+      final subject = IriTerm('https://example.org/books/test-id');
+      final titleIri = IriTerm('https://example.org/books/test-id/MyTitle');
+
+      final graph = RdfGraph.fromTriples([
+        Triple(
+          subject,
+          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          IriTerm('https://schema.org/Book'),
+        ),
+        Triple(
+          subject,
+          IriTerm('https://schema.org/name'),
+          titleIri,
+        ),
+      ]);
+
+      // Test deserialization
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals('test-id'));
+      expect(deserialized.title, equals('MyTitle'));
+    });
+
+    test('BookWithMapper handles special characters in ID correctly', () {
+      final book = BookWithMapper(
+        id: 'book-123_test',
+        title: 'SpecialBook',
+      );
+
+      // Test serialization
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+
+      // Verify IRI construction with special characters
+      final subject = graph.triples.first.subject as IriTerm;
+      expect(subject.iri, contains('book-123_test'));
+
+      // Test round-trip
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(book.id));
+      expect(deserialized.title, equals(book.title));
+    });
+
+    test('BookWithMapper global registration allows automatic mapping', () {
+      final book = BookWithMapper(
+        id: 'global-test',
+        title: 'GlobalBook',
+      );
+
+      // Since BookWithMapper has registerGlobally: true,
+      // it should work without manual registration
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(book.id));
+      expect(deserialized.title, equals(book.title));
+    });
+
+    test('BookWithMapper with empty ID still works', () {
+      final book = BookWithMapper(
+        id: '',
+        title: 'EmptyIdBook',
+      );
+
+      // Test serialization
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+
+      // Test round-trip
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals(''));
+      expect(deserialized.title, equals(book.title));
+    });
+
+    test('BookWithMapper with numeric-only ID works correctly', () {
+      final book = BookWithMapper(
+        id: '12345',
+        title: 'NumericIdBook',
+      );
+
+      // Test serialization
+      final graph = mapper.graph.encodeObject(book);
+      expect(graph, isNotNull);
+
+      // Verify the numeric ID is properly encoded in the IRI
+      final subject = graph.triples.first.subject as IriTerm;
+      expect(subject.iri, contains('12345'));
+
+      // Test round-trip
+      final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.id, equals('12345'));
+      expect(deserialized.title, equals(book.title));
+    });
+
+    test(
+        'BookWithMapper validates IRI constraint on title during serialization',
+        () {
+      final book = BookWithMapper(
+        id: 'test',
+        title: 'Title With Spaces', // This violates IRI constraints
+      );
+
+      // Should throw RdfConstraintViolationException due to spaces in title
+      expect(() => mapper.graph.encodeObject(book),
+          throwsA(isA<RdfConstraintViolationException>()));
+    });
   });
 }

@@ -230,7 +230,8 @@ List<FieldInfo> extractFields(
     final isRdfValue = getAnnotation(field.metadata2, 'RdfValue') != null;
     final isRdfLanguageTag =
         getAnnotation(field.metadata2, 'RdfLanguageTag') != null;
-
+    final providesAnnotation = getAnnotation(field.metadata2, 'RdfProvides');
+    final providesName = providesAnnotation?.getField('name')?.toStringValue();
     fields.add(FieldInfo(
       name: field.name3!,
       type: typeToCode(field.type),
@@ -242,6 +243,12 @@ List<FieldInfo> extractFields(
       isRequired: propertyInfo?.isRequired ?? !isNullable,
       isRdfLanguageTag: isRdfLanguageTag,
       isRdfValue: isRdfValue,
+      provides: providesAnnotation != null
+          ? ProvidesInfo(
+              name: providesName ?? field.name3!,
+              dartPropertyName: field.name3!,
+            )
+          : null,
     ));
   }
 

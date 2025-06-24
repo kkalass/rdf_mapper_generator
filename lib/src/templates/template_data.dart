@@ -628,6 +628,8 @@ class ParameterData {
   final bool hasDefaultValue;
   final bool isRdfValue;
   final bool isRdfLanguageTag;
+  final Code? mapperSerializerCode;
+  final Code? mapperDeserializerCode;
   final String? mapperFieldName;
   final String? mapperParameterSerializer;
   final String? mapperParameterDeserializer;
@@ -649,6 +651,8 @@ class ParameterData {
     required this.mapperFieldName,
     required this.mapperParameterSerializer,
     required this.mapperParameterDeserializer,
+    required this.mapperSerializerCode,
+    required this.mapperDeserializerCode,
   });
 
   Map<String, dynamic> toMap() => {
@@ -670,6 +674,8 @@ class ParameterData {
         'hasMapper': mapperFieldName != null,
         'mapperFieldName': mapperFieldName,
         'mapperParameterSerializer': mapperParameterSerializer,
+        'mapperSerializerCode': mapperSerializerCode?.toMap(),
+        'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
         'mapperParameterDeserializer': mapperParameterDeserializer,
       };
 }
@@ -688,6 +694,8 @@ class PropertyData {
   final String? mapperFieldName;
   final String? mapperParameterSerializer;
   final String? mapperParameterDeserializer;
+  final Code? mapperSerializerCode;
+  final Code? mapperDeserializerCode;
 
   const PropertyData({
     required this.propertyName,
@@ -702,6 +710,8 @@ class PropertyData {
     required this.mapperFieldName,
     required this.mapperParameterSerializer,
     required this.mapperParameterDeserializer,
+    required this.mapperSerializerCode,
+    required this.mapperDeserializerCode,
   });
 
   Map<String, dynamic> toMap() => {
@@ -721,5 +731,7 @@ class PropertyData {
         'mapperParameterSerializer': mapperParameterSerializer,
         'mapperParameterDeserializer': mapperParameterDeserializer,
         'hasMapper': mapperFieldName != null,
+        'mapperSerializerCode': mapperSerializerCode?.toMap(),
+        'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
       };
 }

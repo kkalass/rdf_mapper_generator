@@ -141,14 +141,19 @@ class DataBuilder {
     final contextProviders = _buildContextProvidersForResource(resourceInfo);
 
     // Build constructor parameters
-    final resourceConstructorParameters =
-        _buildConstructorParameters(resourceInfo.constructors);
+    final resourceConstructorParameters = _buildConstructorParameters(className,
+        resourceInfo.constructors, resourceInfo.fields, mapperImportUri);
     final nonConstructorFields = _buildNonConstructorFields(
-            resourceConstructorParameters, resourceInfo.fields, iriStrategy)
+            className,
+            resourceConstructorParameters,
+            resourceInfo.fields,
+            iriStrategy,
+            mapperImportUri)
         .where((p) => p.isIriPart || p.isRdfProperty)
         .toList();
 
-    final properties = _buildPropertyData(resourceInfo.fields);
+    final properties =
+        _buildPropertyData(className, resourceInfo.fields, mapperImportUri);
     final mapperConstructorParameters = buildMapperConstructorParameters(
         iriStrategy, contextProviders, resourceInfo, mapperImportUri);
 
@@ -183,17 +188,18 @@ class DataBuilder {
           templateInfo: templateInfo,
           iriParts: templateInfo.iriParts,
           mapperClassName:
-              buildPropertyMapperName(className, f, mapperImportUri),
-          registerGlobally: false /* local to the resource mapper */
-          );
+              buildPropertyMapperName(className, f.name, mapperImportUri),
+          registerGlobally: false,
+          /* local to the resource mapper */
+          mapperImportUri: mapperImportUri);
     });
     return [resourceMapper, ...propertyMappers];
   }
 
   static Code buildPropertyMapperName(
-      Code className, FieldInfo f, String mapperImportUri) {
+      Code className, String fieldName, String mapperImportUri) {
     return Code.type(
-        '${className.codeWithoutAlias}${_capitalizeFirstLetter(f.name)}Mapper',
+        '${className.codeWithoutAlias}${_capitalizeFirstLetter(fieldName)}Mapper',
         importUri: mapperImportUri);
   }
 
@@ -207,6 +213,7 @@ class DataBuilder {
       List<ContextProviderData> contextProviders,
       ResourceInfo resourceInfo,
       String mapperImportUri) {
+    final provides = collectProvidesVariableNames(resourceInfo.fields);
     final List<ConstructorParameterData> mapperConstructorParameters = [
       if (iriStrategy?.hasMapper ?? false)
         ConstructorParameterData(
@@ -237,8 +244,13 @@ class DataBuilder {
           if (iriMapper != null)
             mappingToConstructorParameter(f, iriMapper, 'IriTermMapper'),
           if (iri != null && iri.template != null)
-            _propertyIriTemplateMapperConstructorParameter(f, 'IriTermMapper',
-                resourceInfo.className, mapperImportUri, iri.template!),
+            ..._propertyIriTemplateMapperConstructorParameter(
+                f,
+                'IriTermMapper',
+                resourceInfo.className,
+                mapperImportUri,
+                iri.template!,
+                provides),
           if (literalMapper != null)
             mappingToConstructorParameter(
                 f, literalMapper, 'LiteralTermMapper'),
@@ -267,19 +279,24 @@ class DataBuilder {
             : null);
   }
 
-  static ConstructorParameterData
+  static List<ConstructorParameterData>
       _propertyIriTemplateMapperConstructorParameter(
           FieldInfo f,
           String mapperInterface,
           Code className,
           String mapperImportUri,
-          IriTemplateInfo iriTemplateInfo) {
+          IriTemplateInfo iriTemplateInfo,
+          Set<String> provides) {
     final isLate = iriTemplateInfo.contextVariables.isNotEmpty;
+    final isOnDemand =
+        iriTemplateInfo.contextVariables.any((v) => provides.contains(v));
+    if (isOnDemand) {
+      return const [];
+    }
     final generatedMapperName =
-        buildPropertyMapperName(className, f, mapperImportUri);
-    Code defaultValue = Code.combine(
-        [Code.literal('const '), generatedMapperName, Code.literal('()')]);
-    if (isLate) {
+        buildPropertyMapperName(className, f.name, mapperImportUri);
+    Code? defaultValue = null;
+    if (isLate && !isOnDemand) {
       // default value actually needs to be set to the constructor
       // call of the mapper
       defaultValue = Code.combine([
@@ -289,15 +306,19 @@ class DataBuilder {
             .map((name) => Code.literal('${name}Provider: ${name}Provider')),
         Code.literal(')')
       ]);
+    } else {
+      defaultValue = Code.combine(
+          [Code.literal('const '), generatedMapperName, Code.literal('()')]);
     }
-    return ConstructorParameterData(
-        fieldName: _buildMapperFieldName(f.name),
-        parameterName: f.name + 'Mapper',
-        type: _buildMapperInterfaceType(
-            Code.type(mapperInterface, importUri: importRdfMapper), f.type),
-        // FIXME: handle context variables
-        isLate: isLate,
-        defaultValue: defaultValue);
+    return [
+      ConstructorParameterData(
+          fieldName: _buildMapperFieldName(f.name),
+          parameterName: f.name + 'Mapper',
+          type: _buildMapperInterfaceType(
+              Code.type(mapperInterface, importUri: importRdfMapper), f.type),
+          isLate: isLate,
+          defaultValue: defaultValue)
+    ];
   }
 
   static String _buildMapperFieldName(String fieldName) =>
@@ -324,12 +345,12 @@ class DataBuilder {
         fromLiteralTermMethod != null || toLiteralTermMethod != null;
 
     // Build constructor parameters
-    final constructorParameters =
-        _buildConstructorParameters(resourceInfo.constructors);
+    final constructorParameters = _buildConstructorParameters(className,
+        resourceInfo.constructors, resourceInfo.fields, mapperImportUri);
 
     // Collect non-constructor fields that are RDF value or language tag fields
-    final allNonConstructorFields = _buildNonConstructorFields(
-        constructorParameters, resourceInfo.fields, null);
+    final allNonConstructorFields = _buildNonConstructorFields(className,
+        constructorParameters, resourceInfo.fields, null, mapperImportUri);
     final nonConstructorFields = allNonConstructorFields
         .where((field) => field.isRdfValue || field.isRdfLanguageTag)
         .toList();
@@ -353,7 +374,8 @@ class DataBuilder {
     final rdfLanguageTagParameter =
         allRdfFields.where((p) => p.isRdfLanguageTag).singleOrNull;
 
-    final properties = _buildPropertyData(resourceInfo.fields);
+    final properties =
+        _buildPropertyData(className, resourceInfo.fields, mapperImportUri);
 
     return [
       LiteralMapperTemplateData(
@@ -394,7 +416,8 @@ class DataBuilder {
             importUri: mapperImportUri),
         constructors: iriInfo.constructors,
         fields: iriInfo.fields,
-        registerGlobally: annotation.registerGlobally);
+        registerGlobally: annotation.registerGlobally,
+        mapperImportUri: mapperImportUri);
   }
 
   static List<MappableClassMapperTemplateData> _buildIriMapper(
@@ -404,7 +427,8 @@ class DataBuilder {
       required Code mapperClassName,
       List<ConstructorInfo> constructors = const [],
       List<FieldInfo> fields = const [],
-      bool registerGlobally = false}) {
+      bool registerGlobally = false,
+      required String mapperImportUri}) {
     final mapperInterfaceName =
         Code.type('IriTermMapper', importUri: importRdfMapper);
 
@@ -425,13 +449,14 @@ class DataBuilder {
     final contextProviders = _buildContextProvidersForIriTemplate(templateInfo);
 
     // Build constructor parameters
-    final constructorParameters = _buildConstructorParameters(constructors);
+    final constructorParameters = _buildConstructorParameters(
+        className, constructors, fields, mapperImportUri);
 
     // Build non-constructor fields that are IRI parts
-    final nonConstructorFields =
-        _buildNonConstructorFields(constructorParameters, fields, iriData)
-            .where((p) => p.isIriPart)
-            .toList();
+    final nonConstructorFields = _buildNonConstructorFields(
+            className, constructorParameters, fields, iriData, mapperImportUri)
+        .where((p) => p.isIriPart)
+        .toList();
 
     // Check that all constructor parameters and non-constructor fields are IRI parts
     final allConstructorParams =
@@ -442,7 +467,7 @@ class DataBuilder {
       );
     }
 
-    final properties = _buildPropertyData(fields);
+    final properties = _buildPropertyData(className, fields, mapperImportUri);
     final singleMappedValue = templateInfo.propertyVariables
         .where((v) => v.isMappedValue)
         .map((v) => VariableNameData(
@@ -467,13 +492,20 @@ class DataBuilder {
     ];
   }
 
-  static List<PropertyData> _buildPropertyData(List<FieldInfo> fields) {
+  static List<PropertyData> _buildPropertyData(
+      Code className, List<FieldInfo> fields, String mapperImportUri) {
+    final provides = collectProvidesByVariableNames(fields);
     return fields.where((p) => p.propertyInfo != null).map((p) {
       final (
         mapperFieldName,
+        mapperSerializerCode,
+        mapperDeserializerCode,
         mapperParameterSerializer,
         mapperParameterDeserializer
-      ) = _extractPropertyMapperInfos(p.name, p.propertyInfo);
+      ) = _extractPropertyMapperInfos(
+          className, p.name, p.propertyInfo, provides, mapperImportUri);
+      final mapperFieldNameCode =
+          mapperFieldName == null ? null : Code.literal(mapperFieldName);
       return PropertyData(
         isRdfProperty: p.propertyInfo != null,
         isRequired: p.isRequired,
@@ -488,6 +520,8 @@ class DataBuilder {
         mapperFieldName: mapperFieldName,
         mapperParameterSerializer: mapperParameterSerializer,
         mapperParameterDeserializer: mapperParameterDeserializer,
+        mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
+        mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
       );
     }).toList();
   }
@@ -630,6 +664,7 @@ class DataBuilder {
 
   static List<ContextProviderData> _buildContextProvidersForResource(
       ResourceInfo resourceInfo) {
+    final provides = collectProvidesVariableNames(resourceInfo.fields);
     final annotation = resourceInfo.annotation;
     return [
       if (annotation is RdfGlobalResourceInfo)
@@ -637,6 +672,8 @@ class DataBuilder {
       ...resourceInfo.fields.expand((f) =>
           ((f.propertyInfo?.annotation.iri?.template?.contextVariableNames) ??
                   const <VariableName>{})
+              // no context provider needed if we provide the value directly
+              .where((variable) => !provides.contains(variable.name))
               .map((variable) {
             final d = _buildVariableNameData(
                 variable, f.type == _stringType /* is string */);
@@ -650,6 +687,17 @@ class DataBuilder {
           })),
     ];
   }
+
+  static Set<String> collectProvidesVariableNames(List<FieldInfo> fields) =>
+      fields.map((f) => f.provides?.name).nonNulls.toSet();
+
+  static Map<String, ProvidesInfo> collectProvidesByVariableNames(
+          List<FieldInfo> fields) =>
+      {
+        for (final p in fields
+            .expand((f) => f.provides == null ? const [] : [f.provides!]))
+          p.name: p
+      };
 
   /// Builds context provider data for context variables.
   static List<ContextProviderData> _buildContextProvidersForIriTemplate(
@@ -669,16 +717,18 @@ class DataBuilder {
 
   /// Builds constructor parameter data for the template.
   static Iterable<ParameterData> _buildNonConstructorFields(
+      Code className,
       List<ParameterData> constructorParameters,
       List<FieldInfo> fields,
-      IriData? iriStrategy) {
+      IriData? iriStrategy,
+      String mapperImportUri) {
     final constructorParameterNames =
         constructorParameters.map((p) => p.name).toSet();
     final iriPartNameByPropertyName = {
       for (var pv in (iriStrategy?.iriMapperParts ?? <IriPartData>[]))
         pv.dartPropertyName: pv.name
     };
-
+    final provides = collectProvidesByVariableNames(fields);
     return fields
         .where((f) => !constructorParameterNames.contains(f.name))
         .map((field) {
@@ -687,9 +737,14 @@ class DataBuilder {
       final iriPartName = iriPartNameByPropertyName[field.name];
       final (
         mapperFieldName,
+        mapperSerializerCode,
+        mapperDeserializerCode,
         mapperParameterSerializer,
         mapperParameterDeserializer
-      ) = _extractPropertyMapperInfos(field.name, field.propertyInfo);
+      ) = _extractPropertyMapperInfos(
+          className, field.name, field.propertyInfo, provides, mapperImportUri);
+      final mapperFieldNameAsCode =
+          mapperFieldName == null ? null : Code.literal(mapperFieldName);
       return ParameterData(
         name: field.name,
         dartType: field.type,
@@ -707,12 +762,18 @@ class DataBuilder {
         mapperFieldName: mapperFieldName,
         mapperParameterSerializer: mapperParameterSerializer,
         mapperParameterDeserializer: mapperParameterDeserializer,
+        mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameAsCode,
+        mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameAsCode,
       );
     });
   }
 
   static List<ParameterData> _buildConstructorParameters(
-      List<ConstructorInfo> constructors) {
+      Code className,
+      List<ConstructorInfo> constructors,
+      List<FieldInfo> fields,
+      String mapperImportUri) {
+    final provides = collectProvidesByVariableNames(fields);
     final parameters = <ParameterData>[];
     if (constructors.isEmpty) {
       return parameters; // No constructors, return empty list
@@ -727,10 +788,14 @@ class DataBuilder {
     for (final param in defaultConstructor.parameters) {
       final (
         mapperFieldName,
+        mapperSerializerCode,
+        mapperDeserializerCode,
         mapperParameterSerializer,
         mapperParameterDeserializer
-      ) = _extractPropertyMapperInfos(param.name, param.propertyInfo);
-
+      ) = _extractPropertyMapperInfos(
+          className, param.name, param.propertyInfo, provides, mapperImportUri);
+      final mapperFieldNameAsCode =
+          mapperFieldName == null ? null : Code.literal(mapperFieldName);
       parameters.add(
         ParameterData(
           name: param.name,
@@ -752,6 +817,9 @@ class DataBuilder {
           mapperFieldName: mapperFieldName,
           mapperParameterSerializer: mapperParameterSerializer,
           mapperParameterDeserializer: mapperParameterDeserializer,
+          mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameAsCode,
+          mapperDeserializerCode:
+              mapperDeserializerCode ?? mapperFieldNameAsCode,
         ),
       );
     }
@@ -761,9 +829,13 @@ class DataBuilder {
 
   static const (
     String? mapperFieldName,
+    Code? mapperSerializerCode,
+    Code? mapperDeserializerCode,
     String? mapperParameterSerializer,
     String? mapperParameterDeserializer
   ) noMapperInfos = (
+    null,
+    null,
     null,
     null,
     null,
@@ -771,13 +843,32 @@ class DataBuilder {
 
   static (
     String? mapperFieldName,
+    Code? mapperSerializerCode,
+    Code? mapperDeserializerCode,
     String? mapperParameterSerializer,
     String? mapperParameterDeserializer
-  ) _extractPropertyMapperInfos(String fieldName, PropertyInfo? propertyInfo) {
+  ) _extractPropertyMapperInfos(
+      Code className,
+      String fieldName,
+      PropertyInfo? propertyInfo,
+      Map<String, ProvidesInfo> providesByVariableNames,
+      String mapperImportUri) {
     final iri = propertyInfo?.annotation.iri;
     if (iri != null) {
+      final template = iri.template;
+      final iriMapperFieldName = _buildMapperFieldName(fieldName);
+      final generatedMapperName =
+          buildPropertyMapperName(className, fieldName, mapperImportUri);
       return (
-        _buildMapperFieldName(fieldName),
+        iriMapperFieldName,
+        template == null
+            ? null
+            : buildIriMapperSerializerCode(generatedMapperName, template,
+                iriMapperFieldName, providesByVariableNames),
+        template == null
+            ? null
+            : buildIriMapperDeserializerCode(generatedMapperName, template,
+                iriMapperFieldName, providesByVariableNames),
         'iriTermSerializer',
         'iriTermDeserializer'
       );
@@ -786,6 +877,8 @@ class DataBuilder {
     if (literal != null && literal.mapper != null) {
       return (
         _buildMapperFieldName(fieldName),
+        null,
+        null,
         'literalTermSerializer',
         'literalTermDeserializer'
       );
@@ -794,6 +887,8 @@ class DataBuilder {
     if (globalResource != null && globalResource.mapper != null) {
       return (
         _buildMapperFieldName(fieldName),
+        null,
+        null,
         'resourceSerializer',
         'globalResourceDeserializer'
       );
@@ -802,10 +897,76 @@ class DataBuilder {
     if (localResource != null && localResource.mapper != null) {
       return (
         _buildMapperFieldName(fieldName),
+        null,
+        null,
         'resourceSerializer',
         'localResourceDeserializer'
       );
     }
     return noMapperInfos;
+  }
+
+  static buildIriMapperDeserializerCode(
+      Code generatedMapperConstructorName,
+      IriTemplateInfo iri,
+      String iriMapperFieldName,
+      Map<String, ProvidesInfo> providesByVariableNames) {
+    if (iri.contextVariables.isEmpty) {
+      // No context variables at all, the mapper will be initialized as a field.
+      return Code.literal(iriMapperFieldName);
+    }
+    final hasProvides =
+        iri.contextVariables.any((v) => providesByVariableNames.containsKey(v));
+    if (!hasProvides) {
+      // All context variables will be injected, the mapper will be initialized as a field.
+      return Code.literal(iriMapperFieldName);
+    }
+    // we will need to build our own initialization code
+    return Code.combine([
+      generatedMapperConstructorName,
+      Code.literal('('),
+      ...iri.contextVariables.map((v) {
+        final provides = providesByVariableNames[v];
+        if (provides == null) {
+          // context variable is not provided, so it will be injected as a field
+          return Code.literal('${v}Provider: _${v}Provider');
+        }
+        return Code.literal(
+            "${v}Provider: () => throw Exception('Must not call provider for deserialization')");
+      }),
+      Code.literal(')')
+    ]);
+  }
+
+  static buildIriMapperSerializerCode(
+      Code generatedMapperConstructorName,
+      IriTemplateInfo iri,
+      String iriMapperFieldName,
+      Map<String, ProvidesInfo> providesByVariableNames) {
+    if (iri.contextVariables.isEmpty) {
+      // No context variables at all, the mapper will be initialized as a field.
+      return Code.literal(iriMapperFieldName);
+    }
+    final hasProvides =
+        iri.contextVariables.any((v) => providesByVariableNames.containsKey(v));
+    if (!hasProvides) {
+      // All context variables will be injected, the mapper will be initialized as a field.
+      return Code.literal(iriMapperFieldName);
+    }
+    // we will need to build our own initialization code
+    return Code.combine([
+      generatedMapperConstructorName,
+      Code.literal('('),
+      ...iri.contextVariables.map((v) {
+        final provides = providesByVariableNames[v];
+        if (provides == null) {
+          // context variable is not provided, so it will be injected as a field
+          return Code.literal('${v}Provider: _${v}Provider');
+        }
+        return Code.literal(
+            '${v}Provider: () => resource.${provides.dartPropertyName}');
+      }),
+      Code.literal(')')
+    ]);
   }
 }
