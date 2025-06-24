@@ -664,6 +664,33 @@ books:singleton a schema:Book .
           reason:
               'Should be able to deserialize explicit template as simple syntax');
     });
+
+    test(
+        'SimpleCustomPropertyTest - global resource with custom IRI and IRI part',
+        () {
+      // Create instance with IRI part that will be used in global resource IRI
+      final testInstance = SimpleCustomPropertyTest(name: 'test-book');
+
+      // Test serialization - should create global resource with IRI strategy
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+
+      // Should contain the expected IRI pattern with the name as IRI part
+      expect(serialized, contains('books:test-book'),
+          reason:
+              'Should use IRI strategy with name as IRI part in prefixed form');
+
+      // Should contain the custom property predicate
+      expect(serialized, contains('<http://example.org/types/Book/name>'),
+          reason: 'Should use custom property predicate IRI');
+
+      // Test round-trip serialization/deserialization
+      final deserialized =
+          mapper.decodeObject<SimpleCustomPropertyTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.name, equals(testInstance.name),
+          reason: 'Name should be preserved through round-trip');
+    });
   });
 }
 

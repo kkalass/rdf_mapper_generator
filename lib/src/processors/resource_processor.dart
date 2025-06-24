@@ -16,9 +16,9 @@ class ResourceProcessor {
   static ResourceInfo? processClass(
       ValidationContext context, ClassElement2 classElement) {
     final globalResourceAnnotation =
-        getAnnotation(classElement.metadata2, 'RdfGlobalResource');
+        getAnnotation(classElement.metadata2.annotations, 'RdfGlobalResource');
     final localResourceAnnotation =
-        getAnnotation(classElement.metadata2, 'RdfLocalResource');
+        getAnnotation(classElement.metadata2.annotations, 'RdfLocalResource');
     final className = classToCode(classElement);
 
     // Create the RdfGlobalResource instance from the annotation

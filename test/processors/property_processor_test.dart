@@ -976,5 +976,29 @@ void main() {
       expect(result.annotation.iri!.template!.iriParts, hasLength(1));
       expect(result.annotation.iri!.template!.iriParts.first.name, 'authorIri');
     });
+
+    test(
+        'should process simple custom property with global resource and IRI part',
+        () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('SimpleCustomPropertyTest')!
+          .getField2('name');
+      expect(field, isNotNull,
+          reason: 'Field "name" not found in SimpleCustomPropertyTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'name');
+      expect(result.annotation.predicate.value.iri,
+          equals('http://example.org/types/Book/name'));
+      expect(result.annotation.include, isTrue);
+      expect(result.annotation.includeDefaultsInSerialization, isFalse);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+    });
   });
 }

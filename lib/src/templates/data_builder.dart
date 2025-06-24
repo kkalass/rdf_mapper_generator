@@ -176,7 +176,7 @@ class DataBuilder {
       var pi = f.propertyInfo;
       if (pi == null) return const [];
       final iri = pi.annotation.iri;
-      if (iri != null && iri.template != null) {
+      if (iri != null && iri.template != null && !iri.isFullIriTemplate) {
         final templateInfo = iri.template!;
 
         if (!templateInfo.propertyVariables.any((v) => v.name == f.name)) {
@@ -312,14 +312,14 @@ class DataBuilder {
     final generatedMapperName =
         buildPropertyMapperName(className, f.name, mapperImportUri);
     Code? defaultValue = null;
-    if (isLate && !isOnDemand) {
+    if (isLate) {
       // default value actually needs to be set to the constructor
       // call of the mapper
       defaultValue = Code.combine([
         generatedMapperName,
         Code.literal('('),
         ...iriTemplateInfo.contextVariables
-            .map((name) => Code.literal('${name}Provider: ${name}Provider')),
+            .map((name) => Code.literal('${name}Provider: ${name}Provider, ')),
         Code.literal(')')
       ]);
     } else {
@@ -685,22 +685,32 @@ class DataBuilder {
     return [
       if (annotation is RdfGlobalResourceInfo)
         ..._buildContextProvidersForIriTemplate(annotation.iri?.templateInfo),
-      ...resourceInfo.fields.expand((f) =>
-          ((f.propertyInfo?.annotation.iri?.template?.contextVariableNames) ??
-                  const <VariableName>{})
-              // no context provider needed if we provide the value directly
-              .where((variable) => !provides.contains(variable.name))
-              .map((variable) {
-            final d = _buildVariableNameData(
-                variable, f.type == _stringType /* is string */);
-            return ContextProviderData(
-              variableName: d.variableName,
-              privateFieldName: '_${d.variableName}Provider',
-              parameterName: '${d.variableName}Provider',
-              placeholder: d.placeholder,
-              isField: false,
-            );
-          })),
+      ...resourceInfo.fields.expand((f) {
+        var iri = f.propertyInfo?.annotation.iri;
+        if (iri == null ||
+            iri.template == null ||
+            iri.template!.contextVariableNames.isEmpty) {
+          return const [];
+        }
+        var contextVariableNames = iri.template!.contextVariableNames;
+        var isOnDemand =
+            contextVariableNames.any((v) => provides.contains(v.name));
+        return contextVariableNames
+            // no context provider needed if we provide the value directly
+            .where((variable) => !provides.contains(variable.name))
+            .map((variable) {
+          final d = _buildVariableNameData(
+              variable, f.type == _stringType /* is string */);
+          return ContextProviderData(
+            variableName: d.variableName,
+            privateFieldName: '_${d.variableName}Provider',
+            parameterName: '${d.variableName}Provider',
+            placeholder: d.placeholder,
+            isField:
+                isOnDemand /* context providers need to be available as fields if the mappers are instantiated on demand */,
+          );
+        });
+      }),
     ];
   }
 
@@ -945,10 +955,10 @@ class DataBuilder {
         final provides = providesByVariableNames[v];
         if (provides == null) {
           // context variable is not provided, so it will be injected as a field
-          return Code.literal('${v}Provider: _${v}Provider');
+          return Code.literal('${v}Provider: _${v}Provider, ');
         }
         return Code.literal(
-            "${v}Provider: () => throw Exception('Must not call provider for deserialization')");
+            "${v}Provider: () => throw Exception('Must not call provider for deserialization'), ");
       }),
       Code.literal(')')
     ]);
@@ -977,10 +987,10 @@ class DataBuilder {
         final provides = providesByVariableNames[v];
         if (provides == null) {
           // context variable is not provided, so it will be injected as a field
-          return Code.literal('${v}Provider: _${v}Provider');
+          return Code.literal('${v}Provider: _${v}Provider, ');
         }
         return Code.literal(
-            '${v}Provider: () => resource.${provides.dartPropertyName}');
+            '${v}Provider: () => resource.${provides.dartPropertyName}, ');
       }),
       Code.literal(')')
     ]);

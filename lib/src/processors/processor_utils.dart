@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:analyzer/dart/element/type_system.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
@@ -40,11 +41,12 @@ class IriTermInfo {
       'value: $value)';
 }
 
-DartObject? getAnnotation(Metadata metadata2, String annotationName) {
+DartObject? getAnnotation(
+    Iterable<ElementAnnotation> annotations, String annotationName) {
   try {
     // Get metadata from the class element
     ;
-    for (final elementAnnotation in metadata2.annotations) {
+    for (final elementAnnotation in annotations) {
       try {
         final annotation = elementAnnotation.computeConstantValue();
         if (annotation != null) {
@@ -216,41 +218,117 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
 
 List<FieldInfo> extractFields(
     ValidationContext context, ClassElement2 classElement) {
-  final fields = <FieldInfo>[];
   final typeSystem = classElement.library2.typeSystem;
+  final gettersByName = {for (var g in classElement.getters2) g.name3!: g};
+  final settersByName = {for (var g in classElement.setters2) g.name3!: g};
+  final gettersOrSettersNames = {
+    ...gettersByName.keys,
+    ...settersByName.keys,
+  };
+  final fieldNames = classElement.fields2
+      .where((f) => !f.isStatic)
+      .map((f) => f.name3!)
+      .toSet();
+  print('Processing fields for class: ${classElement.name3}');
+  final virtualFields = gettersOrSettersNames
+      .where((name) => !fieldNames.contains(name))
+      .map((name) {
+    final getter = gettersByName[name];
+    final setter = settersByName[name];
+    if (getter == null && setter == null) {
+      // If neither getter nor setter exists, we skip it
+      return null;
+    }
 
-  for (final field in classElement.fields2) {
-    if (field.isStatic) continue;
+    // FIXME: do we need postprocessing, if we have a RdfProperty annotation for example and automatically set include?
+    // If only getter exists, we treat it as a field
+    return fieldToFieldInfo(
+      context,
+      typeSystem: typeSystem,
+      name: name,
+      type: (getter?.type ?? setter?.type)!,
+      isFinal: false,
+      isLate: false,
+      isSynthetic: false,
+      annotations: [
+        ...(getter?.metadata2.annotations ?? const <ElementAnnotation>[]),
+        ...(setter?.metadata2.annotations ?? const <ElementAnnotation>[])
+      ],
+      isStatic: getter == null
+          ? setter!.isStatic
+          : (setter == null
+              ? getter.isStatic
+              : getter.isStatic && setter.isStatic),
+    );
+  }).nonNulls;
+  final fields = classElement.fields2.where((f) => !f.isStatic).map((f) {
+    final getter = gettersByName[f.name3!];
+    final setter = settersByName[f.name3!];
 
-    final propertyInfo = PropertyProcessor.processField(context, field);
-    final isNullable = field.type.isDartCoreNull ||
-        (field.type is InterfaceType &&
-            (field.type as InterfaceType).isDartCoreNull) ||
-        typeSystem.isNullable(field.type);
-    final isRdfValue = getAnnotation(field.metadata2, 'RdfValue') != null;
-    final isRdfLanguageTag =
-        getAnnotation(field.metadata2, 'RdfLanguageTag') != null;
-    final providesAnnotation = getAnnotation(field.metadata2, 'RdfProvides');
-    final providesName = providesAnnotation?.getField('name')?.toStringValue();
-    fields.add(FieldInfo(
-      name: field.name3!,
-      type: typeToCode(field.type),
-      isFinal: field.isFinal,
-      isLate: field.isLate,
-      isStatic: field.isStatic,
-      isSynthetic: field.isSynthetic,
-      propertyInfo: propertyInfo,
-      isRequired: propertyInfo?.isRequired ?? !isNullable,
-      isRdfLanguageTag: isRdfLanguageTag,
-      isRdfValue: isRdfValue,
-      provides: providesAnnotation != null
-          ? ProvidesInfo(
-              name: providesName ?? field.name3!,
-              dartPropertyName: field.name3!,
-            )
-          : null,
-    ));
-  }
+    return fieldToFieldInfo(context,
+        typeSystem: typeSystem,
+        name: f.name3!,
+        type: f.type,
+        isFinal: f.isFinal,
+        isLate: f.isLate,
+        isSynthetic: f.isSynthetic,
+        annotations: [
+          ...f.metadata2.annotations,
+          // Sometimes getters/setters are detected as fields, but strangely they have no metadata
+          // so we add metadata from getter/setter if exists
+          ...(getter?.metadata2.annotations ?? const <ElementAnnotation>[]),
+          ...(setter?.metadata2.annotations ?? const <ElementAnnotation>[])
+        ],
+        isStatic: f.isStatic);
+  });
+  return [
+    ...virtualFields,
+    ...fields,
+  ];
+}
 
-  return fields;
+FieldInfo fieldToFieldInfo(ValidationContext context,
+    {required TypeSystem typeSystem,
+    required String name,
+    required DartType type,
+    required Iterable<ElementAnnotation> annotations,
+    required bool isStatic,
+    required bool isFinal,
+    required bool isLate,
+    required bool isSynthetic}) {
+  final propertyInfo = PropertyProcessor.processFieldAlike(context,
+      type: type,
+      typeSystem: typeSystem,
+      name: name,
+      annotations: annotations,
+      isStatic: isStatic,
+      isFinal: isFinal,
+      isLate: isLate,
+      isSynthetic: isSynthetic);
+  final isNullable = type.isDartCoreNull ||
+      (type is InterfaceType && type.isDartCoreNull) ||
+      typeSystem.isNullable(type);
+  print('Annotations for field $name: $annotations');
+  final isRdfValue = getAnnotation(annotations, 'RdfValue') != null;
+  final isRdfLanguageTag = getAnnotation(annotations, 'RdfLanguageTag') != null;
+  final providesAnnotation = getAnnotation(annotations, 'RdfProvides');
+  final providesName = providesAnnotation?.getField('name')?.toStringValue();
+  return FieldInfo(
+    name: name,
+    type: typeToCode(type),
+    isFinal: isFinal,
+    isLate: isLate,
+    isStatic: isStatic,
+    isSynthetic: isSynthetic,
+    propertyInfo: propertyInfo,
+    isRequired: propertyInfo?.isRequired ?? !isNullable,
+    isRdfLanguageTag: isRdfLanguageTag,
+    isRdfValue: isRdfValue,
+    provides: providesAnnotation != null
+        ? ProvidesInfo(
+            name: providesName ?? name,
+            dartPropertyName: name,
+          )
+        : null,
+  );
 }

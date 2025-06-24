@@ -91,8 +91,7 @@ class IriMappingInfo extends BaseMappingInfo {
       mapper == null &&
       (template == null ||
           (template!.variables.length == 1 &&
-              template!.template.startsWith("{") &&
-              template!.template.endsWith("}")));
+              template!.template == '{+${template!.variables.first}}'));
   @override
   int get hashCode => Object.hashAll([
         super.hashCode,

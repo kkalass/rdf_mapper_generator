@@ -1,15 +1,14 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:analyzer/dart/element/type_system.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
-import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
-import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
@@ -21,41 +20,60 @@ class PropertyProcessor {
   /// otherwise returns `null`.
   static PropertyInfo? processField(
       ValidationContext context, FieldElement2 field) {
-    final annotationObj = _getRdfPropertyAnnotation(field);
+    return processFieldAlike(
+      context,
+      typeSystem: field.library2.typeSystem,
+      name: field.name3!,
+      annotations: field.metadata2.annotations,
+      isFinal: field.isFinal,
+      isLate: field.isLate,
+      isStatic: field.isStatic,
+      isSynthetic: field.isSynthetic,
+      type: field.type,
+    );
+  }
+
+  static PropertyInfo? processFieldAlike(ValidationContext context,
+      {required TypeSystem typeSystem,
+      required String name,
+      required DartType type,
+      required Iterable<ElementAnnotation> annotations,
+      required bool isStatic,
+      required bool isFinal,
+      required bool isLate,
+      required bool isSynthetic}) {
+    final annotationObj = _getRdfPropertyAnnotation(annotations);
     if (annotationObj == null) {
       return null;
     }
 
     // Create an instance of RdfProperty from the annotation data
-    final rdfProperty = _createRdfProperty(context, field, annotationObj);
-
-    // Get the type system from the field's library
-    final typeSystem = field.library2.typeSystem;
+    final rdfProperty = _createRdfProperty(context, name, type, annotationObj);
 
     // Check if the type is nullable
-    final isNullable = field.type.isDartCoreNull ||
-        (field.type is InterfaceType &&
-            (field.type as InterfaceType).isDartCoreNull) ||
-        typeSystem.isNullable(field.type);
+    final isNullable = type.isDartCoreNull ||
+        (type is InterfaceType && type.isDartCoreNull) ||
+        typeSystem.isNullable(type);
 
     return PropertyInfo(
-      name: field.name3!,
-      type: field.type.getDisplayString(),
+      name: name,
+      type: type.getDisplayString(),
       annotation: rdfProperty,
       isRequired: !isNullable,
-      isFinal: field.isFinal,
-      isLate: field.isLate,
-      isStatic: field.isStatic,
-      isSynthetic: field.isSynthetic,
+      isFinal: isFinal,
+      isLate: isLate,
+      isStatic: isStatic,
+      isSynthetic: isSynthetic,
     );
   }
 
-  static DartObject? _getRdfPropertyAnnotation(FieldElement2 field) {
-    return getAnnotation(field.metadata2, 'RdfProperty');
+  static DartObject? _getRdfPropertyAnnotation(
+      Iterable<ElementAnnotation> annotations) {
+    return getAnnotation(annotations, 'RdfProperty');
   }
 
-  static RdfPropertyInfo _createRdfProperty(
-      ValidationContext context, FieldElement2 field, DartObject annotation) {
+  static RdfPropertyInfo _createRdfProperty(ValidationContext context,
+      String fieldName, DartType fieldType, DartObject annotation) {
     // Extract the predicate IRI
     final predicate = getIriTermInfo(getField(annotation, 'predicate'));
     if (predicate == null) {
@@ -72,7 +90,7 @@ class PropertyProcessor {
     final collection = getEnumFieldValue(annotation, 'collection',
         RdfCollectionType.values, RdfCollectionType.auto);
     // Extract IRI mapping if present
-    final iri = _extractIriMapping(context, field, annotation);
+    final iri = _extractIriMapping(context, fieldName, fieldType, annotation);
 
     // Create and return the RdfProperty instance
     return RdfPropertyInfo(
@@ -88,8 +106,8 @@ class PropertyProcessor {
     );
   }
 
-  static IriMappingInfo? _extractIriMapping(
-      ValidationContext context, FieldElement2 field, DartObject annotation) {
+  static IriMappingInfo? _extractIriMapping(ValidationContext context,
+      String fieldName, DartType fieldType, DartObject annotation) {
     // Check for named parameter 'iri'
     final iriMapping = getField(annotation, 'iri');
     if (isNull(iriMapping)) {
@@ -100,20 +118,20 @@ class PropertyProcessor {
     final mapper = getMapperRefInfo<IriTermMapper>(iriMapping);
 
     final templateInfo = template == null && mapper == null
-        ? IriStrategyProcessor.processTemplate(context, '{+${field.name3!}}', [
+        ? IriStrategyProcessor.processTemplate(context, '{+${fieldName}}', [
             IriPartInfo(
-                name: field.name3!,
-                dartPropertyName: field.name3!,
-                type: typeToCode(field.type),
+                name: fieldName,
+                dartPropertyName: fieldName,
+                type: typeToCode(fieldType),
                 pos: 1,
                 isMappedValue: true)
           ])!
         : template != null
             ? IriStrategyProcessor.processTemplate(context, template, [
                 IriPartInfo(
-                    name: field.name3!,
-                    dartPropertyName: field.name3!,
-                    type: typeToCode(field.type),
+                    name: fieldName,
+                    dartPropertyName: fieldName,
+                    type: typeToCode(fieldType),
                     pos: 1,
                     isMappedValue: true)
               ])!

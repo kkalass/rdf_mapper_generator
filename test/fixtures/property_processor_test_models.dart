@@ -117,9 +117,6 @@ class IriMappingFullIriSimpleTest {
   IriMappingFullIriSimpleTest({required this.authorIri});
 }
 
-// FIXME: uncomment when IriMapping supports full IRIs
-/*
-
 @RdfLocalResource()
 class IriMappingWithProviderTest {
   @RdfProvides()
@@ -183,7 +180,6 @@ class IriMappingWithProvidersAndBaseUriPropertyTest {
   IriMappingWithProvidersAndBaseUriPropertyTest(
       {required this.authorId, required this.genre, required this.version});
 }
-*/
 
 @RdfLocalResource()
 class IriMappingNamedMapperTest {

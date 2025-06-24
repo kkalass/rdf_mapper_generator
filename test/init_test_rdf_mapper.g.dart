@@ -229,6 +229,20 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<pptm.IriMappingFullIriSimpleTest>(
     pptmrmg.IriMappingFullIriSimpleTestMapper(),
   );
+  registry.registerMapper<pptm.IriMappingWithProviderTest>(
+    pptmrmg.IriMappingWithProviderTestMapper(),
+  );
+  registry.registerMapper<pptm.IriMappingWithBaseUriProviderTest>(
+    pptmrmg.IriMappingWithBaseUriProviderTestMapper(),
+  );
+  registry.registerMapper<pptm.IriMappingWithProviderPropertyTest>(
+    pptmrmg.IriMappingWithProviderPropertyTestMapper(),
+  );
+  registry.registerMapper<pptm.IriMappingWithProvidersAndBaseUriPropertyTest>(
+    pptmrmg.IriMappingWithProvidersAndBaseUriPropertyTestMapper(
+      baseUriProvider: baseUriProvider,
+    ),
+  );
   registry.registerMapper<pptm.IriMappingNamedMapperTest>(
     pptmrmg.IriMappingNamedMapperTestMapper(iriMapper: iriMapper),
   );

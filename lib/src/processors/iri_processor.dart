@@ -15,7 +15,8 @@ class IriProcessor {
   /// with `@RdfIri`, otherwise returns `null`.
   static IriInfo? processClass(
       ValidationContext context, ClassElement2 classElement) {
-    final annotation = getAnnotation(classElement.metadata2, 'RdfIri');
+    final annotation =
+        getAnnotation(classElement.metadata2.annotations, 'RdfIri');
     final className = classToCode(classElement);
 
     // Create the RdfGlobalResource instance from the annotation

@@ -10,7 +10,8 @@ import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 class LiteralProcessor {
   static LiteralInfo? processClass(
       ValidationContext context, ClassElement2 classElement) {
-    final annotation = getAnnotation(classElement.metadata2, 'RdfLiteral');
+    final annotation =
+        getAnnotation(classElement.metadata2.annotations, 'RdfLiteral');
     final className = classToCode(classElement);
 
     // Create the RdfGlobalResource instance from the annotation
