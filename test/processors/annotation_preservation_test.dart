@@ -113,7 +113,8 @@ void main() {
       );
 
       // Act
-      final result = PropertyProcessor.processField(titleField);
+      final result =
+          PropertyProcessor.processField(ValidationContext(), titleField);
 
       // Assert
       expect(result, isNotNull);

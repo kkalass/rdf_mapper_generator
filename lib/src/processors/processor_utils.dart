@@ -7,6 +7,7 @@ import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 /// Contains information about an IRI source reference including the
 /// source code expression and required import.
@@ -213,14 +214,15 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
   return constructors;
 }
 
-List<FieldInfo> extractFields(ClassElement2 classElement) {
+List<FieldInfo> extractFields(
+    ValidationContext context, ClassElement2 classElement) {
   final fields = <FieldInfo>[];
   final typeSystem = classElement.library2.typeSystem;
 
   for (final field in classElement.fields2) {
     if (field.isStatic) continue;
 
-    final propertyInfo = PropertyProcessor.processField(field);
+    final propertyInfo = PropertyProcessor.processField(context, field);
     final isNullable = field.type.isDartCoreNull ||
         (field.type is InterfaceType &&
             (field.type as InterfaceType).isDartCoreNull) ||

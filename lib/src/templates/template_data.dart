@@ -175,15 +175,24 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
       'hasContextProviders': contextProviders.isNotEmpty,
       'mapperConstructorParameters': toMustacheList(
           mapperConstructorParameters.map((p) => p.toMap()).toList()),
+      'hasLateMapperConstructorParameters':
+          mapperConstructorParameters.where((p) => p.isLate).isNotEmpty,
       'mapperConstructorParameterAssignments': toMustacheList(
           mapperConstructorParameters
-              .where((p) => p.needsAssignment)
+              .where((p) => p.needsAssignment && p.isField)
               .map((p) => p.toMap())
               .toList()),
       'hasMapperConstructorParameters': mapperConstructorParameters.isNotEmpty,
       'hasMapperConstructorParameterAssignments': mapperConstructorParameters
-          .where((p) => p.needsAssignment)
+          .where((p) => p.needsAssignment && p.isField)
           .isNotEmpty,
+      'mapperConstructorBodyAssignments': toMustacheList(
+          mapperConstructorParameters
+              .where((p) => p.isLate)
+              .map((p) => p.toMap())
+              .toList()),
+      'hasMapperConstructorBody':
+          mapperConstructorParameters.where((p) => p.isLate).isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
     };
@@ -441,11 +450,14 @@ class ContextProviderData {
   /// The placeholder pattern to replace in IRI templates (e.g., '{baseUri}')
   final String placeholder;
 
+  final bool isField;
+
   const ContextProviderData({
     required this.variableName,
     required this.privateFieldName,
     required this.parameterName,
     required this.placeholder,
+    this.isField = true,
   });
 
   Map<String, dynamic> toMap() => {
@@ -453,6 +465,7 @@ class ContextProviderData {
         'privateFieldName': privateFieldName,
         'parameterName': parameterName,
         'placeholder': placeholder,
+        'isField': isField,
       };
 }
 
@@ -575,14 +588,18 @@ class ConstructorParameterData {
   final String parameterName;
   final String fieldName;
   final Code? defaultValue;
+  final bool isLate;
+  final bool isField;
 
-  bool get needsAssignment => parameterName != fieldName;
+  bool get needsAssignment => parameterName != fieldName && !isLate;
 
   ConstructorParameterData(
       {required this.type,
       required this.parameterName,
       required this.fieldName,
-      required this.defaultValue});
+      required this.defaultValue,
+      required this.isLate,
+      this.isField = true});
 
   Map<String, dynamic> toMap() => {
         'type': type.toMap(),
@@ -591,6 +608,8 @@ class ConstructorParameterData {
         'needsAssignment': needsAssignment,
         'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': defaultValue != null,
+        'isLate': isLate,
+        'isField': isField,
       };
 }
 

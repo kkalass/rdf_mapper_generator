@@ -310,5 +310,154 @@ books:singleton a schema:Book .
       expect(deserializedEmpty.authorId, equals(authorIdEmpty),
           reason: 'Empty author ID should be preserved through round-trip');
     });
+
+    test(
+        'IriMappingWithBaseUriTest - IRI template mapping with base URI expansion',
+        () {
+      // Test basic functionality with different author IDs and base URIs
+      final authorId1 = 'john-doe';
+      final authorId2 = 'jane-smith';
+      final authorId3 = 'special-chars-author';
+
+      final baseUri1 = 'https://example.org';
+      final baseUri2 = 'https://company.com';
+      final baseUri3 = 'http://test.domain.net';
+
+      // Create mappers with different base URI providers
+      final mapper1 = defaultInitTestRdfMapper(baseUriProvider: () => baseUri1);
+      final mapper2 = defaultInitTestRdfMapper(baseUriProvider: () => baseUri2);
+      final mapper3 = defaultInitTestRdfMapper(baseUriProvider: () => baseUri3);
+
+      final testInstance1 = IriMappingWithBaseUriTest(authorId: authorId1);
+      final testInstance2 = IriMappingWithBaseUriTest(authorId: authorId2);
+      final testInstance3 = IriMappingWithBaseUriTest(authorId: authorId3);
+
+      // Test serialization with different base URIs
+      final serialized1 = mapper1.encodeObject(testInstance1);
+      final serialized2 = mapper2.encodeObject(testInstance2);
+      final serialized3 = mapper3.encodeObject(testInstance3);
+
+      expect(serialized1, isNotNull);
+      expect(serialized2, isNotNull);
+      expect(serialized3, isNotNull);
+
+      // Verify that different combinations produce different serialized forms
+      expect(serialized1, isNot(equals(serialized2)),
+          reason:
+              'Different base URIs should produce different serialized forms');
+      expect(serialized2, isNot(equals(serialized3)),
+          reason:
+              'Different base URIs should produce different serialized forms');
+
+      // Check that the correct base URI is used in the generated IRIs
+      // For baseUri1 + authorId1: https://example.org/authors/john-doe
+      expect(serialized1, contains('https://example.org/authors/'),
+          reason: 'Serialized data should contain the correct base URI');
+      expect(serialized1, contains('john-doe'),
+          reason: 'Serialized data should contain the author ID');
+
+      // For baseUri2 + authorId2: https://company.com/authors/jane-smith
+      expect(serialized2, contains('https://company.com/authors/'),
+          reason: 'Serialized data should contain the correct base URI');
+      expect(serialized2, contains('jane-smith'),
+          reason: 'Serialized data should contain the author ID');
+
+      // For baseUri3 + authorId3: http://test.domain.net/authors/special-chars-author
+      expect(serialized3, contains('http://test.domain.net/authors/'),
+          reason: 'Serialized data should contain the correct base URI');
+      expect(serialized3, contains('special-chars-author'),
+          reason: 'Serialized data should contain the author ID');
+
+      // Test round-trip serialization/deserialization
+      final deserialized1 =
+          mapper1.decodeObject<IriMappingWithBaseUriTest>(serialized1);
+      final deserialized2 =
+          mapper2.decodeObject<IriMappingWithBaseUriTest>(serialized2);
+      final deserialized3 =
+          mapper3.decodeObject<IriMappingWithBaseUriTest>(serialized3);
+
+      expect(deserialized1, isNotNull);
+      expect(deserialized2, isNotNull);
+      expect(deserialized3, isNotNull);
+
+      // Verify that the authorId values are preserved through round-trip
+      expect(deserialized1.authorId, equals(authorId1),
+          reason:
+              'Base URI IRI mapping should preserve authorId through round-trip');
+      expect(deserialized2.authorId, equals(authorId2),
+          reason:
+              'Base URI IRI mapping should preserve authorId through round-trip');
+      expect(deserialized3.authorId, equals(authorId3),
+          reason:
+              'Base URI IRI mapping should preserve authorId through round-trip');
+    });
+
+    test(
+        'IriMappingWithBaseUriTest - cross-baseUri serialization compatibility',
+        () {
+      // Test that data serialized with one base URI can be deserialized with a different base URI
+      // This tests the robustness of the IRI template parsing
+      final authorId = 'test-author';
+      final baseUri1 = 'https://domain1.com';
+      final baseUri2 = 'https://domain2.org';
+
+      final mapper1 = defaultInitTestRdfMapper(baseUriProvider: () => baseUri1);
+      final mapper2 = defaultInitTestRdfMapper(baseUriProvider: () => baseUri2);
+
+      final testInstance = IriMappingWithBaseUriTest(authorId: authorId);
+
+      // Serialize with mapper1 (baseUri1)
+      final serialized = mapper1.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+      expect(serialized, contains('https://domain1.com/authors/'),
+          reason: 'Should serialize with the first base URI');
+
+      // Deserialize with mapper2 (baseUri2) - should still extract the authorId correctly
+      final deserialized =
+          mapper2.decodeObject<IriMappingWithBaseUriTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.authorId, equals(authorId),
+          reason:
+              'AuthorId should be extracted correctly regardless of deserialization base URI');
+    });
+
+    test(
+        'IriMappingWithBaseUriTest - edge cases with different base URI formats',
+        () {
+      // Test various base URI formats to ensure template expansion works correctly
+      final authorId = 'test-author';
+
+      final testCases = [
+        'https://example.com',
+        'http://test.org',
+        'https://api.service.com/v1',
+        'http://localhost:8080',
+        'https://subdomain.example.org/path',
+      ];
+
+      for (final baseUri in testCases) {
+        final mapper = defaultInitTestRdfMapper(baseUriProvider: () => baseUri);
+        final testInstance = IriMappingWithBaseUriTest(authorId: authorId);
+
+        // Test serialization
+        final serialized = mapper.encodeObject(testInstance);
+        expect(serialized, isNotNull,
+            reason: 'Serialization should work with base URI: $baseUri');
+
+        // Verify the correct IRI is generated
+        final expectedIriPrefix = '$baseUri/authors/';
+        expect(serialized, contains(expectedIriPrefix),
+            reason:
+                'Should contain the correct IRI prefix for base URI: $baseUri');
+
+        // Test round-trip
+        final deserialized =
+            mapper.decodeObject<IriMappingWithBaseUriTest>(serialized);
+        expect(deserialized, isNotNull,
+            reason: 'Deserialization should work with base URI: $baseUri');
+        expect(deserialized.authorId, equals(authorId),
+            reason: 'AuthorId should be preserved with base URI: $baseUri');
+      }
+    });
   });
 }

@@ -1,9 +1,30 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:test/test.dart';
+
+/// Creates a minimal IriTemplateInfo instance for testing purposes.
+///
+/// This helper function creates a valid IriTemplateInfo with minimal required data,
+/// suitable for testing equality, hashCode, and toString methods.
+IriTemplateInfo createTestTemplateInfo(String template) {
+  final variables = <VariableName>{};
+  final propertyVariables = <VariableName>{};
+  final contextVariables = <VariableName>{};
+
+  return IriTemplateInfo(
+    template: template,
+    variables: variables,
+    propertyVariables: propertyVariables,
+    contextVariables: contextVariables,
+    isValid: true,
+    validationErrors: const [],
+    warnings: const [],
+  );
+}
 
 void main() {
   group('LocalResourceMappingInfo', () {
@@ -101,17 +122,17 @@ void main() {
   group('IriMappingInfo', () {
     test('equals and hashCode work correctly', () {
       final instance1 = IriMappingInfo(
-        template: 'template1',
+        template: createTestTemplateInfo('template1'),
         mapper: null,
       );
 
       final instance2 = IriMappingInfo(
-        template: 'template1',
+        template: createTestTemplateInfo('template1'),
         mapper: null,
       );
 
       final differentInstance = IriMappingInfo(
-        template: 'template2',
+        template: createTestTemplateInfo('template2'),
         mapper: null,
       );
 
@@ -122,7 +143,7 @@ void main() {
 
     test('toString returns formatted string representation', () {
       final instance = IriMappingInfo(
-        template: 'template1',
+        template: createTestTemplateInfo('template1'),
         mapper: null,
       );
       final result = instance.toString();
@@ -132,7 +153,7 @@ void main() {
 
     test('equals returns false for non-IriMappingInfo instances', () {
       final instance = IriMappingInfo(
-        template: 'template1',
+        template: createTestTemplateInfo('template1'),
         mapper: null,
       );
       expect(instance, isNot(equals('not an IriMappingInfo')));

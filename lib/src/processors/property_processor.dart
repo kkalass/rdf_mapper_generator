@@ -3,9 +3,13 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 /// Processes field elements to extract RDF property information.
 class PropertyProcessor {
@@ -13,14 +17,15 @@ class PropertyProcessor {
   ///
   /// Returns a [PropertyInfo] if the field is annotated with `@RdfProperty`,
   /// otherwise returns `null`.
-  static PropertyInfo? processField(FieldElement2 field) {
+  static PropertyInfo? processField(
+      ValidationContext context, FieldElement2 field) {
     final annotationObj = _getRdfPropertyAnnotation(field);
     if (annotationObj == null) {
       return null;
     }
 
     // Create an instance of RdfProperty from the annotation data
-    final rdfProperty = _createRdfProperty(annotationObj);
+    final rdfProperty = _createRdfProperty(context, field, annotationObj);
 
     // Get the type system from the field's library
     final typeSystem = field.library2.typeSystem;
@@ -47,7 +52,8 @@ class PropertyProcessor {
     return getAnnotation(field.metadata2, 'RdfProperty');
   }
 
-  static RdfPropertyInfo _createRdfProperty(DartObject annotation) {
+  static RdfPropertyInfo _createRdfProperty(
+      ValidationContext context, FieldElement2 field, DartObject annotation) {
     // Extract the predicate IRI
     final predicate = getIriTermInfo(getField(annotation, 'predicate'));
     if (predicate == null) {
@@ -64,7 +70,7 @@ class PropertyProcessor {
     final collection = getEnumFieldValue(annotation, 'collection',
         RdfCollectionType.values, RdfCollectionType.auto);
     // Extract IRI mapping if present
-    final iri = _extractIriMapping(annotation);
+    final iri = _extractIriMapping(context, field, annotation);
 
     // Create and return the RdfProperty instance
     return RdfPropertyInfo(
@@ -80,7 +86,8 @@ class PropertyProcessor {
     );
   }
 
-  static IriMappingInfo? _extractIriMapping(DartObject annotation) {
+  static IriMappingInfo? _extractIriMapping(
+      ValidationContext context, FieldElement2 field, DartObject annotation) {
     // Check for named parameter 'iri'
     final iriMapping = getField(annotation, 'iri');
     if (isNull(iriMapping)) {
@@ -89,7 +96,18 @@ class PropertyProcessor {
     // Check if it's an IriMapping
     final template = iriMapping!.getField('template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriMapping);
-    return IriMappingInfo(template: template, mapper: mapper);
+
+    final templateInfo = template == null
+        ? null
+        : IriStrategyProcessor.processTemplate(context, template, [
+            IriPartInfo(
+                name: field.name3!,
+                dartPropertyName: field.name3!,
+                type: typeToCode(field.type),
+                pos: 1,
+                isMappedValue: true)
+          ])!;
+    return IriMappingInfo(template: templateInfo, mapper: mapper);
   }
 
   static LocalResourceMappingInfo? _extractLocalResourceMapping(

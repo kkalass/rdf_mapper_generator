@@ -84,6 +84,7 @@ class IriStrategyProcessor {
 
       return IriTemplateInfo(
         template: template,
+        iriParts: iriParts,
         variables: Set.unmodifiable(
             {...propertyResult.propertyVariables, ...contextVariables}),
         propertyVariables: propertyResult.propertyVariables,
@@ -96,6 +97,7 @@ class IriStrategyProcessor {
       context.addError('Failed to process template: $e');
       return IriTemplateInfo(
         template: template,
+        iriParts: iriParts,
         variables: Set.unmodifiable(<VariableName>{}),
         propertyVariables: Set.unmodifiable(<VariableName>{}),
         contextVariables: Set.unmodifiable(<VariableName>{}),

@@ -351,6 +351,105 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
   }
 }
 
+/// Generated mapper for [IriMappingWithBaseUriTest] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type IriMappingWithBaseUriTest.
+class IriMappingWithBaseUriTestMapper
+    implements LocalResourceMapper<IriMappingWithBaseUriTest> {
+  late final IriTermMapper<String> _authorIdMapper;
+
+  /// Constructor requiring providers for context variables
+  IriMappingWithBaseUriTestMapper({
+    required String Function() baseUriProvider,
+  }) {
+    _authorIdMapper = IriMappingWithBaseUriTestAuthorIdMapper(
+      baseUriProvider: baseUriProvider,
+    );
+  }
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  IriMappingWithBaseUriTest fromRdfResource(
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIdMapper,
+    );
+
+    return IriMappingWithBaseUriTest(authorId: authorId);
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    IriMappingWithBaseUriTest resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer: _authorIdMapper,
+        )
+        .build();
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^(?<baseUri>.*)/authors/(?<authorId>[^/]*)\$',
+  );
+
+  /// Provider for context variable 'baseUri'
+  final String Function() _baseUriProvider;
+
+  /// Constructor requiring providers for context variables
+  const IriMappingWithBaseUriTestAuthorIdMapper({
+    required String Function() baseUriProvider,
+  }) : _baseUriProvider = baseUriProvider;
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String, String>{}
+        : Map.fromEntries(
+            match.groupNames.map((name) {
+              var namedGroup = match.namedGroup(name)!;
+              return MapEntry(name, namedGroup);
+            }),
+          );
+    return iriParts['authorId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorId = iriTermValue.toString();
+    final baseUri = _baseUriProvider();
+    return IriTerm('${baseUri}/authors/${authorId}');
+  }
+}
+
 /// Generated mapper for [IriMappingNamedMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects

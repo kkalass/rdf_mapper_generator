@@ -304,6 +304,7 @@ class IriTemplateInfo {
 
   /// Warning messages about template configuration issues.
   final List<String> warnings;
+  final List<IriPartInfo>? iriParts;
 
   const IriTemplateInfo({
     required this.template,
@@ -312,6 +313,7 @@ class IriTemplateInfo {
     required Set<VariableName> contextVariables,
     required this.isValid,
     required this.validationErrors,
+    this.iriParts = const [],
     this.warnings = const [],
   })  : variableNames = variables,
         contextVariableNames = contextVariables;

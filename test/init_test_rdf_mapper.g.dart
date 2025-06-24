@@ -220,6 +220,9 @@ RdfMapper initTestRdfMapper({
     pptmrmg.IncludeDefaultsTestMapper(),
   );
   registry.registerMapper<pptm.IriMappingTest>(pptmrmg.IriMappingTestMapper());
+  registry.registerMapper<pptm.IriMappingWithBaseUriTest>(
+    pptmrmg.IriMappingWithBaseUriTestMapper(baseUriProvider: baseUriProvider),
+  );
   registry.registerMapper<pptm.IriMappingNamedMapperTest>(
     pptmrmg.IriMappingNamedMapperTestMapper(iriMapper: iriMapper),
   );

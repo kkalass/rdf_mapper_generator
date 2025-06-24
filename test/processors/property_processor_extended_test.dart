@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:rdf_vocabularies/xsd.dart';
 import 'package:test/test.dart';
@@ -6,6 +7,8 @@ import 'package:test/test.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import '../test_helper.dart';
 
+processField(FieldElement2 field) =>
+    PropertyProcessor.processField(ValidationContext(), field);
 void main() {
   late LibraryElement2 libraryElement;
 
@@ -27,7 +30,7 @@ void main() {
     }
 
     // Act
-    final result = PropertyProcessor.processField(field);
+    final result = processField(field);
 
     // Assert
     expect(result, isNotNull);
@@ -60,8 +63,8 @@ void main() {
     }
 
     // Act
-    final nameResult = PropertyProcessor.processField(nameField);
-    final descriptionResult = PropertyProcessor.processField(descriptionField);
+    final nameResult = processField(nameField);
+    final descriptionResult = processField(descriptionField);
 
     // Assert
     expect(nameResult, isNotNull);
@@ -96,8 +99,8 @@ void main() {
     }
 
     // Act
-    final nameResult = PropertyProcessor.processField(nameField);
-    final descriptionResult = PropertyProcessor.processField(descriptionField);
+    final nameResult = processField(nameField);
+    final descriptionResult = processField(descriptionField);
 
     // Assert
     expect(nameResult, isNotNull);
@@ -133,8 +136,8 @@ void main() {
     }
 
     // Act
-    final nameResult = PropertyProcessor.processField(nameField);
-    final descriptionResult = PropertyProcessor.processField(descriptionField);
+    final nameResult = processField(nameField);
+    final descriptionResult = processField(descriptionField);
 
     // Assert
     expect(nameResult, isNotNull);
@@ -164,7 +167,7 @@ void main() {
     }
 
     // Act
-    final result = PropertyProcessor.processField(field);
+    final result = processField(field);
 
     // Assert
     expect(result, isNotNull);
@@ -190,7 +193,7 @@ void main() {
     }
 
     // Act
-    final result = PropertyProcessor.processField(field);
+    final result = processField(field);
 
     // Assert
     expect(result, isNotNull);

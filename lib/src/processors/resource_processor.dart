@@ -28,7 +28,7 @@ class ResourceProcessor {
       return null; // No valid resource annotation found
     }
 
-    final fields = extractFields(classElement);
+    final fields = extractFields(context, classElement);
     final constructors = extractConstructors(
         classElement,
         fields,

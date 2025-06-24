@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 
 class LocalResourceMappingInfo extends BaseMappingInfo {
@@ -82,7 +83,7 @@ class GlobalResourceMappingInfo extends BaseMappingInfo {
 }
 
 class IriMappingInfo extends BaseMappingInfo {
-  final String? template;
+  final IriTemplateInfo? template;
 
   IriMappingInfo({required this.template, required super.mapper});
 

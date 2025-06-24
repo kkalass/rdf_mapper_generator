@@ -14,15 +14,21 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{/hasIriStrategy}}
 
   {{#mapperConstructorParameters}}
-  final {{value.type}} {{value.fieldName}};
+  {{#value.isField}}
+  {{#value.isLate}}late {{/value.isLate}}final {{value.type}} {{value.fieldName}};
+  {{/value.isField}}
   {{/mapperConstructorParameters}}
 
   /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
-  const {{mapperClassName}}({{#hasMapperConstructorParameters}}{
+  {{^hasLateMapperConstructorParameters}}const {{/hasLateMapperConstructorParameters}}{{mapperClassName}}({{#hasMapperConstructorParameters}}{
     {{#mapperConstructorParameters}}
+    {{^value.isLate}}
     {{^value.hasDefaultValue}}required {{/value.hasDefaultValue}}{{#value.needsAssignment}}{{value.type}} {{/value.needsAssignment}}{{^value.needsAssignment}}this.{{/value.needsAssignment}}{{value.parameterName}}{{#value.hasDefaultValue}} = {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}}, {{/last}}
+    {{/value.isLate}}
     {{/mapperConstructorParameters}}
-  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameterAssignments}} : {{#mapperConstructorParameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructorParameterAssignments}}{{/hasMapperConstructorParameterAssignments}};
+  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameterAssignments}} : {{#mapperConstructorParameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructorParameterAssignments}}{{/hasMapperConstructorParameterAssignments}}
+  {{^hasMapperConstructorBody}};{{/hasMapperConstructorBody}}
+  {{#hasMapperConstructorBody}}{ {{#mapperConstructorBodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructorBodyAssignments}}}{{/hasMapperConstructorBody}}
 
   @override
   IriTerm? get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};

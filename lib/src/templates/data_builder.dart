@@ -1,6 +1,5 @@
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
@@ -173,25 +172,16 @@ class DataBuilder {
       if (pi == null) return const [];
       final iri = pi.annotation.iri;
       if (iri == null || iri.mapper != null) return const [];
-      final template = iri.template;
-      final iriParts = [
-        IriPartInfo(
-            name: f.name,
-            dartPropertyName: f.name,
-            type: f.type,
-            pos: 1,
-            isMappedValue: true)
-      ];
-      final templateInfo =
-          IriStrategyProcessor.processTemplate(context, template!, iriParts)!;
+      final templateInfo = iri.template!;
+
       if (!templateInfo.propertyVariables.any((v) => v.name == f.name)) {
         context.addError(
-            'Property ${f.name} is not defined in the IRI template: $template, but this property is annotated with a template based IriMapping');
+            'Property ${f.name} is not defined in the IRI template: ${templateInfo.template}, but this property is annotated with a template based IriMapping');
       }
       return _buildIriMapper(
           className: f.type,
           templateInfo: templateInfo,
-          iriParts: iriParts,
+          iriParts: templateInfo.iriParts,
           mapperClassName:
               buildPropertyMapperName(className, f, mapperImportUri),
           registerGlobally: false /* local to the resource mapper */
@@ -223,15 +213,18 @@ class DataBuilder {
             fieldName: '_iriMapper',
             parameterName: 'iriMapper',
             type: iriStrategy!.mapper!.type,
-            defaultValue: null),
+            defaultValue: null,
+            isLate: false),
       ...contextProviders.map((provider) => ConstructorParameterData(
           fieldName: provider.privateFieldName,
           parameterName: provider.parameterName,
+          isLate: false,
           type: Code.combine([
             Code.coreType('String'),
             Code.literal(' Function()'),
           ]),
-          defaultValue: null)),
+          defaultValue: null,
+          isField: provider.isField)),
       ...resourceInfo.fields.expand((f) {
         final iri = f.propertyInfo?.annotation.iri;
         final iriMapper = iri?.mapper;
@@ -244,8 +237,8 @@ class DataBuilder {
           if (iriMapper != null)
             mappingToConstructorParameter(f, iriMapper, 'IriTermMapper'),
           if (iri != null && iri.template != null)
-            _propertyMapperConstructorParameter(
-                f, 'IriTermMapper', resourceInfo.className, mapperImportUri),
+            _propertyIriTemplateMapperConstructorParameter(f, 'IriTermMapper',
+                resourceInfo.className, mapperImportUri, iri.template!),
           if (literalMapper != null)
             mappingToConstructorParameter(
                 f, literalMapper, 'LiteralTermMapper'),
@@ -268,25 +261,43 @@ class DataBuilder {
         parameterName: iriMapper.name ?? f.name + 'Mapper',
         type: _buildMapperInterfaceType(
             Code.type(mapperInterface, importUri: importRdfMapper), f.type),
+        isLate: false,
         defaultValue: iriMapper.name == null
             ? mapperRefInfoToCode(iriMapper, constContext: true)
             : null);
   }
 
-  static ConstructorParameterData _propertyMapperConstructorParameter(
-      FieldInfo f,
-      String mapperInterface,
-      Code className,
-      String mapperImportUri) {
-    var generatedMapperName =
+  static ConstructorParameterData
+      _propertyIriTemplateMapperConstructorParameter(
+          FieldInfo f,
+          String mapperInterface,
+          Code className,
+          String mapperImportUri,
+          IriTemplateInfo iriTemplateInfo) {
+    final isLate = iriTemplateInfo.contextVariables.isNotEmpty;
+    final generatedMapperName =
         buildPropertyMapperName(className, f, mapperImportUri);
+    Code defaultValue = Code.combine(
+        [Code.literal('const '), generatedMapperName, Code.literal('()')]);
+    if (isLate) {
+      // default value actually needs to be set to the constructor
+      // call of the mapper
+      defaultValue = Code.combine([
+        generatedMapperName,
+        Code.literal('('),
+        ...iriTemplateInfo.contextVariables
+            .map((name) => Code.literal('${name}Provider: ${name}Provider')),
+        Code.literal(')')
+      ]);
+    }
     return ConstructorParameterData(
         fieldName: _buildMapperFieldName(f.name),
         parameterName: f.name + 'Mapper',
         type: _buildMapperInterfaceType(
             Code.type(mapperInterface, importUri: importRdfMapper), f.type),
-        defaultValue: Code.combine(
-            [Code.literal('const '), generatedMapperName, Code.literal('()')]));
+        // FIXME: handle context variables
+        isLate: isLate,
+        defaultValue: defaultValue);
   }
 
   static String _buildMapperFieldName(String fieldName) =>
@@ -622,7 +633,21 @@ class DataBuilder {
     final annotation = resourceInfo.annotation;
     return [
       if (annotation is RdfGlobalResourceInfo)
-        ..._buildContextProvidersForIriTemplate(annotation.iri?.templateInfo)
+        ..._buildContextProvidersForIriTemplate(annotation.iri?.templateInfo),
+      ...resourceInfo.fields.expand((f) =>
+          ((f.propertyInfo?.annotation.iri?.template?.contextVariableNames) ??
+                  const <VariableName>{})
+              .map((variable) {
+            final d = _buildVariableNameData(
+                variable, f.type == _stringType /* is string */);
+            return ContextProviderData(
+              variableName: d.variableName,
+              privateFieldName: '_${d.variableName}Provider',
+              parameterName: '${d.variableName}Provider',
+              placeholder: d.placeholder,
+              isField: false,
+            );
+          })),
     ];
   }
 

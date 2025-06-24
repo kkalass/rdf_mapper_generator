@@ -1,10 +1,14 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
+import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
 import '../test_helper.dart';
+
+processField(FieldElement2 field) =>
+    PropertyProcessor.processField(ValidationContext(), field);
 
 void main() {
   late final LibraryElement2 libraryElement;
@@ -23,7 +27,7 @@ void main() {
           reason: 'Field "name" not found in NoAnnotationTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNull);
@@ -37,7 +41,7 @@ void main() {
           reason: 'Field "name" not found in SimplePropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -59,7 +63,7 @@ void main() {
           reason: 'Field "name" not found in DeserializationOnlyPropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -74,7 +78,7 @@ void main() {
           reason: 'Field "name" not found in OptionalPropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -89,7 +93,7 @@ void main() {
           reason: 'Field "isbn" not found in DefaultValueTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -108,7 +112,7 @@ void main() {
           reason: 'Field "rating" not found in IncludeDefaultsTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -127,7 +131,7 @@ void main() {
           reason: 'Field "authorId" not found in IriMappingTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -142,9 +146,48 @@ void main() {
       expect(annotation.iri, isNotNull,
           reason: 'IriMapping should be processed and available');
       expect(
-        annotation.iri!.template,
+        annotation.iri!.template!.template,
         'http://example.org/authors/{authorId}',
         reason: 'IRI template should match the annotation value',
+      );
+      expect(annotation.iri!.mapper, isNull,
+          reason: 'Template-based IriMapping should not have a custom mapper');
+
+      // Verify other mapping types are null for IRI mapping
+      expect(annotation.literal, isNull);
+      expect(annotation.localResource, isNull);
+      expect(annotation.globalResource, isNull);
+    });
+
+    test('should process property with IRI mapping template using base URI',
+        () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('IriMappingWithBaseUriTest')!
+          .getField2('authorId');
+      expect(field, isNotNull,
+          reason: 'Field "authorId" not found in IriMappingWithBaseUriTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'authorId');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping configuration with base URI template
+      final annotation = result.annotation;
+      expect(annotation.iri, isNotNull,
+          reason: 'IriMapping should be processed and available');
+      expect(
+        annotation.iri!.template!.template,
+        '{+baseUri}/authors/{authorId}',
+        reason:
+            'IRI template should match the annotation value with base URI expansion',
       );
       expect(annotation.iri!.mapper, isNull,
           reason: 'Template-based IriMapping should not have a custom mapper');
@@ -164,7 +207,7 @@ void main() {
           reason: 'Field "authorId" not found in IriMappingNamedMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -188,7 +231,7 @@ void main() {
           reason: 'Field "authorId" not found in IriMappingMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -217,7 +260,7 @@ void main() {
           reason: 'Field "authorId" not found in IriMappingMapperInstanceTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -245,7 +288,7 @@ void main() {
           reason: 'Field "author" not found in LocalResourceMappingTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -264,7 +307,7 @@ void main() {
           reason: 'Field "publisher" not found in GlobalResourceMappingTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -282,7 +325,7 @@ void main() {
           reason: 'Field "price" not found in LiteralMappingTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -299,7 +342,7 @@ void main() {
       expect(field, isNotNull,
           reason: 'Field "authors" not found in CollectionNoneTest');
 
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
       expect(result?.annotation.collection, RdfCollectionType.none);
@@ -312,7 +355,7 @@ void main() {
       expect(field, isNotNull,
           reason: 'Field "authors" not found in CollectionAutoTest');
 
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
       expect(result?.annotation.collection, RdfCollectionType.auto);
@@ -325,7 +368,7 @@ void main() {
       expect(field, isNotNull,
           reason: 'Field "authors" not found in CollectionTest');
 
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
       expect(result?.annotation.collection, RdfCollectionType.auto);
@@ -339,7 +382,7 @@ void main() {
           reason: 'Field "format" not found in EnumTypeTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -359,7 +402,7 @@ void main() {
           reason: 'Field "reviews" not found in MapNoCollectionTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -377,7 +420,7 @@ void main() {
           reason: 'Field "reviews" not found in MapNoCollectionTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -395,7 +438,7 @@ void main() {
           reason: 'Field "reviews" not found in MapLocalResourceMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -414,7 +457,7 @@ void main() {
       expect(field, isNotNull, reason: 'Field "keywords" not found in SetTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -433,7 +476,7 @@ void main() {
               'Field "publisher" not found in GlobalResourceNamedMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -452,7 +495,7 @@ void main() {
           reason: 'Field "isbn" not found in LiteralNamedMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -473,7 +516,7 @@ void main() {
               'Field "author" not found in LocalResourceInstanceMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -497,7 +540,7 @@ void main() {
           reason: 'Field "price" not found in LiteralTypeMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -526,7 +569,7 @@ void main() {
               'Field "publisher" not found in GlobalResourceTypeMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -545,7 +588,7 @@ void main() {
           reason: 'Field "publisher" not found in GlobalResourceMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -566,7 +609,7 @@ void main() {
               'Field "publisher" not found in GlobalResourceInstanceMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -584,7 +627,7 @@ void main() {
           reason: 'Field "author" not found in LocalResourceMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -601,7 +644,7 @@ void main() {
           reason: 'Field "pageCount" not found in LiteralMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -620,7 +663,7 @@ void main() {
           reason: 'Field "isbn" not found in LiteralInstanceMapperTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -645,7 +688,7 @@ void main() {
               'Field "price" not found in LiteralMappingTestCustomDatatype');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -667,7 +710,7 @@ void main() {
           reason: 'Field "complexValue" not found in ComplexDefaultValueTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -686,7 +729,7 @@ void main() {
           reason: 'Field "name" not found in FinalPropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -704,7 +747,7 @@ void main() {
           reason: 'Field "description" not found in FinalPropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -721,7 +764,7 @@ void main() {
           reason: 'Field "name" not found in LatePropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -739,7 +782,7 @@ void main() {
           reason: 'Field "description" not found in LatePropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -756,7 +799,7 @@ void main() {
           reason: 'Field "name" not found in MutablePropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -774,7 +817,7 @@ void main() {
           reason: 'Field "description" not found in MutablePropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -791,7 +834,7 @@ void main() {
           reason: 'Field "description" not found in LanguageTagTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -808,7 +851,7 @@ void main() {
           reason: 'Field "date" not found in DatatypeTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -830,7 +873,7 @@ void main() {
               'Field "author" not found in LocalResourceMapperObjectPropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
@@ -859,7 +902,7 @@ void main() {
               'Field "author" not found in LocalResourceInstanceMapperObjectPropertyTest');
 
       // Act
-      final result = PropertyProcessor.processField(field!);
+      final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
