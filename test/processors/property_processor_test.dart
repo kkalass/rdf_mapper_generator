@@ -916,5 +916,65 @@ void main() {
           'LocalResourceAuthorMapperImpl');
       expect(annotation.predicate.value, equals(SchemaBook.author));
     });
+
+    test(
+        'should process property with IRI mapping for full IRI (explicit template)',
+        () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('IriMappingFullIriTest')!
+          .getField2('authorIri');
+      expect(field, isNotNull,
+          reason: 'Field "authorIri" not found in IriMappingFullIriTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'authorIri');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.annotation.includeDefaultsInSerialization, isFalse);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping annotation
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.template, isNotNull);
+      expect(result.annotation.iri!.template!.template, '{+authorIri}');
+      expect(result.annotation.iri!.template!.iriParts, hasLength(1));
+      expect(result.annotation.iri!.template!.iriParts.first.name, 'authorIri');
+    });
+
+    test(
+        'should process property with IRI mapping for full IRI (simple syntax)',
+        () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('IriMappingFullIriSimpleTest')!
+          .getField2('authorIri');
+      expect(field, isNotNull,
+          reason: 'Field "authorIri" not found in IriMappingFullIriSimpleTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'authorIri');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.annotation.includeDefaultsInSerialization, isFalse);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping annotation - simple syntax should create default full IRI template
+      expect(result.annotation.iri, isNotNull);
+      expect(result.annotation.iri!.template, isNotNull);
+      expect(result.annotation.iri!.template!.template, '{+authorIri}');
+      expect(result.annotation.iri!.template!.iriParts, hasLength(1));
+      expect(result.annotation.iri!.template!.iriParts.first.name, 'authorIri');
+    });
   });
 }

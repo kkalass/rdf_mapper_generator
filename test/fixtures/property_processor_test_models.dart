@@ -95,8 +95,6 @@ class IriMappingWithBaseUriTest {
   IriMappingWithBaseUriTest({required this.authorId});
 }
 
-// FIXME: uncomment when IriMapping supports full IRIs
-/*
 @RdfLocalResource()
 class IriMappingFullIriTest {
   @RdfProperty(
@@ -106,17 +104,6 @@ class IriMappingFullIriTest {
   final String authorIri;
 
   IriMappingFullIriTest({required this.authorIri});
-}
-
-@RdfLocalResource()
-class IriMappingFullIriPlusMissingTest {
-  @RdfProperty(
-    SchemaBook.author,
-    iri: IriMapping('{authorIri}'),
-  )
-  final String authorIri;
-
-  IriMappingFullIriPlusMissingTest({required this.authorIri});
 }
 
 @RdfLocalResource()
@@ -130,7 +117,8 @@ class IriMappingFullIriSimpleTest {
   IriMappingFullIriSimpleTest({required this.authorIri});
 }
 
-
+// FIXME: uncomment when IriMapping supports full IRIs
+/*
 
 @RdfLocalResource()
 class IriMappingWithProviderTest {

@@ -1,3 +1,4 @@
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:test/test.dart';
 
@@ -193,6 +194,9 @@ books:singleton a schema:Book .
           reason:
               'Different authorIds should produce different serialized forms');
       expect(serialized2, isNot(equals(serialized3)),
+          reason:
+              'Different authorIds should produce different serialized forms');
+      expect(serialized1, isNot(equals(serialized3)),
           reason:
               'Different authorIds should produce different serialized forms');
 
@@ -459,5 +463,231 @@ books:singleton a schema:Book .
             reason: 'AuthorId should be preserved with base URI: $baseUri');
       }
     });
+
+    test(
+        'IriMappingFullIriTest - full IRI mapping behavior with custom default vs IriFullMapper override',
+        () {
+      // Create a custom string IRI mapper that should be overridden
+      final customStringIriMapper = CustomTestStringIriMapper();
+
+      // Create a mapper with custom string IRI mapper
+      final mapperWithCustom = defaultInitTestRdfMapper(
+        iriMapper: customStringIriMapper,
+      );
+
+      // First, test that our custom string IRI mapper works for normal string mapping
+      // We can test this indirectly through IriMappingNamedMapperTest which uses a named mapper
+      final namedMapperTest =
+          IriMappingNamedMapperTest(authorId: 'test-author');
+
+      final namedMapperSerialized = mapperWithCustom
+          .encodeObject(namedMapperTest, contentType: 'application/n-triples');
+      expect(namedMapperSerialized,
+          contains('<http://example.org/custom-prefix/test-author>'),
+          reason: 'Named mapper should use the custom string IRI mapper');
+
+      // Now test IriMappingFullIriTest (explicit template syntax)
+      final fullIriTestExplicit = IriMappingFullIriTest(
+        authorIri: 'https://example.org/persons/john-doe',
+      );
+
+      // Test serialization - should use IriFullMapper, not the custom mapper
+      final serializedExplicit = mapperWithCustom.encodeObject(
+          fullIriTestExplicit,
+          contentType: 'application/n-triples');
+      expect(serializedExplicit, isNotNull);
+
+      // The full IRI should be used directly, not processed by custom mapper
+      expect(serializedExplicit,
+          contains('<https://example.org/persons/john-doe>'),
+          reason: 'Full IRI mapping should use the complete IRI as-is');
+      expect(serializedExplicit,
+          isNot(contains('<http://example.org/custom-prefix/')),
+          reason:
+              'Full IRI mapping should not use the custom string IRI mapper');
+
+      // Test round-trip serialization/deserialization
+      final deserializedExplicit = mapperWithCustom
+          .decodeObject<IriMappingFullIriTest>(serializedExplicit);
+      expect(deserializedExplicit, isNotNull);
+      expect(deserializedExplicit.authorIri,
+          equals('https://example.org/persons/john-doe'),
+          reason: 'Full IRI should be preserved through round-trip');
+
+      // Test IriMappingFullIriSimpleTest (simple syntax)
+      final fullIriTestSimple = IriMappingFullIriSimpleTest(
+        authorIri: 'https://example.org/authors/jane-smith',
+      );
+
+      final serializedSimple = mapperWithCustom.encodeObject(fullIriTestSimple,
+          contentType: 'application/n-triples');
+      expect(serializedSimple, isNotNull);
+
+      // The full IRI should be used directly here as well
+      expect(serializedSimple,
+          contains('<https://example.org/authors/jane-smith>'),
+          reason: 'Simple full IRI mapping should use the complete IRI as-is');
+      expect(serializedSimple,
+          isNot(contains('<http://example.org/custom-prefix/')),
+          reason:
+              'Simple full IRI mapping should not use the custom string IRI mapper');
+
+      // Test round-trip for simple syntax
+      final deserializedSimple = mapperWithCustom
+          .decodeObject<IriMappingFullIriSimpleTest>(serializedSimple);
+      expect(deserializedSimple, isNotNull);
+      expect(deserializedSimple.authorIri,
+          equals('https://example.org/authors/jane-smith'),
+          reason: 'Simple full IRI should be preserved through round-trip');
+    });
+
+    test('IriMappingFullIriTest - edge cases and various IRI formats', () {
+      // Test various IRI formats to ensure proper handling
+      final testCases = [
+        'https://example.com/simple',
+        'http://example.org/path/to/resource',
+        'https://subdomain.example.org/complex/path?param=value',
+        'urn:isbn:1234567890',
+        'mailto:test@example.com',
+        'file:///local/path/resource',
+        'https://example.org/unicode/café',
+        'https://example.org/special-chars_123',
+      ];
+
+      for (final testIri in testCases) {
+        // Test explicit template syntax
+        final explicitTest = IriMappingFullIriTest(authorIri: testIri);
+        final explicitSerialized = mapper.encodeObject(explicitTest,
+            contentType: 'application/n-triples');
+        expect(explicitSerialized, isNotNull,
+            reason: 'Serialization should work for IRI: $testIri');
+        expect(explicitSerialized, contains('<$testIri>'),
+            reason:
+                'Serialized form should contain the original IRI: $testIri');
+
+        final explicitDeserialized =
+            mapper.decodeObject<IriMappingFullIriTest>(explicitSerialized);
+        expect(explicitDeserialized.authorIri, equals(testIri),
+            reason: 'Round-trip should preserve IRI: $testIri');
+
+        // Test simple syntax
+        final simpleTest = IriMappingFullIriSimpleTest(authorIri: testIri);
+        final simpleSerialized = mapper.encodeObject(simpleTest,
+            contentType: 'application/n-triples');
+        expect(simpleSerialized, isNotNull,
+            reason:
+                'Simple syntax serialization should work for IRI: $testIri');
+        expect(simpleSerialized, contains('<$testIri>'),
+            reason: 'Simple syntax should contain the original IRI: $testIri');
+
+        final simpleDeserialized =
+            mapper.decodeObject<IriMappingFullIriSimpleTest>(simpleSerialized);
+        expect(simpleDeserialized.authorIri, equals(testIri),
+            reason: 'Simple syntax round-trip should preserve IRI: $testIri');
+      }
+    });
+
+    test(
+        'IriMappingFullIriTest vs other IRI mapping strategies - behavior comparison',
+        () {
+      // Test to demonstrate the difference between full IRI mapping and other strategies
+
+      // 1. IriMappingTest (template-based mapping)
+      final templateTest = IriMappingTest(authorId: 'john-doe');
+      final templateSerialized = mapper.encodeObject(templateTest,
+          contentType: 'application/n-triples');
+      expect(
+          templateSerialized, contains('<http://example.org/authors/john-doe>'),
+          reason: 'Template mapping should use the full expanded template IRI');
+
+      // 2. IriMappingFullIriTest (full IRI mapping with explicit template)
+      final fullExplicitTest = IriMappingFullIriTest(
+        authorIri: 'https://other.domain.org/persons/john-doe',
+      );
+      final fullExplicitSerialized = mapper.encodeObject(fullExplicitTest,
+          contentType: 'application/n-triples');
+      expect(fullExplicitSerialized,
+          contains('<https://other.domain.org/persons/john-doe>'),
+          reason: 'Full IRI mapping should preserve the complete IRI');
+
+      // 3. IriMappingFullIriSimpleTest (full IRI mapping with simple syntax)
+      final fullSimpleTest = IriMappingFullIriSimpleTest(
+        authorIri: 'https://another.domain.com/users/john-doe',
+      );
+      final fullSimpleSerialized = mapper.encodeObject(fullSimpleTest,
+          contentType: 'application/n-triples');
+      expect(fullSimpleSerialized,
+          contains('<https://another.domain.com/users/john-doe>'),
+          reason: 'Simple full IRI mapping should preserve the complete IRI');
+
+      // Verify they produce different serialized forms
+      expect(templateSerialized, isNot(equals(fullExplicitSerialized)),
+          reason:
+              'Template and full IRI mapping should produce different results');
+      expect(templateSerialized, isNot(equals(fullSimpleSerialized)),
+          reason:
+              'Template and simple full IRI mapping should produce different results');
+      expect(fullExplicitSerialized, isNot(equals(fullSimpleSerialized)),
+          reason: 'Different domains should produce different results');
+    });
+
+    test('IriMappingFullIriTest - cross-mapper compatibility', () {
+      // Test that data serialized with one mapper configuration can be
+      // deserialized with another (within reason)
+
+      final testIri = 'https://stable.example.org/author/test-person';
+
+      // Create instances with both syntaxes using the same IRI
+      final explicitTest = IriMappingFullIriTest(authorIri: testIri);
+      final simpleTest = IriMappingFullIriSimpleTest(authorIri: testIri);
+
+      // Serialize with default mapper
+      final explicitSerialized = mapper.encodeObject(explicitTest,
+          contentType: 'application/n-triples');
+      final simpleSerialized =
+          mapper.encodeObject(simpleTest, contentType: 'application/n-triples');
+
+      // Both should contain the same IRI reference
+      expect(explicitSerialized, contains('<$testIri>'));
+      expect(simpleSerialized, contains('<$testIri>'));
+
+      // Cross-deserialization should work (both use the same IRI structure)
+      final explicitFromSimple =
+          mapper.decodeObject<IriMappingFullIriTest>(simpleSerialized);
+      final simpleFromExplicit =
+          mapper.decodeObject<IriMappingFullIriSimpleTest>(explicitSerialized);
+
+      expect(explicitFromSimple.authorIri, equals(testIri),
+          reason:
+              'Should be able to deserialize simple syntax as explicit template');
+      expect(simpleFromExplicit.authorIri, equals(testIri),
+          reason:
+              'Should be able to deserialize explicit template as simple syntax');
+    });
   });
+}
+
+/// Custom test IRI mapper for String values that adds a prefix
+/// This is used to test that full IRI mapping overrides the default string mapper
+class CustomTestStringIriMapper implements IriTermMapper<String> {
+  const CustomTestStringIriMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    final iri = term.iri;
+    if (iri.startsWith('http://example.org/custom-prefix/')) {
+      return iri.substring('http://example.org/custom-prefix/'.length);
+    }
+    return iri; // fallback for other IRIs
+  }
+
+  @override
+  IriTerm toRdfTerm(String value, SerializationContext context) {
+    // Add custom prefix to demonstrate this mapper is being used
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      // Don't modify full IRIs - this tests whether our mapper is bypassed
+      return IriTerm(value);
+    }
+    return IriTerm('http://example.org/custom-prefix/$value');
+  }
 }

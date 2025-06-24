@@ -4,10 +4,12 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
@@ -97,16 +99,25 @@ class PropertyProcessor {
     final template = iriMapping!.getField('template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriMapping);
 
-    final templateInfo = template == null
-        ? null
-        : IriStrategyProcessor.processTemplate(context, template, [
+    final templateInfo = template == null && mapper == null
+        ? IriStrategyProcessor.processTemplate(context, '{+${field.name3!}}', [
             IriPartInfo(
                 name: field.name3!,
                 dartPropertyName: field.name3!,
                 type: typeToCode(field.type),
                 pos: 1,
                 isMappedValue: true)
-          ])!;
+          ])!
+        : template != null
+            ? IriStrategyProcessor.processTemplate(context, template, [
+                IriPartInfo(
+                    name: field.name3!,
+                    dartPropertyName: field.name3!,
+                    type: typeToCode(field.type),
+                    pos: 1,
+                    isMappedValue: true)
+              ])!
+            : null;
     return IriMappingInfo(template: templateInfo, mapper: mapper);
   }
 

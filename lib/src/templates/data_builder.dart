@@ -176,22 +176,24 @@ class DataBuilder {
       var pi = f.propertyInfo;
       if (pi == null) return const [];
       final iri = pi.annotation.iri;
-      if (iri == null || iri.mapper != null) return const [];
-      final templateInfo = iri.template!;
+      if (iri != null && iri.template != null) {
+        final templateInfo = iri.template!;
 
-      if (!templateInfo.propertyVariables.any((v) => v.name == f.name)) {
-        context.addError(
-            'Property ${f.name} is not defined in the IRI template: ${templateInfo.template}, but this property is annotated with a template based IriMapping');
+        if (!templateInfo.propertyVariables.any((v) => v.name == f.name)) {
+          context.addError(
+              'Property ${f.name} is not defined in the IRI template: ${templateInfo.template}, but this property is annotated with a template based IriMapping');
+        }
+        return _buildIriMapper(
+            className: f.type,
+            templateInfo: templateInfo,
+            iriParts: templateInfo.iriParts,
+            mapperClassName:
+                buildPropertyMapperName(className, f.name, mapperImportUri),
+            registerGlobally: false,
+            /* local to the resource mapper */
+            mapperImportUri: mapperImportUri);
       }
-      return _buildIriMapper(
-          className: f.type,
-          templateInfo: templateInfo,
-          iriParts: templateInfo.iriParts,
-          mapperClassName:
-              buildPropertyMapperName(className, f.name, mapperImportUri),
-          registerGlobally: false,
-          /* local to the resource mapper */
-          mapperImportUri: mapperImportUri);
+      return const [];
     });
     return [resourceMapper, ...propertyMappers];
   }
@@ -243,7 +245,7 @@ class DataBuilder {
         return [
           if (iriMapper != null)
             mappingToConstructorParameter(f, iriMapper, 'IriTermMapper'),
-          if (iri != null && iri.template != null)
+          if (iri != null && iri.template != null && !iri.isFullIriTemplate)
             ..._propertyIriTemplateMapperConstructorParameter(
                 f,
                 'IriTermMapper',
@@ -251,6 +253,20 @@ class DataBuilder {
                 mapperImportUri,
                 iri.template!,
                 provides),
+          if (iri != null && iri.isFullIriTemplate)
+            ConstructorParameterData(
+                fieldName: _buildMapperFieldName(f.name),
+                parameterName: f.name + 'Mapper',
+                type: _buildMapperInterfaceType(
+                    Code.type('IriTermMapper', importUri: importRdfMapper),
+                    f.type),
+                isLate: false,
+                defaultValue: customMapperCode(
+                    Code.type((IriFullMapper).toString(),
+                        importUri: mapperImportUri),
+                    null,
+                    null,
+                    constContext: true)),
           if (literalMapper != null)
             mappingToConstructorParameter(
                 f, literalMapper, 'LiteralTermMapper'),

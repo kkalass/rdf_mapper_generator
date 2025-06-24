@@ -450,6 +450,181 @@ class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   }
 }
 
+/// Generated mapper for [IriMappingFullIriTest] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type IriMappingFullIriTest.
+class IriMappingFullIriTestMapper
+    implements LocalResourceMapper<IriMappingFullIriTest> {
+  final IriTermMapper<String> _authorIriMapper;
+
+  /// Constructor
+  const IriMappingFullIriTestMapper({
+    IriTermMapper<String> authorIriMapper = const IriFullMapper(),
+  }) : _authorIriMapper = authorIriMapper;
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  IriMappingFullIriTest fromRdfResource(
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final String authorIri = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIriMapper,
+    );
+
+    return IriMappingFullIriTest(authorIri: authorIri);
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    IriMappingFullIriTest resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          SchemaBook.author,
+          resource.authorIri,
+          iriTermSerializer: _authorIriMapper,
+        )
+        .build();
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class IriMappingFullIriTestAuthorIriMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp('^(?<authorIri>.*)\$');
+
+  /// Constructor
+  const IriMappingFullIriTestAuthorIriMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String, String>{}
+        : Map.fromEntries(
+            match.groupNames.map((name) {
+              var namedGroup = match.namedGroup(name)!;
+              return MapEntry(name, namedGroup);
+            }),
+          );
+    return iriParts['authorIri']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorIri = iriTermValue.toString();
+    return IriTerm('${authorIri}');
+  }
+}
+
+/// Generated mapper for [IriMappingFullIriSimpleTest] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type IriMappingFullIriSimpleTest.
+class IriMappingFullIriSimpleTestMapper
+    implements LocalResourceMapper<IriMappingFullIriSimpleTest> {
+  final IriTermMapper<String> _authorIriMapper;
+
+  /// Constructor
+  const IriMappingFullIriSimpleTestMapper({
+    IriTermMapper<String> authorIriMapper = const IriFullMapper(),
+  }) : _authorIriMapper = authorIriMapper;
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  IriMappingFullIriSimpleTest fromRdfResource(
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final String authorIri = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIriMapper,
+    );
+
+    return IriMappingFullIriSimpleTest(authorIri: authorIri);
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    IriMappingFullIriSimpleTest resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          SchemaBook.author,
+          resource.authorIri,
+          iriTermSerializer: _authorIriMapper,
+        )
+        .build();
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class IriMappingFullIriSimpleTestAuthorIriMapper
+    implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp('^(?<authorIri>.*)\$');
+
+  /// Constructor
+  const IriMappingFullIriSimpleTestAuthorIriMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String, String>{}
+        : Map.fromEntries(
+            match.groupNames.map((name) {
+              var namedGroup = match.namedGroup(name)!;
+              return MapEntry(name, namedGroup);
+            }),
+          );
+    return iriParts['authorIri']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorIri = iriTermValue.toString();
+    return IriTerm('${authorIri}');
+  }
+}
+
 /// Generated mapper for [IriMappingNamedMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
