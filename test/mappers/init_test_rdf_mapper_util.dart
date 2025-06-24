@@ -134,6 +134,139 @@ class TestMapper3PartsWithProperties
   }
 }
 
+/// Test IRI mapper for String values
+class TestIriMapper implements IriTermMapper<String> {
+  const TestIriMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    return term.iri;
+  }
+
+  @override
+  IriTerm toRdfTerm(String value, SerializationContext context) {
+    return IriTerm(value);
+  }
+}
+
+/// Test local resource mapper for `Map<String, String>` values
+class TestMapEntryMapper implements LocalResourceMapper<Map<String, String>> {
+  const TestMapEntryMapper();
+
+  @override
+  Map<String, String> fromRdfResource(
+      BlankNodeTerm term, DeserializationContext context) {
+    return {'id': term.toString()};
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+      Map<String, String> value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    return context.resourceBuilder(BlankNodeTerm()).build();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm('http://example.org/MapEntry');
+}
+
+/// Test literal mapper for String values (custom mapper)
+class TestCustomMapper implements LiteralTermMapper<String> {
+  const TestCustomMapper();
+
+  @override
+  String fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    return term.value;
+  }
+
+  @override
+  LiteralTerm toRdfTerm(String value, SerializationContext context) {
+    return LiteralTerm(value);
+  }
+}
+
+/// Test global resource mapper for Object values
+class TestGlobalMapper implements GlobalResourceMapper<Object> {
+  const TestGlobalMapper();
+
+  @override
+  Object fromRdfResource(IriTerm term, DeserializationContext context) {
+    return Object();
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+      Object value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    return context
+        .resourceBuilder(
+            IriTerm('http://example.org/objects/${value.hashCode}'))
+        .build();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm('http://example.org/Object');
+}
+
+/// Test literal mapper for double values (price mapper)
+class TestLiteralPriceMapper implements LiteralTermMapper<double> {
+  const TestLiteralPriceMapper();
+
+  @override
+  double fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    return double.parse(term.value);
+  }
+
+  @override
+  LiteralTerm toRdfTerm(double value, SerializationContext context) {
+    return LiteralTerm(value.toString());
+  }
+}
+
+/// Test local resource mapper for Object values
+class TestLocalMapper implements LocalResourceMapper<Object> {
+  const TestLocalMapper();
+
+  @override
+  Object fromRdfResource(BlankNodeTerm term, DeserializationContext context) {
+    return Object();
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+      Object value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    return context.resourceBuilder(BlankNodeTerm()).build();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm('http://example.org/LocalObject');
+}
+
+/// Test global resource mapper for Object values (named mapper)
+class TestNamedMapper implements GlobalResourceMapper<Object> {
+  const TestNamedMapper();
+
+  @override
+  Object fromRdfResource(IriTerm term, DeserializationContext context) {
+    return Object();
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+      Object value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    return context
+        .resourceBuilder(IriTerm('http://example.org/named/${value.hashCode}'))
+        .build();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm('http://example.org/NamedObject');
+}
+
 const baseUri = 'http://example.org';
 
 RdfMapper defaultInitTestRdfMapper(
@@ -141,29 +274,44 @@ RdfMapper defaultInitTestRdfMapper(
     // Provider parameters
     String Function()? baseUriProvider,
     // IRI mapper parameters
-    IriTermMapper<grptm.ClassWithIriNamedMapperStrategy>? testMapper,
+    IriTermMapper<String>? iriMapper,
+    LocalResourceMapper<Map<String, String>>? mapEntryMapper,
+    LiteralTermMapper<String>? testCustomMapper,
+    GlobalResourceMapper<Object>? testGlobalMapper,
     GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>?
         testGlobalResourceMapper,
-    LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>?
-        testLocalResourceMapper,
     IriTermMapper<iptm.IriWithNamedMapper>? testIriMapper,
     LiteralTermMapper<lptm.LiteralWithNamedMapper>? testLiteralMapper,
+    LiteralTermMapper<double>? testLiteralPriceMapper,
+    LocalResourceMapper<Object>? testLocalMapper,
+    LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>?
+        testLocalResourceMapper,
+    IriTermMapper<grptm.ClassWithIriNamedMapperStrategy>? testMapper,
     IriTermMapper<
             (
               String id,
               String surname,
               int version,
             )>?
-        testMapper3}) {
+        testMapper3,
+    GlobalResourceMapper<Object>? testNamedMapper}) {
   return initTestRdfMapper(
     baseUriProvider: baseUriProvider ?? (() => baseUri),
-    testMapper: testMapper ?? const TestMapper(),
+    iriMapper: iriMapper ?? const TestIriMapper(),
+    mapEntryMapper: mapEntryMapper ?? const TestMapEntryMapper(),
+    testCustomMapper: testCustomMapper ?? const TestCustomMapper(),
+    testGlobalMapper: testGlobalMapper ?? const TestGlobalMapper(),
     testGlobalResourceMapper:
         testGlobalResourceMapper ?? const NamedTestGlobalResourceMapper(),
-    testLocalResourceMapper:
-        testLocalResourceMapper ?? const NamedTestLocalResourceMapper(),
     testIriMapper: testIriMapper ?? const NamedTestIriMapper(),
     testLiteralMapper: testLiteralMapper ?? const NamedTestLiteralMapper(),
+    testLiteralPriceMapper:
+        testLiteralPriceMapper ?? const TestLiteralPriceMapper(),
+    testLocalMapper: testLocalMapper ?? const TestLocalMapper(),
+    testLocalResourceMapper:
+        testLocalResourceMapper ?? const NamedTestLocalResourceMapper(),
+    testMapper: testMapper ?? const TestMapper(),
     testMapper3: testMapper3 ?? const TestMapper3PartsWithProperties(),
+    testNamedMapper: testNamedMapper ?? const TestNamedMapper(),
   );
 }

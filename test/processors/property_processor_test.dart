@@ -274,7 +274,7 @@ void main() {
       final annotation = result!.annotation;
       expect(annotation.literal, isNotNull);
       expect(annotation.literal!.mapper, isNotNull);
-      expect(annotation.literal!.mapper!.name, 'testLiteralMapper');
+      expect(annotation.literal!.mapper!.name, 'testLiteralPriceMapper');
     });
 
     test('should process collection properties (none)', () {

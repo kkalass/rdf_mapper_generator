@@ -168,7 +168,7 @@ class GlobalResourceMappingTest {
 class LiteralMappingTest {
   @RdfProperty(
     IriTerm.prevalidated('http://example.org/book/price'),
-    literal: LiteralMapping.namedMapper('testLiteralMapper'),
+    literal: LiteralMapping.namedMapper('testLiteralPriceMapper'),
   )
   final double price;
 
@@ -218,6 +218,7 @@ class MapNoCollectionTest {
 
 @RdfLocalResource()
 class MapLocalResourceMapperTest {
+  // FIXME: this generates a wrong type for the mapper because collections are not handled correctly
   @RdfProperty(
     SchemaBook.reviews,
     localResource: LocalResourceMapping.namedMapper("mapEntryMapper"),

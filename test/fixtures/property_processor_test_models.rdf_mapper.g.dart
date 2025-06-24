@@ -561,8 +561,8 @@ class LiteralMappingTestMapper
 
   /// Constructor
   const LiteralMappingTestMapper({
-    required LiteralTermMapper<double> testLiteralMapper,
-  }) : _priceMapper = testLiteralMapper;
+    required LiteralTermMapper<double> testLiteralPriceMapper,
+  }) : _priceMapper = testLiteralPriceMapper;
 
   @override
   IriTerm? get typeIri => null;

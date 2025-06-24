@@ -25,25 +25,39 @@ import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
 /// Provider parameters:
 /// * [baseUriProvider] {+baseUri}
 /// named mapper parameters:
+/// * [iriMapper] mapper
+/// * [mapEntryMapper] mapper
+/// * [testCustomMapper] mapper
+/// * [testGlobalMapper] mapper
 /// * [testGlobalResourceMapper] mapper
 /// * [testIriMapper] mapper
 /// * [testLiteralMapper] mapper
+/// * [testLiteralPriceMapper] mapper
+/// * [testLocalMapper] mapper
 /// * [testLocalResourceMapper] mapper
 /// * [testMapper] mapper
 /// * [testMapper3] mapper
+/// * [testNamedMapper] mapper
 RdfMapper initTestRdfMapper({
   RdfMapper? rdfMapper,
   // Provider parameters
   required String Function() baseUriProvider,
   // Named mapper parameters
+  required IriTermMapper<String> iriMapper,
+  required LocalResourceMapper<Map<String, String>> mapEntryMapper,
+  required LiteralTermMapper<String> testCustomMapper,
+  required GlobalResourceMapper<Object> testGlobalMapper,
   required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>
   testGlobalResourceMapper,
   required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
   required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
+  required LiteralTermMapper<double> testLiteralPriceMapper,
+  required LocalResourceMapper<Object> testLocalMapper,
   required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>
   testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
   required IriTermMapper<(String id, String surname, int version)> testMapper3,
+  required GlobalResourceMapper<Object> testNamedMapper,
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
@@ -207,7 +221,7 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<pptm.IriMappingTest>(pptmrmg.IriMappingTestMapper());
   registry.registerMapper<pptm.IriMappingNamedMapperTest>(
-    pptmrmg.IriMappingNamedMapperTestMapper(),
+    pptmrmg.IriMappingNamedMapperTestMapper(iriMapper: iriMapper),
   );
   registry.registerMapper<pptm.IriMappingMapperTest>(
     pptmrmg.IriMappingMapperTestMapper(),
@@ -216,13 +230,15 @@ RdfMapper initTestRdfMapper({
     pptmrmg.IriMappingMapperInstanceTestMapper(),
   );
   registry.registerMapper<pptm.LocalResourceMappingTest>(
-    pptmrmg.LocalResourceMappingTestMapper(),
+    pptmrmg.LocalResourceMappingTestMapper(testLocalMapper: testLocalMapper),
   );
   registry.registerMapper<pptm.GlobalResourceMappingTest>(
-    pptmrmg.GlobalResourceMappingTestMapper(),
+    pptmrmg.GlobalResourceMappingTestMapper(testGlobalMapper: testGlobalMapper),
   );
   registry.registerMapper<pptm.LiteralMappingTest>(
-    pptmrmg.LiteralMappingTestMapper(),
+    pptmrmg.LiteralMappingTestMapper(
+      testLiteralPriceMapper: testLiteralPriceMapper,
+    ),
   );
   registry.registerMapper<pptm.LiteralMappingTestCustomDatatype>(
     pptmrmg.LiteralMappingTestCustomDatatypeMapper(),
@@ -238,7 +254,7 @@ RdfMapper initTestRdfMapper({
     pptmrmg.MapNoCollectionTestMapper(),
   );
   registry.registerMapper<pptm.MapLocalResourceMapperTest>(
-    pptmrmg.MapLocalResourceMapperTestMapper(),
+    pptmrmg.MapLocalResourceMapperTestMapper(mapEntryMapper: mapEntryMapper),
   );
   registry.registerMapper<pptm.SetTest>(pptmrmg.SetTestMapper());
   registry.registerMapper<pptm.EnumTypeTest>(pptmrmg.EnumTypeTestMapper());
@@ -259,10 +275,12 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<pptm.DatatypeTest>(pptmrmg.DatatypeTestMapper());
   registry.registerMapper<pptm.GlobalResourceNamedMapperTest>(
-    pptmrmg.GlobalResourceNamedMapperTestMapper(),
+    pptmrmg.GlobalResourceNamedMapperTestMapper(
+      testNamedMapper: testNamedMapper,
+    ),
   );
   registry.registerMapper<pptm.LiteralNamedMapperTest>(
-    pptmrmg.LiteralNamedMapperTestMapper(),
+    pptmrmg.LiteralNamedMapperTestMapper(testCustomMapper: testCustomMapper),
   );
   registry.registerMapper<pptm.LiteralTypeMapperTest>(
     pptmrmg.LiteralTypeMapperTestMapper(),

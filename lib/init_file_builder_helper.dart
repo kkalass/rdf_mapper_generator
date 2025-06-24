@@ -247,11 +247,24 @@ class InitFileBuilderHelper {
 
   _InitFileContributions mergeInitFileContributions(
       Iterable<_InitFileContributions> all) {
-    return (
-      all.expand((c) => c.$1).toList(),
-      all.fold<Map<String, _Provider>>({}, (acc, c) => {...acc, ...c.$2}),
-      all.fold<Map<String, _CustomMapper>>({}, (acc, c) => {...acc, ...c.$3})
-    );
+    final mappers = all.expand((c) => c.$1).toList();
+    final providers =
+        all.fold<Map<String, _Provider>>({}, (acc, c) => {...acc, ...c.$2});
+    final allCustomMappers =
+        all.fold<Map<String, _CustomMapper>>({}, (acc, c) => {...acc, ...c.$3});
+
+    // Remove any custom mappers that have the same parameter name as providers
+    // to avoid duplication in the generated init file
+    final providerParameterNames =
+        providers.values.map((p) => p.parameterName).toSet();
+    final deduplicatedCustomMappers = Map<String, _CustomMapper>.fromEntries(
+        allCustomMappers.entries.where((entry) {
+      final customMapper = entry.value;
+      // Only exclude if this custom mapper's parameter name matches a provider parameter name
+      return !providerParameterNames.contains(customMapper.parameterName);
+    }));
+
+    return (mappers, providers, deduplicatedCustomMappers);
   }
 
   _InitFileContributions collectResourceMapper(
@@ -269,14 +282,16 @@ class InitFileBuilderHelper {
     final providersByName =
         _indexProviders(contextProviders.map((e) => e.value));
 
-    // Extract IRI mappers for this mapper
-    final customIriMappers = _extractCustomIriMappers(mapperData);
-    final customMappersByName = _indexNamedIriMappers(customIriMappers);
+    // Extract all required custom mappers for this mapper, excluding those that are already providers
+    final providerNames = providersByName.keys.toSet();
+    final customMappers = _extractAllCustomMappers(mapperData,
+        excludeParameterNames: providerNames);
+    final customMappersByName = _indexNamedCustomMappers(customMappers);
 
     // Check if this mapper should be registered globally
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-    final code = _buildCodeInstantiateMapperWithIriMapper(
-        mapperClassName, contextProviders, customIriMappers);
+    final code = _buildCodeInstantiateMapperWithCustomMappers(
+        mapperClassName, contextProviders, customMappers);
     if (registerGlobally) {
       return (
         [
@@ -292,15 +307,26 @@ class InitFileBuilderHelper {
     return noInitFileContributions;
   }
 
-  Code _buildCodeInstantiateMapperWithIriMapper(
+  Code _buildCodeInstantiateMapperWithCustomMappers(
       Code mapperClassName,
       List<_MustacheListEntry<_ContextProvider>> contextProviders,
-      List<_CustomMapper> customIriMappers) {
-    var params = [
-      ..._contextProvidersToParams(contextProviders),
-      ...customIriMappers.map((i) => (i.parameterName, i.code)),
-    ];
-    return _buildCodeInstantiateMapper(mapperClassName, params);
+      List<_CustomMapper> customMappers) {
+    var providerParams = _contextProvidersToParams(contextProviders);
+    var customMapperParams =
+        customMappers.map((i) => (i.parameterName, i.code));
+
+    // Deduplicate parameters by name, giving priority to providers
+    var paramMap = <String, (String, Code)>{};
+    for (var param in providerParams) {
+      paramMap[param.$1] = param;
+    }
+    for (var param in customMapperParams) {
+      // Only add custom mapper params if there's no provider with the same name
+      paramMap.putIfAbsent(param.$1, () => param);
+    }
+
+    return _buildCodeInstantiateMapper(
+        mapperClassName, paramMap.values.toList());
   }
 
   Iterable<(String, Code)> _contextProvidersToParams(
@@ -468,6 +494,21 @@ class InitFileBuilderHelper {
           ),
       };
 
+  /// Extracts all custom mappers from mapper data (global IRI mappers + constructor parameter mappers)
+  List<_CustomMapper> _extractAllCustomMappers(Map<String, dynamic> mapperData,
+      {Set<String>? excludeParameterNames}) {
+    var result = <_CustomMapper>[];
+
+    // Extract global IRI mappers from iriStrategy
+    result.addAll(_extractCustomIriMappers(mapperData));
+
+    // Extract custom mappers from constructor parameters, excluding provider parameter names
+    result.addAll(_extractConstructorParameterMappers(mapperData,
+        excludeParameterNames: excludeParameterNames));
+
+    return result;
+  }
+
   /// Extracts IRI mappers from mapper data
   List<_CustomMapper> _extractCustomIriMappers(
       Map<String, dynamic> mapperData) {
@@ -503,13 +544,41 @@ class InitFileBuilderHelper {
     ];
   }
 
-  /// Collects IRI mappers into the iriMappers map
-  Map<String, _CustomMapper> _indexNamedIriMappers(
-          List<_CustomMapper> iriMapperInfos) =>
+  /// Extracts custom mappers from constructor parameters that require named mappers
+  List<_CustomMapper> _extractConstructorParameterMappers(
+      Map<String, dynamic> mapperData,
+      {Set<String>? excludeParameterNames}) {
+    final constructorParameters =
+        (mapperData['mapperConstructorParameters'] as List? ?? [])
+            .cast<Map<String, dynamic>>();
+
+    return constructorParameters
+        .map((param) => param['value'] as Map<String, dynamic>?)
+        .where((param) => param != null)
+        .map((param) => param!)
+        .where((param) => !(param['hasDefaultValue'] as bool? ?? false))
+        .where((param) => param['type'] != null)
+        .where((param) =>
+            excludeParameterNames?.contains(param['parameterName'] as String) !=
+            true)
+        .map((param) => _CustomMapper(
+            type: extractCodeProperty(param, 'type'),
+            code: Code.literal(param['parameterName'] as String),
+            parameterName: param['parameterName'] as String,
+            isNamed: true,
+            isTypeBased: false,
+            isInstance: false,
+            name: param['parameterName'] as String))
+        .toList();
+  }
+
+  /// Collects custom mappers into the customMappers map by name
+  Map<String, _CustomMapper> _indexNamedCustomMappers(
+          List<_CustomMapper> customMappers) =>
       {
-        for (final info in iriMapperInfos)
-          if (info.isNamed && info.name != null && info.name!.isNotEmpty)
-            info.name!: info
+        for (final mapper in customMappers)
+          if (mapper.isNamed && mapper.name != null && mapper.name!.isNotEmpty)
+            mapper.name!: mapper
       };
 
   /// Builds the final template data from processing results
