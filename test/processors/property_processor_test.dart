@@ -119,7 +119,7 @@ void main() {
       expect(defaultValue.toIntValue(), 5);
     });
 
-    test('should process property with IRI mapping', () {
+    test('should process property with IRI mapping template', () {
       // Arrange
       final field =
           libraryElement.getClass2('IriMappingTest')!.getField2('authorId');
@@ -131,13 +131,28 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      final annotation = result!.annotation;
-      expect(annotation.iri, isNotNull);
+      expect(result!.name, 'authorId');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping configuration
+      final annotation = result.annotation;
+      expect(annotation.iri, isNotNull,
+          reason: 'IriMapping should be processed and available');
       expect(
         annotation.iri!.template,
         'http://example.org/authors/{authorId}',
+        reason: 'IRI template should match the annotation value',
       );
-      expect(annotation.iri!.mapper, isNull);
+      expect(annotation.iri!.mapper, isNull,
+          reason: 'Template-based IriMapping should not have a custom mapper');
+
+      // Verify other mapping types are null for IRI mapping
+      expect(annotation.literal, isNull);
+      expect(annotation.localResource, isNull);
+      expect(annotation.globalResource, isNull);
     });
 
     test('should process property with IRI mapping (named)', () {

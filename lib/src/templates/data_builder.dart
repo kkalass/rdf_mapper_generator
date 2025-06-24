@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
@@ -48,8 +49,10 @@ class DataBuilder {
         constContext: constContext);
   }
 
-  static CustomMapperTemplateData buildCustomMapper(ValidationContext context,
-      Code className, BaseMappingAnnotationInfo annotation) {
+  static List<MappableClassMapperTemplateData> buildCustomMapper(
+      ValidationContext context,
+      Code className,
+      BaseMappingAnnotationInfo annotation) {
     assert(annotation.mapper != null);
     final mapper = annotation.mapper!;
     Code mapperInterfaceType =
@@ -68,14 +71,16 @@ class DataBuilder {
         'Custom mapper must have either a name or a type defined in the annotation.',
       );
     }
-    return CustomMapperTemplateData(
-      className: className,
-      mapperInterfaceType: mapperInterfaceType,
-      customMapperName: customMapperName,
-      customMapperType: customMapperType,
-      customMapperInstance: customMapperInstance,
-      registerGlobally: annotation.registerGlobally,
-    );
+    return [
+      CustomMapperTemplateData(
+        className: className,
+        mapperInterfaceType: mapperInterfaceType,
+        customMapperName: customMapperName,
+        customMapperType: customMapperType,
+        customMapperInstance: customMapperInstance,
+        registerGlobally: annotation.registerGlobally,
+      )
+    ];
   }
 
   static Code _buildMapperInterfaceTypeFromBaseMapper(
@@ -107,8 +112,10 @@ class DataBuilder {
   }
 
   /// Builds template data for a global resource mapper.
-  static ResourceMapperTemplateData buildResourceMapper(
-      ResourceInfo resourceInfo, String mapperImportUri) {
+  static List<MappableClassMapperTemplateData> buildResourceMapper(
+      ValidationContext context,
+      ResourceInfo resourceInfo,
+      String mapperImportUri) {
     if (resourceInfo.annotation.mapper != null) {
       throw Exception(
         'ResourceMapper cannot have a mapper defined in the annotation.',
@@ -143,6 +150,73 @@ class DataBuilder {
         .toList();
 
     final properties = _buildPropertyData(resourceInfo.fields);
+    final mapperConstructorParameters = buildMapperConstructorParameters(
+        iriStrategy, contextProviders, resourceInfo, mapperImportUri);
+
+    final resourceMapper = ResourceMapperTemplateData(
+        className: className,
+        mapperClassName: mapperClassName,
+        mapperInterfaceName: mapperInterfaceName,
+        termClass: termClass,
+        typeIri: typeIri,
+        iriStrategy: iriStrategy,
+        contextProviders: contextProviders,
+        constructorParameters: resourceConstructorParameters,
+        nonConstructorFields: nonConstructorFields,
+        needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
+        registerGlobally: resourceInfo.annotation.registerGlobally,
+        properties: properties,
+        mapperConstructorParameters: mapperConstructorParameters);
+
+    final propertyMappers = resourceInfo.fields.expand((f) {
+      var pi = f.propertyInfo;
+      if (pi == null) return const [];
+      final iri = pi.annotation.iri;
+      if (iri == null || iri.mapper != null) return const [];
+      final template = iri.template;
+      final iriParts = [
+        IriPartInfo(
+            name: f.name,
+            dartPropertyName: f.name,
+            type: f.type,
+            pos: 1,
+            isMappedValue: true)
+      ];
+      final templateInfo =
+          IriStrategyProcessor.processTemplate(context, template!, iriParts)!;
+      if (!templateInfo.propertyVariables.any((v) => v.name == f.name)) {
+        context.addError(
+            'Property ${f.name} is not defined in the IRI template: $template, but this property is annotated with a template based IriMapping');
+      }
+      return _buildIriMapper(
+          className: f.type,
+          templateInfo: templateInfo,
+          iriParts: iriParts,
+          mapperClassName:
+              buildPropertyMapperName(className, f, mapperImportUri),
+          registerGlobally: false /* local to the resource mapper */
+          );
+    });
+    return [resourceMapper, ...propertyMappers];
+  }
+
+  static Code buildPropertyMapperName(
+      Code className, FieldInfo f, String mapperImportUri) {
+    return Code.type(
+        '${className.codeWithoutAlias}${_capitalizeFirstLetter(f.name)}Mapper',
+        importUri: mapperImportUri);
+  }
+
+  static String _capitalizeFirstLetter(String str) {
+    if (str.isEmpty) return str;
+    return str[0].toUpperCase() + str.substring(1);
+  }
+
+  static List<ConstructorParameterData> buildMapperConstructorParameters(
+      IriData? iriStrategy,
+      List<ContextProviderData> contextProviders,
+      ResourceInfo resourceInfo,
+      String mapperImportUri) {
     final List<ConstructorParameterData> mapperConstructorParameters = [
       if (iriStrategy?.hasMapper ?? false)
         ConstructorParameterData(
@@ -159,7 +233,8 @@ class DataBuilder {
           ]),
           defaultValue: null)),
       ...resourceInfo.fields.expand((f) {
-        final iriMapper = f.propertyInfo?.annotation.iri?.mapper;
+        final iri = f.propertyInfo?.annotation.iri;
+        final iriMapper = iri?.mapper;
         final literalMapper = f.propertyInfo?.annotation.literal?.mapper;
         final globalResourceMapper =
             f.propertyInfo?.annotation.globalResource?.mapper;
@@ -168,6 +243,9 @@ class DataBuilder {
         return [
           if (iriMapper != null)
             mappingToConstructorParameter(f, iriMapper, 'IriTermMapper'),
+          if (iri != null && iri.template != null)
+            _propertyMapperConstructorParameter(
+                f, 'IriTermMapper', resourceInfo.className, mapperImportUri),
           if (literalMapper != null)
             mappingToConstructorParameter(
                 f, literalMapper, 'LiteralTermMapper'),
@@ -180,20 +258,7 @@ class DataBuilder {
         ];
       })
     ];
-    return ResourceMapperTemplateData(
-        className: className,
-        mapperClassName: mapperClassName,
-        mapperInterfaceName: mapperInterfaceName,
-        termClass: termClass,
-        typeIri: typeIri,
-        iriStrategy: iriStrategy,
-        contextProviders: contextProviders,
-        constructorParameters: resourceConstructorParameters,
-        nonConstructorFields: nonConstructorFields,
-        needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
-        registerGlobally: resourceInfo.annotation.registerGlobally,
-        properties: properties,
-        mapperConstructorParameters: mapperConstructorParameters);
+    return mapperConstructorParameters;
   }
 
   static ConstructorParameterData mappingToConstructorParameter(
@@ -208,11 +273,29 @@ class DataBuilder {
             : null);
   }
 
+  static ConstructorParameterData _propertyMapperConstructorParameter(
+      FieldInfo f,
+      String mapperInterface,
+      Code className,
+      String mapperImportUri) {
+    var generatedMapperName =
+        buildPropertyMapperName(className, f, mapperImportUri);
+    return ConstructorParameterData(
+        fieldName: _buildMapperFieldName(f.name),
+        parameterName: f.name + 'Mapper',
+        type: _buildMapperInterfaceType(
+            Code.type(mapperInterface, importUri: importRdfMapper), f.type),
+        defaultValue: Code.combine(
+            [Code.literal('const '), generatedMapperName, Code.literal('()')]));
+  }
+
   static String _buildMapperFieldName(String fieldName) =>
       '_' + fieldName + 'Mapper';
 
-  static LiteralMapperTemplateData buildLiteralMapper(
-      LiteralInfo resourceInfo, String mapperImportUri) {
+  static List<MappableClassMapperTemplateData> buildLiteralMapper(
+      ValidationContext context,
+      LiteralInfo resourceInfo,
+      String mapperImportUri) {
     final annotation = resourceInfo.annotation;
     if (annotation.mapper != null) {
       throw Exception(
@@ -261,66 +344,83 @@ class DataBuilder {
 
     final properties = _buildPropertyData(resourceInfo.fields);
 
-    return LiteralMapperTemplateData(
-        className: className,
-        mapperClassName: mapperClassName,
-        mapperInterfaceName: mapperInterfaceName,
-        datatype: datatype,
-        fromLiteralTermMethod: fromLiteralTermMethod,
-        toLiteralTermMethod: toLiteralTermMethod,
-        constructorParameters: constructorParameters,
-        nonConstructorFields: nonConstructorFields,
-        registerGlobally: resourceInfo.annotation.registerGlobally,
-        properties: properties,
-        rdfValue: rdfValueParameter,
-        rdfLanguageTag: rdfLanguageTagParameter);
+    return [
+      LiteralMapperTemplateData(
+          className: className,
+          mapperClassName: mapperClassName,
+          mapperInterfaceName: mapperInterfaceName,
+          datatype: datatype,
+          fromLiteralTermMethod: fromLiteralTermMethod,
+          toLiteralTermMethod: toLiteralTermMethod,
+          constructorParameters: constructorParameters,
+          nonConstructorFields: nonConstructorFields,
+          registerGlobally: resourceInfo.annotation.registerGlobally,
+          properties: properties,
+          rdfValue: rdfValueParameter,
+          rdfLanguageTag: rdfLanguageTagParameter)
+    ];
   }
 
-  static IriMapperTemplateData buildIriMapper(
-      IriInfo iriInfo, String mapperImportUri) {
+  static List<MappableClassMapperTemplateData> buildIriMapper(
+      ValidationContext context, IriInfo iriInfo, String mapperImportUri) {
     final annotation = iriInfo.annotation;
     if (annotation.mapper != null) {
       throw Exception(
         'IriMapper cannot have a mapper defined in the annotation.',
       );
     }
+    if (annotation.templateInfo == null) {
+      throw Exception(
+        'IriMapper must have a template defined in the annotation.',
+      );
+    }
+    return _buildIriMapper(
+        className: iriInfo.className,
+        templateInfo: annotation.templateInfo!,
+        iriParts: annotation.iriParts,
+        mapperClassName: Code.type(
+            '${iriInfo.className.codeWithoutAlias}Mapper',
+            importUri: mapperImportUri),
+        constructors: iriInfo.constructors,
+        fields: iriInfo.fields,
+        registerGlobally: annotation.registerGlobally);
+  }
 
-    final className = iriInfo.className;
-    final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
-        importUri: mapperImportUri);
-    final mapperInterfaceName = _mapperInterfaceNameFor(annotation);
+  static List<MappableClassMapperTemplateData> _buildIriMapper(
+      {required Code className,
+      required final IriTemplateInfo templateInfo,
+      final List<IriPartInfo>? iriParts,
+      required Code mapperClassName,
+      List<ConstructorInfo> constructors = const [],
+      List<FieldInfo> fields = const [],
+      bool registerGlobally = false}) {
+    final mapperInterfaceName =
+        Code.type('IriTermMapper', importUri: importRdfMapper);
 
     // Build IRI strategy data
     final iriData = _buildIriData(
-        annotation.template,
-        annotation.mapper,
-        Code.combine([
-          mapperInterfaceName,
-          Code.literal('<'),
-          className,
-          Code.literal('>')
-        ]),
-        annotation.iriParts,
-        annotation.templateInfo,
-        iriInfo.fields)!;
+        templateInfo.template,
+        null,
+        _buildMapperInterfaceType(mapperInterfaceName, className),
+        iriParts,
+        templateInfo,
+        fields)!;
     if (iriData.template == null) {
       throw Exception(
-        'Trying to generate an IRI mapper for resource ${iriInfo.className}, but IRI template is not defined. This should not be possible.',
+        'Trying to generate an IRI mapper for resource ${className}, but IRI template is not defined. This should not be possible.',
       );
     }
     // Build context providers for context variables
-    final contextProviders =
-        _buildContextProvidersForIriTemplate(annotation.templateInfo);
+    final contextProviders = _buildContextProvidersForIriTemplate(templateInfo);
 
     // Build constructor parameters
-    final constructorParameters =
-        _buildConstructorParameters(iriInfo.constructors);
+    final constructorParameters = _buildConstructorParameters(constructors);
 
     // Build non-constructor fields that are IRI parts
-    final nonConstructorFields = _buildNonConstructorFields(
-            constructorParameters, iriInfo.fields, iriData)
-        .where((p) => p.isIriPart)
-        .toList();
+    final nonConstructorFields =
+        _buildNonConstructorFields(constructorParameters, fields, iriData)
+            .where((p) => p.isIriPart)
+            .toList();
 
     // Check that all constructor parameters and non-constructor fields are IRI parts
     final allConstructorParams =
@@ -331,19 +431,29 @@ class DataBuilder {
       );
     }
 
-    final properties = _buildPropertyData(iriInfo.fields);
-
-    return IriMapperTemplateData(
-        className: className,
-        mapperClassName: mapperClassName,
-        mapperInterfaceName: mapperInterfaceName,
-        iriStrategy: iriData,
-        contextProviders: contextProviders,
-        constructorParameters: constructorParameters,
-        nonConstructorFields: nonConstructorFields,
-        needsReader: iriInfo.fields.any((p) => p.propertyInfo != null),
-        registerGlobally: iriInfo.annotation.registerGlobally,
-        properties: properties);
+    final properties = _buildPropertyData(fields);
+    final singleMappedValue = templateInfo.propertyVariables
+        .where((v) => v.isMappedValue)
+        .map((v) => VariableNameData(
+            isMappedValue: v.isMappedValue,
+            variableName: v.name,
+            isString: className == _stringType,
+            placeholder: '{${v.name}}'))
+        .singleOrNull;
+    return [
+      IriMapperTemplateData(
+          className: className,
+          mapperClassName: mapperClassName,
+          mapperInterfaceName: mapperInterfaceName,
+          iriStrategy: iriData,
+          contextProviders: contextProviders,
+          constructorParameters: constructorParameters,
+          nonConstructorFields: nonConstructorFields,
+          needsReader: fields.any((p) => p.propertyInfo != null),
+          registerGlobally: registerGlobally,
+          properties: properties,
+          singleMappedValue: singleMappedValue),
+    ];
   }
 
   static List<PropertyData> _buildPropertyData(List<FieldInfo> fields) {
@@ -462,6 +572,7 @@ class DataBuilder {
     return VariableNameData(
       isString: isString,
       variableName: variable.dartPropertyName,
+      isMappedValue: variable.isMappedValue,
       placeholder:
           variable.canBeUri ? '{+${variable.name}}' : '{${variable.name}}',
     );
@@ -578,7 +689,9 @@ class DataBuilder {
   static List<ParameterData> _buildConstructorParameters(
       List<ConstructorInfo> constructors) {
     final parameters = <ParameterData>[];
-
+    if (constructors.isEmpty) {
+      return parameters; // No constructors, return empty list
+    }
     // Find the default constructor or use the first one if no default exists
     final defaultConstructor = constructors.firstWhere(
       (c) => c.isDefaultConstructor,
@@ -637,7 +750,7 @@ class DataBuilder {
     String? mapperParameterDeserializer
   ) _extractPropertyMapperInfos(String fieldName, PropertyInfo? propertyInfo) {
     final iri = propertyInfo?.annotation.iri;
-    if (iri != null && iri.mapper != null) {
+    if (iri != null) {
       return (
         _buildMapperFieldName(fieldName),
         'iriTermSerializer',

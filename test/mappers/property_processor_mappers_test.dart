@@ -168,5 +168,147 @@ books:singleton a schema:Book .
       expect(simpleSerializedA, isNot(equals(simpleSerializedB)),
           reason: 'Normal properties should affect serialization');
     });
+
+    test('IriMappingTest - IRI template mapping behavior', () {
+      // Test basic functionality with different author IDs
+      final authorId1 = 'john-doe';
+      final authorId2 = 'jane-smith';
+      final authorId3 = 'special-chars-author';
+
+      final testInstance1 = IriMappingTest(authorId: authorId1);
+      final testInstance2 = IriMappingTest(authorId: authorId2);
+      final testInstance3 = IriMappingTest(authorId: authorId3);
+
+      // Test serialization - should use IRI template 'http://example.org/authors/{authorId}'
+      final serialized1 = mapper.encodeObject(testInstance1);
+      final serialized2 = mapper.encodeObject(testInstance2);
+      final serialized3 = mapper.encodeObject(testInstance3);
+
+      expect(serialized1, isNotNull);
+      expect(serialized2, isNotNull);
+      expect(serialized3, isNotNull);
+
+      // Verify that different authorIds produce different serialized forms
+      expect(serialized1, isNot(equals(serialized2)),
+          reason:
+              'Different authorIds should produce different serialized forms');
+      expect(serialized2, isNot(equals(serialized3)),
+          reason:
+              'Different authorIds should produce different serialized forms');
+
+      // Check that the IRI template is used correctly - RDF output uses prefixes
+      // The prefix declaration should be: @prefix authors: <http://example.org/authors/> .
+      expect(serialized1,
+          contains('@prefix authors: <http://example.org/authors/>'),
+          reason:
+              'Serialized data should contain the prefix for the IRI namespace');
+      expect(serialized1, contains('authors:john-doe'),
+          reason:
+              'Serialized data should contain the author IRI using prefix notation');
+      expect(serialized2, contains('authors:jane-smith'),
+          reason:
+              'Serialized data should contain the author IRI using prefix notation');
+      expect(serialized3, contains('authors:special-chars-author'),
+          reason:
+              'Serialized data should contain the author IRI using prefix notation');
+
+      // Test round-trip serialization/deserialization
+      final deserialized1 = mapper.decodeObject<IriMappingTest>(serialized1);
+      final deserialized2 = mapper.decodeObject<IriMappingTest>(serialized2);
+      final deserialized3 = mapper.decodeObject<IriMappingTest>(serialized3);
+
+      expect(deserialized1, isNotNull);
+      expect(deserialized2, isNotNull);
+      expect(deserialized3, isNotNull);
+
+      // Verify that the authorId values are preserved through round-trip
+      expect(deserialized1.authorId, equals(authorId1),
+          reason: 'IRI mapping should preserve authorId through round-trip');
+      expect(deserialized2.authorId, equals(authorId2),
+          reason: 'IRI mapping should preserve authorId through round-trip');
+      expect(deserialized3.authorId, equals(authorId3),
+          reason: 'IRI mapping should preserve authorId through round-trip');
+    });
+
+    test('IriMappingTest - edge cases and special characters', () {
+      // Test edge cases with valid IRI characters
+      final authorIdWithDashes = 'author-with-dashes';
+      final authorIdWithUnderscores = 'author_name';
+      final authorIdLong = 'a-very-long-author-name-with-many-characters';
+
+      final testInstanceDashes = IriMappingTest(authorId: authorIdWithDashes);
+      final testInstanceUnderscores =
+          IriMappingTest(authorId: authorIdWithUnderscores);
+      final testInstanceLong = IriMappingTest(authorId: authorIdLong);
+
+      // Test serialization for edge cases
+      final serializedDashes = mapper.encodeObject(testInstanceDashes);
+      final serializedUnderscores =
+          mapper.encodeObject(testInstanceUnderscores);
+      final serializedLong = mapper.encodeObject(testInstanceLong);
+
+      expect(serializedDashes, isNotNull);
+      expect(serializedUnderscores, isNotNull);
+      expect(serializedLong, isNotNull);
+
+      // Verify that different authorIds produce different serialized forms
+      expect(serializedDashes, isNot(equals(serializedUnderscores)),
+          reason:
+              'Different authorIds should produce different serialized forms');
+      expect(serializedUnderscores, isNot(equals(serializedLong)),
+          reason:
+              'Different authorIds should produce different serialized forms');
+
+      // Check for proper IRI generation - all should use valid prefix notation
+      expect(serializedDashes, contains('authors:author-with-dashes'),
+          reason: 'Should contain author ID with dashes in prefixed form');
+      expect(serializedUnderscores, contains('authors:author_name'),
+          reason: 'Should contain author ID with underscores in prefixed form');
+      expect(serializedLong,
+          contains('authors:a-very-long-author-name-with-many-characters'),
+          reason: 'Should contain long author ID in prefixed form');
+
+      // Test round-trip for edge cases
+      final deserializedDashes =
+          mapper.decodeObject<IriMappingTest>(serializedDashes);
+      final deserializedUnderscores =
+          mapper.decodeObject<IriMappingTest>(serializedUnderscores);
+      final deserializedLong =
+          mapper.decodeObject<IriMappingTest>(serializedLong);
+
+      expect(deserializedDashes, isNotNull);
+      expect(deserializedUnderscores, isNotNull);
+      expect(deserializedLong, isNotNull);
+
+      // Verify values are preserved
+      expect(deserializedDashes.authorId, equals(authorIdWithDashes),
+          reason:
+              'Author ID with dashes should be preserved through round-trip');
+      expect(deserializedUnderscores.authorId, equals(authorIdWithUnderscores),
+          reason:
+              'Author ID with underscores should be preserved through round-trip');
+      expect(deserializedLong.authorId, equals(authorIdLong),
+          reason: 'Long author ID should be preserved through round-trip');
+    });
+
+    test('IriMappingTest - empty author ID edge case', () {
+      // Test specifically for empty author ID case which has different serialization behavior
+      final authorIdEmpty = '';
+      final testInstanceEmpty = IriMappingTest(authorId: authorIdEmpty);
+
+      final serializedEmpty = mapper.encodeObject(testInstanceEmpty);
+      expect(serializedEmpty, isNotNull);
+
+      // Empty authorId creates a direct IRI reference without prefix
+      expect(serializedEmpty, contains('<http://example.org/authors/>'),
+          reason: 'Empty author ID should create direct IRI reference');
+
+      // Test round-trip for empty case
+      final deserializedEmpty =
+          mapper.decodeObject<IriMappingTest>(serializedEmpty);
+      expect(deserializedEmpty, isNotNull);
+      expect(deserializedEmpty.authorId, equals(authorIdEmpty),
+          reason: 'Empty author ID should be preserved through round-trip');
+    });
   });
 }

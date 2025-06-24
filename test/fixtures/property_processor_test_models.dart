@@ -84,6 +84,117 @@ class IriMappingTest {
   IriMappingTest({required this.authorId});
 }
 
+// FIXME: uncomment when IriMapping supports full IRIs
+/*
+@RdfLocalResource()
+class IriMappingFullIriTest {
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('{+authorIri}'),
+  )
+  final String authorIri;
+
+  IriMappingFullIriTest({required this.authorIri});
+}
+
+@RdfLocalResource()
+class IriMappingFullIriPlusMissingTest {
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('{authorIri}'),
+  )
+  final String authorIri;
+
+  IriMappingFullIriPlusMissingTest({required this.authorIri});
+}
+
+@RdfLocalResource()
+class IriMappingFullIriSimpleTest {
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping(),
+  )
+  final String authorIri;
+
+  IriMappingFullIriSimpleTest({required this.authorIri});
+}
+
+@RdfLocalResource()
+class IriMappingWithBaseUriTest {
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('{+baseUri}/authors/{authorId}'),
+  )
+  final String authorId;
+
+  IriMappingWithBaseUriTest({required this.authorId});
+}
+
+@RdfLocalResource()
+class IriMappingWithProviderTest {
+  @RdfProvides()
+  String get category => 'fiction';
+
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('http://example.org/{category}/{authorId}'),
+  )
+  final String authorId;
+
+  IriMappingWithProviderTest({required this.authorId});
+}
+
+@RdfLocalResource()
+class IriMappingWithBaseUriProviderTest {
+  @RdfProvides()
+  String get baseUri => 'http://foo.example.org';
+
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('{+baseUri}/{authorId}'),
+  )
+  final String authorId;
+
+  IriMappingWithBaseUriProviderTest({required this.authorId});
+}
+
+@RdfLocalResource()
+class IriMappingWithProviderPropertyTest {
+  @RdfProvides()
+  @RdfProperty(SchemaBook.genre)
+  final String genre;
+
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('http://example.org/{genre}/{authorId}'),
+  )
+  final String authorId;
+
+  IriMappingWithProviderPropertyTest(
+      {required this.authorId, required this.genre});
+}
+
+@RdfLocalResource()
+class IriMappingWithProvidersAndBaseUriPropertyTest {
+  @RdfProvides()
+  @RdfProperty(SchemaBook.genre)
+  final String genre;
+
+  @RdfProvides()
+  @RdfProperty(SchemaBook.version)
+  final String version;
+
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('{+baseUri}/{genre}/{version}/{authorId}'),
+  )
+  final String authorId;
+
+  IriMappingWithProvidersAndBaseUriPropertyTest(
+      {required this.authorId, required this.genre, required this.version});
+}
+*/
+
 @RdfLocalResource()
 class IriMappingNamedMapperTest {
   @RdfProperty(

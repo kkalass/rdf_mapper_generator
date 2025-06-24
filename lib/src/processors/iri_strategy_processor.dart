@@ -36,7 +36,7 @@ class IriStrategyProcessor {
   static (String?, IriTemplateInfo?, List<IriPartInfo>)
       processIriPartsAndTemplate(ValidationContext context,
           ClassElement2 classElement, String? template, MapperRefInfo? mapper) {
-    final iriParts = _findIriPartFields(classElement);
+    final iriParts = findIriPartFields(classElement);
     if (mapper == null && (template == null || template.isEmpty)) {
       if (iriParts.length != 1) {
         context.addError(
@@ -47,9 +47,8 @@ class IriStrategyProcessor {
     }
 
     // Process template if it exists
-    final templateInfo = template != null
-        ? processTemplate(context, template, classElement, iriParts: iriParts)
-        : null;
+    final templateInfo =
+        template != null ? processTemplate(context, template, iriParts) : null;
     if (templateInfo == null && mapper == null) {
       if (iriParts.length != 1) {
         context.addError(
@@ -64,14 +63,12 @@ class IriStrategyProcessor {
   /// Returns an [IriTemplateInfo] containing parsed template data, or null if the
   /// template is invalid or empty.
   static IriTemplateInfo? processTemplate(
-      ValidationContext context, String template, ClassElement2 classElement,
-      {List<IriPartInfo>? iriParts}) {
+      ValidationContext context, String template, List<IriPartInfo> iriParts) {
     try {
       if (template.isEmpty) {
         context.addError('IRI template cannot be empty');
         return null;
       }
-      iriParts ??= _findIriPartFields(classElement);
       final variables = _extractVariables(template);
       final propertyResult = _findPropertyVariables(variables, iriParts);
 
@@ -153,7 +150,8 @@ class IriStrategyProcessor {
         propertyVariables.add(VariableName(
             name: name,
             dartPropertyName: iriPart.dartPropertyName,
-            canBeUri: variable.canBeUri));
+            canBeUri: variable.canBeUri,
+            isMappedValue: iriPart.isMappedValue));
       } else {
         // Generate warning for unused @RdfIriPart annotation
         warnings.add(
@@ -167,7 +165,7 @@ class IriStrategyProcessor {
     );
   }
 
-  static List<IriPartInfo> _findIriPartFields(ClassElement2 classElement) {
+  static List<IriPartInfo> findIriPartFields(ClassElement2 classElement) {
     final result = <IriPartInfo>[];
 
     for (final field in classElement.fields2) {

@@ -38,7 +38,10 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
           }));
     {{/hasTemplate}}
     {{/iriStrategy}}
-    
+    {{#hasSingleMappedValue}}
+    return iriParts['{{singleMappedValue.variableName}}']!;
+    {{/hasSingleMappedValue}}
+    {{^hasSingleMappedValue}}
     {{#constructorParametersOrOtherFields}}
     final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/constructorParametersOrOtherFields}}
@@ -56,18 +59,19 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{/nonConstructorFields}}
     return retval;
     {{/hasNonConstructorFields}}
+    {{/hasSingleMappedValue}}
   }
 
   @override
   IriTerm toRdfTerm(
-    {{className}} resource,
+    {{className}} iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
     {{#iriStrategy}}
     {{#hasTemplate}}
     {{#template.propertyVariables}}
-    final {{value.variableName}} = resource.{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}};
+    final {{value.variableName}} = {{^value.isMappedValue}}iriTermValue.{{value.variableName}}{{/value.isMappedValue}}{{#value.isMappedValue}}iriTermValue{{/value.isMappedValue}}{{^value.isString}}.toString(){{/value.isString}};
     {{/template.propertyVariables}}
     {{#contextProviders}}
     final {{value.variableName}} = {{value.privateFieldName}}();

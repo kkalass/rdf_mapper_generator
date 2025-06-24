@@ -194,11 +194,13 @@ class VariableName {
   final String dartPropertyName;
   final String name;
   final bool canBeUri;
+  final bool isMappedValue;
 
   VariableName({
     required this.dartPropertyName,
     required this.name,
     required this.canBeUri,
+    this.isMappedValue = false,
   });
 
   @override
@@ -207,15 +209,17 @@ class VariableName {
     return other is VariableName &&
         other.dartPropertyName == dartPropertyName &&
         other.name == name &&
-        other.canBeUri == canBeUri;
+        other.canBeUri == canBeUri &&
+        other.isMappedValue == isMappedValue;
   }
 
   @override
-  int get hashCode => Object.hash(dartPropertyName, name, canBeUri);
+  int get hashCode =>
+      Object.hash(dartPropertyName, name, canBeUri, isMappedValue);
 
   @override
   String toString() =>
-      'VariableName(dartPropertyName: $dartPropertyName, name: $name, canBeUri: $canBeUri)';
+      'VariableName(dartPropertyName: $dartPropertyName, name: $name, canBeUri: $canBeUri, isMappedValue: $isMappedValue)';
 }
 
 class IriPartInfo {
@@ -223,12 +227,14 @@ class IriPartInfo {
   final String dartPropertyName;
   final Code type;
   final int pos;
+  final bool isMappedValue;
 
   const IriPartInfo({
     required this.name,
     required this.dartPropertyName,
     required this.type,
     required this.pos,
+    this.isMappedValue = false,
   });
 
   @override
@@ -238,15 +244,17 @@ class IriPartInfo {
         other.name == name &&
         other.dartPropertyName == dartPropertyName &&
         other.type == type &&
-        other.pos == pos;
+        other.pos == pos &&
+        other.isMappedValue == isMappedValue;
   }
 
   @override
-  int get hashCode => Object.hash(name, dartPropertyName, type, pos);
+  int get hashCode =>
+      Object.hash(name, dartPropertyName, type, pos, isMappedValue);
 
   @override
   String toString() =>
-      'IriPartInfo(name: $name, dartPropertyName: $dartPropertyName, type: $type, pos: $pos)';
+      'IriPartInfo(name: $name, dartPropertyName: $dartPropertyName, type: $type, pos: $pos, isMappedValue: $isMappedValue)';
 }
 
 class IriMapperType {

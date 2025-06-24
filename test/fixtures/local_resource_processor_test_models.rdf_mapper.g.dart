@@ -18,8 +18,12 @@ import 'package:rdf_vocabularies/schema.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Book.
 class BookMapper implements LocalResourceMapper<Book> {
+  final IriTermMapper<String> _authorIdMapper;
+
   /// Constructor
-  const BookMapper();
+  const BookMapper({
+    IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper(),
+  }) : _authorIdMapper = authorIdMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -30,7 +34,10 @@ class BookMapper implements LocalResourceMapper<Book> {
 
     final String isbn = reader.require(SchemaBook.isbn);
     final String title = reader.require(SchemaBook.name);
-    final String authorId = reader.require(SchemaBook.author);
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIdMapper,
+    );
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
@@ -47,8 +54,51 @@ class BookMapper implements LocalResourceMapper<Book> {
         .resourceBuilder(subject)
         .addValue(SchemaBook.isbn, resource.isbn)
         .addValue(SchemaBook.name, resource.title)
-        .addValue(SchemaBook.author, resource.authorId)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer: _authorIdMapper,
+        )
         .build();
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class BookAuthorIdMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+  );
+
+  /// Constructor
+  const BookAuthorIdMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String, String>{}
+        : Map.fromEntries(
+            match.groupNames.map((name) {
+              var namedGroup = match.namedGroup(name)!;
+              return MapEntry(name, namedGroup);
+            }),
+          );
+    return iriParts['authorId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorId = iriTermValue.toString();
+    return IriTerm('http://example.org/authors/${authorId}');
   }
 }
 

@@ -37,7 +37,6 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
               return MapEntry(name, namedGroup);
             }),
           );
-
     final isbn = iriParts['isbn']!;
 
     return IriWithOnePart(isbn: isbn);
@@ -45,11 +44,11 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
 
   @override
   IriTerm toRdfTerm(
-    IriWithOnePart resource,
+    IriWithOnePart iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn;
+    final isbn = iriTermValue.isbn;
     return IriTerm('http://example.org/books/${isbn}');
   }
 }
@@ -83,7 +82,6 @@ class IriWithOnePartExplicitlyGlobalMapper
               return MapEntry(name, namedGroup);
             }),
           );
-
     final isbn = iriParts['isbn']!;
 
     return IriWithOnePartExplicitlyGlobal(isbn: isbn);
@@ -91,11 +89,11 @@ class IriWithOnePartExplicitlyGlobalMapper
 
   @override
   IriTerm toRdfTerm(
-    IriWithOnePartExplicitlyGlobal resource,
+    IriWithOnePartExplicitlyGlobal iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn;
+    final isbn = iriTermValue.isbn;
     return IriTerm('http://example.org/books/${isbn}');
   }
 }
@@ -128,7 +126,6 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
               return MapEntry(name, namedGroup);
             }),
           );
-
     final value = iriParts['isbn']!;
 
     return IriWithOnePartNamed(value: value);
@@ -136,11 +133,11 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
 
   @override
   IriTerm toRdfTerm(
-    IriWithOnePartNamed resource,
+    IriWithOnePartNamed iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final value = resource.value;
+    final value = iriTermValue.value;
     return IriTerm('http://example.org/books/${value}');
   }
 }
@@ -170,7 +167,6 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
               return MapEntry(name, namedGroup);
             }),
           );
-
     final value = iriParts['value']!;
     final type = iriParts['type']!;
 
@@ -179,12 +175,12 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
 
   @override
   IriTerm toRdfTerm(
-    IriWithTwoParts resource,
+    IriWithTwoParts iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final value = resource.value;
-    final type = resource.type;
+    final value = iriTermValue.value;
+    final type = iriTermValue.type;
     return IriTerm('http://example.org/${type}/${value}');
   }
 }
@@ -223,7 +219,6 @@ class IriWithBaseUriAndTwoPartsMapper
               return MapEntry(name, namedGroup);
             }),
           );
-
     final value = iriParts['value']!;
     final otherPart = iriParts['type']!;
 
@@ -232,12 +227,12 @@ class IriWithBaseUriAndTwoPartsMapper
 
   @override
   IriTerm toRdfTerm(
-    IriWithBaseUriAndTwoParts resource,
+    IriWithBaseUriAndTwoParts iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final value = resource.value;
-    final otherPart = resource.otherPart;
+    final value = iriTermValue.value;
+    final otherPart = iriTermValue.otherPart;
     final baseUri = _baseUriProvider();
     return IriTerm('${baseUri}/${otherPart}/${value}');
   }
@@ -270,7 +265,6 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
               return MapEntry(name, namedGroup);
             }),
           );
-
     final isbn = iriParts['isbn']!;
 
     return IriWithBaseUri(isbn: isbn);
@@ -278,11 +272,11 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 
   @override
   IriTerm toRdfTerm(
-    IriWithBaseUri resource,
+    IriWithBaseUri iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn;
+    final isbn = iriTermValue.isbn;
     final baseUri = _baseUriProvider();
     return IriTerm('${baseUri}/books/${isbn}');
   }
@@ -320,7 +314,6 @@ class IriWithBaseUriNoGlobalMapper
               return MapEntry(name, namedGroup);
             }),
           );
-
     final isbn = iriParts['isbn']!;
 
     return IriWithBaseUriNoGlobal(isbn: isbn);
@@ -328,11 +321,11 @@ class IriWithBaseUriNoGlobalMapper
 
   @override
   IriTerm toRdfTerm(
-    IriWithBaseUriNoGlobal resource,
+    IriWithBaseUriNoGlobal iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final isbn = resource.isbn;
+    final isbn = iriTermValue.isbn;
     final baseUri = _baseUriProvider();
     return IriTerm('${baseUri}/books/${isbn}');
   }
@@ -367,7 +360,6 @@ class IriWithNonConstructorFieldsMapper
               return MapEntry(name, namedGroup);
             }),
           );
-
     final id = iriParts['id']!;
 
     final retval = IriWithNonConstructorFields();
@@ -377,11 +369,11 @@ class IriWithNonConstructorFieldsMapper
 
   @override
   IriTerm toRdfTerm(
-    IriWithNonConstructorFields resource,
+    IriWithNonConstructorFields iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final id = resource.id;
+    final id = iriTermValue.id;
     return IriTerm('http://example.org/items/${id}');
   }
 }
@@ -418,7 +410,6 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
               return MapEntry(name, namedGroup);
             }),
           );
-
     final id = iriParts['id']!;
 
     final retval = IriWithNonConstructorFieldsAndBaseUriNonGlobal();
@@ -428,11 +419,11 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
 
   @override
   IriTerm toRdfTerm(
-    IriWithNonConstructorFieldsAndBaseUriNonGlobal resource,
+    IriWithNonConstructorFieldsAndBaseUriNonGlobal iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final id = resource.id;
+    final id = iriTermValue.id;
     final myBaseUri = _myBaseUriProvider();
     return IriTerm('${myBaseUri}/items/${id}');
   }
@@ -463,7 +454,6 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
               return MapEntry(name, namedGroup);
             }),
           );
-
     final brand = iriParts['brand']!;
     final id = iriParts['id']!;
     final productCategory = iriParts['category']!;
@@ -475,13 +465,13 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
 
   @override
   IriTerm toRdfTerm(
-    IriWithMixedFields resource,
+    IriWithMixedFields iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final brand = resource.brand;
-    final productCategory = resource.productCategory;
-    final id = resource.id;
+    final brand = iriTermValue.brand;
+    final productCategory = iriTermValue.productCategory;
+    final id = iriTermValue.id;
     return IriTerm(
       'http://example.org/products/${brand}/${productCategory}/${id}',
     );

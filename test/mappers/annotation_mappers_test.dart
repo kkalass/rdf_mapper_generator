@@ -1,4 +1,4 @@
-import 'package:rdf_core/src/graph/rdf_term.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:test/test.dart';
 
@@ -55,21 +55,17 @@ void main() {
   });
 
   group('All Mappers Test', () {
-    test('BookWithMapper mapping', () {
+    test(
+        'BookWithMapper mapping throws RdfConstraintViolationException for title with spaces',
+        () {
       final book = BookWithMapper(
         id: '123',
         title: 'Test Book',
       );
 
-      // Test serialization
-      final graph = mapper.encodeObject(book);
-      expect(graph, isNotNull);
-
-      // Test deserialization
-      final deserialized = mapper.decodeObject<BookWithMapper>(graph);
-      expect(deserialized, isNotNull);
-      expect(deserialized.id, equals(book.id));
-      expect(deserialized.title, equals(book.title));
+      // Test serialization - should throw RdfConstraintViolationException due to spaces in title used for IRI
+      expect(() => mapper.encodeObject(book),
+          throwsA(isA<RdfConstraintViolationException>()));
     });
 
     test('BookWithMapperInstance mapping registered manually', () {

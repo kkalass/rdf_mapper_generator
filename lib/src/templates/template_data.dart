@@ -304,6 +304,8 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
+  final VariableNameData? singleMappedValue;
+
   const IriMapperTemplateData({
     required Code className,
     required Code mapperClassName,
@@ -315,6 +317,7 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
     required bool needsReader,
     required bool registerGlobally,
     required List<PropertyData> properties,
+    this.singleMappedValue,
   })  : className = className,
         mapperClassName = mapperClassName,
         iriStrategy = iriStrategy,
@@ -347,6 +350,8 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
       'hasContextProviders': contextProviders.isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
+      'singleMappedValue': singleMappedValue?.toMap(),
+      'hasSingleMappedValue': singleMappedValue != null,
     };
   }
 }
@@ -455,17 +460,20 @@ class VariableNameData {
   final String variableName;
   final String placeholder;
   final bool isString;
+  final bool isMappedValue;
 
   const VariableNameData({
     required this.variableName,
     required this.placeholder,
     required this.isString,
+    required this.isMappedValue,
   });
 
   Map<String, dynamic> toMap() => {
         'variableName': variableName,
         'placeholder': placeholder,
         'isString': isString,
+        'isMappedValue': isMappedValue,
       };
 }
 

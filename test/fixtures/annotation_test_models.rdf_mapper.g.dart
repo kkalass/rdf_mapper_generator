@@ -19,10 +19,14 @@ import 'package:rdf_vocabularies/schema.dart';
 /// and RDF triples for resources of type BookWithMapper.
 class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   final IriTermMapper<(String id,)> _iriMapper;
+  final IriTermMapper<String> _titleMapper;
 
   /// Constructor
-  const BookWithMapperMapper({required IriTermMapper<(String id,)> iriMapper})
-    : _iriMapper = iriMapper;
+  const BookWithMapperMapper({
+    required IriTermMapper<(String id,)> iriMapper,
+    IriTermMapper<String> titleMapper = const BookWithMapperTitleMapper(),
+  }) : _iriMapper = iriMapper,
+       _titleMapper = titleMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -36,7 +40,9 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
-    final String title = reader.optional(SchemaBook.name) ?? 'Untitled';
+    final String title =
+        reader.optional(SchemaBook.name, iriTermDeserializer: _titleMapper) ??
+        'Untitled';
 
     return BookWithMapper(id: id, title: title);
   }
@@ -53,9 +59,52 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
         .resourceBuilder(subject)
         .when(
           resource.title != 'Untitled',
-          (b) => b.addValue(SchemaBook.name, resource.title),
+          (b) => b.addValue(
+            SchemaBook.name,
+            resource.title,
+            iriTermSerializer: _titleMapper,
+          ),
         )
         .build();
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class BookWithMapperTitleMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^https://example\.org/books/(?<title>[^/]*)\$',
+  );
+
+  /// Constructor
+  const BookWithMapperTitleMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = match == null
+        ? <String, String>{}
+        : Map.fromEntries(
+            match.groupNames.map((name) {
+              var namedGroup = match.namedGroup(name)!;
+              return MapEntry(name, namedGroup);
+            }),
+          );
+    return iriParts['title']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final title = iriTermValue.toString();
+    return IriTerm('https://example.org/books/${title}');
   }
 }
 

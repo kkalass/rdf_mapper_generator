@@ -21,27 +21,29 @@ class TemplateDataBuilder {
     );
 
     // Collect all imports from all mappers and deduplicate
-    final mapperDatas = <MapperData>[];
+    final mapperDatas = resourceInfosWithElements
+        .map((e) => e.$1)
+        .expand((resourceInfo) => switch (resourceInfo) {
+              ResourceInfo _ => resourceInfo.annotation.mapper != null
+                  ? DataBuilder.buildCustomMapper(
+                      context, resourceInfo.className, resourceInfo.annotation)
+                  : // generate custom mapper if specified
+                  DataBuilder.buildResourceMapper(
+                      context, resourceInfo, mapperImportUri),
+              IriInfo _ => resourceInfo.annotation.mapper != null
+                  ? DataBuilder.buildCustomMapper(
+                      context, resourceInfo.className, resourceInfo.annotation)
+                  : DataBuilder.buildIriMapper(
+                      context, resourceInfo, mapperImportUri),
+              LiteralInfo _ => resourceInfo.annotation.mapper != null
+                  ? DataBuilder.buildCustomMapper(
+                      context, resourceInfo.className, resourceInfo.annotation)
+                  : DataBuilder.buildLiteralMapper(
+                      context, resourceInfo, mapperImportUri),
+            })
+        .map(MapperData.new)
+        .toList();
 
-    for (final (resourceInfo, _) in resourceInfosWithElements) {
-      final MappableClassMapperTemplateData mapperData = switch (resourceInfo) {
-        ResourceInfo _ => resourceInfo.annotation.mapper != null
-            ? DataBuilder.buildCustomMapper(
-                context, resourceInfo.className, resourceInfo.annotation)
-            : // generate custom mapper if specified
-            DataBuilder.buildResourceMapper(resourceInfo, mapperImportUri),
-        IriInfo _ => resourceInfo.annotation.mapper != null
-            ? DataBuilder.buildCustomMapper(
-                context, resourceInfo.className, resourceInfo.annotation)
-            : DataBuilder.buildIriMapper(resourceInfo, mapperImportUri),
-        LiteralInfo _ => resourceInfo.annotation.mapper != null
-            ? DataBuilder.buildCustomMapper(
-                context, resourceInfo.className, resourceInfo.annotation)
-            : DataBuilder.buildLiteralMapper(resourceInfo, mapperImportUri),
-      };
-
-      mapperDatas.add(MapperData(mapperData));
-    }
     final allLibraryImports = resourceInfosWithElements
         .expand((e) => e.$2.library2.fragments)
         .expand((f) => f.libraryImports2);
