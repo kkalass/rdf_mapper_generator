@@ -724,12 +724,14 @@ books:singleton a schema:Book .
       // Verify that the integer value is serialized as a string literal
       // Note: xsd:string is the default datatype for string literals in RDF, so it's often omitted
       expect(serialized, contains('"$testCount"'),
-          reason: 'Integer value should be serialized as string literal due to withType(Xsd.string)');
+          reason:
+              'Integer value should be serialized as string literal due to withType(Xsd.string)');
 
       final deserialized = mapper.decodeObject<DatatypeTest>(serialized);
       expect(deserialized, isNotNull);
       expect(deserialized.count, equals(testInstance.count),
-          reason: 'Integer should round-trip correctly even when serialized with string datatype');
+          reason:
+              'Integer should round-trip correctly even when serialized with string datatype');
     });
 
     test('IriMappingWithProviderTest - IRI template mapping with provider', () {
@@ -750,27 +752,35 @@ books:singleton a schema:Book .
           reason: 'IRI should be generated using provider value as namespace');
       expect(serialized2, contains('fiction:$authorId2'),
           reason: 'IRI should be generated using provider value as namespace');
-      
+
       // Verify the namespace is defined
-      expect(serialized1, contains('@prefix fiction: <http://example.org/fiction/>'),
+      expect(serialized1,
+          contains('@prefix fiction: <http://example.org/fiction/>'),
           reason: 'Fiction namespace should be defined');
-      expect(serialized2, contains('@prefix fiction: <http://example.org/fiction/>'),
+      expect(serialized2,
+          contains('@prefix fiction: <http://example.org/fiction/>'),
           reason: 'Fiction namespace should be defined');
 
       // Test deserialization
-      final deserialized1 = mapper.decodeObject<IriMappingWithProviderTest>(serialized1);
-      final deserialized2 = mapper.decodeObject<IriMappingWithProviderTest>(serialized2);
-      
+      final deserialized1 =
+          mapper.decodeObject<IriMappingWithProviderTest>(serialized1);
+      final deserialized2 =
+          mapper.decodeObject<IriMappingWithProviderTest>(serialized2);
+
       expect(deserialized1.authorId, equals(authorId1));
       expect(deserialized2.authorId, equals(authorId2));
     });
 
-    test('IriMappingWithBaseUriProviderTest - IRI template mapping with base URI provider', () {
+    test(
+        'IriMappingWithBaseUriProviderTest - IRI template mapping with base URI provider',
+        () {
       // Create test instances
       const authorId1 = 'author-789';
       const authorId2 = 'author-012';
-      final testInstance1 = IriMappingWithBaseUriProviderTest(authorId: authorId1);
-      final testInstance2 = IriMappingWithBaseUriProviderTest(authorId: authorId2);
+      final testInstance1 =
+          IriMappingWithBaseUriProviderTest(authorId: authorId1);
+      final testInstance2 =
+          IriMappingWithBaseUriProviderTest(authorId: authorId2);
 
       // Test serialization
       final serialized1 = mapper.encodeObject(testInstance1);
@@ -780,10 +790,12 @@ books:singleton a schema:Book .
 
       // Verify the generated IRIs use the base URI provider value as namespace prefix
       expect(serialized1, contains('foo:$authorId1'),
-          reason: 'IRI should be generated using base URI provider value as namespace');
+          reason:
+              'IRI should be generated using base URI provider value as namespace');
       expect(serialized2, contains('foo:$authorId2'),
-          reason: 'IRI should be generated using base URI provider value as namespace');
-      
+          reason:
+              'IRI should be generated using base URI provider value as namespace');
+
       // Verify the namespace is defined
       expect(serialized1, contains('@prefix foo: <http://foo.example.org/>'),
           reason: 'Foo namespace should be defined');
@@ -791,20 +803,24 @@ books:singleton a schema:Book .
           reason: 'Foo namespace should be defined');
 
       // Test deserialization
-      final deserialized1 = mapper.decodeObject<IriMappingWithBaseUriProviderTest>(serialized1);
-      final deserialized2 = mapper.decodeObject<IriMappingWithBaseUriProviderTest>(serialized2);
-      
+      final deserialized1 =
+          mapper.decodeObject<IriMappingWithBaseUriProviderTest>(serialized1);
+      final deserialized2 =
+          mapper.decodeObject<IriMappingWithBaseUriProviderTest>(serialized2);
+
       expect(deserialized1.authorId, equals(authorId1));
       expect(deserialized2.authorId, equals(authorId2));
     });
 
-    test('IriMappingWithProviderPropertyTest - IRI template mapping with property provider', () {
+    test(
+        'IriMappingWithProviderPropertyTest - IRI template mapping with property provider',
+        () {
       // Create test instances with different genres
       const authorId1 = 'author-345';
       const authorId2 = 'author-678';
       const genre1 = 'science-fiction';
       const genre2 = 'fantasy';
-      
+
       final testInstance1 = IriMappingWithProviderPropertyTest(
           authorId: authorId1, genre: genre1);
       final testInstance2 = IriMappingWithProviderPropertyTest(
@@ -818,14 +834,18 @@ books:singleton a schema:Book .
 
       // Verify the generated IRIs use the genre property as provider for namespace prefix
       expect(serialized1, contains('sf:$authorId1'),
-          reason: 'IRI should be generated using genre property as provider namespace');
+          reason:
+              'IRI should be generated using genre property as provider namespace');
       expect(serialized2, contains('fantasy:$authorId2'),
-          reason: 'IRI should be generated using genre property as provider namespace');
-      
+          reason:
+              'IRI should be generated using genre property as provider namespace');
+
       // Verify the namespaces are defined
-      expect(serialized1, contains('@prefix sf: <http://example.org/science-fiction/>'),
+      expect(serialized1,
+          contains('@prefix sf: <http://example.org/science-fiction/>'),
           reason: 'Science-fiction namespace should be defined');
-      expect(serialized2, contains('@prefix fantasy: <http://example.org/fantasy/>'),
+      expect(serialized2,
+          contains('@prefix fantasy: <http://example.org/fantasy/>'),
           reason: 'Fantasy namespace should be defined');
 
       // Verify genre is also serialized as a separate property
@@ -835,9 +855,11 @@ books:singleton a schema:Book .
           reason: 'Genre should be serialized as property');
 
       // Test deserialization
-      final deserialized1 = mapper.decodeObject<IriMappingWithProviderPropertyTest>(serialized1);
-      final deserialized2 = mapper.decodeObject<IriMappingWithProviderPropertyTest>(serialized2);
-      
+      final deserialized1 =
+          mapper.decodeObject<IriMappingWithProviderPropertyTest>(serialized1);
+      final deserialized2 =
+          mapper.decodeObject<IriMappingWithProviderPropertyTest>(serialized2);
+
       expect(deserialized1.authorId, equals(authorId1));
       expect(deserialized1.genre, equals(genre1));
       expect(deserialized2.authorId, equals(authorId2));

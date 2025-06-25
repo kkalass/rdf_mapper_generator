@@ -846,7 +846,8 @@ void main() {
 
     test('should process property with custom datatype', () {
       // Arrange
-      final field = libraryElement.getClass2('DatatypeTest')!.getField2('count');
+      final field =
+          libraryElement.getClass2('DatatypeTest')!.getField2('count');
       expect(field, isNotNull,
           reason: 'Field "count" not found in DatatypeTest');
 
@@ -1027,7 +1028,8 @@ void main() {
       expect(
         annotation.iri!.template!.template,
         'http://example.org/{category}/{authorId}',
-        reason: 'IRI template should match the annotation value with provider variable',
+        reason:
+            'IRI template should match the annotation value with provider variable',
       );
       expect(annotation.iri!.mapper, isNull,
           reason: 'Template-based IriMapping should not have a custom mapper');
@@ -1038,13 +1040,15 @@ void main() {
       expect(annotation.globalResource, isNull);
     });
 
-    test('should process property with IRI mapping using base URI provider', () {
+    test('should process property with IRI mapping using base URI provider',
+        () {
       // Arrange
       final field = libraryElement
           .getClass2('IriMappingWithBaseUriProviderTest')!
           .getField2('authorId');
       expect(field, isNotNull,
-          reason: 'Field "authorId" not found in IriMappingWithBaseUriProviderTest');
+          reason:
+              'Field "authorId" not found in IriMappingWithBaseUriProviderTest');
 
       // Act
       final result = processField(field!);
@@ -1064,7 +1068,8 @@ void main() {
       expect(
         annotation.iri!.template!.template,
         '{+baseUri}/{authorId}',
-        reason: 'IRI template should match the annotation value with base URI provider',
+        reason:
+            'IRI template should match the annotation value with base URI provider',
       );
       expect(annotation.iri!.mapper, isNull,
           reason: 'Template-based IriMapping should not have a custom mapper');
@@ -1075,13 +1080,15 @@ void main() {
       expect(annotation.globalResource, isNull);
     });
 
-    test('should process property with IRI mapping using property provider', () {
+    test('should process property with IRI mapping using property provider',
+        () {
       // Arrange
       final field = libraryElement
           .getClass2('IriMappingWithProviderPropertyTest')!
           .getField2('authorId');
       expect(field, isNotNull,
-          reason: 'Field "authorId" not found in IriMappingWithProviderPropertyTest');
+          reason:
+              'Field "authorId" not found in IriMappingWithProviderPropertyTest');
 
       // Act
       final result = processField(field!);
@@ -1101,7 +1108,8 @@ void main() {
       expect(
         annotation.iri!.template!.template,
         'http://example.org/{genre}/{authorId}',
-        reason: 'IRI template should match the annotation value with property provider variable',
+        reason:
+            'IRI template should match the annotation value with property provider variable',
       );
       expect(annotation.iri!.mapper, isNull,
           reason: 'Template-based IriMapping should not have a custom mapper');
