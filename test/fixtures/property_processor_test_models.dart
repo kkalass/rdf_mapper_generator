@@ -333,6 +333,7 @@ class SetTest {
   SetTest({required this.keywords});
 }
 
+//FIXME: does this work?
 @RdfLocalResource()
 class EnumTypeTest {
   @RdfProperty(SchemaBook.bookFormat)
@@ -353,6 +354,8 @@ class ComplexDefaultValueTest {
 
   ComplexDefaultValueTest({required this.complexValue});
 }
+
+// FIXME: we also need tests with getters and setters?
 
 @RdfLocalResource()
 class FinalPropertyTest {
@@ -401,12 +404,12 @@ class LanguageTagTest {
 @RdfLocalResource()
 class DatatypeTest {
   @RdfProperty(
-    SchemaBook.dateCreated,
-    literal: const LiteralMapping.withType(Xsd.dateTime),
+    SchemaBook.description,
+    literal: const LiteralMapping.withType(Xsd.string),
   )
-  final DateTime date;
+  final int count;
 
-  DatatypeTest({required this.date});
+  DatatypeTest({required this.count});
 }
 
 class NoAnnotationTest {

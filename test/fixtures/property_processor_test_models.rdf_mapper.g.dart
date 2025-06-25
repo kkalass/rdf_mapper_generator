@@ -12,6 +12,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 // Other imports
 import 'property_processor_test_models.dart';
 import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies/xsd.dart';
 
 /// Generated mapper for [SimplePropertyTest] global resources.
 ///
@@ -1774,8 +1775,13 @@ class MutablePropertyTestMapper
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type LanguageTagTest.
 class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
+  final LiteralTermMapper<String> _descriptionMapper;
+
   /// Constructor
-  const LanguageTagTestMapper();
+  const LanguageTagTestMapper({
+    LiteralTermMapper<String> descriptionMapper =
+        const LanguageOverrideMapper<String>('en'),
+  }) : _descriptionMapper = descriptionMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1787,7 +1793,10 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String description = reader.require(SchemaBook.description);
+    final String description = reader.require(
+      SchemaBook.description,
+      literalTermDeserializer: _descriptionMapper,
+    );
 
     return LanguageTagTest(description: description);
   }
@@ -1802,7 +1811,11 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.description, resource.description)
+        .addValue(
+          SchemaBook.description,
+          resource.description,
+          literalTermSerializer: _descriptionMapper,
+        )
         .build();
   }
 }
@@ -1812,8 +1825,14 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type DatatypeTest.
 class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
+  final LiteralTermMapper<int> _countMapper;
+
   /// Constructor
-  const DatatypeTestMapper();
+  const DatatypeTestMapper({
+    LiteralTermMapper<int> countMapper = const DatatypeOverrideMapper<int>(
+      Xsd.string,
+    ),
+  }) : _countMapper = countMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1825,9 +1844,12 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
   ) {
     final reader = context.reader(subject);
 
-    final DateTime date = reader.require(SchemaBook.dateCreated);
+    final int count = reader.require(
+      SchemaBook.description,
+      literalTermDeserializer: _countMapper,
+    );
 
-    return DatatypeTest(date: date);
+    return DatatypeTest(count: count);
   }
 
   @override
@@ -1840,7 +1862,11 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.dateCreated, resource.date)
+        .addValue(
+          SchemaBook.description,
+          resource.count,
+          literalTermSerializer: _countMapper,
+        )
         .build();
   }
 }

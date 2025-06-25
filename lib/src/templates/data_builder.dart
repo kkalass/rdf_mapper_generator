@@ -236,40 +236,67 @@ class DataBuilder {
           isField: provider.isField)),
       ...resourceInfo.fields.expand((f) {
         final iri = f.propertyInfo?.annotation.iri;
-        final iriMapper = iri?.mapper;
-        final literalMapper = f.propertyInfo?.annotation.literal?.mapper;
+        final literal = f.propertyInfo?.annotation.literal;
         final globalResourceMapper =
             f.propertyInfo?.annotation.globalResource?.mapper;
         final localResourceMapper =
             f.propertyInfo?.annotation.localResource?.mapper;
         return [
-          if (iriMapper != null)
-            mappingToConstructorParameter(f, iriMapper, 'IriTermMapper'),
-          if (iri != null && iri.template != null && !iri.isFullIriTemplate)
-            ..._propertyIriTemplateMapperConstructorParameter(
-                f,
-                'IriTermMapper',
-                resourceInfo.className,
-                mapperImportUri,
-                iri.template!,
-                provides),
-          if (iri != null && iri.isFullIriTemplate)
-            ConstructorParameterData(
-                fieldName: _buildMapperFieldName(f.name),
-                parameterName: f.name + 'Mapper',
-                type: _buildMapperInterfaceType(
-                    Code.type('IriTermMapper', importUri: importRdfMapper),
-                    f.type),
-                isLate: false,
-                defaultValue: customMapperCode(
-                    Code.type((IriFullMapper).toString(),
+          if (iri != null)
+            if (iri.mapper != null)
+              mappingToConstructorParameter(f, iri.mapper!, 'IriTermMapper')
+            else if (iri.template != null && !iri.isFullIriTemplate)
+              ..._propertyIriTemplateMapperConstructorParameter(
+                  f,
+                  'IriTermMapper',
+                  resourceInfo.className,
+                  mapperImportUri,
+                  iri.template!,
+                  provides)
+            else if (iri.isFullIriTemplate)
+              constructorParameterWithValue(
+                  f.name,
+                  f.type,
+                  'IriTermMapper',
+                  Code.combine([
+                    Code.literal('const '),
+                    Code.type('IriFullMapper', importUri: mapperImportUri),
+                    Code.literal('()')
+                  ])),
+          if (literal != null)
+            if (literal.mapper != null)
+              mappingToConstructorParameter(
+                  f, literal.mapper!, 'LiteralTermMapper')
+            else if (literal.datatype != null)
+              constructorParameterWithValue(
+                  f.name,
+                  f.type,
+                  'LiteralTermMapper',
+                  Code.combine([
+                    Code.literal('const '),
+                    Code.type('DatatypeOverrideMapper',
                         importUri: mapperImportUri),
-                    null,
-                    null,
-                    constContext: true)),
-          if (literalMapper != null)
-            mappingToConstructorParameter(
-                f, literalMapper, 'LiteralTermMapper'),
+                    Code.literal('<'),
+                    f.type,
+                    Code.literal('>'),
+                    Code.literal('('),
+                    literal.datatype!.code,
+                    Code.literal(')')
+                  ]))
+            else if (literal.language != null)
+              constructorParameterWithValue(
+                  f.name,
+                  f.type,
+                  'LiteralTermMapper',
+                  Code.combine([
+                    Code.literal('const '),
+                    Code.type('LanguageOverrideMapper',
+                        importUri: mapperImportUri),
+                    Code.literal('<'),
+                    f.type,
+                    Code.literal('>'),
+                    Code.literal("('${literal.language}')"),
+                  ])),
           if (globalResourceMapper != null)
             mappingToConstructorParameter(
                 f, globalResourceMapper, 'GlobalResourceMapper'),
@@ -280,6 +307,17 @@ class DataBuilder {
       })
     ];
     return mapperConstructorParameters;
+  }
+
+  static ConstructorParameterData constructorParameterWithValue(
+      String fieldName, Code type, String mapperInterfaceType, Code value) {
+    return ConstructorParameterData(
+        fieldName: _buildMapperFieldName(fieldName),
+        parameterName: fieldName + 'Mapper',
+        type: _buildMapperInterfaceType(
+            Code.type(mapperInterfaceType, importUri: importRdfMapper), type),
+        isLate: false,
+        defaultValue: value);
   }
 
   static ConstructorParameterData mappingToConstructorParameter(
@@ -900,7 +938,7 @@ class DataBuilder {
       );
     }
     final literal = propertyInfo?.annotation.literal;
-    if (literal != null && literal.mapper != null) {
+    if (literal != null) {
       return (
         _buildMapperFieldName(fieldName),
         null,

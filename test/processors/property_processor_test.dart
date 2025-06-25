@@ -846,9 +846,9 @@ void main() {
 
     test('should process property with custom datatype', () {
       // Arrange
-      final field = libraryElement.getClass2('DatatypeTest')!.getField2('date');
+      final field = libraryElement.getClass2('DatatypeTest')!.getField2('count');
       expect(field, isNotNull,
-          reason: 'Field "date" not found in DatatypeTest');
+          reason: 'Field "count" not found in DatatypeTest');
 
       // Act
       final result = processField(field!);
@@ -859,8 +859,8 @@ void main() {
       expect(annotation.literal, isNotNull);
       expect(annotation.literal!.datatype, isNotNull);
       expect(annotation.literal!.datatype!.value.iri,
-          'http://www.w3.org/2001/XMLSchema#dateTime');
-      expect(annotation.predicate.value, equals(SchemaBook.dateCreated));
+          'http://www.w3.org/2001/XMLSchema#string');
+      expect(annotation.predicate.value, equals(SchemaBook.description));
     });
 
     test('should process local resource mapper with Object property type', () {
@@ -999,6 +999,117 @@ void main() {
       expect(result.annotation.includeDefaultsInSerialization, isFalse);
       expect(result.isRequired, isTrue);
       expect(result.isFinal, isTrue);
+    });
+
+    test('should process property with IRI mapping using provider', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('IriMappingWithProviderTest')!
+          .getField2('authorId');
+      expect(field, isNotNull,
+          reason: 'Field "authorId" not found in IriMappingWithProviderTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'authorId');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping configuration with provider
+      final annotation = result.annotation;
+      expect(annotation.iri, isNotNull,
+          reason: 'IriMapping should be processed and available');
+      expect(
+        annotation.iri!.template!.template,
+        'http://example.org/{category}/{authorId}',
+        reason: 'IRI template should match the annotation value with provider variable',
+      );
+      expect(annotation.iri!.mapper, isNull,
+          reason: 'Template-based IriMapping should not have a custom mapper');
+
+      // Verify other mapping types are null for IRI mapping
+      expect(annotation.literal, isNull);
+      expect(annotation.localResource, isNull);
+      expect(annotation.globalResource, isNull);
+    });
+
+    test('should process property with IRI mapping using base URI provider', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('IriMappingWithBaseUriProviderTest')!
+          .getField2('authorId');
+      expect(field, isNotNull,
+          reason: 'Field "authorId" not found in IriMappingWithBaseUriProviderTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'authorId');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping configuration with base URI provider
+      final annotation = result.annotation;
+      expect(annotation.iri, isNotNull,
+          reason: 'IriMapping should be processed and available');
+      expect(
+        annotation.iri!.template!.template,
+        '{+baseUri}/{authorId}',
+        reason: 'IRI template should match the annotation value with base URI provider',
+      );
+      expect(annotation.iri!.mapper, isNull,
+          reason: 'Template-based IriMapping should not have a custom mapper');
+
+      // Verify other mapping types are null for IRI mapping
+      expect(annotation.literal, isNull);
+      expect(annotation.localResource, isNull);
+      expect(annotation.globalResource, isNull);
+    });
+
+    test('should process property with IRI mapping using property provider', () {
+      // Arrange
+      final field = libraryElement
+          .getClass2('IriMappingWithProviderPropertyTest')!
+          .getField2('authorId');
+      expect(field, isNotNull,
+          reason: 'Field "authorId" not found in IriMappingWithProviderPropertyTest');
+
+      // Act
+      final result = processField(field!);
+
+      // Assert
+      expect(result, isNotNull);
+      expect(result!.name, 'authorId');
+      expect(result.annotation.predicate.value, equals(SchemaBook.author));
+      expect(result.annotation.include, isTrue);
+      expect(result.isRequired, isTrue);
+      expect(result.isFinal, isTrue);
+
+      // Verify IRI mapping configuration with property provider
+      final annotation = result.annotation;
+      expect(annotation.iri, isNotNull,
+          reason: 'IriMapping should be processed and available');
+      expect(
+        annotation.iri!.template!.template,
+        'http://example.org/{genre}/{authorId}',
+        reason: 'IRI template should match the annotation value with property provider variable',
+      );
+      expect(annotation.iri!.mapper, isNull,
+          reason: 'Template-based IriMapping should not have a custom mapper');
+
+      // Verify other mapping types are null for IRI mapping
+      expect(annotation.literal, isNull);
+      expect(annotation.localResource, isNull);
+      expect(annotation.globalResource, isNull);
     });
   });
 }
