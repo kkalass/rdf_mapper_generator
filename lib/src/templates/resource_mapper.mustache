@@ -43,8 +43,12 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#iriStrategy}}
     {{#hasTemplate}}
     {{#requiresIriParsing}}
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
     {{/requiresIriParsing}}
     {{/hasTemplate}}
     {{#hasMapper}}
@@ -137,25 +141,6 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     return '{{template.interpolatedTemplate}}';
   }
   {{/hasFullIriPartTemplate}}
-
-  {{#requiresIriParsing}}
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(match.groupNames.map((name) {
-            var namedGroup = match.namedGroup(name)!;
-            return MapEntry(name, namedGroup);
-          }));
-  }
-  {{/requiresIriParsing}}
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}

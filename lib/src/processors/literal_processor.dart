@@ -8,6 +8,10 @@ import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 /// Processes class elements to extract @RdfLiteral information.
 class LiteralProcessor {
+  /// Processes a class element and returns its LiteralInfo.
+  ///
+  /// Returns a [LiteralInfo] containing the processed information if the class is annotated
+  /// with `@RdfLiteral`, otherwise returns `null`.
   static LiteralInfo? processClass(
       ValidationContext context, ClassElement2 classElement) {
     final annotation =
@@ -31,8 +35,37 @@ class LiteralProcessor {
     );
   }
 
-  static RdfLiteralInfo? _createRdfLiteralAnnotation(ValidationContext context,
-      DartObject? annotation, ClassElement2 classElement) {
+  /// Processes an enum element and returns its LiteralInfo if it's annotated with @RdfLiteral.
+  ///
+  /// Returns a [LiteralInfo] containing the processed information if the enum is annotated
+  /// with `@RdfLiteral`, otherwise returns `null`.
+  static LiteralInfo? processEnum(
+      ValidationContext context, EnumElement2 enumElement) {
+    final annotation =
+        getAnnotation(enumElement.metadata2.annotations, 'RdfLiteral');
+    final enumName = enumToCode(enumElement);
+
+    // Create the RdfLiteral instance from the annotation
+    final rdfLiteralAnnotation =
+        _createRdfLiteralAnnotation(context, annotation, enumElement);
+    if (rdfLiteralAnnotation == null) {
+      return null; // No valid literal annotation found
+    }
+
+    // Extract enum constants and their custom values
+    final enumValues = extractEnumValues(context, enumElement);
+
+    return LiteralInfo(
+      className: enumName,
+      annotation: rdfLiteralAnnotation,
+      constructors: [],
+      fields: [],
+      enumValues: enumValues,
+    );
+  }
+
+  static RdfLiteralInfo? _createRdfLiteralAnnotation(
+      ValidationContext context, DartObject? annotation, Element2 element) {
     try {
       if (annotation == null) {
         return null;

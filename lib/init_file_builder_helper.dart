@@ -237,6 +237,9 @@ class InitFileBuilderHelper {
               'CustomMapperTemplateData' => collectCustomMapper(mapperData),
               'IriMapperTemplateData' => collectIriMapper(mapperData),
               'LiteralMapperTemplateData' => collectLiteralMapper(mapperData),
+              'EnumIriMapperTemplateData' => collectEnumIriMapper(mapperData),
+              'EnumLiteralMapperTemplateData' =>
+                collectEnumLiteralMapper(mapperData),
               _ => () {
                   log.warning('Unknown mapper type: ${mapperData['__type__']}');
                   return noInitFileContributions;
@@ -383,6 +386,69 @@ class InitFileBuilderHelper {
   }
 
   _InitFileContributions collectLiteralMapper(Map<String, dynamic> mapperData) {
+    final className = extractNullableCodeProperty(mapperData, 'className');
+    final mapperClassName =
+        extractNullableCodeProperty(mapperData, 'mapperClassName');
+
+    if (className == null || mapperClassName == null) {
+      return noInitFileContributions;
+    }
+
+    // Check if this mapper should be registered globally
+    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+
+    if (registerGlobally) {
+      final code = _buildCodeInstantiateMapper(mapperClassName, const []);
+      return (
+        [
+          _Mapper(
+            code: code,
+            type: className,
+          )
+        ],
+        const {},
+        const {}
+      );
+    }
+    return noInitFileContributions;
+  }
+
+  _InitFileContributions collectEnumIriMapper(Map<String, dynamic> mapperData) {
+    final className = extractNullableCodeProperty(mapperData, 'className');
+    final mapperClassName =
+        extractNullableCodeProperty(mapperData, 'mapperClassName');
+
+    if (className == null || mapperClassName == null) {
+      return noInitFileContributions;
+    }
+
+    // Extract context providers for this mapper
+    final contextProviders = _extractContextProviders(mapperData);
+    final providersByName =
+        _indexProviders(contextProviders.map((e) => e.value));
+
+    // Check if this mapper should be registered globally
+    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+
+    if (registerGlobally) {
+      final code = _buildCodeInstantiateMapper(mapperClassName,
+          _contextProvidersToParams(contextProviders).toList());
+      return (
+        [
+          _Mapper(
+            code: code,
+            type: className,
+          )
+        ],
+        providersByName,
+        const {}
+      );
+    }
+    return noInitFileContributions;
+  }
+
+  _InitFileContributions collectEnumLiteralMapper(
+      Map<String, dynamic> mapperData) {
     final className = extractNullableCodeProperty(mapperData, 'className');
     final mapperClassName =
         extractNullableCodeProperty(mapperData, 'mapperClassName');

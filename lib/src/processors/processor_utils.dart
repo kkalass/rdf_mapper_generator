@@ -332,3 +332,38 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
         : null,
   );
 }
+
+/// Extracts enum constants and their custom @RdfEnumValue annotations.
+List<EnumValueInfo> extractEnumValues(
+    ValidationContext context, EnumElement2 enumElement) {
+  final enumValues = <EnumValueInfo>[];
+
+  for (final constant in enumElement.constants2) {
+    final constantName = constant.name3!;
+    final enumValueAnnotation =
+        getAnnotation(constant.metadata2.annotations, 'RdfEnumValue');
+
+    String serializedValue;
+    if (enumValueAnnotation != null) {
+      // Use custom value from @RdfEnumValue
+      final customValue =
+          getField(enumValueAnnotation, 'value')?.toStringValue();
+      if (customValue == null || customValue.isEmpty) {
+        context.addError(
+            'Custom value for enum constant $constantName cannot be empty');
+        continue;
+      }
+      serializedValue = customValue;
+    } else {
+      // Use enum constant name as default
+      serializedValue = constantName;
+    }
+
+    enumValues.add(EnumValueInfo(
+      constantName: constantName,
+      serializedValue: serializedValue,
+    ));
+  }
+
+  return enumValues;
+}

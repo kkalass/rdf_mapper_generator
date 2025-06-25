@@ -36,8 +36,12 @@ class BookMapper implements GlobalResourceMapper<Book> {
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
 
     final isbn = iriParts['isbn']!;
     final String title = reader.require(SchemaBook.name);
@@ -73,25 +77,6 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final isbn = resource.isbn;
     return 'http://example.org/books/${isbn}';
   }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
-  }
 }
 
 /// Generated mapper for [String] global resources.
@@ -109,16 +94,12 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -267,8 +248,12 @@ class ClassWithIriTemplateStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
 
     final id = iriParts['id']!;
 
@@ -290,25 +275,6 @@ class ClassWithIriTemplateStrategyMapper
   String _buildIri(ClassWithIriTemplateStrategy resource) {
     final id = resource.id;
     return 'http://example.org/persons/${id}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 
@@ -338,8 +304,12 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
 
     final id = iriParts['thisId']!;
 
@@ -362,25 +332,6 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
     final id = resource.id;
     final baseUri = _baseUriProvider();
     return '${baseUri}/persons/${id}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 
@@ -409,8 +360,12 @@ class ClassWithOtherBaseUriNonGlobalMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
 
     final id = iriParts['thisId']!;
 
@@ -433,25 +388,6 @@ class ClassWithOtherBaseUriNonGlobalMapper
     final id = resource.id;
     final otherBaseUri = _otherBaseUriProvider();
     return '${otherBaseUri}/persons/${id}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }
 

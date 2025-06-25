@@ -2,6 +2,7 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
+import 'package:rdf_mapper_generator/src/processors/enum_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/literal_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
@@ -19,11 +20,12 @@ class BuilderHelper {
   Future<String?> build(
       String sourcePath,
       Iterable<ClassElement2> classElements,
+      Iterable<EnumElement2> enumElements,
       AssetReader reader,
       BroaderImports broaderImports,
       {String packageName = "test"}) async {
     final templateData = await buildTemplateData(
-        sourcePath, packageName, classElements, broaderImports);
+        sourcePath, packageName, classElements, enumElements, broaderImports);
     String mapperImportUri = getMapperImportUri(
         packageName, sourcePath.replaceAll('.dart', '.rdf_mapper.g.dart'));
     if (templateData != null) {
@@ -39,12 +41,13 @@ class BuilderHelper {
       String sourcePath,
       String packageName,
       Iterable<ClassElement2> classElements,
+      Iterable<EnumElement2> enumElements,
       BroaderImports broaderImports) async {
     String mapperImportUri = getMapperImportUri(
         packageName, sourcePath.replaceAll('.dart', '.rdf_mapper.g.dart'));
     final context = ValidationContext();
-    // Collect all resource info and class elements
-    final resourceInfosWithElements = <(MappableClassInfo, ClassElement2)>[];
+    // Collect all resource info and element pairs (class or enum)
+    final resourceInfosWithElements = <(MappableClassInfo, Element2?)>[];
 
     for (final classElement in classElements) {
       final resourceInfo = ResourceProcessor.processClass(
@@ -62,6 +65,18 @@ class BuilderHelper {
 
       if (resourceInfo != null) {
         resourceInfosWithElements.add((resourceInfo, classElement));
+      }
+    }
+
+    // Process enums
+    for (final enumElement in enumElements) {
+      final enumInfo = EnumProcessor.processEnum(
+        context.withContext(enumElement.name3!),
+        enumElement,
+      );
+
+      if (enumInfo != null) {
+        resourceInfosWithElements.add((enumInfo, enumElement));
       }
     }
 

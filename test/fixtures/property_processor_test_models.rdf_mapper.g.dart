@@ -328,16 +328,12 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -426,16 +422,12 @@ class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -623,16 +615,12 @@ class IriMappingWithProviderTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -718,16 +706,12 @@ class IriMappingWithBaseUriProviderTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -817,16 +801,12 @@ class IriMappingWithProviderPropertyTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -944,16 +924,12 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['authorId']!;
   }
 
@@ -1826,13 +1802,18 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
 /// and RDF triples for resources of type DatatypeTest.
 class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
   final LiteralTermMapper<int> _countMapper;
+  final LiteralTermMapper<String> _dateMapper;
 
   /// Constructor
   const DatatypeTestMapper({
     LiteralTermMapper<int> countMapper = const DatatypeOverrideMapper<int>(
       Xsd.string,
     ),
-  }) : _countMapper = countMapper;
+    LiteralTermMapper<String> dateMapper = const DatatypeOverrideMapper<String>(
+      Xsd.dateTime,
+    ),
+  }) : _countMapper = countMapper,
+       _dateMapper = dateMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1848,8 +1829,12 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
       SchemaBook.description,
       literalTermDeserializer: _countMapper,
     );
+    final String date = reader.require(
+      SchemaBook.dateCreated,
+      literalTermDeserializer: _dateMapper,
+    );
 
-    return DatatypeTest(count: count);
+    return DatatypeTest(count: count, date: date);
   }
 
   @override
@@ -1866,6 +1851,11 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
           SchemaBook.description,
           resource.count,
           literalTermSerializer: _countMapper,
+        )
+        .addValue(
+          SchemaBook.dateCreated,
+          resource.date,
+          literalTermSerializer: _dateMapper,
         )
         .build();
   }
@@ -2425,4 +2415,39 @@ class LiteralInstanceMapperTestMapper
         )
         .build();
   }
+}
+
+/// Generated mapper for [BookFormatType] enum literals.
+///
+/// This mapper handles serialization and deserialization between enum constants
+/// and RDF literal terms for enum type BookFormatType.
+class BookFormatTypeMapper implements LiteralTermMapper<BookFormatType> {
+  const BookFormatTypeMapper();
+
+  @override
+  BookFormatType fromRdfTerm(
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) => switch (term.value) {
+    'hardcover' => BookFormatType.hardcover,
+    'paperback' => BookFormatType.paperback,
+    'ebook' => BookFormatType.ebook,
+    'audioBook' => BookFormatType.audioBook,
+    _ => throw DeserializationException(
+      'Unknown BookFormatType literal value: ${term.value}',
+    ),
+  };
+
+  @override
+  LiteralTerm toRdfTerm(
+    BookFormatType value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) => switch (value) {
+    BookFormatType.hardcover => LiteralTerm('hardcover'),
+    BookFormatType.paperback => LiteralTerm('paperback'),
+    BookFormatType.ebook => LiteralTerm('ebook'),
+    BookFormatType.audioBook => LiteralTerm('audioBook'),
+  };
 }

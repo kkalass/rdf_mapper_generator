@@ -12,7 +12,7 @@ class TemplateDataBuilder {
     ValidationContext context,
     String sourcePath,
     String mapperImportUri,
-    List<(MappableClassInfo, ClassElement2)> resourceInfosWithElements,
+    List<(MappableClassInfo, Element2?)> resourceInfosWithElements,
     BroaderImports broaderImports,
   ) {
     final header = FileHeaderData(
@@ -30,22 +30,29 @@ class TemplateDataBuilder {
                   : // generate custom mapper if specified
                   DataBuilder.buildResourceMapper(
                       context, resourceInfo, mapperImportUri),
-              IriInfo _ => resourceInfo.annotation.mapper != null
+              IriInfo iriInfo => iriInfo.annotation.mapper != null
                   ? DataBuilder.buildCustomMapper(
-                      context, resourceInfo.className, resourceInfo.annotation)
-                  : DataBuilder.buildIriMapper(
-                      context, resourceInfo, mapperImportUri),
-              LiteralInfo _ => resourceInfo.annotation.mapper != null
+                      context, iriInfo.className, iriInfo.annotation)
+                  : iriInfo.enumValues.isNotEmpty
+                      ? DataBuilder.buildEnumIriMapper(
+                          context, iriInfo, mapperImportUri)
+                      : DataBuilder.buildIriMapper(
+                          context, iriInfo, mapperImportUri),
+              LiteralInfo literalInfo => literalInfo.annotation.mapper != null
                   ? DataBuilder.buildCustomMapper(
-                      context, resourceInfo.className, resourceInfo.annotation)
-                  : DataBuilder.buildLiteralMapper(
-                      context, resourceInfo, mapperImportUri),
+                      context, literalInfo.className, literalInfo.annotation)
+                  : literalInfo.enumValues.isNotEmpty
+                      ? DataBuilder.buildEnumLiteralMapper(
+                          context, literalInfo, mapperImportUri)
+                      : DataBuilder.buildLiteralMapper(
+                          context, literalInfo, mapperImportUri),
             })
         .map(MapperData.new)
         .toList();
 
     final allLibraryImports = resourceInfosWithElements
-        .expand((e) => e.$2.library2.fragments)
+        .where((e) => e.$2 != null)
+        .expand((e) => e.$2!.library2?.fragments ?? [])
         .expand((f) => f.libraryImports2);
     final Map<String, String> originalImports = {
       for (final import in allLibraryImports)

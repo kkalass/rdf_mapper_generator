@@ -23,6 +23,12 @@ Code typeToCode(DartType type) {
   return Code.type(typeName, importUri: importUri);
 }
 
+Code enumToCode(EnumElement2 type) {
+  final typeName = type.name3!;
+  final importUri = _getImportUriForType(type);
+  return Code.type(typeName, importUri: importUri);
+}
+
 Code classToCode(ClassElement2 type) {
   final typeName = type.name3!;
   final importUri = _getImportUriForType(type);

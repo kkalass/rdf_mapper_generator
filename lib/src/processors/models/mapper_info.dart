@@ -24,16 +24,20 @@ class IriInfo implements MappableClassInfo {
   /// List of fields in the class
   final List<FieldInfo> fields;
 
+  /// List of enum values (empty for classes, populated for enums)
+  final List<EnumValueInfo> enumValues;
+
   const IriInfo({
     required this.className,
     required this.annotation,
     required this.constructors,
     required this.fields,
+    this.enumValues = const [],
   });
 
   @override
   int get hashCode =>
-      Object.hashAll([className, annotation, constructors, fields]);
+      Object.hashAll([className, annotation, constructors, fields, enumValues]);
 
   @override
   bool operator ==(Object other) {
@@ -43,7 +47,8 @@ class IriInfo implements MappableClassInfo {
     return className == other.className &&
         annotation == other.annotation &&
         constructors == other.constructors &&
-        fields == other.fields;
+        fields == other.fields &&
+        enumValues == other.enumValues;
   }
 
   @override
@@ -53,6 +58,7 @@ class IriInfo implements MappableClassInfo {
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
         '  fields: $fields\n'
+        '  enumValues: $enumValues\n'
         '}';
   }
 }
@@ -71,16 +77,20 @@ class LiteralInfo implements MappableClassInfo {
   /// List of fields in the class
   final List<FieldInfo> fields;
 
+  /// List of enum values (empty for classes, populated for enums)
+  final List<EnumValueInfo> enumValues;
+
   const LiteralInfo({
     required this.className,
     required this.annotation,
     required this.constructors,
     required this.fields,
+    this.enumValues = const [],
   });
 
   @override
   int get hashCode =>
-      Object.hashAll([className, annotation, constructors, fields]);
+      Object.hashAll([className, annotation, constructors, fields, enumValues]);
 
   @override
   bool operator ==(Object other) {
@@ -90,7 +100,8 @@ class LiteralInfo implements MappableClassInfo {
     return className == other.className &&
         annotation == other.annotation &&
         constructors == other.constructors &&
-        fields == other.fields;
+        fields == other.fields &&
+        enumValues == other.enumValues;
   }
 
   @override
@@ -100,6 +111,7 @@ class LiteralInfo implements MappableClassInfo {
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
         '  fields: $fields\n'
+        '  enumValues: $enumValues\n'
         '}';
   }
 }
@@ -827,3 +839,36 @@ class FieldInfo {
         '}';
   }
 }
+
+/// Contains information about an enum value and its serialized representation
+class EnumValueInfo {
+  /// The name of the enum constant
+  final String constantName;
+
+  /// The serialized value (either custom from @RdfEnumValue or the constant name)
+  final String serializedValue;
+
+  const EnumValueInfo({
+    required this.constantName,
+    required this.serializedValue,
+  });
+
+  @override
+  int get hashCode => Object.hash(constantName, serializedValue);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! EnumValueInfo) {
+      return false;
+    }
+    return constantName == other.constantName &&
+        serializedValue == other.serializedValue;
+  }
+
+  @override
+  String toString() {
+    return 'EnumValueInfo(constantName: $constantName, serializedValue: $serializedValue)';
+  }
+}
+
+/// Contains information about a class annotated with @RdfGlobalResource

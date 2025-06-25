@@ -333,7 +333,6 @@ class SetTest {
   SetTest({required this.keywords});
 }
 
-//FIXME: does this work?
 @RdfLocalResource()
 class EnumTypeTest {
   @RdfProperty(SchemaBook.bookFormat)
@@ -342,6 +341,7 @@ class EnumTypeTest {
   EnumTypeTest({required this.format});
 }
 
+@RdfLiteral()
 enum BookFormatType { hardcover, paperback, ebook, audioBook }
 
 @RdfLocalResource()
@@ -409,7 +409,13 @@ class DatatypeTest {
   )
   final int count;
 
-  DatatypeTest({required this.count});
+  @RdfProperty(
+    SchemaBook.dateCreated,
+    literal: const LiteralMapping.withType(Xsd.dateTime),
+  )
+  final String date;
+
+  DatatypeTest({required this.count, required this.date});
 }
 
 class NoAnnotationTest {

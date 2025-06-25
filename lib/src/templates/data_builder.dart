@@ -378,6 +378,7 @@ class DataBuilder {
   static String _buildMapperFieldName(String fieldName) =>
       '_' + fieldName + 'Mapper';
 
+  /// Builds template data for a literal mapper.
   static List<MappableClassMapperTemplateData> buildLiteralMapper(
       ValidationContext context,
       LiteralInfo resourceInfo,
@@ -445,6 +446,94 @@ class DataBuilder {
           properties: properties,
           rdfValue: rdfValueParameter,
           rdfLanguageTag: rdfLanguageTagParameter)
+    ];
+  }
+
+  /// Builds enum literal mapper template data for @RdfLiteral enums.
+  static List<MappableClassMapperTemplateData> buildEnumLiteralMapper(
+      ValidationContext context, LiteralInfo enumInfo, String mapperImportUri) {
+    final annotation = enumInfo.annotation;
+    if (annotation.mapper != null) {
+      throw Exception(
+        'Enum LiteralMapper cannot have a mapper defined in the annotation.',
+      );
+    }
+
+    final className = enumInfo.className;
+    final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
+        importUri: mapperImportUri);
+    final mapperInterfaceName = _mapperInterfaceNameFor(annotation);
+    final datatype = annotation.datatype?.code;
+
+    // Convert enum values for template
+    final enumValues = enumInfo.enumValues
+        .map((enumValue) => {
+              'constantName': enumValue.constantName,
+              'serializedValue': enumValue.serializedValue,
+            })
+        .toList();
+
+    return [
+      EnumLiteralMapperTemplateData(
+        className: className,
+        mapperClassName: mapperClassName,
+        mapperInterfaceName: mapperInterfaceName,
+        datatype: datatype,
+        enumValues: enumValues,
+        registerGlobally: annotation.registerGlobally,
+      )
+    ];
+  }
+
+  /// Builds enum IRI mapper template data for @RdfIri enums.
+  static List<MappableClassMapperTemplateData> buildEnumIriMapper(
+      ValidationContext context, IriInfo enumInfo, String mapperImportUri) {
+    final annotation = enumInfo.annotation;
+    if (annotation.mapper != null) {
+      throw Exception(
+        'Enum IriMapper cannot have a mapper defined in the annotation.',
+      );
+    }
+    VariableNameData buildVariableNameData(VariableName variable) =>
+        _buildVariableNameData(variable, true /* all strings */);
+
+    final className = enumInfo.className;
+    final mapperClassName = Code.type('${className.codeWithoutAlias}Mapper',
+        importUri: mapperImportUri);
+    final mapperInterfaceName = _mapperInterfaceNameFor(annotation);
+
+    // Convert enum values for template
+    final enumValues = enumInfo.enumValues
+        .map((enumValue) => {
+              'constantName': enumValue.constantName,
+              'serializedValue': enumValue.serializedValue,
+            })
+        .toList();
+
+    final iriTemplateInfo = annotation.templateInfo!;
+    return [
+      EnumIriMapperTemplateData(
+        template: iriTemplateInfo.template,
+        contextProviders: iriTemplateInfo.contextVariableNames
+            .map(buildVariableNameData)
+            .map((n) => ContextProviderData(
+                  variableName: n.variableName,
+                  privateFieldName: '_${n.variableName}Provider',
+                  parameterName: '${n.variableName}Provider',
+                  placeholder: n.placeholder,
+                ))
+            .toList(),
+        regexPattern:
+            '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\\\$',
+        interpolatedTemplate: _buildInterpolatedTemplate(iriTemplateInfo),
+        className: className,
+        mapperClassName: mapperClassName,
+        mapperInterfaceName: mapperInterfaceName,
+        enumValues: enumValues,
+        registerGlobally: annotation.registerGlobally,
+        hasFullIriPartTemplate: hasFullIriPartTemplate(
+            iriTemplateInfo.iriParts, iriTemplateInfo.template),
+      )
     ];
   }
 
@@ -658,13 +747,16 @@ class DataBuilder {
       template: template == null
           ? null
           : _buildTemplateData(templateInfo!, fields ?? []),
-      hasFullIriPartTemplate:
-          iriParts?.length == 1 && template == '{+${iriParts![0].name}}',
+      hasFullIriPartTemplate: hasFullIriPartTemplate(iriParts, template),
       mapper: mapperRef,
       hasMapper: mapperRef != null,
       iriMapperParts: iriMapperParts,
     );
   }
+
+  static bool hasFullIriPartTemplate(
+          List<IriPartInfo>? iriParts, String? template) =>
+      iriParts?.length == 1 && template == '{+${iriParts![0].name}}';
 
   static VariableNameData _buildVariableNameData(
       VariableName variable, bool isString) {
@@ -799,6 +891,7 @@ class DataBuilder {
       final predicateCode = field.propertyInfo?.annotation.predicate.code;
       final defaultValue = field.propertyInfo?.annotation.defaultValue;
       final iriPartName = iriPartNameByPropertyName[field.name];
+      final isIriPart = iriPartName != null;
       final (
         mapperFieldName,
         mapperSerializerCode,
@@ -813,8 +906,11 @@ class DataBuilder {
         name: field.name,
         dartType: field.type,
         isRequired: field.isRequired,
-        isFieldNullable: !field.isRequired,
-        isIriPart: iriPartName != null,
+        // For RDF properties, check if the field is nullable. If not an RDF property, assume non-nullable
+        isFieldNullable: field.propertyInfo != null
+            ? !field.propertyInfo!.isRequired
+            : false,
+        isIriPart: isIriPart,
         isRdfProperty: predicateCode != null,
         isNamed: false,
         iriPartName: iriPartName,

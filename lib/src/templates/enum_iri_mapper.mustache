@@ -1,0 +1,79 @@
+/// Generated mapper for [{{className}}] enum IRIs.
+/// 
+/// This mapper handles serialization and deserialization between enum constants
+/// and RDF IRI terms for enum type {{className}}.
+class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+  {{#requiresIriParsing}}
+  static final RegExp _regex = RegExp(
+    '{{{regexPattern}}}',
+  );
+  {{/requiresIriParsing}}
+
+  {{#contextProviders}}
+  /// Provider for context variable '{{value.variableName}}'
+  final String Function() {{value.privateFieldName}};
+  {{/contextProviders}}
+
+  /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
+  const {{mapperClassName}}({{#hasContextProviders}}{
+    {{#contextProviders}}
+    required String Function() {{value.parameterName}},
+    {{/contextProviders}}
+  }{{/hasContextProviders}}){{#hasContextProviders}} : {{#contextProviders}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
+       {{/last}}{{/contextProviders}}{{/hasContextProviders}};
+
+  @override
+  {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
+    {{#requiresIriParsing}}
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    if (match == null) {
+      throw DeserializationException(
+        'Unknown {{className}} IRI: ${term.iri}',
+      );
+    }
+
+    final iriParts = {
+      for (var name in match.groupNames)
+        name: match.namedGroup(name) ?? ''
+    };
+    final enumValue = iriParts['value']!;
+    {{/requiresIriParsing}}
+    {{^requiresIriParsing}}
+    final enumValue = term.iri;
+    {{/requiresIriParsing}}
+
+     return switch (enumValue) {
+      {{#enumValues}}
+      '{{value.serializedValue}}' => {{className}}.{{value.constantName}},
+      {{/enumValues}}
+      _ => throw DeserializationException(
+        'Unknown {{className}} IRI: ${term.iri}',
+      ),
+    };
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    {{className}} value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) =>
+    switch (value) {
+      {{#enumValues}}
+      {{className}}.{{value.constantName}} =>  IriTerm({{#requiresIriParsing}}_buildIri('{{value.serializedValue}}'){{/requiresIriParsing}}{{^requiresIriParsing}}'{{value.serializedValue}}'{{/requiresIriParsing}}),
+      {{/enumValues}}
+    };
+  
+
+  {{#requiresIriParsing}}
+  /// Generates the complete IRI for a given enum value
+  String _buildIri(String value) {
+    {{#contextProviders}}
+    final {{value.variableName}} = {{value.privateFieldName}}();
+    {{/contextProviders}}
+    return '{{interpolatedTemplate}}';
+  }
+  {{/requiresIriParsing}}
+}

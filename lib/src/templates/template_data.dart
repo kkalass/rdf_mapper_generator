@@ -576,7 +576,7 @@ class IriData {
         'iriMapperParts':
             toMustacheList(iriMapperParts.map((p) => p.toMap()).toList()),
         'hasIriMapperParts': iriMapperParts.isNotEmpty,
-        'requiresIriParsing': !hasFullIriPartTemplate &
+        'requiresIriParsing': !hasFullIriPartTemplate &&
             iriMapperParts
                 .any((p) => !p.isRdfProperty && p.dartPropertyName.isNotEmpty),
         'hasFullIriPartTemplate': hasFullIriPartTemplate
@@ -734,4 +734,119 @@ class PropertyData {
         'mapperSerializerCode': mapperSerializerCode?.toMap(),
         'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
       };
+}
+
+/// Template data for generating enum literal mappers.
+///
+/// This class contains all data needed to render mustache templates
+/// for enum mappers annotated with @RdfLiteral.
+class EnumLiteralMapperTemplateData implements MappableClassMapperTemplateData {
+  /// The name of the Dart enum being mapped
+  final Code className;
+
+  /// The name of the generated mapper class
+  final Code mapperClassName;
+
+  /// The mapper interface name
+  final Code mapperInterfaceName;
+
+  /// The datatype for literal serialization
+  final Code? datatype;
+
+  /// List of enum values with their serialization mappings
+  final List<Map<String, dynamic>> enumValues;
+
+  /// Whether to register this mapper globally
+  final bool registerGlobally;
+
+  const EnumLiteralMapperTemplateData({
+    required this.className,
+    required this.mapperClassName,
+    required this.mapperInterfaceName,
+    this.datatype,
+    required this.enumValues,
+    required this.registerGlobally,
+  });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'className': className.toMap(),
+      'mapperClassName': mapperClassName.toMap(),
+      'mapperInterfaceName': mapperInterfaceName.toMap(),
+      'datatype': datatype?.toMap(),
+      'hasDatatype': datatype != null,
+      'enumValues': toMustacheList(enumValues),
+      'registerGlobally': registerGlobally,
+    };
+  }
+}
+
+/// Template data for generating enum IRI mappers.
+///
+/// This class contains all data needed to render mustache templates
+/// for enum mappers annotated with @RdfIri.
+class EnumIriMapperTemplateData implements MappableClassMapperTemplateData {
+  /// The name of the Dart enum being mapped
+  final Code className;
+
+  /// The name of the generated mapper class
+  final Code mapperClassName;
+
+  /// The mapper interface name
+  final Code mapperInterfaceName;
+
+  /// IRI template for serialization
+  final String? template;
+
+  /// Regex pattern for deserialization
+  final String? regexPattern;
+
+  /// Interpolated template for serialization
+  final String? interpolatedTemplate;
+
+  /// List of enum values with their serialization mappings
+  final List<Map<String, dynamic>> enumValues;
+
+  /// Context variable providers needed for IRI generation
+  final List<ContextProviderData> contextProviders;
+
+  /// Whether to register this mapper globally
+  final bool registerGlobally;
+
+  /// Whether this uses a full IRI part template (no regex parsing needed)
+  final bool hasFullIriPartTemplate;
+
+  const EnumIriMapperTemplateData({
+    required this.className,
+    required this.mapperClassName,
+    required this.mapperInterfaceName,
+    this.template,
+    this.regexPattern,
+    this.interpolatedTemplate,
+    required this.enumValues,
+    required this.contextProviders,
+    required this.registerGlobally,
+    required this.hasFullIriPartTemplate,
+  });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'className': className.toMap(),
+      'mapperClassName': mapperClassName.toMap(),
+      'mapperInterfaceName': mapperInterfaceName.toMap(),
+      'template': template,
+      'hasTemplate': template != null,
+      'regexPattern': regexPattern,
+      'interpolatedTemplate': interpolatedTemplate,
+      'enumValues': toMustacheList(enumValues),
+      'contextProviders':
+          toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
+      'hasContextProviders': contextProviders.isNotEmpty,
+      'registerGlobally': registerGlobally,
+      'hasFullIriPartTemplate': hasFullIriPartTemplate,
+      'requiresIriParsing': !hasFullIriPartTemplate,
+    };
+  }
 }

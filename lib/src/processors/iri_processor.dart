@@ -4,6 +4,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
@@ -37,8 +38,37 @@ class IriProcessor {
     );
   }
 
-  static RdfIriInfo? _createRdfIriAnnotation(ValidationContext context,
-      DartObject? annotation, ClassElement2 classElement) {
+  /// Processes an enum element and returns its IriInfo if it's annotated with @RdfIri.
+  ///
+  /// Returns an [IriInfo] containing the processed information if the enum is annotated
+  /// with `@RdfIri`, otherwise returns `null`.
+  static IriInfo? processEnum(
+      ValidationContext context, EnumElement2 enumElement) {
+    final annotation =
+        getAnnotation(enumElement.metadata2.annotations, 'RdfIri');
+    final enumName = enumToCode(enumElement);
+
+    // Create the RdfIri instance from the annotation
+    final rdfIriAnnotation =
+        _createRdfIriAnnotation(context, annotation, enumElement);
+    if (rdfIriAnnotation == null) {
+      return null; // No valid IRI annotation found
+    }
+
+    // Extract enum constants and their custom values
+    final enumValues = extractEnumValues(context, enumElement);
+
+    return IriInfo(
+      className: enumName,
+      annotation: rdfIriAnnotation,
+      constructors: [],
+      fields: [],
+      enumValues: enumValues,
+    );
+  }
+
+  static RdfIriInfo? _createRdfIriAnnotation(
+      ValidationContext context, DartObject? annotation, Element2 element) {
     try {
       if (annotation == null) {
         return null;
@@ -52,17 +82,39 @@ class IriProcessor {
       // Get the iriStrategy from the annotation
       final templateFieldValue =
           getField(annotation, 'template')?.toStringValue();
-      final (template, templateInfo, iriParts) =
-          IriStrategyProcessor.processIriPartsAndTemplate(
-              context, classElement, templateFieldValue, mapper);
 
-      // Create and return the RdfGlobalResource instance
-      return RdfIriInfo(
-          registerGlobally: registerGlobally,
-          mapper: mapper,
-          template: template,
-          iriParts: iriParts,
-          templateInfo: templateInfo);
+      if (element is ClassElement2) {
+        final (template, templateInfo, iriParts) =
+            IriStrategyProcessor.processIriPartsAndTemplate(
+                context, element, templateFieldValue, mapper);
+
+        return RdfIriInfo(
+            registerGlobally: registerGlobally,
+            mapper: mapper,
+            template: template,
+            iriParts: iriParts,
+            templateInfo: templateInfo);
+      } else {
+        // For enums, we only need the template string
+        // If no template is provided, use {+value} as default (like classes use {+fieldName})
+        final template = templateFieldValue ?? '{+value}';
+        final fakeIriParts = <IriPartInfo>[
+          IriPartInfo(
+              name: 'value',
+              dartPropertyName: 'value',
+              type: Code.coreType('String'),
+              pos: 1,
+              isMappedValue: true)
+        ];
+        final templateInfo = IriStrategyProcessor.processTemplate(
+            context, template, fakeIriParts);
+        return RdfIriInfo(
+            registerGlobally: registerGlobally,
+            mapper: mapper,
+            template: template,
+            iriParts: fakeIriParts,
+            templateInfo: templateInfo);
+      }
     } catch (e) {
       print('Error creating RdfGlobalResource: $e');
       rethrow;

@@ -27,16 +27,12 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
   @override
   IriWithOnePart fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final isbn = iriParts['isbn']!;
 
     return IriWithOnePart(isbn: isbn);
@@ -72,16 +68,12 @@ class IriWithOnePartExplicitlyGlobalMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final isbn = iriParts['isbn']!;
 
     return IriWithOnePartExplicitlyGlobal(isbn: isbn);
@@ -116,16 +108,12 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final value = iriParts['isbn']!;
 
     return IriWithOnePartNamed(value: value);
@@ -157,16 +145,12 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
   @override
   IriWithTwoParts fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final value = iriParts['value']!;
     final type = iriParts['type']!;
 
@@ -209,16 +193,12 @@ class IriWithBaseUriAndTwoPartsMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final value = iriParts['value']!;
     final otherPart = iriParts['type']!;
 
@@ -255,16 +235,12 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
   @override
   IriWithBaseUri fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final isbn = iriParts['isbn']!;
 
     return IriWithBaseUri(isbn: isbn);
@@ -304,16 +280,12 @@ class IriWithBaseUriNoGlobalMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final isbn = iriParts['isbn']!;
 
     return IriWithBaseUriNoGlobal(isbn: isbn);
@@ -350,16 +322,12 @@ class IriWithNonConstructorFieldsMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final id = iriParts['id']!;
 
     final retval = IriWithNonConstructorFields();
@@ -400,16 +368,12 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final id = iriParts['id']!;
 
     final retval = IriWithNonConstructorFieldsAndBaseUriNonGlobal();
@@ -444,16 +408,12 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
   @override
   IriWithMixedFields fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     final brand = iriParts['brand']!;
     final id = iriParts['id']!;
     final productCategory = iriParts['category']!;

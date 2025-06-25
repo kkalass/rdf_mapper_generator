@@ -46,6 +46,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('Book')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -54,7 +55,6 @@ void main() {
 
         // Book has IRI template, so should use complex implementation
         expect(result, contains('_buildIri'));
-        expect(result, contains('_parseIriParts'));
         expect(result, contains('RegExp'));
         expect(result, contains('iriParts'));
       });
@@ -64,6 +64,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -75,7 +76,6 @@ void main() {
 
         // Should NOT contain complex IRI processing methods
         expect(result, isNot(contains('_buildIri')));
-        expect(result, isNot(contains('_parseIriParts')));
         expect(result, isNot(contains('RegExp')));
         expect(result, isNot(contains('iriParts')));
       });
@@ -85,6 +85,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithIriTemplateStrategy')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -92,7 +93,6 @@ void main() {
 
         // Should use complex implementation with IRI template processing
         expect(result, contains('_buildIri'));
-        expect(result, contains('_parseIriParts'));
         expect(result, contains('RegExp'));
         expect(result, contains('iriParts'));
 
@@ -111,6 +111,7 @@ void main() {
               globalResourceLibrary
                   .getClass2('ClassWithIriTemplateAndContextVariableStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -126,6 +127,7 @@ void main() {
               globalResourceLibrary
                   .getClass2('ClassWithIriNamedMapperStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -137,6 +139,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithIriMapperStrategy')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -151,6 +154,7 @@ void main() {
               globalResourceLibrary
                   .getClass2('ClassWithIriMapperInstanceStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -166,6 +170,7 @@ void main() {
               globalResourceLibrary
                   .getClass2('ClassWithMapperNamedMapperStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -178,6 +183,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('ClassWithMapperStrategy')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -192,6 +198,7 @@ void main() {
               globalResourceLibrary
                   .getClass2('ClassWithMapperInstanceStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNotNull);
@@ -203,6 +210,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [globalResourceLibrary.getClass2('NotAnnotated')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
         expect(result, isNull);
@@ -214,6 +222,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('Book')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -225,6 +234,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassNoRegisterGlobally')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -239,6 +249,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithNoRdfType')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -249,6 +260,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithPositionalProperty')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -259,6 +271,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithNonFinalProperty')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -273,6 +286,7 @@ void main() {
               localResourceLibrary
                   .getClass2('ClassWithNonFinalPropertyWithDefault')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -288,6 +302,7 @@ void main() {
               localResourceLibrary
                   .getClass2('ClassWithNonFinalOptionalProperty')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -300,6 +315,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithLateNonFinalProperty')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -310,6 +326,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithLateFinalProperty')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -324,6 +341,7 @@ void main() {
               localResourceLibrary
                   .getClass2('ClassWithMixedFinalAndLateFinalProperty')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -339,6 +357,7 @@ void main() {
               localResourceLibrary
                   .getClass2('ClassWithMapperNamedMapperStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -350,6 +369,7 @@ void main() {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
             [localResourceLibrary.getClass2('ClassWithMapperStrategy')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -363,6 +383,7 @@ void main() {
             [
               localResourceLibrary.getClass2('ClassWithMapperInstanceStrategy')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
         expect(result, isNotNull);
@@ -376,6 +397,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithOnePart')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -389,6 +411,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithOnePartExplicitlyGlobal')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -399,6 +422,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithOnePartNamed')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -409,6 +433,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithTwoParts')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -419,6 +444,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithBaseUriAndTwoParts')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -429,6 +455,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithBaseUri')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -439,6 +466,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithBaseUriNoGlobal')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -449,6 +477,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithNonConstructorFields')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -464,6 +493,7 @@ void main() {
               iriLibrary
                   .getClass2('IriWithNonConstructorFieldsAndBaseUriNonGlobal')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -477,6 +507,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithMixedFields')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -487,6 +518,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithNamedMapper')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -497,6 +529,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithMapper')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -507,6 +540,7 @@ void main() {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
             [iriLibrary.getClass2('IriWithMapperInstance')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
         expect(result, isNotNull);
@@ -519,6 +553,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralString')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -531,6 +566,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('Rating')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -541,6 +577,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LocalizedText')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -551,6 +588,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralDouble')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -561,6 +599,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralInteger')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -572,6 +611,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('Temperature')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -584,6 +624,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('CustomLocalizedText')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -596,6 +637,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('DoubleAsMilliunit')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -609,6 +651,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralWithNonConstructorValue')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -623,6 +666,7 @@ void main() {
               literalLibrary
                   .getClass2('LocalizedTextWithNonConstructorLanguage')!
             ],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -635,6 +679,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralLateFinalLocalizedText')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -645,6 +690,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralWithNamedMapper')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -655,6 +701,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralWithMapper')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -666,6 +713,7 @@ void main() {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
             [literalLibrary.getClass2('LiteralWithMapperInstance')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);
@@ -681,6 +729,7 @@ void main() {
       final emptyIriResult = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+          [], // No enums
           assetReader,
           BroaderImports.create(globalResourceLibrary));
 
@@ -688,6 +737,7 @@ void main() {
       final templateIriResult = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [globalResourceLibrary.getClass2('ClassWithIriTemplateStrategy')!],
+          [], // No enums
           assetReader,
           BroaderImports.create(globalResourceLibrary));
 
@@ -696,11 +746,9 @@ void main() {
       expect(
           emptyIriResult, contains('final subject = IriTerm(resource.iri);'));
       expect(emptyIriResult, isNot(contains('_buildIri')));
-      expect(emptyIriResult, isNot(contains('_parseIriParts')));
 
       // Template IRI strategy should be complex
       expect(templateIriResult, contains('_buildIri'));
-      expect(templateIriResult, contains('_parseIriParts'));
       expect(templateIriResult, contains('RegExp'));
       expect(templateIriResult, isNot(contains('final iri = subject.iri;')));
       expect(templateIriResult,
@@ -711,6 +759,7 @@ void main() {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
           [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+          [], // No enums
           assetReader,
           BroaderImports.create(globalResourceLibrary));
 
@@ -738,7 +787,6 @@ void main() {
       expect(
           result, isNot(contains('/// Parses IRI parts from a complete IRI')));
       expect(result, isNot(contains('String _buildIri(')));
-      expect(result, isNot(contains('Map<String, String> _parseIriParts(')));
     });
 
     group('Property Test Mappers', () {
@@ -747,6 +795,7 @@ void main() {
         final result = await BuilderHelper().build(
             'property_processor_test_models.dart',
             [propertyLibrary.getClass2('IriMappingNamedMapperTest')!],
+            [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
         expect(result, isNotNull);

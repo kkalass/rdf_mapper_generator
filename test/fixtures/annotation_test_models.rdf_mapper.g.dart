@@ -92,16 +92,12 @@ class BookWithMapperTitleMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
 
-    final iriParts = match == null
-        ? <String, String>{}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
     return iriParts['title']!;
   }
 
@@ -175,8 +171,12 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
     IriTerm subject,
     DeserializationContext context,
   ) {
-    // Extract IRI parts
-    final iriParts = _parseIriParts(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
 
     final id = iriParts['id']!;
 
@@ -198,24 +198,5 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
   String _buildIri(BookWithTemplate resource) {
     final id = resource.id;
     return 'https://example.org/books/${id}';
-  }
-
-  /// Parses IRI parts from a complete IRI using a template.
-  ///
-  /// Supports RFC 6570 URI Template standard:
-  /// - {variable} (default): excludes reserved characters like '/'
-  /// - {+variable}: includes reserved characters for URLs/paths (RFC 6570 Level 2)
-  Map<String, String> _parseIriParts(String iri) {
-    // Try to match the IRI against the regex pattern
-    RegExpMatch? match = _regex.firstMatch(iri);
-
-    return match == null
-        ? {}
-        : Map.fromEntries(
-            match.groupNames.map((name) {
-              var namedGroup = match.namedGroup(name)!;
-              return MapEntry(name, namedGroup);
-            }),
-          );
   }
 }

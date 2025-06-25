@@ -6,6 +6,8 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 import 'fixtures/annotation_test_models.dart' as atm;
 import 'fixtures/annotation_test_models.rdf_mapper.g.dart' as atmrmg;
+import 'fixtures/enum_test_models.dart' as etm;
+import 'fixtures/enum_test_models.rdf_mapper.g.dart' as etmrmg;
 import 'fixtures/global_resource_processor_test_models.dart' as grptm;
 import 'fixtures/global_resource_processor_test_models.rdf_mapper.g.dart'
     as grptmrmg;
@@ -71,6 +73,13 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<atm.BookWithTemplate>(
     atmrmg.BookWithTemplateMapper(),
+  );
+  registry.registerMapper<etm.Priority>(etmrmg.PriorityMapper());
+  registry.registerMapper<etm.Status>(etmrmg.StatusMapper());
+  registry.registerMapper<etm.DocumentType>(etmrmg.DocumentTypeMapper());
+  registry.registerMapper<etm.CategoryType>(etmrmg.CategoryTypeMapper());
+  registry.registerMapper<etm.FileFormat>(
+    etmrmg.FileFormatMapper(baseUriProvider: baseUriProvider),
   );
   registry.registerMapper<grptm.Book>(grptmrmg.BookMapper());
   registry.registerMapper<grptm.ClassWithEmptyIriStrategy>(
@@ -332,6 +341,7 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<pptm.LiteralInstanceMapperTest>(
     pptmrmg.LiteralInstanceMapperTestMapper(),
   );
+  registry.registerMapper<pptm.BookFormatType>(pptmrmg.BookFormatTypeMapper());
 
   return rdfMapper;
 }

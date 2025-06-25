@@ -665,20 +665,72 @@ books:singleton a schema:Book .
               'Should be able to deserialize explicit template as simple syntax');
     });
 
-    // These tests are expected to fail due to missing serialization support for enum types
     test('EnumTypeTest - enum property mapping', () {
       // Create test instances with different enum values
       final testInstanceHardcover =
           EnumTypeTest(format: BookFormatType.hardcover);
       final testInstanceEbook = EnumTypeTest(format: BookFormatType.ebook);
+      final testInstancePaperback =
+          EnumTypeTest(format: BookFormatType.paperback);
+      final testInstanceAudiobook =
+          EnumTypeTest(format: BookFormatType.audioBook);
 
-      // Test serialization (expected to fail until enum serialization is implemented)
-      expect(() => mapper.encodeObject(testInstanceHardcover),
-          throwsA(isA<Exception>()),
-          reason: 'Enum serialization is not yet implemented');
-      expect(() => mapper.encodeObject(testInstanceEbook),
-          throwsA(isA<Exception>()),
-          reason: 'Enum serialization is not yet implemented');
+      // Test serialization - enum values should be serialized as literals
+      final serializedHardcover = mapper.encodeObject(testInstanceHardcover);
+      final serializedEbook = mapper.encodeObject(testInstanceEbook);
+      final serializedPaperback = mapper.encodeObject(testInstancePaperback);
+      final serializedAudiobook = mapper.encodeObject(testInstanceAudiobook);
+
+      expect(serializedHardcover, isNotNull);
+      expect(serializedEbook, isNotNull);
+      expect(serializedPaperback, isNotNull);
+      expect(serializedAudiobook, isNotNull);
+
+      // Verify that enum values are serialized as string literals
+      expect(serializedHardcover, contains('schema:bookFormat "hardcover"'),
+          reason: 'Hardcover enum should be serialized as literal "hardcover"');
+      expect(serializedEbook, contains('schema:bookFormat "ebook"'),
+          reason: 'Ebook enum should be serialized as literal "ebook"');
+      expect(serializedPaperback, contains('schema:bookFormat "paperback"'),
+          reason: 'Paperback enum should be serialized as literal "paperback"');
+      expect(serializedAudiobook, contains('schema:bookFormat "audioBook"'),
+          reason: 'AudioBook enum should be serialized as literal "audioBook"');
+
+      // Verify that different enum values produce different serialized forms
+      expect(serializedHardcover, isNot(equals(serializedEbook)),
+          reason:
+              'Different enum values should produce different serialization');
+      expect(serializedEbook, isNot(equals(serializedPaperback)),
+          reason:
+              'Different enum values should produce different serialization');
+      expect(serializedPaperback, isNot(equals(serializedAudiobook)),
+          reason:
+              'Different enum values should produce different serialization');
+
+      // Test round-trip serialization/deserialization
+      final deserializedHardcover =
+          mapper.decodeObject<EnumTypeTest>(serializedHardcover);
+      final deserializedEbook =
+          mapper.decodeObject<EnumTypeTest>(serializedEbook);
+      final deserializedPaperback =
+          mapper.decodeObject<EnumTypeTest>(serializedPaperback);
+      final deserializedAudiobook =
+          mapper.decodeObject<EnumTypeTest>(serializedAudiobook);
+
+      expect(deserializedHardcover, isNotNull);
+      expect(deserializedEbook, isNotNull);
+      expect(deserializedPaperback, isNotNull);
+      expect(deserializedAudiobook, isNotNull);
+
+      // Verify that enum values are preserved through round-trip
+      expect(deserializedHardcover.format, equals(BookFormatType.hardcover),
+          reason: 'Hardcover enum should be preserved through round-trip');
+      expect(deserializedEbook.format, equals(BookFormatType.ebook),
+          reason: 'Ebook enum should be preserved through round-trip');
+      expect(deserializedPaperback.format, equals(BookFormatType.paperback),
+          reason: 'Paperback enum should be preserved through round-trip');
+      expect(deserializedAudiobook.format, equals(BookFormatType.audioBook),
+          reason: 'AudioBook enum should be preserved through round-trip');
     });
 
     test('SimpleCustomPropertyTest - global resource with IRI strategy', () {
