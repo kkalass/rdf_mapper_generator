@@ -1,13 +1,15 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
-
 import '../test_helper.dart';
+import 'local_resource_processor_test.dart';
 
-processField(FieldElement2 field) =>
+PropertyInfo? processField(FieldElement2 field) =>
     PropertyProcessor.processField(ValidationContext(), field);
 
 void main() {
@@ -371,7 +373,17 @@ void main() {
       final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
-      expect(result?.annotation.collection, RdfCollectionType.auto);
+      expect(result?.annotation.collection, equals(RdfCollectionType.auto));
+      expect(result?.collectionInfo, isNotNull);
+      expect(result?.collectionInfo.treatAsCollection, isTrue);
+      expect(result?.collectionInfo.isList, isTrue);
+      expect(result?.collectionInfo.isMap, isFalse);
+      expect(result?.collectionInfo.isSet, isFalse);
+      expect(result?.collectionInfo.isCollection, isTrue);
+      expect(result?.collectionInfo.type, equals(CollectionType.list));
+      expect(result?.collectionInfo.keyTypeCode, isNull);
+      expect(result?.collectionInfo.valueTypeCode, isNull);
+      expect(result?.collectionInfo.elementTypeCode, equals(stringType));
     });
 
     test('should process enum type property', () {
@@ -945,7 +957,8 @@ void main() {
       expect(result.annotation.iri!.template, isNotNull);
       expect(result.annotation.iri!.template!.template, '{+authorIri}');
       expect(result.annotation.iri!.template!.iriParts, hasLength(1));
-      expect(result.annotation.iri!.template!.iriParts.first.name, 'authorIri');
+      expect(
+          result.annotation.iri!.template!.iriParts!.first.name, 'authorIri');
     });
 
     test(
@@ -975,7 +988,8 @@ void main() {
       expect(result.annotation.iri!.template, isNotNull);
       expect(result.annotation.iri!.template!.template, '{+authorIri}');
       expect(result.annotation.iri!.template!.iriParts, hasLength(1));
-      expect(result.annotation.iri!.template!.iriParts.first.name, 'authorIri');
+      expect(
+          result.annotation.iri!.template!.iriParts!.first.name, 'authorIri');
     });
 
     test(

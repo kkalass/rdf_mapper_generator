@@ -150,24 +150,35 @@ class TestIriMapper implements IriTermMapper<String> {
 }
 
 /// Test local resource mapper for `Map<String, String>` values
-class TestMapEntryMapper implements LocalResourceMapper<Map<String, String>> {
+class TestMapEntryMapper
+    implements LocalResourceMapper<MapEntry<String, String>> {
+  static const IriTerm _typeIri =
+      IriTerm.prevalidated('http://example.org/MapEntry');
+  static const IriTerm _key = IriTerm.prevalidated('http://example.org/key');
+  static const IriTerm _value =
+      IriTerm.prevalidated('http://example.org/value');
   const TestMapEntryMapper();
 
   @override
-  Map<String, String> fromRdfResource(
+  MapEntry<String, String> fromRdfResource(
       BlankNodeTerm term, DeserializationContext context) {
-    return {'id': term.toString()};
+    final reader = context.reader(term);
+    return MapEntry(reader.require(_key), reader.require(_value));
   }
 
   @override
   (BlankNodeTerm, List<Triple>) toRdfResource(
-      Map<String, String> value, SerializationContext context,
+      MapEntry<String, String> entry, SerializationContext context,
       {RdfSubject? parentSubject}) {
-    return context.resourceBuilder(BlankNodeTerm()).build();
+    return context
+        .resourceBuilder(BlankNodeTerm())
+        .addValue(_key, entry.key)
+        .addValue(_value, entry.value)
+        .build();
   }
 
   @override
-  IriTerm? get typeIri => IriTerm('http://example.org/MapEntry');
+  IriTerm? get typeIri => _typeIri;
 }
 
 /// Test literal mapper for String values (custom mapper)
@@ -275,7 +286,7 @@ RdfMapper defaultInitTestRdfMapper(
     String Function()? baseUriProvider,
     // IRI mapper parameters
     IriTermMapper<String>? iriMapper,
-    LocalResourceMapper<Map<String, String>>? mapEntryMapper,
+    LocalResourceMapper<MapEntry<String, String>>? mapEntryMapper,
     LiteralTermMapper<String>? testCustomMapper,
     GlobalResourceMapper<Object>? testGlobalMapper,
     GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>?

@@ -633,6 +633,12 @@ class ParameterData {
   final String? mapperFieldName;
   final String? mapperParameterSerializer;
   final String? mapperParameterDeserializer;
+  final Code readerMethod;
+
+  final bool isMap;
+  final bool isList;
+  final bool isSet;
+  final bool isCollection;
 
   const ParameterData({
     required this.name,
@@ -653,6 +659,11 @@ class ParameterData {
     required this.mapperParameterDeserializer,
     required this.mapperSerializerCode,
     required this.mapperDeserializerCode,
+    required this.readerMethod,
+    required this.isMap,
+    required this.isList,
+    required this.isSet,
+    required this.isCollection,
   });
 
   Map<String, dynamic> toMap() => {
@@ -677,6 +688,11 @@ class ParameterData {
         'mapperSerializerCode': mapperSerializerCode?.toMap(),
         'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
         'mapperParameterDeserializer': mapperParameterDeserializer,
+        'readerMethod': readerMethod.toMap(),
+        'isMap': isMap,
+        'isList': isList,
+        'isSet': isSet,
+        'isCollection': isCollection,
       };
 }
 
@@ -696,6 +712,13 @@ class PropertyData {
   final String? mapperParameterDeserializer;
   final Code? mapperSerializerCode;
   final Code? mapperDeserializerCode;
+  final bool isCollection;
+  final bool isMap;
+  final Code readerMethod;
+  final Code serializerMethod;
+  final Code? dartType;
+  final bool isList;
+  final bool isSet;
 
   const PropertyData({
     required this.propertyName,
@@ -712,6 +735,13 @@ class PropertyData {
     required this.mapperParameterDeserializer,
     required this.mapperSerializerCode,
     required this.mapperDeserializerCode,
+    required this.isCollection,
+    required this.isMap,
+    required this.readerMethod,
+    required this.serializerMethod,
+    this.dartType,
+    required this.isList,
+    required this.isSet,
   });
 
   Map<String, dynamic> toMap() => {
@@ -733,6 +763,13 @@ class PropertyData {
         'hasMapper': mapperFieldName != null,
         'mapperSerializerCode': mapperSerializerCode?.toMap(),
         'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
+        'isCollection': isCollection,
+        'isMap': isMap,
+        'readerMethod': readerMethod.toMap(),
+        'serializerMethod': serializerMethod.toMap(),
+        'dartType': dartType?.toMap(),
+        'isList': isList,
+        'isSet': isSet,
       };
 }
 

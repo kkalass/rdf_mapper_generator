@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
@@ -306,16 +308,26 @@ class CollectionTest {
 }
 
 @RdfLocalResource()
-class MapNoCollectionTest {
-  @RdfProperty(SchemaBook.reviews, collection: RdfCollectionType.none)
+class CollectionIterableTest {
+  @RdfProperty(SchemaBook.author)
+  final Iterable<String> authors;
+
+  CollectionIterableTest({required this.authors});
+}
+
+@RdfLocalResource()
+class MapNoCollectionNoMapperTest {
+  @RdfProperty(
+    SchemaBook.reviews,
+    collection: RdfCollectionType.none,
+  )
   final Map<String, String> reviews;
 
-  MapNoCollectionTest({required this.reviews});
+  MapNoCollectionNoMapperTest({required this.reviews});
 }
 
 @RdfLocalResource()
 class MapLocalResourceMapperTest {
-  // FIXME: this generates a wrong type for the mapper because collections are not handled correctly
   @RdfProperty(
     SchemaBook.reviews,
     localResource: LocalResourceMapping.namedMapper("mapEntryMapper"),
@@ -347,12 +359,34 @@ enum BookFormatType { hardcover, paperback, ebook, audioBook }
 @RdfLocalResource()
 class ComplexDefaultValueTest {
   @RdfProperty(
-    SchemaBook.isbn,
+    IriTerm.prevalidated('http://example.org/test/complexValue'),
     defaultValue: const {'id': '1', 'name': 'Test'},
+    collection: RdfCollectionType.none,
+    literal: LiteralMapping.mapperInstance(const JsonLiteralMapper()),
   )
   final Map<String, dynamic> complexValue;
 
   ComplexDefaultValueTest({required this.complexValue});
+}
+
+class JsonLiteralMapper implements LiteralTermMapper<Map<String, dynamic>> {
+  const JsonLiteralMapper();
+
+  @override
+  Map<String, dynamic> fromRdfTerm(
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    // Assuming the literal value is a JSON string
+    return json.decode(term.value);
+  }
+
+  @override
+  LiteralTerm toRdfTerm(
+      Map<String, dynamic> value, SerializationContext context) {
+    // Convert the value to a JSON string
+    final jsonString = json.encode(value);
+    return LiteralTerm(jsonString);
+  }
 }
 
 // FIXME: we also need tests with getters and setters?

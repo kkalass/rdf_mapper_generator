@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
@@ -85,17 +86,7 @@ class DataBuilder {
   static Code _buildMapperInterfaceTypeFromBaseMapper(
       BaseMappingAnnotationInfo<dynamic> annotation, Code className) {
     final mapperInterface = _mapperInterfaceNameFor(annotation);
-    return _buildMapperInterfaceType(mapperInterface, className);
-  }
-
-  static Code _buildMapperInterfaceType(Code mapperInterface, Code className) {
-    final mapperInterfaceType = Code.combine([
-      mapperInterface,
-      Code.literal('<'),
-      className,
-      Code.literal('>'),
-    ]);
-    return mapperInterfaceType;
+    return codeGeneric1(mapperInterface, className);
   }
 
   static Code _mapperInterfaceNameFor(
@@ -256,7 +247,7 @@ class DataBuilder {
             else if (iri.isFullIriTemplate)
               constructorParameterWithValue(
                   f.name,
-                  f.type,
+                  f,
                   'IriTermMapper',
                   Code.combine([
                     Code.literal('const '),
@@ -270,15 +261,14 @@ class DataBuilder {
             else if (literal.datatype != null)
               constructorParameterWithValue(
                   f.name,
-                  f.type,
+                  f,
                   'LiteralTermMapper',
                   Code.combine([
                     Code.literal('const '),
-                    Code.type('DatatypeOverrideMapper',
-                        importUri: mapperImportUri),
-                    Code.literal('<'),
-                    f.type,
-                    Code.literal('>'),
+                    codeGeneric1(
+                        Code.type('DatatypeOverrideMapper',
+                            importUri: mapperImportUri),
+                        f.type),
                     Code.literal('('),
                     literal.datatype!.code,
                     Code.literal(')')
@@ -286,15 +276,14 @@ class DataBuilder {
             else if (literal.language != null)
               constructorParameterWithValue(
                   f.name,
-                  f.type,
+                  f,
                   'LiteralTermMapper',
                   Code.combine([
                     Code.literal('const '),
-                    Code.type('LanguageOverrideMapper',
-                        importUri: mapperImportUri),
-                    Code.literal('<'),
-                    f.type,
-                    Code.literal('>'),
+                    codeGeneric1(
+                        Code.type('LanguageOverrideMapper',
+                            importUri: mapperImportUri),
+                        f.type),
                     Code.literal("('${literal.language}')"),
                   ])),
           if (globalResourceMapper != null)
@@ -310,12 +299,12 @@ class DataBuilder {
   }
 
   static ConstructorParameterData constructorParameterWithValue(
-      String fieldName, Code type, String mapperInterfaceType, Code value) {
+      String fieldName, FieldInfo f, String mapperInterfaceType, Code value) {
     return ConstructorParameterData(
         fieldName: _buildMapperFieldName(fieldName),
         parameterName: fieldName + 'Mapper',
-        type: _buildMapperInterfaceType(
-            Code.type(mapperInterfaceType, importUri: importRdfMapper), type),
+        type: _buildMapperInterfaceTypeForProperty(
+            Code.type(mapperInterfaceType, importUri: importRdfMapper), f),
         isLate: false,
         defaultValue: value);
   }
@@ -325,8 +314,8 @@ class DataBuilder {
     return ConstructorParameterData(
         fieldName: _buildMapperFieldName(f.name),
         parameterName: iriMapper.name ?? f.name + 'Mapper',
-        type: _buildMapperInterfaceType(
-            Code.type(mapperInterface, importUri: importRdfMapper), f.type),
+        type: _buildMapperInterfaceTypeForProperty(
+            Code.type(mapperInterface, importUri: importRdfMapper), f),
         isLate: false,
         defaultValue: iriMapper.name == null
             ? mapperRefInfoToCode(iriMapper, constContext: true)
@@ -368,8 +357,8 @@ class DataBuilder {
       ConstructorParameterData(
           fieldName: _buildMapperFieldName(f.name),
           parameterName: f.name + 'Mapper',
-          type: _buildMapperInterfaceType(
-              Code.type(mapperInterface, importUri: importRdfMapper), f.type),
+          type: _buildMapperInterfaceTypeForProperty(
+              Code.type(mapperInterface, importUri: importRdfMapper), f),
           isLate: isLate,
           defaultValue: defaultValue)
     ];
@@ -579,7 +568,7 @@ class DataBuilder {
     final iriData = _buildIriData(
         templateInfo.template,
         null,
-        _buildMapperInterfaceType(mapperInterfaceName, className),
+        codeGeneric1(mapperInterfaceName, className),
         iriParts,
         templateInfo,
         fields)!;
@@ -635,6 +624,34 @@ class DataBuilder {
     ];
   }
 
+  static (Code readerMethod, Code serializerMethod)
+      _getReaderAndSerializerMethods(
+          PropertyInfo? propertyInfo, bool isRequired) {
+    final collection = propertyInfo?.annotation.collection;
+    final collectionInfo = propertyInfo?.collectionInfo;
+    // Determine reader and serializer methods based on collection type
+    final isCollection = collectionInfo?.isCollection ?? false;
+    final isMap = collectionInfo?.isMap ?? false;
+    final isIterable = collectionInfo?.isIterable ?? false;
+
+    if (isCollection && collection != RdfCollectionType.none) {
+      if (isMap) {
+        return const (Code.literal('getMap'), Code.literal('addMap'));
+      }
+      if (isIterable) {
+        final elementType = collectionInfo!.elementTypeCode!;
+        return (
+          codeGeneric1(Code.literal('getValues'), elementType),
+          codeGeneric1(Code.literal('addValues'), elementType),
+        );
+      }
+    }
+    if (isRequired) {
+      return const (Code.literal('require'), Code.literal('addValue'));
+    }
+    return const (Code.literal('optional'), Code.literal('addValue'));
+  }
+
   static List<PropertyData> _buildPropertyData(
       Code className, List<FieldInfo> fields, String mapperImportUri) {
     final provides = collectProvidesByVariableNames(fields);
@@ -649,6 +666,12 @@ class DataBuilder {
           className, p.name, p.propertyInfo, provides, mapperImportUri);
       final mapperFieldNameCode =
           mapperFieldName == null ? null : Code.literal(mapperFieldName);
+
+      // Determine collection information and methods
+      final collectionInfo = p.propertyInfo!.collectionInfo;
+      final (readerMethod, serializerMethod) =
+          _getReaderAndSerializerMethods(p.propertyInfo, p.isRequired);
+
       return PropertyData(
         isRdfProperty: p.propertyInfo != null,
         isRequired: p.isRequired,
@@ -665,6 +688,13 @@ class DataBuilder {
         mapperParameterDeserializer: mapperParameterDeserializer,
         mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
         mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
+        isCollection: collectionInfo.isCollection,
+        isMap: collectionInfo.isMap,
+        readerMethod: readerMethod,
+        serializerMethod: serializerMethod,
+        dartType: p.type,
+        isList: collectionInfo.isList,
+        isSet: collectionInfo.isSet,
       );
     }).toList();
   }
@@ -902,6 +932,10 @@ class DataBuilder {
           className, field.name, field.propertyInfo, provides, mapperImportUri);
       final mapperFieldNameAsCode =
           mapperFieldName == null ? null : Code.literal(mapperFieldName);
+
+      final (readerMethod, _) =
+          _getReaderAndSerializerMethods(field.propertyInfo, field.isRequired);
+
       return ParameterData(
         name: field.name,
         dartType: field.type,
@@ -924,6 +958,11 @@ class DataBuilder {
         mapperParameterDeserializer: mapperParameterDeserializer,
         mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameAsCode,
         mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameAsCode,
+        readerMethod: readerMethod,
+        isMap: field.propertyInfo?.collectionInfo.isMap ?? false,
+        isList: field.propertyInfo?.collectionInfo.isList ?? false,
+        isSet: field.propertyInfo?.collectionInfo.isSet ?? false,
+        isCollection: field.propertyInfo?.collectionInfo.isCollection ?? false,
       );
     });
   }
@@ -956,22 +995,31 @@ class DataBuilder {
           className, param.name, param.propertyInfo, provides, mapperImportUri);
       final mapperFieldNameAsCode =
           mapperFieldName == null ? null : Code.literal(mapperFieldName);
+      // Determine reader method based on collection information
+      final isFieldNullable = param.propertyInfo != null
+          ? !param.propertyInfo!.isRequired
+          : false; // Assume non-nullable if not an RDF property
+
+      final defaultValue = param.propertyInfo?.annotation.defaultValue;
+      final (readerMethod, _) = _getReaderAndSerializerMethods(
+          param.propertyInfo, !isFieldNullable && defaultValue == null);
+
+      final defaultValueCode = toCode(defaultValue);
+
       parameters.add(
         ParameterData(
           name: param.name,
           dartType: param.type,
           isRequired: param.isRequired,
           // For RDF properties, check if the field is nullable. If not an RDF property, assume non-nullable
-          isFieldNullable: param.propertyInfo != null
-              ? !param.propertyInfo!.isRequired
-              : false,
+          isFieldNullable: isFieldNullable,
           isIriPart: param.isIriPart,
           isRdfProperty: param.propertyInfo != null,
           isNamed: param.isNamed,
           iriPartName: param.iriPartName,
           predicate: param.propertyInfo?.annotation.predicate.code,
-          defaultValue: toCode(param.propertyInfo?.annotation.defaultValue),
-          hasDefaultValue: param.propertyInfo?.annotation.defaultValue != null,
+          defaultValue: defaultValueCode,
+          hasDefaultValue: defaultValue != null,
           isRdfLanguageTag: param.isRdfLanguageTag,
           isRdfValue: param.isRdfValue,
           mapperFieldName: mapperFieldName,
@@ -980,6 +1028,12 @@ class DataBuilder {
           mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameAsCode,
           mapperDeserializerCode:
               mapperDeserializerCode ?? mapperFieldNameAsCode,
+          readerMethod: readerMethod,
+          isMap: param.propertyInfo?.collectionInfo.isMap ?? false,
+          isList: param.propertyInfo?.collectionInfo.isList ?? false,
+          isSet: param.propertyInfo?.collectionInfo.isSet ?? false,
+          isCollection:
+              param.propertyInfo?.collectionInfo.isCollection ?? false,
         ),
       );
     }
@@ -1013,7 +1067,13 @@ class DataBuilder {
       PropertyInfo? propertyInfo,
       Map<String, ProvidesInfo> providesByVariableNames,
       String mapperImportUri) {
-    final iri = propertyInfo?.annotation.iri;
+    if (propertyInfo == null) {
+      return noMapperInfos;
+    }
+
+    final collectionInfo = propertyInfo.collectionInfo;
+
+    final iri = propertyInfo.annotation.iri;
     if (iri != null) {
       final template = iri.template;
       final iriMapperFieldName = _buildMapperFieldName(fieldName);
@@ -1033,7 +1093,7 @@ class DataBuilder {
         'iriTermDeserializer'
       );
     }
-    final literal = propertyInfo?.annotation.literal;
+    final literal = propertyInfo.annotation.literal;
     if (literal != null) {
       return (
         _buildMapperFieldName(fieldName),
@@ -1043,7 +1103,7 @@ class DataBuilder {
         'literalTermDeserializer'
       );
     }
-    final globalResource = propertyInfo?.annotation.globalResource;
+    final globalResource = propertyInfo.annotation.globalResource;
     if (globalResource != null && globalResource.mapper != null) {
       return (
         _buildMapperFieldName(fieldName),
@@ -1053,7 +1113,7 @@ class DataBuilder {
         'globalResourceDeserializer'
       );
     }
-    final localResource = propertyInfo?.annotation.localResource;
+    final localResource = propertyInfo.annotation.localResource;
     if (localResource != null && localResource.mapper != null) {
       return (
         _buildMapperFieldName(fieldName),
@@ -1063,6 +1123,20 @@ class DataBuilder {
         'localResourceDeserializer'
       );
     }
+
+    // For collections without explicit mapping, we need to determine the serialization method
+    if (collectionInfo.isCollection) {
+      return (
+        null, // No custom mapper field needed
+        null,
+        null,
+        collectionInfo.isMap ? 'resourceSerializer' : 'valueIterable',
+        collectionInfo.isMap
+            ? 'globalResourceDeserializer'
+            : 'globalResourceDeserializer'
+      );
+    }
+
     return noMapperInfos;
   }
 
@@ -1128,5 +1202,33 @@ class DataBuilder {
       }),
       Code.literal(')')
     ]);
+  }
+
+  /// Builds the mapper interface type, considering collection types
+  static Code _buildMapperInterfaceTypeForProperty(
+      Code mapperInterface, FieldInfo field) {
+    final propertyInfo = field.propertyInfo;
+    if (propertyInfo == null) {
+      return codeGeneric1(mapperInterface, field.type);
+    }
+
+    final collectionInfo = propertyInfo.collectionInfo;
+    if (collectionInfo.isCollection) {
+      // For collections, the mapper type should be for the element type
+      if (collectionInfo.isMap &&
+          collectionInfo.keyTypeCode != null &&
+          collectionInfo.valueTypeCode != null) {
+        // For maps, use MapEntry<K,V> as the element type
+        final mapEntryType = codeGeneric2(Code.type('MapEntry'),
+            collectionInfo.keyTypeCode!, collectionInfo.valueTypeCode!);
+        return codeGeneric1(mapperInterface, mapEntryType);
+      } else if (collectionInfo.elementTypeCode != null) {
+        // For List/Set, use the element type
+        return codeGeneric1(mapperInterface, collectionInfo.elementTypeCode!);
+      }
+    }
+
+    // Default case: not a collection or collection not handled specially
+    return codeGeneric1(mapperInterface, field.type);
   }
 }

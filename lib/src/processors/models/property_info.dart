@@ -3,6 +3,7 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 class LocalResourceMappingInfo extends BaseMappingInfo {
   LocalResourceMappingInfo({required super.mapper});
@@ -216,6 +217,9 @@ class PropertyInfo {
   /// Whether this is a synthetic field
   final bool isSynthetic;
 
+  /// Collection information for this property
+  final CollectionInfo collectionInfo;
+
   const PropertyInfo({
     required this.name,
     required this.type,
@@ -225,6 +229,7 @@ class PropertyInfo {
     required this.isLate,
     required this.isStatic,
     required this.isSynthetic,
+    required this.collectionInfo,
   });
 
   @override
@@ -237,6 +242,7 @@ class PropertyInfo {
         isLate,
         isStatic,
         isSynthetic,
+        collectionInfo,
       ]);
 
   @override
@@ -251,7 +257,8 @@ class PropertyInfo {
         isFinal == other.isFinal &&
         isLate == other.isLate &&
         isStatic == other.isStatic &&
-        isSynthetic == other.isSynthetic;
+        isSynthetic == other.isSynthetic &&
+        collectionInfo == other.collectionInfo;
   }
 
   @override
@@ -265,6 +272,7 @@ class PropertyInfo {
         '  isLate: $isLate,\n'
         '  isStatic: $isStatic,\n'
         '  isSynthetic: $isSynthetic,\n'
+        '  collectionInfo: $collectionInfo,\n'
         '}';
   }
 }

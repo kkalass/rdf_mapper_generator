@@ -825,11 +825,13 @@ books:singleton a schema:Book .
 
     // Expected to fail due to missing named mapper configuration
     test('IriMappingNamedMapperTest - named IRI mapper', () {
-      final testInstance = IriMappingNamedMapperTest(authorId: 'author202');
+      final testInstance = IriMappingNamedMapperTest(
+          authorId: 'https://example.org/authors/author202');
 
-      // Test serialization (expected to fail until 'iriMapper' named mapper is configured)
-      expect(() => mapper.encodeObject(testInstance), throwsA(isA<Exception>()),
-          reason: 'Named IRI mapper "iriMapper" is not configured');
+      // Note the the testMapper assumes that the property is an IRI
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, contains('authors:author202'),
+          reason: 'Typed mapper should generate IRI with correct template');
     });
 
     test('IriMappingMapperTest - typed IRI mapper', () {
@@ -922,13 +924,15 @@ books:singleton a schema:Book .
     });
 
     // Expected to fail due to missing Map serialization support
-    test('MapNoCollectionTest - Map with collection: none', () {
-      final testInstance = MapNoCollectionTest(
+    test('MapNoCollectionNoMapperTest - Map with collection: none', () {
+      final testInstance = MapNoCollectionNoMapperTest(
           reviews: {'user1': 'Great book!', 'user2': 'Loved it'});
 
-      // Test serialization (expected to fail until Map serialization is implemented)
-      expect(() => mapper.encodeObject(testInstance), throwsA(isA<Exception>()),
-          reason: 'Map serialization is not yet implemented');
+      // No mapper is configured for Map property, expect this to fail.
+      // Fir a working MapNoCollection example check out ComplexDefaultValueTest
+      expect(() => mapper.encodeObject(testInstance),
+          throwsA(isA<SerializerNotFoundException>()),
+          reason: 'Map property must have a mapper configured');
     });
 
     test('MapLocalResourceMapperTest - Map with local resource mapper', () {
@@ -937,12 +941,18 @@ books:singleton a schema:Book .
 
       // Test serialization - the mapper handles Map entries as local resources
       final serialized = mapper.encodeObject(testInstance);
-      expect(serialized, isNotNull);
-      expect(serialized, contains('schema:reviews [ a ex:MapEntry ]'),
-          reason: 'Map entries should be serialized as local resources');
 
-      // Note: deserialization may fail due to map handling complexity
-      // This is expected behavior for Map serialization features
+      expect(serialized, isNotNull);
+      expect(
+          serialized.trim(),
+          equals('''
+@prefix ex: <http://example.org/> .
+@prefix schema: <https://schema.org/> .
+
+_:b1 schema:reviews [ a ex:MapEntry ; ex:key "review1" ; ex:value "content1" ] .
+'''
+              .trim()),
+          reason: 'Map entries should be serialized as local resources');
     });
 
     // Expected to fail due to missing Map serialization support
@@ -950,9 +960,18 @@ books:singleton a schema:Book .
       final testInstance =
           ComplexDefaultValueTest(complexValue: {'id': '2', 'name': 'Custom'});
 
-      // Test serialization (expected to fail until Map serialization is implemented)
-      expect(() => mapper.encodeObject(testInstance), throwsA(isA<Exception>()),
-          reason: 'Map serialization is not yet implemented');
+      final serialized = mapper.encodeObject(testInstance);
+      print(serialized);
+      expect(serialized, isNotNull);
+      expect(
+          serialized.trim(),
+          equals(r'''
+@prefix test: <http://example.org/test/> .
+
+_:b0 test:complexValue "{\"id\":\"2\",\"name\":\"Custom\"}" .
+'''
+              .trim()),
+          reason: 'Map entries should be serialized as local resources');
     });
 
     test('FinalPropertyTest - final property declarations', () {

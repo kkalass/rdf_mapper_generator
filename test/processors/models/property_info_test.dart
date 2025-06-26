@@ -4,6 +4,7 @@ import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:test/test.dart';
 
 /// Creates a minimal IriTemplateInfo instance for testing purposes.
@@ -264,6 +265,7 @@ void main() {
         isLate: false,
         isStatic: false,
         isSynthetic: false,
+        collectionInfo: const CollectionInfo(treatAsCollection: false),
       );
 
       identicalInstance = PropertyInfo(
@@ -275,6 +277,7 @@ void main() {
         isLate: false,
         isStatic: false,
         isSynthetic: false,
+        collectionInfo: const CollectionInfo(treatAsCollection: false),
       );
 
       differentInstance = PropertyInfo(
@@ -286,6 +289,7 @@ void main() {
         isLate: false,
         isStatic: false,
         isSynthetic: false,
+        collectionInfo: const CollectionInfo(treatAsCollection: false),
       );
     });
 

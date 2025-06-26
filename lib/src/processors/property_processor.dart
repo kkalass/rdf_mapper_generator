@@ -50,6 +50,9 @@ class PropertyProcessor {
     // Create an instance of RdfProperty from the annotation data
     final rdfProperty = _createRdfProperty(context, name, type, annotationObj);
 
+    // Analyze collection information
+    final collectionInfo = analyzeCollectionType(type, rdfProperty.collection);
+
     // Check if the type is nullable
     final isNullable = type.isDartCoreNull ||
         (type is InterfaceType && type.isDartCoreNull) ||
@@ -64,6 +67,7 @@ class PropertyProcessor {
       isLate: isLate,
       isStatic: isStatic,
       isSynthetic: isSynthetic,
+      collectionInfo: collectionInfo,
     );
   }
 
