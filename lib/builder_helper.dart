@@ -47,6 +47,37 @@ class BuilderHelper {
         packageName, sourcePath.replaceAll('.dart', '.rdf_mapper.g.dart'));
     final context = ValidationContext();
     // Collect all resource info and element pairs (class or enum)
+    List<(MappableClassInfo, Element2?)> resourceInfosWithElements =
+        collectResourceInfos(classElements, context, enumElements);
+
+    FileTemplateData? result;
+    if (resourceInfosWithElements.isNotEmpty) {
+      // Use the file template approach which handles imports properly
+      result = TemplateDataBuilder.buildFileTemplate(
+          context.withContext(sourcePath),
+          sourcePath,
+          mapperImportUri,
+          resourceInfosWithElements,
+          broaderImports);
+    }
+
+    if (context.hasWarnings) {
+      for (final warning in context.warnings) {
+        _log.warning(warning);
+      }
+    }
+    context.throwIfErrors();
+
+    var map = result?.toMap();
+
+    return map;
+  }
+
+  List<(MappableClassInfo, Element2?)> collectResourceInfos(
+      Iterable<ClassElement2> classElements,
+      ValidationContext context,
+      Iterable<EnumElement2> enumElements) {
+    // Collect all resource info and element pairs (class or enum)
     final resourceInfosWithElements = <(MappableClassInfo, Element2?)>[];
 
     for (final classElement in classElements) {
@@ -79,28 +110,7 @@ class BuilderHelper {
         resourceInfosWithElements.add((enumInfo, enumElement));
       }
     }
-
-    FileTemplateData? result;
-    if (resourceInfosWithElements.isNotEmpty) {
-      // Use the file template approach which handles imports properly
-      result = TemplateDataBuilder.buildFileTemplate(
-          context.withContext(sourcePath),
-          sourcePath,
-          mapperImportUri,
-          resourceInfosWithElements,
-          broaderImports);
-    }
-
-    if (context.hasWarnings) {
-      for (final warning in context.warnings) {
-        _log.warning(warning);
-      }
-    }
-    context.throwIfErrors();
-
-    var map = result?.toMap();
-
-    return map;
+    return resourceInfosWithElements;
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 /// Information about a mapper reference
@@ -42,6 +43,42 @@ class MapperRefData {
 
 sealed class MappableClassMapperTemplateData {
   Map<String, dynamic> toMap();
+  const MappableClassMapperTemplateData();
+}
+
+sealed class GeneratedMapperTemplateData
+    extends MappableClassMapperTemplateData {
+  /// The name of the Dart class being mapped
+  final Code className;
+
+  /// The name of the generated mapper class
+  final Code mapperClassName;
+
+  /// The name of the mapper interface
+  final Code mapperInterfaceName;
+
+  /// Context variable providers needed for IRI generation
+  final List<ContextProviderData> contextProviders;
+
+  const GeneratedMapperTemplateData({
+    required this.className,
+    required this.mapperClassName,
+    required this.mapperInterfaceName,
+    required this.contextProviders,
+  });
+
+  /// Most mappers will only have context providers as constructor parameters,
+  /// but some may have additional parameters.
+  List<ConstructorParameterData>
+      get mapperConstructorParameters => contextProviders
+          .map((p) => ConstructorParameterData(
+              type: contextProviderType,
+              parameterName: p.variableName,
+              fieldName: p.privateFieldName,
+              defaultValue: null,
+              isLate: false,
+              isField: p.isField))
+          .toList();
 }
 
 class CustomMapperTemplateData implements MappableClassMapperTemplateData {
@@ -83,14 +120,7 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
 ///
 /// This class contains all the data needed to render the mustache template
 /// for a global resource mapper class.
-class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
-  /// The name of the Dart class being mapped
-  final Code className;
-
-  /// The name of the generated mapper class
-  final Code mapperClassName;
-
-  final Code mapperInterfaceName;
+class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
   final Code termClass;
 
   /// The type IRI expression (e.g., 'SchemaBook.classIri')
@@ -107,34 +137,28 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   final List<PropertyData> properties;
 
   /// Context variable providers needed for IRI generation
-  final List<ContextProviderData> contextProviders;
-
+  final List<ConstructorParameterData> mapperConstructorParameters;
   final bool needsReader;
 
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
-  final List<ConstructorParameterData> mapperConstructorParameters;
-
   const ResourceMapperTemplateData({
-    required Code className,
-    required Code mapperClassName,
-    required this.mapperInterfaceName,
+    required super.className,
+    required super.mapperClassName,
+    required super.mapperInterfaceName,
     required this.termClass,
     required Code? typeIri,
     required IriData? iriStrategy,
-    required List<ContextProviderData> contextProviders,
+    required super.contextProviders,
     required List<ParameterData> constructorParameters,
     required bool needsReader,
     required bool registerGlobally,
     required List<PropertyData> properties,
     required List<ParameterData> nonConstructorFields,
     required this.mapperConstructorParameters,
-  })  : className = className,
-        mapperClassName = mapperClassName,
-        typeIri = typeIri,
+  })  : typeIri = typeIri,
         iriStrategy = iriStrategy,
-        contextProviders = contextProviders,
         constructorParameters = constructorParameters,
         nonConstructorFields = nonConstructorFields,
         needsReader = needsReader,
@@ -191,19 +215,11 @@ class ResourceMapperTemplateData implements MappableClassMapperTemplateData {
   }
 }
 
-class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
+class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
   static final rdfLanguageDatatype = Code.combine([
     Code.type('Rdf', importUri: importRdfVocab),
     Code.value('.langString')
   ]).toMap();
-
-  /// The name of the Dart class being mapped
-  final Code className;
-
-  /// The name of the generated mapper class
-  final Code mapperClassName;
-
-  final Code mapperInterfaceName;
 
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
@@ -224,9 +240,9 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
   final ParameterData? rdfLanguageTag;
 
   const LiteralMapperTemplateData({
-    required Code className,
-    required Code mapperClassName,
-    required this.mapperInterfaceName,
+    required super.className,
+    required super.mapperClassName,
+    required super.mapperInterfaceName,
     required this.datatype,
     required this.toLiteralTermMethod,
     required this.fromLiteralTermMethod,
@@ -236,12 +252,11 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
     required List<ParameterData> nonConstructorFields,
     required bool registerGlobally,
     required List<PropertyData> properties,
-  })  : className = className,
-        mapperClassName = mapperClassName,
-        constructorParameters = constructorParameters,
+  })  : constructorParameters = constructorParameters,
         nonConstructorFields = nonConstructorFields,
         registerGlobally = registerGlobally,
-        properties = properties;
+        properties = properties,
+        super(contextProviders: const []);
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -276,15 +291,7 @@ class LiteralMapperTemplateData implements MappableClassMapperTemplateData {
   }
 }
 
-class IriMapperTemplateData implements MappableClassMapperTemplateData {
-  /// The name of the Dart class being mapped
-  final Code className;
-
-  /// The name of the generated mapper class
-  final Code mapperClassName;
-
-  final Code mapperInterfaceName;
-
+class IriMapperTemplateData extends GeneratedMapperTemplateData {
   /// IRI strategy information
   final IriData iriStrategy;
 
@@ -297,9 +304,6 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
   /// Property mapping information
   final List<PropertyData> properties;
 
-  /// Context variable providers needed for IRI generation
-  final List<ContextProviderData> contextProviders;
-
   final bool needsReader;
 
   /// Whether to register this mapper globally
@@ -308,21 +312,18 @@ class IriMapperTemplateData implements MappableClassMapperTemplateData {
   final VariableNameData? singleMappedValue;
 
   const IriMapperTemplateData({
-    required Code className,
-    required Code mapperClassName,
-    required this.mapperInterfaceName,
+    required super.className,
+    required super.mapperClassName,
+    required super.mapperInterfaceName,
     required IriData iriStrategy,
-    required List<ContextProviderData> contextProviders,
+    required super.contextProviders,
     required List<ParameterData> constructorParameters,
     required List<ParameterData> nonConstructorFields,
     required bool needsReader,
     required bool registerGlobally,
     required List<PropertyData> properties,
     this.singleMappedValue,
-  })  : className = className,
-        mapperClassName = mapperClassName,
-        iriStrategy = iriStrategy,
-        contextProviders = contextProviders,
+  })  : iriStrategy = iriStrategy,
         constructorParameters = constructorParameters,
         nonConstructorFields = nonConstructorFields,
         needsReader = needsReader,
@@ -769,16 +770,7 @@ class PropertyData {
 ///
 /// This class contains all data needed to render mustache templates
 /// for enum mappers annotated with @RdfLiteral.
-class EnumLiteralMapperTemplateData implements MappableClassMapperTemplateData {
-  /// The name of the Dart enum being mapped
-  final Code className;
-
-  /// The name of the generated mapper class
-  final Code mapperClassName;
-
-  /// The mapper interface name
-  final Code mapperInterfaceName;
-
+class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
   /// The datatype for literal serialization
   final Code? datatype;
 
@@ -789,13 +781,13 @@ class EnumLiteralMapperTemplateData implements MappableClassMapperTemplateData {
   final bool registerGlobally;
 
   const EnumLiteralMapperTemplateData({
-    required this.className,
-    required this.mapperClassName,
-    required this.mapperInterfaceName,
+    required super.className,
+    required super.mapperClassName,
+    required super.mapperInterfaceName,
     this.datatype,
     required this.enumValues,
     required this.registerGlobally,
-  });
+  }) : super(contextProviders: const []);
 
   @override
   Map<String, dynamic> toMap() {
@@ -815,16 +807,7 @@ class EnumLiteralMapperTemplateData implements MappableClassMapperTemplateData {
 ///
 /// This class contains all data needed to render mustache templates
 /// for enum mappers annotated with @RdfIri.
-class EnumIriMapperTemplateData implements MappableClassMapperTemplateData {
-  /// The name of the Dart enum being mapped
-  final Code className;
-
-  /// The name of the generated mapper class
-  final Code mapperClassName;
-
-  /// The mapper interface name
-  final Code mapperInterfaceName;
-
+class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
   /// IRI template for serialization
   final String? template;
 
@@ -837,9 +820,6 @@ class EnumIriMapperTemplateData implements MappableClassMapperTemplateData {
   /// List of enum values with their serialization mappings
   final List<Map<String, dynamic>> enumValues;
 
-  /// Context variable providers needed for IRI generation
-  final List<ContextProviderData> contextProviders;
-
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
@@ -847,14 +827,14 @@ class EnumIriMapperTemplateData implements MappableClassMapperTemplateData {
   final bool hasFullIriPartTemplate;
 
   const EnumIriMapperTemplateData({
-    required this.className,
-    required this.mapperClassName,
-    required this.mapperInterfaceName,
+    required super.className,
+    required super.mapperClassName,
+    required super.mapperInterfaceName,
     this.template,
     this.regexPattern,
     this.interpolatedTemplate,
     required this.enumValues,
-    required this.contextProviders,
+    required super.contextProviders,
     required this.registerGlobally,
     required this.hasFullIriPartTemplate,
   });

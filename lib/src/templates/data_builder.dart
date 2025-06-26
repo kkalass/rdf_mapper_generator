@@ -13,6 +13,11 @@ import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 
 final _log = Logger('GlobalResourceDataBuilder');
 
+var contextProviderType = Code.combine([
+  Code.coreType('String'),
+  Code.literal(' Function()'),
+]);
+
 /// Builds template data from processed resource information.
 class DataBuilder {
   static Code customMapperCode(TypeInfo? implementationType,
@@ -221,10 +226,7 @@ class DataBuilder {
           fieldName: provider.privateFieldName,
           parameterName: provider.parameterName,
           isLate: false,
-          type: Code.combine([
-            Code.coreType('String'),
-            Code.literal(' Function()'),
-          ]),
+          type: contextProviderType,
           defaultValue: null,
           isField: provider.isField)),
       ...resourceInfo.fields.expand((f) {
