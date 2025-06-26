@@ -20,13 +20,46 @@ import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart'
     as lrptmrmg;
 import 'fixtures/property_processor_test_models.dart' as pptm;
 import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
+import 'fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.dart'
+    as ems;
+import 'fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.rdf_mapper.g.dart'
+    as emsrmg;
+import 'fixtures/rdf_mapper_annotations/examples/example_crdt_item.dart' as eci;
+import 'fixtures/rdf_mapper_annotations/examples/example_crdt_item.rdf_mapper.g.dart'
+    as ecirmg;
+import 'fixtures/rdf_mapper_annotations/examples/example_full_book.dart' as efb;
+import 'fixtures/rdf_mapper_annotations/examples/example_full_book.rdf_mapper.g.dart'
+    as efbrmg;
+import 'fixtures/rdf_mapper_annotations/examples/example_iri_strategies.dart'
+    as eis;
+import 'fixtures/rdf_mapper_annotations/examples/example_iri_strategies.rdf_mapper.g.dart'
+    as eisrmg;
+import 'fixtures/rdf_mapper_annotations/examples/example_rdf_literal.dart'
+    as erl;
+import 'fixtures/rdf_mapper_annotations/examples/example_rdf_literal.rdf_mapper.g.dart'
+    as erlrmg;
+import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.dart'
+    as lsm;
+import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.rdf_mapper.g.dart'
+    as lsmrmg;
+import 'fixtures/rdf_mapper_annotations/examples/provides.dart' as provides;
+import 'fixtures/rdf_mapper_annotations/examples/provides.rdf_mapper.g.dart'
+    as prmg;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
 ///
 /// [rdfMapper] An optional RdfMapper instance to use. If not provided, a new one will be created.
 /// Provider parameters:
+/// * [apiBaseProvider] {+apiBase}
 /// * [baseUriProvider] {+baseUri}
+/// * [baseVocabProvider] {+baseVocab}
+/// * [departmentProvider] {department}
+/// * [orgNamespaceProvider] {+orgNamespace}
+/// * [storageRootProvider] {+storageRoot}
+/// * [versionProvider] {version}
 /// named mapper parameters:
+/// * [chapterIdMapper] mapper
+/// * [customPriorityMapper] mapper
 /// * [iriMapper] mapper
 /// * [mapEntryMapper] mapper
 /// * [testCustomMapper] mapper
@@ -40,11 +73,20 @@ import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
 /// * [testMapper] mapper
 /// * [testMapper3] mapper
 /// * [testNamedMapper] mapper
+/// * [userReferenceMapper] mapper
 RdfMapper initTestRdfMapper({
   RdfMapper? rdfMapper,
   // Provider parameters
+  required String Function() apiBaseProvider,
   required String Function() baseUriProvider,
+  required String Function() baseVocabProvider,
+  required String Function() departmentProvider,
+  required String Function() orgNamespaceProvider,
+  required String Function() storageRootProvider,
+  required String Function() versionProvider,
   // Named mapper parameters
+  required IriTermMapper<(String bookId, int chapterNumber)> chapterIdMapper,
+  required LiteralTermMapper<ems.Priority> customPriorityMapper,
   required IriTermMapper<String> iriMapper,
   required LocalResourceMapper<MapEntry<String, String>> mapEntryMapper,
   required LiteralTermMapper<String> testCustomMapper,
@@ -60,6 +102,7 @@ RdfMapper initTestRdfMapper({
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
   required IriTermMapper<(String id, String surname, int version)> testMapper3,
   required GlobalResourceMapper<Object> testNamedMapper,
+  required IriTermMapper<eis.UserReference> userReferenceMapper,
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
@@ -97,13 +140,13 @@ RdfMapper initTestRdfMapper({
     ),
   );
   registry.registerMapper<grptm.ClassWithIriNamedMapperStrategy>(
-    grptmrmg.ClassWithIriNamedMapperStrategyMapper(iriMapper: testMapper),
+    grptmrmg.ClassWithIriNamedMapperStrategyMapper(testMapper: testMapper),
   );
   registry.registerMapper<
     grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties
   >(
     grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
-      iriMapper: testMapper3,
+      testMapper3: testMapper3,
     ),
   );
   registry.registerMapper<grptm.ClassWithIriMapperStrategy>(
@@ -348,6 +391,56 @@ RdfMapper initTestRdfMapper({
     pptmrmg.LiteralInstanceMapperTestMapper(),
   );
   registry.registerMapper<pptm.BookFormatType>(pptmrmg.BookFormatTypeMapper());
+  registry.registerMapper<ems.Book>(
+    emsrmg.BookMapper(customPriorityMapper: customPriorityMapper),
+  );
+  registry.registerMapper<ems.BookFormat>(emsrmg.BookFormatMapper());
+  registry.registerMapper<ems.Priority>(emsrmg.PriorityMapper());
+  registry.registerMapper<ems.ProductStatus>(emsrmg.ProductStatusMapper());
+  registry.registerMapper<ems.ItemCondition>(emsrmg.ItemConditionMapper());
+  registry.registerMapper<ems.OrderStatus>(emsrmg.OrderStatusMapper());
+  registry.registerMapper<ems.CurrencyCode>(emsrmg.CurrencyCodeMapper());
+  registry.registerMapper<ems.BusinessEntityType>(
+    emsrmg.BusinessEntityTypeMapper(),
+  );
+  registry.registerMapper<ems.UserRating>(emsrmg.UserRatingMapper());
+  registry.registerMapper<ems.ProductCategory>(
+    emsrmg.ProductCategoryMapper(baseVocabProvider: baseVocabProvider),
+  );
+  registry.registerMapper<ems.ShippingMethod>(
+    emsrmg.ShippingMethodMapper(
+      apiBaseProvider: apiBaseProvider,
+      versionProvider: versionProvider,
+    ),
+  );
+  registry.registerMapper<ems.EmployeeRole>(
+    emsrmg.EmployeeRoleMapper(
+      orgNamespaceProvider: orgNamespaceProvider,
+      departmentProvider: departmentProvider,
+    ),
+  );
+  registry.registerMapper<eci.Item>(
+    ecirmg.ItemMapper(storageRootProvider: storageRootProvider),
+  );
+  registry.registerMapper<efb.Book>(efbrmg.BookMapper());
+  registry.registerMapper<efb.Chapter>(efbrmg.ChapterMapper());
+  registry.registerMapper<efb.ISBN>(efbrmg.ISBNMapper());
+  registry.registerMapper<efb.Rating>(efbrmg.RatingMapper());
+  registry.registerMapper<eis.StandardIsbn>(eisrmg.StandardIsbnMapper());
+  registry.registerMapper<eis.AbsoluteUri>(eisrmg.AbsoluteUriMapper());
+  registry.registerMapper<eis.UserReference>(userReferenceMapper);
+  registry.registerMapper<eis.SimpleBook>(eisrmg.SimpleBookMapper());
+  registry.registerMapper<eis.Person>(eisrmg.PersonMapper());
+  registry.registerMapper<eis.Chapter>(
+    eisrmg.ChapterMapper(chapterIdMapper: chapterIdMapper),
+  );
+  registry.registerMapper<erl.EnhancedRating>(erlrmg.EnhancedRatingMapper());
+  registry.registerMapper<erl.Temperature>(erlrmg.TemperatureMapper());
+  registry.registerMapper<erl.LocalizedText>(erlrmg.LocalizedTextMapper());
+  registry.registerMapper<lsm.Book>(lsmrmg.BookMapper());
+  registry.registerMapper<provides.Parent>(
+    prmg.ParentMapper(baseUriProvider: baseUriProvider),
+  );
 
   return rdfMapper;
 }

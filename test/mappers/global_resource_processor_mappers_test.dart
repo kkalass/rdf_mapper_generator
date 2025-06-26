@@ -311,7 +311,7 @@ ex:no-register a schema:Person .
       final graph = mapper.encodeObject(instance,
           register: (r) => r.registerMapper(
               ClassWithIriNamedMapperStrategy1PartMapper(
-                  iriMapper: iriMapper)));
+                  testMapper1Part: iriMapper)));
       expect(graph, isNotNull);
       expect(graph, contains('ex:test-id'));
       expect(graph, contains('<http://example.org/1part/>'));
@@ -321,7 +321,7 @@ ex:no-register a schema:Person .
           mapper.decodeObject<ClassWithIriNamedMapperStrategy1Part>(graph,
               register: (r) => r.registerMapper(
                   ClassWithIriNamedMapperStrategy1PartMapper(
-                      iriMapper: iriMapper)));
+                      testMapper1Part: iriMapper)));
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(instance.id));
     });
@@ -344,7 +344,7 @@ ex:no-register a schema:Person .
       final graph = mapper.encodeObject(instance,
           register: (r) => r.registerMapper(
               ClassWithIriNamedMapperStrategy2PartsMapper(
-                  iriMapper: iriMapper)));
+                  testMapper2Parts: iriMapper)));
       expect(graph, isNotNull);
       expect(graph, contains('http://example.org/2parts/test-id/42'));
 
@@ -353,7 +353,7 @@ ex:no-register a schema:Person .
           mapper.decodeObject<ClassWithIriNamedMapperStrategy2Parts>(graph,
               register: (r) => r.registerMapper(
                   ClassWithIriNamedMapperStrategy2PartsMapper(
-                      iriMapper: iriMapper)));
+                      testMapper2Parts: iriMapper)));
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(instance.id));
       expect(deserialized.version, equals(instance.version));
@@ -377,7 +377,7 @@ ex:no-register a schema:Person .
       final graph = mapper.encodeObject(instance,
           register: (r) => r.registerMapper(
               ClassWithIriNamedMapperStrategy2PartsSwappedMapper(
-                  iriMapper: iriMapper)));
+                  testMapper2PartsSwapped: iriMapper)));
       expect(graph, isNotNull);
       expect(graph, contains('swapped:test-id'));
       expect(graph, contains('<http://example.org/swapped/99/>'));
@@ -387,7 +387,7 @@ ex:no-register a schema:Person .
           .decodeObject<ClassWithIriNamedMapperStrategy2PartsSwapped>(graph,
               register: (r) => r.registerMapper(
                   ClassWithIriNamedMapperStrategy2PartsSwappedMapper(
-                      iriMapper: iriMapper)));
+                      testMapper2PartsSwapped: iriMapper)));
       expect(deserialized, isNotNull);
       expect(deserialized.id, equals(instance.id));
       expect(deserialized.version, equals(instance.version));

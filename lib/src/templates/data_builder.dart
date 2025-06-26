@@ -211,9 +211,10 @@ class DataBuilder {
       if (iriStrategy?.hasMapper ?? false)
         ConstructorParameterData(
             fieldName: '_iriMapper',
-            parameterName: iriStrategy!.mapper!.isNamed && iriStrategy.mapper!.name != null 
-                ? iriStrategy.mapper!.name! 
-                : 'iriMapper',
+            parameterName:
+                iriStrategy!.mapper!.isNamed && iriStrategy.mapper!.name != null
+                    ? iriStrategy.mapper!.name!
+                    : 'iriMapper',
             type: iriStrategy.mapper!.type,
             defaultValue: null,
             isLate: false),

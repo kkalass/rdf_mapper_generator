@@ -401,8 +401,8 @@ class ClassWithIriNamedMapperStrategyMapper
 
   /// Constructor
   const ClassWithIriNamedMapperStrategyMapper({
-    required IriTermMapper<ClassWithIriNamedMapperStrategy> iriMapper,
-  }) : _iriMapper = iriMapper;
+    required IriTermMapper<ClassWithIriNamedMapperStrategy> testMapper,
+  }) : _iriMapper = testMapper;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
@@ -437,8 +437,8 @@ class ClassWithIriNamedMapperStrategy1PartMapper
 
   /// Constructor
   const ClassWithIriNamedMapperStrategy1PartMapper({
-    required IriTermMapper<(String id,)> iriMapper,
-  }) : _iriMapper = iriMapper;
+    required IriTermMapper<(String id,)> testMapper1Part,
+  }) : _iriMapper = testMapper1Part;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
@@ -475,8 +475,8 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
 
   /// Constructor
   const ClassWithIriNamedMapperStrategy2PartsMapper({
-    required IriTermMapper<(String id, int version)> iriMapper,
-  }) : _iriMapper = iriMapper;
+    required IriTermMapper<(String id, int version)> testMapper2Parts,
+  }) : _iriMapper = testMapper2Parts;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
@@ -517,8 +517,8 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
 
   /// Constructor
   const ClassWithIriNamedMapperStrategy2PartsSwappedMapper({
-    required IriTermMapper<(int version, String id)> iriMapper,
-  }) : _iriMapper = iriMapper;
+    required IriTermMapper<(int version, String id)> testMapper2PartsSwapped,
+  }) : _iriMapper = testMapper2PartsSwapped;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
@@ -564,8 +564,9 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
 
   /// Constructor
   const ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper({
-    required IriTermMapper<(String id, String surname, int version)> iriMapper,
-  }) : _iriMapper = iriMapper;
+    required IriTermMapper<(String id, String surname, int version)>
+    testMapper3,
+  }) : _iriMapper = testMapper3;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;

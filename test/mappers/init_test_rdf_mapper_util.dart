@@ -5,6 +5,10 @@ import '../fixtures/global_resource_processor_test_models.dart' as grptm;
 import '../fixtures/local_resource_processor_test_models.dart' as lrptm;
 import '../fixtures/iri_processor_test_models.dart' as iptm;
 import '../fixtures/literal_processor_test_models.dart' as lptm;
+import '../fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.dart'
+    as ems;
+import '../fixtures/rdf_mapper_annotations/examples/example_iri_strategies.dart'
+    as eis;
 import '../init_test_rdf_mapper.g.dart';
 
 class TestMapper
@@ -278,13 +282,89 @@ class TestNamedMapper implements GlobalResourceMapper<Object> {
   IriTerm? get typeIri => IriTerm('http://example.org/NamedObject');
 }
 
+/// Test IRI mapper for chapter IDs (book ID, chapter number tuple)
+class TestChapterIdMapper implements IriTermMapper<(String, int)> {
+  const TestChapterIdMapper();
+
+  @override
+  (String, int) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract book ID and chapter number from IRI like http://example.org/books/book-123/chapters/42
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/books/([^/]+)/chapters/(\d+)$')
+        .firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid chapter IRI format: $iri');
+    }
+    return (match.group(1)!, int.parse(match.group(2)!));
+  }
+
+  @override
+  IriTerm toRdfTerm((String, int) value, SerializationContext context) {
+    return IriTerm('http://example.org/books/${value.$1}/chapters/${value.$2}');
+  }
+}
+
+/// Test literal mapper for Priority enum values
+class TestCustomPriorityMapper implements LiteralTermMapper<ems.Priority> {
+  const TestCustomPriorityMapper();
+
+  @override
+  ems.Priority fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    switch (term.value.toLowerCase()) {
+      case 'high':
+        return ems.Priority.high;
+      case 'medium':
+        return ems.Priority.medium;
+      case 'low':
+        return ems.Priority.low;
+      default:
+        return ems.Priority.medium; // default
+    }
+  }
+
+  @override
+  LiteralTerm toRdfTerm(ems.Priority value, SerializationContext context) {
+    return LiteralTerm(value.name);
+  }
+}
+
+/// Test IRI mapper for UserReference values
+class TestUserReferenceMapper implements IriTermMapper<eis.UserReference> {
+  const TestUserReferenceMapper();
+
+  @override
+  eis.UserReference fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract user ID from IRI like http://example.org/users/user-123
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/users/(.+)$').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid user reference IRI format: $iri');
+    }
+    return eis.UserReference(match.group(1)!);
+  }
+
+  @override
+  IriTerm toRdfTerm(eis.UserReference value, SerializationContext context) {
+    return IriTerm('http://example.org/users/${value.username}');
+  }
+}
+
 const baseUri = 'http://example.org';
 
 RdfMapper defaultInitTestRdfMapper(
     {RdfMapper? rdfMapper,
     // Provider parameters
+    String Function()? apiBaseProvider,
     String Function()? baseUriProvider,
+    String Function()? baseVocabProvider,
+    String Function()? departmentProvider,
+    String Function()? orgNamespaceProvider,
+    String Function()? storageRootProvider,
+    String Function()? versionProvider,
     // IRI mapper parameters
+    IriTermMapper<(String, int)>? chapterIdMapper,
+    LiteralTermMapper<ems.Priority>? customPriorityMapper,
     IriTermMapper<String>? iriMapper,
     LocalResourceMapper<MapEntry<String, String>>? mapEntryMapper,
     LiteralTermMapper<String>? testCustomMapper,
@@ -305,9 +385,23 @@ RdfMapper defaultInitTestRdfMapper(
               int version,
             )>?
         testMapper3,
-    GlobalResourceMapper<Object>? testNamedMapper}) {
+    GlobalResourceMapper<Object>? testNamedMapper,
+    IriTermMapper<eis.UserReference>? userReferenceMapper}) {
   return initTestRdfMapper(
+    // Provider parameters
+    apiBaseProvider: apiBaseProvider ?? (() => 'http://example.org/api'),
     baseUriProvider: baseUriProvider ?? (() => baseUri),
+    baseVocabProvider: baseVocabProvider ?? (() => 'http://example.org/vocab#'),
+    departmentProvider: departmentProvider ?? (() => 'engineering'),
+    orgNamespaceProvider:
+        orgNamespaceProvider ?? (() => 'http://example.org/org/'),
+    storageRootProvider:
+        storageRootProvider ?? (() => 'http://example.org/storage/'),
+    versionProvider: versionProvider ?? (() => 'v1'),
+    // Named mapper parameters
+    chapterIdMapper: chapterIdMapper ?? const TestChapterIdMapper(),
+    customPriorityMapper:
+        customPriorityMapper ?? const TestCustomPriorityMapper(),
     iriMapper: iriMapper ?? const TestIriMapper(),
     mapEntryMapper: mapEntryMapper ?? const TestMapEntryMapper(),
     testCustomMapper: testCustomMapper ?? const TestCustomMapper(),
@@ -324,5 +418,6 @@ RdfMapper defaultInitTestRdfMapper(
     testMapper: testMapper ?? const TestMapper(),
     testMapper3: testMapper3 ?? const TestMapper3PartsWithProperties(),
     testNamedMapper: testNamedMapper ?? const TestNamedMapper(),
+    userReferenceMapper: userReferenceMapper ?? const TestUserReferenceMapper(),
   );
 }
