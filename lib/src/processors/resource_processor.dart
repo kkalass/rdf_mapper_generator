@@ -1,11 +1,14 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
+
+final _log = Logger('ResourceProcessor');
 
 /// Processes class elements to extract RDF global and local resource information.
 class ResourceProcessor {
@@ -90,7 +93,7 @@ class ResourceProcessor {
         mapper: mapper,
       );
     } catch (e) {
-      print('Error creating RdfGlobalResource: $e');
+      _log.severe('Error creating RdfGlobalResource', e);
       rethrow;
     }
   }

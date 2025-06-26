@@ -285,10 +285,33 @@ class LiteralMappingTestCustomDatatype {
 
 @RdfLocalResource()
 class CollectionNoneTest {
-  @RdfProperty(SchemaBook.author, collection: RdfCollectionType.none)
+  @RdfProperty(SchemaBook.author,
+      collection: RdfCollectionType.none,
+      literal:
+          LiteralMapping.mapperInstance(const JsonLiteralStringListMapper()))
   final List<String> authors;
 
   CollectionNoneTest({required this.authors});
+}
+
+class JsonLiteralStringListMapper implements LiteralTermMapper<List<String>> {
+  const JsonLiteralStringListMapper();
+
+  @override
+  List<String> fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    // Assuming the literal value is a JSON string
+    return (json.decode(term.value) as List<dynamic>)
+        .whereType<String>()
+        .toList();
+  }
+
+  @override
+  LiteralTerm toRdfTerm(List<String> value, SerializationContext context) {
+    // Convert the value to a JSON string
+    final jsonString = json.encode(value);
+    return LiteralTerm(jsonString);
+  }
 }
 
 @RdfLocalResource()
@@ -362,15 +385,15 @@ class ComplexDefaultValueTest {
     IriTerm.prevalidated('http://example.org/test/complexValue'),
     defaultValue: const {'id': '1', 'name': 'Test'},
     collection: RdfCollectionType.none,
-    literal: LiteralMapping.mapperInstance(const JsonLiteralMapper()),
+    literal: LiteralMapping.mapperInstance(const JsonLiteralMapMapper()),
   )
   final Map<String, dynamic> complexValue;
 
   ComplexDefaultValueTest({required this.complexValue});
 }
 
-class JsonLiteralMapper implements LiteralTermMapper<Map<String, dynamic>> {
-  const JsonLiteralMapper();
+class JsonLiteralMapMapper implements LiteralTermMapper<Map<String, dynamic>> {
+  const JsonLiteralMapMapper();
 
   @override
   Map<String, dynamic> fromRdfTerm(
@@ -651,6 +674,7 @@ class LocalResourceInstanceMapperTest {
   const LocalResourceInstanceMapperTest({required this.author});
 }
 
+@RdfLocalResource()
 class LocalResourceInstanceMapperObjectPropertyTest {
   @RdfProperty(
     SchemaBook.author,

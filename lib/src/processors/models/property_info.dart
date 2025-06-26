@@ -3,7 +3,7 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
-import 'package:rdf_mapper_generator/src/templates/util.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 
 class LocalResourceMappingInfo extends BaseMappingInfo {
   LocalResourceMappingInfo({required super.mapper});
@@ -191,13 +191,72 @@ class RdfPropertyInfo implements RdfAnnotation {
   }
 }
 
+/// Information about collection properties
+class CollectionInfo {
+  /// The collection type (List, Set, Map, or null if not a collection)
+  final CollectionType? type;
+
+  /// The element type for List/Set, or MapEntry&lt;K,V&gt; type for Map
+  final Code? elementTypeCode;
+
+  /// For Maps: the key type
+  final Code? keyTypeCode;
+
+  /// For Maps: the value type
+  final Code? valueTypeCode;
+
+  /// Whether this should be treated as a collection based on RdfCollectionType
+  final bool treatAsCollection;
+
+  const CollectionInfo({
+    this.type,
+    this.elementTypeCode,
+    this.keyTypeCode,
+    this.valueTypeCode,
+    required this.treatAsCollection,
+  });
+
+  bool get isCollection => type != null && treatAsCollection;
+  bool get isList => type == CollectionType.list;
+  bool get isSet => type == CollectionType.set;
+  bool get isMap => type == CollectionType.map;
+  bool get isIterable => type == CollectionType.iterable || isList || isSet;
+  @override
+  int get hashCode => Object.hashAll([
+        type,
+        elementTypeCode,
+        keyTypeCode,
+        valueTypeCode,
+        treatAsCollection,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! CollectionInfo) {
+      return false;
+    }
+    return type == other.type &&
+        elementTypeCode == other.elementTypeCode &&
+        keyTypeCode == other.keyTypeCode &&
+        valueTypeCode == other.valueTypeCode &&
+        treatAsCollection == other.treatAsCollection;
+  }
+
+  @override
+  String toString() {
+    return 'CollectionInfo{type: $type, elementType: ${elementTypeCode?.code}, keyType: ${keyTypeCode?.code}, valueType: ${valueTypeCode?.code}, treatAsCollection: $treatAsCollection}';
+  }
+}
+
+enum CollectionType { list, set, iterable, map }
+
 /// Contains information about a field annotated with `@RdfProperty`
 class PropertyInfo {
   /// The name of the field
   final String name;
 
-  /// The type of the field as a string
-  final String type;
+  /// The type of the field
+  final Code type;
 
   /// The complete RdfProperty annotation instance
   final RdfPropertyInfo annotation;
@@ -266,7 +325,7 @@ class PropertyInfo {
     return 'PropertyInfo{\n'
         '  name: $name,\n'
         '  annotation: $annotation,\n'
-        '  type: $type,\n'
+        '  type: ${type.codeWithoutAlias},\n'
         '  isRequired: $isRequired,\n'
         '  isFinal: $isFinal,\n'
         '  isLate: $isLate,\n'

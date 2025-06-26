@@ -850,12 +850,12 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
       SchemaBook.author,
       iriTermDeserializer:
           IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
-        baseUriProvider: _baseUriProvider,
-        genreProvider: () =>
-            throw Exception('Must not call provider for deserialization'),
-        versionProvider: () =>
-            throw Exception('Must not call provider for deserialization'),
-      ),
+            baseUriProvider: _baseUriProvider,
+            genreProvider: () =>
+                throw Exception('Must not call provider for deserialization'),
+            versionProvider: () =>
+                throw Exception('Must not call provider for deserialization'),
+          ),
     );
     final String genre = reader.require(SchemaBook.genre);
     final String version = reader.require(SchemaBook.version);
@@ -884,10 +884,10 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
           resource.authorId,
           iriTermSerializer:
               IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
-            baseUriProvider: _baseUriProvider,
-            genreProvider: () => resource.genre,
-            versionProvider: () => resource.version,
-          ),
+                baseUriProvider: _baseUriProvider,
+                genreProvider: () => resource.genre,
+                versionProvider: () => resource.version,
+              ),
         )
         .build();
   }
@@ -917,9 +917,9 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
     required String Function() baseUriProvider,
     required String Function() genreProvider,
     required String Function() versionProvider,
-  })  : _baseUriProvider = baseUriProvider,
-        _genreProvider = genreProvider,
-        _versionProvider = versionProvider;
+  }) : _baseUriProvider = baseUriProvider,
+       _genreProvider = genreProvider,
+       _versionProvider = versionProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -1303,8 +1303,13 @@ class LiteralMappingTestCustomDatatypeMapper
 /// and RDF triples for resources of type CollectionNoneTest.
 class CollectionNoneTestMapper
     implements LocalResourceMapper<CollectionNoneTest> {
+  final LiteralTermMapper<List<String>> _authorsMapper;
+
   /// Constructor
-  const CollectionNoneTestMapper();
+  const CollectionNoneTestMapper({
+    LiteralTermMapper<List<String>> authorsMapper =
+        const JsonLiteralStringListMapper(),
+  }) : _authorsMapper = authorsMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -1316,7 +1321,10 @@ class CollectionNoneTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader.require(SchemaBook.author);
+    final List<String> authors = reader.require(
+      SchemaBook.author,
+      literalTermDeserializer: _authorsMapper,
+    );
 
     return CollectionNoneTest(authors: authors);
   }
@@ -1331,7 +1339,11 @@ class CollectionNoneTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.authors)
+        .addValue(
+          SchemaBook.author,
+          resource.authors,
+          literalTermSerializer: _authorsMapper,
+        )
         .build();
   }
 }
@@ -1355,8 +1367,9 @@ class CollectionAutoTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors =
-        reader.getValues<String>(SchemaBook.author).toList();
+    final List<String> authors = reader
+        .getValues<String>(SchemaBook.author)
+        .toList();
 
     return CollectionAutoTest(authors: authors);
   }
@@ -1394,8 +1407,9 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors =
-        reader.getValues<String>(SchemaBook.author).toList();
+    final List<String> authors = reader
+        .getValues<String>(SchemaBook.author)
+        .toList();
 
     return CollectionTest(authors: authors);
   }
@@ -1434,7 +1448,9 @@ class CollectionIterableTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Iterable<String> authors = reader.require(SchemaBook.author);
+    final Iterable<String> authors = reader.getValues<String>(
+      SchemaBook.author,
+    );
 
     return CollectionIterableTest(authors: authors);
   }
@@ -1449,7 +1465,7 @@ class CollectionIterableTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaBook.author, resource.authors)
+        .addValues<String>(SchemaBook.author, resource.authors)
         .build();
   }
 }
@@ -1457,11 +1473,11 @@ class CollectionIterableTestMapper
 /// Generated mapper for [MapNoCollectionNoMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type MapNoCollectionTest.
-class MapNoCollectionTestMapper
+/// and RDF triples for resources of type MapNoCollectionNoMapperTest.
+class MapNoCollectionNoMapperTestMapper
     implements LocalResourceMapper<MapNoCollectionNoMapperTest> {
   /// Constructor
-  const MapNoCollectionTestMapper();
+  const MapNoCollectionNoMapperTestMapper();
 
   @override
   IriTerm? get typeIri => null;
@@ -1561,8 +1577,9 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
   ) {
     final reader = context.reader(subject);
 
-    final Set<String> keywords =
-        reader.getValues<String>(SchemaBook.keywords).toSet();
+    final Set<String> keywords = reader
+        .getValues<String>(SchemaBook.keywords)
+        .toSet();
 
     return SetTest(keywords: keywords);
   }
@@ -1631,7 +1648,7 @@ class ComplexDefaultValueTestMapper
   /// Constructor
   const ComplexDefaultValueTestMapper({
     LiteralTermMapper<Map<String, dynamic>> complexValueMapper =
-        const JsonLiteralMapper(),
+        const JsonLiteralMapMapper(),
   }) : _complexValueMapper = complexValueMapper;
 
   @override
@@ -1644,8 +1661,9 @@ class ComplexDefaultValueTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Map<String, dynamic> complexValue = reader.optional(
-          IriTerm.prevalidated('http://example.org/test/complexValue'),
+    final Map<String, dynamic> complexValue =
+        reader.optional(
+          const IriTerm.prevalidated('http://example.org/test/complexValue'),
           literalTermDeserializer: _complexValueMapper,
         ) ??
         {'id': '1', 'name': 'Test'};
@@ -1666,7 +1684,7 @@ class ComplexDefaultValueTestMapper
         .when(
           resource.complexValue != {'id': '1', 'name': 'Test'},
           (b) => b.addValue(
-            IriTerm.prevalidated('http://example.org/test/complexValue'),
+            const IriTerm.prevalidated('http://example.org/test/complexValue'),
             resource.complexValue,
             literalTermSerializer: _complexValueMapper,
           ),
@@ -1866,8 +1884,8 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
     LiteralTermMapper<String> dateMapper = const DatatypeOverrideMapper<String>(
       Xsd.dateTime,
     ),
-  })  : _countMapper = countMapper,
-        _dateMapper = dateMapper;
+  }) : _countMapper = countMapper,
+       _dateMapper = dateMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -2371,6 +2389,58 @@ class LocalResourceInstanceMapperTestMapper
   }
 }
 
+/// Generated mapper for [LocalResourceInstanceMapperObjectPropertyTest] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type LocalResourceInstanceMapperObjectPropertyTest.
+class LocalResourceInstanceMapperObjectPropertyTestMapper
+    implements
+        LocalResourceMapper<LocalResourceInstanceMapperObjectPropertyTest> {
+  final LocalResourceMapper<Object> _authorMapper;
+
+  /// Constructor
+  const LocalResourceInstanceMapperObjectPropertyTestMapper({
+    LocalResourceMapper<Object> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
+  }) : _authorMapper = authorMapper;
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  LocalResourceInstanceMapperObjectPropertyTest fromRdfResource(
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final Object author = reader.require(
+      SchemaBook.author,
+      localResourceDeserializer: _authorMapper,
+    );
+
+    return LocalResourceInstanceMapperObjectPropertyTest(author: author);
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    LocalResourceInstanceMapperObjectPropertyTest resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          SchemaBook.author,
+          resource.author,
+          resourceSerializer: _authorMapper,
+        )
+        .build();
+  }
+}
+
 /// Generated mapper for [LiteralMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -2483,27 +2553,25 @@ class BookFormatTypeMapper implements LiteralTermMapper<BookFormatType> {
     LiteralTerm term,
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
-  }) =>
-      switch (term.value) {
-        'hardcover' => BookFormatType.hardcover,
-        'paperback' => BookFormatType.paperback,
-        'ebook' => BookFormatType.ebook,
-        'audioBook' => BookFormatType.audioBook,
-        _ => throw DeserializationException(
-            'Unknown BookFormatType literal value: ${term.value}',
-          ),
-      };
+  }) => switch (term.value) {
+    'hardcover' => BookFormatType.hardcover,
+    'paperback' => BookFormatType.paperback,
+    'ebook' => BookFormatType.ebook,
+    'audioBook' => BookFormatType.audioBook,
+    _ => throw DeserializationException(
+      'Unknown BookFormatType literal value: ${term.value}',
+    ),
+  };
 
   @override
   LiteralTerm toRdfTerm(
     BookFormatType value,
     SerializationContext context, {
     RdfSubject? parentSubject,
-  }) =>
-      switch (value) {
-        BookFormatType.hardcover => LiteralTerm('hardcover'),
-        BookFormatType.paperback => LiteralTerm('paperback'),
-        BookFormatType.ebook => LiteralTerm('ebook'),
-        BookFormatType.audioBook => LiteralTerm('audioBook'),
-      };
+  }) => switch (value) {
+    BookFormatType.hardcover => LiteralTerm('hardcover'),
+    BookFormatType.paperback => LiteralTerm('paperback'),
+    BookFormatType.ebook => LiteralTerm('ebook'),
+    BookFormatType.audioBook => LiteralTerm('audioBook'),
+  };
 }

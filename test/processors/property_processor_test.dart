@@ -1,11 +1,12 @@
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
-import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
+
 import '../test_helper.dart';
 import 'local_resource_processor_test.dart';
 
@@ -398,7 +399,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.type, 'BookFormatType');
+      expect(result!.type.codeWithoutAlias, 'BookFormatType');
       expect(result.annotation.predicate.value, equals(SchemaBook.bookFormat));
       expect(result.annotation.literal, isNull);
       expect(result.annotation.iri, isNull);
@@ -408,39 +409,23 @@ void main() {
 
     test('should process map type property (collection none)', () {
       // Arrange
-      final field =
-          libraryElement.getClass2('MapNoCollectionTest')!.getField2('reviews');
+      final field = libraryElement
+          .getClass2('MapNoCollectionNoMapperTest')!
+          .getField2('reviews');
       expect(field, isNotNull,
-          reason: 'Field "reviews" not found in MapNoCollectionTest');
+          reason: 'Field "reviews" not found in MapNoCollectionNoMapperTest');
 
       // Act
       final result = processField(field!);
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.type, 'Map<String, String>');
+      expect(result!.type.codeWithoutAlias, 'Map<String, String>');
       expect(result.annotation.collection, isNotNull);
       expect(result.annotation.collection, RdfCollectionType.none);
       expect(result.annotation.predicate.value, equals(SchemaBook.reviews));
     });
 
-    test('should process map type property (collection none)', () {
-      // Arrange
-      final field =
-          libraryElement.getClass2('MapNoCollectionTest')!.getField2('reviews');
-      expect(field, isNotNull,
-          reason: 'Field "reviews" not found in MapNoCollectionTest');
-
-      // Act
-      final result = processField(field!);
-
-      // Assert
-      expect(result, isNotNull);
-      expect(result!.type, 'Map<String, String>');
-      expect(result.annotation.collection, isNotNull);
-      expect(result.annotation.collection, RdfCollectionType.none);
-      expect(result.annotation.predicate.value, equals(SchemaBook.reviews));
-    });
     test('should process map type property (collection auto)', () {
       // Arrange
       final field = libraryElement
@@ -454,7 +439,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.type, 'Map<String, String>');
+      expect(result!.type.codeWithoutAlias, 'Map<String, String>');
       expect(result.annotation.collection, isNotNull);
       expect(result.annotation.collection, RdfCollectionType.auto);
       expect(result.annotation.predicate.value, equals(SchemaBook.reviews));
@@ -473,7 +458,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.type, 'Set<String>');
+      expect(result!.type.codeWithoutAlias, 'Set<String>');
       expect(result.annotation.collection, RdfCollectionType.auto);
       expect(result.annotation.predicate.value, equals(SchemaBook.keywords));
     });
@@ -730,7 +715,8 @@ void main() {
       final defaultValue = annotation.defaultValue!;
       expect(defaultValue, isNotNull);
       expect(defaultValue.toMapValue(), isNotNull);
-      expect(annotation.predicate.value, equals(SchemaBook.isbn));
+      expect(annotation.predicate.value,
+          equals(IriTerm.prevalidated('http://example.org/test/complexValue')));
     });
 
     test('should process final properties', () {
@@ -890,7 +876,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.type, 'Object');
+      expect(result!.type.codeWithoutAlias, 'Object');
       final annotation = result.annotation;
       expect(annotation.localResource, isNotNull);
       expect(annotation.localResource!.mapper, isNotNull);
@@ -919,7 +905,7 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.type, 'Object');
+      expect(result!.type.codeWithoutAlias, 'Object');
       final annotation = result.annotation;
       expect(annotation.localResource, isNotNull);
       expect(annotation.localResource!.mapper, isNotNull);

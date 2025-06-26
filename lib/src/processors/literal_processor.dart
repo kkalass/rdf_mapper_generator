@@ -1,10 +1,13 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
+
+final _log = Logger('LiteralProcessor');
 
 /// Processes class elements to extract @RdfLiteral information.
 class LiteralProcessor {
@@ -90,8 +93,8 @@ class LiteralProcessor {
         fromLiteralTermMethod: fromLiteralTermMethod,
         datatype: datatype,
       );
-    } catch (e) {
-      print('Error creating RdfGlobalResource: $e');
+    } catch (e, stackTrace) {
+      _log.severe('Error creating RdfLiteralInfo', e, stackTrace);
       rethrow;
     }
   }

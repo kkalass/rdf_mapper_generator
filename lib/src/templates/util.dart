@@ -1,7 +1,6 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 
 import 'code.dart';
 
@@ -150,113 +149,6 @@ Code toCode(DartObject? value) {
 
   // Fallback to string representation if type is not recognized
   return Code.value(value.toStringValue() ?? '');
-}
-
-/// Information about collection properties
-class CollectionInfo {
-  /// The collection type (List, Set, Map, or null if not a collection)
-  final CollectionType? type;
-
-  /// The element type for List/Set, or MapEntry&lt;K,V&gt; type for Map
-  final Code? elementTypeCode;
-
-  /// For Maps: the key type
-  final Code? keyTypeCode;
-
-  /// For Maps: the value type
-  final Code? valueTypeCode;
-
-  /// Whether this should be treated as a collection based on RdfCollectionType
-  final bool treatAsCollection;
-
-  const CollectionInfo({
-    this.type,
-    this.elementTypeCode,
-    this.keyTypeCode,
-    this.valueTypeCode,
-    required this.treatAsCollection,
-  });
-
-  bool get isCollection => type != null && treatAsCollection;
-  bool get isList => type == CollectionType.list;
-  bool get isSet => type == CollectionType.set;
-  bool get isMap => type == CollectionType.map;
-  bool get isIterable => isList || isSet;
-  @override
-  int get hashCode => Object.hashAll([
-        type,
-        elementTypeCode,
-        keyTypeCode,
-        valueTypeCode,
-        treatAsCollection,
-      ]);
-
-  @override
-  bool operator ==(Object other) {
-    if (other is! CollectionInfo) {
-      return false;
-    }
-    return type == other.type &&
-        elementTypeCode == other.elementTypeCode &&
-        keyTypeCode == other.keyTypeCode &&
-        valueTypeCode == other.valueTypeCode &&
-        treatAsCollection == other.treatAsCollection;
-  }
-
-  @override
-  String toString() {
-    return 'CollectionInfo{type: $type, elementType: ${elementTypeCode?.code}, keyType: ${keyTypeCode?.code}, valueType: ${valueTypeCode?.code}, treatAsCollection: $treatAsCollection}';
-  }
-}
-
-enum CollectionType { list, set, map }
-
-/// Analyzes a property type to determine collection information
-CollectionInfo analyzeCollectionType(
-    DartType dartType, RdfCollectionType collectionAnnotation) {
-  // If explicitly set to none, treat as single value
-  if (collectionAnnotation == RdfCollectionType.none) {
-    return const CollectionInfo(treatAsCollection: false);
-  }
-
-  // Check if it's a collection type
-  if (dartType is InterfaceType) {
-    final element = dartType.element3;
-    final className = element.name3;
-
-    // Check for List
-    if (className == 'List' && dartType.typeArguments.length == 1) {
-      return CollectionInfo(
-        type: CollectionType.list,
-        elementTypeCode: typeToCode(dartType.typeArguments[0]),
-        treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
-      );
-    }
-
-    // Check for Set
-    if (className == 'Set' && dartType.typeArguments.length == 1) {
-      return CollectionInfo(
-        type: CollectionType.set,
-        elementTypeCode: typeToCode(dartType.typeArguments[0]),
-        treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
-      );
-    } // Check for Map
-    if (className == 'Map' && dartType.typeArguments.length == 2) {
-      final keyType = dartType.typeArguments[0];
-      final valueType = dartType.typeArguments[1];
-
-      return CollectionInfo(
-        type: CollectionType.map,
-        elementTypeCode: null, // We'll handle this specially in code generation
-        keyTypeCode: typeToCode(keyType),
-        valueTypeCode: typeToCode(valueType),
-        treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
-      );
-    }
-  }
-
-  // Not a recognized collection type
-  return const CollectionInfo(treatAsCollection: false);
 }
 
 /// Determines the import URI for a given type element

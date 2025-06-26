@@ -2,6 +2,7 @@ import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/type_system.dart';
+import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
@@ -9,6 +10,8 @@ import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
+
+final _log = Logger('ProcessorUtils');
 
 /// Contains information about an IRI source reference including the
 /// source code expression and required import.
@@ -130,8 +133,8 @@ IriTerm? getIriTerm(DartObject? iriTermObject) {
     }
 
     return null;
-  } catch (e) {
-    print('Error getting class IRI: $e');
+  } catch (e, stackTrace) {
+    _log.severe('Error getting class IRI', e, stackTrace);
     return null;
   }
 }
@@ -156,7 +159,7 @@ IriTermInfo? getIriTermInfo(DartObject? iriTermObject) {
     }
     return null;
   } catch (e) {
-    print('Error getting IRI source reference: $e');
+    _log.severe('Error getting IRI source reference', e);
     return null;
   }
 }
@@ -210,7 +213,7 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
       ));
     }
   } catch (e) {
-    print('Error extracting constructors: $e');
+    _log.severe('Error extracting constructors', e);
   }
 
   return constructors;
@@ -229,7 +232,8 @@ List<FieldInfo> extractFields(
       .where((f) => !f.isStatic)
       .map((f) => f.name3!)
       .toSet();
-  print('Processing fields for class: ${classElement.name3}');
+
+  _log.finest('Processing fields for class: ${classElement.name3}');
   final virtualFields = gettersOrSettersNames
       .where((name) => !fieldNames.contains(name))
       .map((name) {
@@ -308,7 +312,8 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
   final isNullable = type.isDartCoreNull ||
       (type is InterfaceType && type.isDartCoreNull) ||
       typeSystem.isNullable(type);
-  print('Annotations for field $name: $annotations');
+
+  _log.finest('Annotations for field $name: $annotations');
   final isRdfValue = getAnnotation(annotations, 'RdfValue') != null;
   final isRdfLanguageTag = getAnnotation(annotations, 'RdfLanguageTag') != null;
   final providesAnnotation = getAnnotation(annotations, 'RdfProvides');

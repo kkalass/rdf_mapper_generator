@@ -4,8 +4,9 @@ import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
-import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:test/test.dart';
+
+import '../local_resource_processor_test.dart';
 
 /// Creates a minimal IriTemplateInfo instance for testing purposes.
 ///
@@ -258,7 +259,7 @@ void main() {
 
       testInstance = PropertyInfo(
         name: 'testProperty',
-        type: 'String',
+        type: stringType,
         annotation: annotation,
         isRequired: true,
         isFinal: true,
@@ -270,7 +271,7 @@ void main() {
 
       identicalInstance = PropertyInfo(
         name: 'testProperty',
-        type: 'String',
+        type: stringType,
         annotation: annotation,
         isRequired: true,
         isFinal: true,
@@ -282,7 +283,7 @@ void main() {
 
       differentInstance = PropertyInfo(
         name: 'differentProperty',
-        type: 'String',
+        type: stringType,
         annotation: annotation,
         isRequired: true,
         isFinal: true,

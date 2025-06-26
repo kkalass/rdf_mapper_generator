@@ -60,7 +60,7 @@ class PropertyProcessor {
 
     return PropertyInfo(
       name: name,
-      type: type.getDisplayString(),
+      type: typeToCode(type),
       annotation: rdfProperty,
       isRequired: !isNullable,
       isFinal: isFinal,
@@ -69,6 +69,63 @@ class PropertyProcessor {
       isSynthetic: isSynthetic,
       collectionInfo: collectionInfo,
     );
+  }
+
+  /// Analyzes a property type to determine collection information
+  static CollectionInfo analyzeCollectionType(
+      DartType dartType, RdfCollectionType collectionAnnotation) {
+    // If explicitly set to none, treat as single value
+    if (collectionAnnotation == RdfCollectionType.none) {
+      return const CollectionInfo(treatAsCollection: false);
+    }
+
+    // Check if it's a collection type
+    if (dartType is InterfaceType) {
+      final element = dartType.element3;
+      final className = element.name3;
+
+      // Check for List
+      if (className == 'List' && dartType.typeArguments.length == 1) {
+        return CollectionInfo(
+          type: CollectionType.list,
+          elementTypeCode: typeToCode(dartType.typeArguments[0]),
+          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+        );
+      }
+
+      // Check for Set
+      if (className == 'Set' && dartType.typeArguments.length == 1) {
+        return CollectionInfo(
+          type: CollectionType.set,
+          elementTypeCode: typeToCode(dartType.typeArguments[0]),
+          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+        );
+      } // Check for Map
+      if (className == 'Map' && dartType.typeArguments.length == 2) {
+        final keyType = dartType.typeArguments[0];
+        final valueType = dartType.typeArguments[1];
+
+        return CollectionInfo(
+          type: CollectionType.map,
+          elementTypeCode:
+              null, // We'll handle this specially in code generation
+          keyTypeCode: typeToCode(keyType),
+          valueTypeCode: typeToCode(valueType),
+          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+        );
+      }
+
+      if (dartType.isDartCoreIterable && dartType.typeArguments.length == 1) {
+        return CollectionInfo(
+          type: CollectionType.iterable,
+          elementTypeCode: typeToCode(dartType.typeArguments[0]),
+          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+        );
+      }
+    }
+
+    // Not a recognized collection type
+    return const CollectionInfo(treatAsCollection: false);
   }
 
   static DartObject? _getRdfPropertyAnnotation(

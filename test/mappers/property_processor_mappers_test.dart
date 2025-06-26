@@ -961,7 +961,7 @@ _:b1 schema:reviews [ a ex:MapEntry ; ex:key "review1" ; ex:value "content1" ] .
           ComplexDefaultValueTest(complexValue: {'id': '2', 'name': 'Custom'});
 
       final serialized = mapper.encodeObject(testInstance);
-      print(serialized);
+
       expect(serialized, isNotNull);
       expect(
           serialized.trim(),
@@ -1196,7 +1196,155 @@ _:b0 test:complexValue "{\"id\":\"2\",\"name\":\"Custom\"}" .
       expect(deserialized.isbn, equals('Instance-ISBN-789'));
     });
 
-    // ...existing code...
+    test('CollectionNoneTest - collection with RdfCollectionType.none', () {
+      final testInstance = CollectionNoneTest(authors: ['author1', 'author2']);
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      final graph = mapper.graph.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+      expect(graph, isNotNull);
+
+      // note how authors is serialized as a single term with a json list
+      expect(
+          serialized.trim(),
+          r'''
+@prefix schema: <https://schema.org/> .
+
+_:b0 schema:author "[\"author1\",\"author2\"]" .
+'''
+              .trim());
+      expect(graph.triples, hasLength(1));
+      // Test round-trip
+      final deserialized = mapper.decodeObject<CollectionNoneTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.authors, equals(['author1', 'author2']));
+    });
+
+    test('CollectionAutoTest - collection with RdfCollectionType.auto', () {
+      final testInstance = CollectionAutoTest(authors: ['author1', 'author2']);
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+
+      // note how authors is serialized as multiple terms (even though it uses the turtle shortcut syntax for this) - but without any list ordering guarantee
+      expect(
+          serialized.trim(),
+          r'''
+@prefix schema: <https://schema.org/> .
+
+_:b0 schema:author "author1", "author2" .
+'''
+              .trim());
+      // Test round-trip
+      final deserialized = mapper.decodeObject<CollectionAutoTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.authors, equals(['author1', 'author2']));
+    });
+
+    test('CollectionTest - default collection behavior', () {
+      final testInstance = CollectionTest(authors: ['author1', 'author2']);
+
+      // Test serialization
+      final graph = mapper.graph.encodeObject(testInstance);
+      expect(graph, isNotNull);
+      expect(graph.triples, hasLength(2));
+      // Test round-trip
+      final deserialized = mapper.graph.decodeObject<CollectionTest>(graph);
+      expect(deserialized, isNotNull);
+      expect(deserialized.authors, equals(['author1', 'author2']));
+    });
+
+    test('CollectionIterableTest - iterable collection type', () {
+      final testInstance =
+          CollectionIterableTest(authors: ['author1', 'author2']);
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+
+      // Test round-trip
+      final deserialized =
+          mapper.decodeObject<CollectionIterableTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.authors.toList(), equals(['author1', 'author2']));
+    });
+
+    test('SetTest - Set collection type', () {
+      final testInstance = SetTest(keywords: {'keyword1', 'keyword2'});
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+
+      // Test round-trip
+      final deserialized = mapper.decodeObject<SetTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.keywords, equals({'keyword1', 'keyword2'}));
+    });
+
+    test('LanguageTagTest - literal with language tag', () {
+      final testInstance = LanguageTagTest(description: 'Test description');
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+      expect(serialized, contains('@en'),
+          reason: 'Language tag should be included in serialization');
+
+      // Test round-trip
+      final deserialized = mapper.decodeObject<LanguageTagTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.description, equals('Test description'));
+    });
+
+    test('DatatypeTest - literal with custom datatype', () {
+      final testInstance =
+          DatatypeTest(count: 42, date: '2023-01-01T00:00:00Z');
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+
+      // Test round-trip
+      final deserialized = mapper.decodeObject<DatatypeTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.count, equals(42));
+      expect(deserialized.date, equals('2023-01-01T00:00:00Z'));
+    });
+
+    test('IriMappingWithProviderTest - IRI mapping with getter provider', () {
+      final testInstance = IriMappingWithProviderTest(authorId: 'test-author');
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+      expect(serialized, contains('fiction'),
+          reason: 'Category provider should be used in IRI generation');
+
+      // Test round-trip
+      final deserialized =
+          mapper.decodeObject<IriMappingWithProviderTest>(serialized);
+      expect(deserialized, isNotNull);
+      expect(deserialized.authorId, equals('test-author'));
+    });
+
+    test(
+        'LocalResourceInstanceMapperObjectPropertyTest - local resource mapper with Object property',
+        () {
+      final author = Author(name: 'Object Property Author');
+      final testInstance =
+          LocalResourceInstanceMapperObjectPropertyTest(author: author);
+
+      // Test serialization
+      final serialized = mapper.encodeObject(testInstance);
+      expect(serialized, isNotNull);
+      expect(serialized, contains('a schema:Person'),
+          reason: 'Local resource mapper should create Author as Person');
+      expect(serialized, contains('schema:name "Object Property Author"'),
+          reason: 'Local resource mapper should serialize author name');
+    });
   });
 }
 

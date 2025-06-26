@@ -50,13 +50,13 @@ RdfMapper initTestRdfMapper({
   required LiteralTermMapper<String> testCustomMapper,
   required GlobalResourceMapper<Object> testGlobalMapper,
   required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>
-      testGlobalResourceMapper,
+  testGlobalResourceMapper,
   required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
   required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
   required LiteralTermMapper<double> testLiteralPriceMapper,
   required LocalResourceMapper<Object> testLocalMapper,
   required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>
-      testLocalResourceMapper,
+  testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
   required IriTermMapper<(String id, String surname, int version)> testMapper3,
   required GlobalResourceMapper<Object> testNamedMapper,
@@ -100,7 +100,8 @@ RdfMapper initTestRdfMapper({
     grptmrmg.ClassWithIriNamedMapperStrategyMapper(iriMapper: testMapper),
   );
   registry.registerMapper<
-      grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties>(
+    grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties
+  >(
     grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
       iriMapper: testMapper3,
     ),
@@ -285,7 +286,7 @@ RdfMapper initTestRdfMapper({
     pptmrmg.CollectionIterableTestMapper(),
   );
   registry.registerMapper<pptm.MapNoCollectionNoMapperTest>(
-    pptmrmg.MapNoCollectionTestMapper(),
+    pptmrmg.MapNoCollectionNoMapperTestMapper(),
   );
   registry.registerMapper<pptm.MapLocalResourceMapperTest>(
     pptmrmg.MapLocalResourceMapperTestMapper(mapEntryMapper: mapEntryMapper),
@@ -336,6 +337,9 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<pptm.LocalResourceInstanceMapperTest>(
     pptmrmg.LocalResourceInstanceMapperTestMapper(),
+  );
+  registry.registerMapper<pptm.LocalResourceInstanceMapperObjectPropertyTest>(
+    pptmrmg.LocalResourceInstanceMapperObjectPropertyTestMapper(),
   );
   registry.registerMapper<pptm.LiteralMapperTest>(
     pptmrmg.LiteralMapperTestMapper(),
