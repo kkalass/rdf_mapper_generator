@@ -602,7 +602,7 @@ class InitFileBuilderHelper {
       _CustomMapper(
           type: type,
           code: code,
-          parameterName: 'iriMapper',
+          parameterName: isNamed && name != null ? name : 'iriMapper',
           isNamed: isNamed,
           isTypeBased: isTypeBased,
           isInstance: isInstance,

@@ -211,8 +211,10 @@ class DataBuilder {
       if (iriStrategy?.hasMapper ?? false)
         ConstructorParameterData(
             fieldName: '_iriMapper',
-            parameterName: 'iriMapper',
-            type: iriStrategy!.mapper!.type,
+            parameterName: iriStrategy!.mapper!.isNamed && iriStrategy.mapper!.name != null 
+                ? iriStrategy.mapper!.name! 
+                : 'iriMapper',
+            type: iriStrategy.mapper!.type,
             defaultValue: null,
             isLate: false),
       ...contextProviders.map((provider) => ConstructorParameterData(
@@ -842,7 +844,7 @@ class DataBuilder {
       ResourceInfo resourceInfo) {
     final provides = collectProvidesVariableNames(resourceInfo.fields);
     final annotation = resourceInfo.annotation;
-    return [
+    final contextProviders = <ContextProviderData>[
       if (annotation is RdfGlobalResourceInfo)
         ..._buildContextProvidersForIriTemplate(annotation.iri?.templateInfo),
       ...resourceInfo.fields.expand((f) {
@@ -872,6 +874,17 @@ class DataBuilder {
         });
       }),
     ];
+    // deduplicate context providers by parameterName
+    final result = <ContextProviderData>[];
+    final seenParameterNames = <String>{};
+
+    for (final provider in contextProviders) {
+      if (!seenParameterNames.contains(provider.parameterName)) {
+        seenParameterNames.add(provider.parameterName);
+        result.add(provider);
+      }
+    }
+    return result;
   }
 
   static Set<String> collectProvidesVariableNames(List<FieldInfo> fields) =>

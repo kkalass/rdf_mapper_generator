@@ -28,7 +28,7 @@ dependencies:
   rdf_mapper_annotations: ^0.2.1
   rdf_vocabularies: ^0.3.0
   path: ^1.9.1
-  rdf_mapper: ^0.8.3
+  rdf_mapper: ^0.8.5
   glob: ^2.1.3
 
 dev_dependencies:
