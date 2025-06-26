@@ -20,7 +20,7 @@ class MapperRefData {
   /// Whether this is a direct instance
   final bool isInstance;
 
-  final Code? instanceInitializationCode;
+  final ResolvableInstantiationCodeData? instanceInitializationCode;
 
   const MapperRefData({
     this.name,
@@ -39,6 +39,65 @@ class MapperRefData {
         'isInstance': isInstance,
         'instanceInitializationCode': instanceInitializationCode?.toMap(),
       };
+}
+
+class UnresolvedInstantiationCodeData {
+  final List<ResolvableInstantiationCodeData> unresolved = [];
+
+  add(ResolvableInstantiationCodeData data) {
+    if (unresolved.contains(data)) {
+      throw StateError(
+          'ResolvableInstantiationCodeData is already added to unresolved list');
+    }
+    unresolved.add(data);
+  }
+}
+
+class ResolvableInstantiationCodeData {
+  final Code? mapperClassName;
+  late final Code _resolvedCode;
+  bool _isResolved = false;
+
+  ResolvableInstantiationCodeData._(this.mapperClassName);
+
+  factory ResolvableInstantiationCodeData(
+      Code mapperClassName, UnresolvedInstantiationCodeData unresolved) {
+    final r = ResolvableInstantiationCodeData._(mapperClassName);
+    unresolved.add(r);
+    return r;
+  }
+
+  ResolvableInstantiationCodeData.resolved(Code resolved)
+      : mapperClassName = null,
+        _resolvedCode = resolved;
+
+  bool get isResolved => _isResolved;
+
+  resolve(List<ConstructorParameterData> constructorParameters,
+      {bool constContext = false}) {
+    if (mapperClassName == null) {
+      throw StateError(
+          'MapperTypeInfoData is already resolved or has no mapper class name');
+    }
+    _resolvedCode = Code.combine([
+      if (constContext) Code.literal(' const '),
+      mapperClassName!,
+      Code.literal('('),
+      Code.combine(
+          constructorParameters
+              .map((p) => Code.combine([
+                    Code.literal(p.parameterName),
+                    Code.literal(': '),
+                    Code.literal(p.parameterName)
+                  ]))
+              .toList(),
+          separator: ', '),
+      Code.literal(')')
+    ]);
+    _isResolved = true;
+  }
+
+  Map<String, dynamic> toMap() => _resolvedCode.toMap();
 }
 
 sealed class MappableClassMapperTemplateData {
@@ -86,7 +145,7 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
   final Code mapperInterfaceType;
   final Code className;
   final bool isTypeBased;
-  final Code? customMapperInstance;
+  final ResolvableInstantiationCodeData? customMapperInstance;
   final bool registerGlobally;
 
   const CustomMapperTemplateData({
@@ -580,7 +639,7 @@ class ConstructorParameterData {
   final Code type;
   final String parameterName;
   final String fieldName;
-  final Code? defaultValue;
+  final ResolvableInstantiationCodeData? defaultValue;
   final bool isLate;
   final bool isField;
 

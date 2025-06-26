@@ -4,7 +4,6 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -20,41 +19,35 @@ var contextProviderType = Code.combine([
 
 /// Builds template data from processed resource information.
 class DataBuilder {
-  static Code customMapperCode(TypeInfo? implementationType,
-      Code? instanceInitializationCode, String? name,
-      {bool constContext = false}) {
-    Code? code;
-    if (implementationType != null) {
-      // instantiate the constructor with empty parameters
-      code = implementationType.generateConstructorCall(
-          constContext: constContext);
-    } else if (instanceInitializationCode != null) {
-      code = instanceInitializationCode;
-    }
-    if (code == null && name != null) {
-      code = Code.literal(name);
-    }
+  static Code customMapperCode(Code? instanceInitializationCode, String? name) {
+    final code = instanceInitializationCode ??
+        (name == null ? null : Code.literal(name));
     if (code == null) {
       throw ArgumentError('No valid code found for IRI mapper ');
     }
     return code;
   }
 
-  static Code mapperRefInfoToCode(MapperRefInfo mapper,
-      {bool constContext = false}) {
-    var customMapperName = mapper.name;
+  static ResolvableInstantiationCodeData mapperRefInfoToCode(
+      MapperRefInfo mapper, UnresolvedInstantiationCodeData unresolved) {
     var customMapperType = mapper.type;
+    if (customMapperType != null) {
+      return ResolvableInstantiationCodeData(customMapperType.name, unresolved);
+    }
+    var customMapperName = mapper.name;
     var customMapperInstance =
         mapper.instance == null ? null : toCode(mapper.instance);
-    return customMapperCode(
-        customMapperType, customMapperInstance, customMapperName,
-        constContext: constContext);
+    return ResolvableInstantiationCodeData.resolved(customMapperCode(
+      customMapperInstance,
+      customMapperName,
+    ));
   }
 
   static List<MappableClassMapperTemplateData> buildCustomMapper(
       ValidationContext context,
       Code className,
-      BaseMappingAnnotationInfo annotation) {
+      BaseMappingAnnotationInfo annotation,
+      UnresolvedInstantiationCodeData unresolved) {
     assert(annotation.mapper != null);
     final mapper = annotation.mapper!;
     Code mapperInterfaceType =
@@ -64,10 +57,12 @@ class DataBuilder {
     var customMapperName = mapper.name;
     var customMapperType = mapper.type;
     var isTypeBased = customMapperType != null;
-    var customMapperTypeCode =
-        isTypeBased ? customMapperType.generateConstructorCall() : null;
-    var customMapperInstance =
-        mapper.instance == null ? null : toCode(mapper.instance);
+    var customMapperTypeCode = isTypeBased
+        ? ResolvableInstantiationCodeData(customMapperType.name, unresolved)
+        : null;
+    var customMapperInstance = mapper.instance == null
+        ? null
+        : ResolvableInstantiationCodeData.resolved(toCode(mapper.instance));
     if (customMapperName == null &&
         customMapperType == null &&
         customMapperInstance == null) {
@@ -109,7 +104,8 @@ class DataBuilder {
   static List<MappableClassMapperTemplateData> buildResourceMapper(
       ValidationContext context,
       ResourceInfo resourceInfo,
-      String mapperImportUri) {
+      String mapperImportUri,
+      UnresolvedInstantiationCodeData unresolved) {
     if (resourceInfo.annotation.mapper != null) {
       throw Exception(
         'ResourceMapper cannot have a mapper defined in the annotation.',
@@ -130,7 +126,7 @@ class DataBuilder {
     final typeIri = _buildTypeIri(resourceInfo);
 
     // Build IRI strategy data
-    final iriStrategy = _buildIriStrategyForResource(resourceInfo);
+    final iriStrategy = _buildIriStrategyForResource(resourceInfo, unresolved);
 
     // Build context providers for context variables
     final contextProviders = _buildContextProvidersForResource(resourceInfo);
@@ -150,7 +146,11 @@ class DataBuilder {
     final properties =
         _buildPropertyData(className, resourceInfo.fields, mapperImportUri);
     final mapperConstructorParameters = buildMapperConstructorParameters(
-        iriStrategy, contextProviders, resourceInfo, mapperImportUri);
+        iriStrategy,
+        contextProviders,
+        resourceInfo,
+        mapperImportUri,
+        unresolved);
 
     final resourceMapper = ResourceMapperTemplateData(
         className: className,
@@ -186,7 +186,8 @@ class DataBuilder {
                 buildPropertyMapperName(className, f.name, mapperImportUri),
             registerGlobally: false,
             /* local to the resource mapper */
-            mapperImportUri: mapperImportUri);
+            mapperImportUri: mapperImportUri,
+            unresolved: unresolved);
       }
       return const [];
     });
@@ -209,7 +210,8 @@ class DataBuilder {
       IriData? iriStrategy,
       List<ContextProviderData> contextProviders,
       ResourceInfo resourceInfo,
-      String mapperImportUri) {
+      String mapperImportUri,
+      UnresolvedInstantiationCodeData unresolved) {
     final provides = collectProvidesVariableNames(resourceInfo.fields);
     final List<ConstructorParameterData> mapperConstructorParameters = [
       if (iriStrategy?.hasMapper ?? false)
@@ -239,7 +241,8 @@ class DataBuilder {
         return [
           if (iri != null)
             if (iri.mapper != null)
-              mappingToConstructorParameter(f, iri.mapper!, 'IriTermMapper')
+              mappingToConstructorParameter(
+                  f, iri.mapper!, 'IriTermMapper', unresolved)
             else if (iri.template != null && !iri.isFullIriTemplate)
               ..._propertyIriTemplateMapperConstructorParameter(
                   f,
@@ -261,7 +264,7 @@ class DataBuilder {
           if (literal != null)
             if (literal.mapper != null)
               mappingToConstructorParameter(
-                  f, literal.mapper!, 'LiteralTermMapper')
+                  f, literal.mapper!, 'LiteralTermMapper', unresolved)
             else if (literal.datatype != null)
               constructorParameterWithValue(
                   f.name,
@@ -292,10 +295,10 @@ class DataBuilder {
                   ])),
           if (globalResourceMapper != null)
             mappingToConstructorParameter(
-                f, globalResourceMapper, 'GlobalResourceMapper'),
+                f, globalResourceMapper, 'GlobalResourceMapper', unresolved),
           if (localResourceMapper != null)
             mappingToConstructorParameter(
-                f, localResourceMapper, 'LocalResourceMapper'),
+                f, localResourceMapper, 'LocalResourceMapper', unresolved),
         ];
       })
     ];
@@ -310,11 +313,14 @@ class DataBuilder {
         type: _buildMapperInterfaceTypeForProperty(
             Code.type(mapperInterfaceType, importUri: importRdfMapper), f),
         isLate: false,
-        defaultValue: value);
+        defaultValue: ResolvableInstantiationCodeData.resolved(value));
   }
 
   static ConstructorParameterData mappingToConstructorParameter(
-      FieldInfo f, MapperRefInfo<dynamic> iriMapper, String mapperInterface) {
+      FieldInfo f,
+      MapperRefInfo<dynamic> iriMapper,
+      String mapperInterface,
+      UnresolvedInstantiationCodeData unresolved) {
     return ConstructorParameterData(
         fieldName: _buildMapperFieldName(f.name),
         parameterName: iriMapper.name ?? f.name + 'Mapper',
@@ -322,7 +328,7 @@ class DataBuilder {
             Code.type(mapperInterface, importUri: importRdfMapper), f),
         isLate: false,
         defaultValue: iriMapper.name == null
-            ? mapperRefInfoToCode(iriMapper, constContext: true)
+            ? mapperRefInfoToCode(iriMapper, unresolved)
             : null);
   }
 
@@ -364,7 +370,7 @@ class DataBuilder {
           type: _buildMapperInterfaceTypeForProperty(
               Code.type(mapperInterface, importUri: importRdfMapper), f),
           isLate: isLate,
-          defaultValue: defaultValue)
+          defaultValue: ResolvableInstantiationCodeData.resolved(defaultValue))
     ];
   }
 
@@ -531,7 +537,10 @@ class DataBuilder {
   }
 
   static List<MappableClassMapperTemplateData> buildIriMapper(
-      ValidationContext context, IriInfo iriInfo, String mapperImportUri) {
+      ValidationContext context,
+      IriInfo iriInfo,
+      String mapperImportUri,
+      UnresolvedInstantiationCodeData unresolved) {
     final annotation = iriInfo.annotation;
     if (annotation.mapper != null) {
       throw Exception(
@@ -553,7 +562,8 @@ class DataBuilder {
         constructors: iriInfo.constructors,
         fields: iriInfo.fields,
         registerGlobally: annotation.registerGlobally,
-        mapperImportUri: mapperImportUri);
+        mapperImportUri: mapperImportUri,
+        unresolved: unresolved);
   }
 
   static List<MappableClassMapperTemplateData> _buildIriMapper(
@@ -564,7 +574,8 @@ class DataBuilder {
       List<ConstructorInfo> constructors = const [],
       List<FieldInfo> fields = const [],
       bool registerGlobally = false,
-      required String mapperImportUri}) {
+      required String mapperImportUri,
+      required UnresolvedInstantiationCodeData unresolved}) {
     final mapperInterfaceName =
         Code.type('IriTermMapper', importUri: importRdfMapper);
 
@@ -575,7 +586,8 @@ class DataBuilder {
         codeGeneric1(mapperInterfaceName, className),
         iriParts,
         templateInfo,
-        fields)!;
+        fields,
+        unresolved)!;
     if (iriData.template == null) {
       throw Exception(
         'Trying to generate an IRI mapper for resource ${className}, but IRI template is not defined. This should not be possible.',
@@ -709,7 +721,8 @@ class DataBuilder {
     return classIriInfo?.code;
   }
 
-  static IriData? _buildIriStrategyForResource(ResourceInfo resourceInfo) {
+  static IriData? _buildIriStrategyForResource(
+      ResourceInfo resourceInfo, UnresolvedInstantiationCodeData unresolved) {
     final annotation = resourceInfo.annotation;
     if (annotation is! RdfGlobalResourceInfo) {
       return null;
@@ -726,7 +739,8 @@ class DataBuilder {
         iriStrategy.iriMapperType?.type,
         iriStrategy.iriMapperType?.parts,
         iriStrategy.templateInfo,
-        resourceInfo.fields);
+        resourceInfo.fields,
+        unresolved);
   }
 
   /// Builds IRI strategy data.
@@ -736,7 +750,8 @@ class DataBuilder {
       Code? type,
       List<IriPartInfo>? iriParts,
       IriTemplateInfo? templateInfo,
-      List<FieldInfo>? fields) {
+      List<FieldInfo>? fields,
+      UnresolvedInstantiationCodeData unresolved) {
     MapperRefData? mapperRef;
     if (mapper != null && type != null) {
       if (mapper.name != null) {
@@ -749,7 +764,8 @@ class DataBuilder {
         final typeValue = mapper.type;
         if (typeValue != null) {
           mapperRef = MapperRefData(
-            instanceInitializationCode: typeValue.generateConstructorCall(),
+            instanceInitializationCode:
+                ResolvableInstantiationCodeData(typeValue.name, unresolved),
             isTypeBased: true,
             type: type,
           );
@@ -760,7 +776,8 @@ class DataBuilder {
         mapperRef = MapperRefData(
           isInstance: true,
           type: type,
-          instanceInitializationCode: toCode(mapper.instance),
+          instanceInitializationCode:
+              ResolvableInstantiationCodeData.resolved(toCode(mapper.instance)),
         );
       }
     }

@@ -215,17 +215,8 @@ class Code {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Code &&
-          runtimeType == other.runtimeType &&
-          _code == other._code &&
-          _setsEqual(_imports, other._imports);
+      identical(this, other) || other is Code && _code == other._code;
 
   @override
-  int get hashCode => _code.hashCode ^ _imports.hashCode;
-
-  static bool _setsEqual<T>(Set<T> set1, Set<T> set2) {
-    if (set1.length != set2.length) return false;
-    return set1.containsAll(set2) && set2.containsAll(set1);
-  }
+  int get hashCode => _code.hashCode;
 }

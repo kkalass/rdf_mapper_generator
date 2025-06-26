@@ -22,12 +22,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       expect(result.header.sourcePath, equals(sourcePath));
       expect(result.header.generatedOn, isNotEmpty);
@@ -42,12 +42,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       expect(result, isA<FileTemplateData>());
       expect(result.header, isA<FileHeaderData>());
@@ -62,12 +62,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       // Verify the timestamp is a valid ISO8601 string
       expect(() => DateTime.parse(result.header.generatedOn), returnsNormally);
@@ -89,12 +89,12 @@ void main() {
 
       expect(
         () => TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-        ),
+            context,
+            sourcePath,
+            mapperImportUri,
+            resourceInfos,
+            broaderImports,
+            UnresolvedInstantiationCodeData()),
         returnsNormally,
       );
     });
@@ -105,12 +105,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       // The result should preserve the same BroaderImports instance
       expect(result.broaderImports, same(broaderImports));
@@ -123,23 +123,23 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result1 = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       // Wait a tiny bit to ensure different timestamp
       await Future.delayed(Duration(milliseconds: 1));
 
       final result2 = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       // Timestamps should be different (or at least not identical)
       expect(result1.header.generatedOn,
@@ -153,12 +153,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       expect(result.header.sourcePath, equals(sourcePath));
       // The mapper import URI should be used by the data builder for individual mappers
@@ -180,12 +180,12 @@ void main() {
         final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
         final result = TemplateDataBuilder.buildFileTemplate(
-          ValidationContext(),
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          BroaderImports(<String, String>{}),
-        );
+            ValidationContext(),
+            sourcePath,
+            mapperImportUri,
+            resourceInfos,
+            BroaderImports(<String, String>{}),
+            UnresolvedInstantiationCodeData());
 
         expect(result.header.sourcePath, equals(sourcePath));
         expect(result, isA<FileTemplateData>());
@@ -198,12 +198,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       final header = result.header;
       expect(header.sourcePath, isA<String>());
@@ -220,23 +220,23 @@ void main() {
       // Test with root context
       final rootContext = ValidationContext();
       final result1 = TemplateDataBuilder.buildFileTemplate(
-        rootContext,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          rootContext,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       // Test with nested context
       final nestedContext =
           ValidationContext('ParentContext').withContext('ChildContext');
       final result2 = TemplateDataBuilder.buildFileTemplate(
-        nestedContext,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          nestedContext,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       expect(result1, isA<FileTemplateData>());
       expect(result2, isA<FileTemplateData>());
@@ -249,12 +249,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       final map = result.toMap();
       expect(map, isA<Map<String, dynamic>>());
@@ -269,12 +269,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        broaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          broaderImports,
+          UnresolvedInstantiationCodeData());
 
       final headerMap = result.header.toMap();
       expect(headerMap, isA<Map<String, dynamic>>());
@@ -293,12 +293,12 @@ void main() {
       final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-        context,
-        sourcePath,
-        mapperImportUri,
-        resourceInfos,
-        testBroaderImports,
-      );
+          context,
+          sourcePath,
+          mapperImportUri,
+          resourceInfos,
+          testBroaderImports,
+          UnresolvedInstantiationCodeData());
 
       expect(result.broaderImports, same(testBroaderImports));
 

@@ -9,12 +9,12 @@ import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 class TemplateDataBuilder {
   /// Builds file template data for multiple global resource mappers.
   static FileTemplateData buildFileTemplate(
-    ValidationContext context,
-    String sourcePath,
-    String mapperImportUri,
-    List<(MappableClassInfo, Element2?)> resourceInfosWithElements,
-    BroaderImports broaderImports,
-  ) {
+      ValidationContext context,
+      String sourcePath,
+      String mapperImportUri,
+      List<(MappableClassInfo, Element2?)> resourceInfosWithElements,
+      BroaderImports broaderImports,
+      UnresolvedInstantiationCodeData unresolved) {
     final header = FileHeaderData(
       sourcePath: sourcePath,
       generatedOn: DateTime.now().toIso8601String(),
@@ -26,21 +26,24 @@ class TemplateDataBuilder {
         .expand((resourceInfo) => switch (resourceInfo) {
               ResourceInfo _ => resourceInfo.annotation.mapper != null
                   ? DataBuilder.buildCustomMapper(
-                      context, resourceInfo.className, resourceInfo.annotation)
+                      context,
+                      resourceInfo.className,
+                      resourceInfo.annotation,
+                      unresolved)
                   : // generate custom mapper if specified
                   DataBuilder.buildResourceMapper(
-                      context, resourceInfo, mapperImportUri),
+                      context, resourceInfo, mapperImportUri, unresolved),
               IriInfo iriInfo => iriInfo.annotation.mapper != null
-                  ? DataBuilder.buildCustomMapper(
-                      context, iriInfo.className, iriInfo.annotation)
+                  ? DataBuilder.buildCustomMapper(context, iriInfo.className,
+                      iriInfo.annotation, unresolved)
                   : iriInfo.enumValues.isNotEmpty
                       ? DataBuilder.buildEnumIriMapper(
                           context, iriInfo, mapperImportUri)
                       : DataBuilder.buildIriMapper(
-                          context, iriInfo, mapperImportUri),
+                          context, iriInfo, mapperImportUri, unresolved),
               LiteralInfo literalInfo => literalInfo.annotation.mapper != null
-                  ? DataBuilder.buildCustomMapper(
-                      context, literalInfo.className, literalInfo.annotation)
+                  ? DataBuilder.buildCustomMapper(context,
+                      literalInfo.className, literalInfo.annotation, unresolved)
                   : literalInfo.enumValues.isNotEmpty
                       ? DataBuilder.buildEnumLiteralMapper(
                           context, literalInfo, mapperImportUri)

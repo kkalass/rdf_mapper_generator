@@ -7,6 +7,7 @@ import 'package:rdf_mapper_generator/src/processors/iri_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/literal_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
@@ -52,13 +53,48 @@ class BuilderHelper {
 
     FileTemplateData? result;
     if (resourceInfosWithElements.isNotEmpty) {
+      UnresolvedInstantiationCodeData unresolved =
+          UnresolvedInstantiationCodeData();
       // Use the file template approach which handles imports properly
       result = TemplateDataBuilder.buildFileTemplate(
           context.withContext(sourcePath),
           sourcePath,
           mapperImportUri,
           resourceInfosWithElements,
-          broaderImports);
+          broaderImports,
+          unresolved);
+      final generatedMappers = result.mappers
+          .map((m) => m.mapperData)
+          .whereType<GeneratedMapperTemplateData>();
+
+      final constructorParametersByClassName =
+          <Code, List<ConstructorParameterData>>{
+        for (var mapper in generatedMappers)
+          mapper.mapperClassName: mapper.mapperConstructorParameters
+      };
+      print(
+          'Constructor parameters by class name: $constructorParametersByClassName');
+      for (var resolvable in unresolved.unresolved) {
+        if (resolvable.mapperClassName == null) {
+          _log.warning(
+              'Unresolved code data without mapper class name: $resolvable');
+          continue;
+        }
+        var params =
+            constructorParametersByClassName[resolvable.mapperClassName];
+        print(
+            'Resolving parameters for ${resolvable.mapperClassName}: $params');
+        if (params != null) {
+          // Resolve the instantiation code data
+          resolvable.resolve(
+            params,
+          );
+        } else {
+          _log.warning(
+              'Unresolved code data of type ${resolvable.mapperClassName} cannot be properly resolved because we did not find it in the generated mappers. Assuming no-args default constructor.');
+          resolvable.resolve([]);
+        }
+      }
     }
 
     if (context.hasWarnings) {

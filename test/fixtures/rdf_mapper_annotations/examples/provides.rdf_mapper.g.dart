@@ -25,7 +25,10 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
   /// Constructor requiring providers for context variables
   const ParentMapper({
     required String Function() baseUriProvider,
-    GlobalResourceMapper<Child> childMapper = const ChildMapper(),
+    GlobalResourceMapper<Child> childMapper = ChildMapper(
+      baseUriProvider: baseUriProvider,
+      parentIdProvider: parentIdProvider,
+    ),
   }) : _baseUriProvider = baseUriProvider,
        _childMapper = childMapper;
 
