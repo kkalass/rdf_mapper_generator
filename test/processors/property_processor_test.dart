@@ -248,10 +248,7 @@ void main() {
       expect(mapper.instance, isNull);
       expect(mapper.type, isNotNull);
 
-      expect(mapper.type!.type, isNotNull);
-      expect(mapper.type!.type!.getDisplayString(), 'Type');
-      expect(mapper.type!.toTypeValue(), isNotNull);
-      expect(mapper.type!.toTypeValue()!.getDisplayString(), 'IriMapperImpl');
+      expect(mapper.type!.name.codeWithoutAlias, 'IriMapperImpl');
     });
 
     test('should process property with IRI mapping (instance)', () {
@@ -547,10 +544,7 @@ void main() {
       expect(annotation.literal!.mapper!.name, isNull);
       expect(annotation.literal!.mapper!.instance, isNull);
       expect(annotation.literal!.mapper!.type, isNotNull);
-      expect(
-          annotation.literal!.mapper!.type!.type!.getDisplayString(), 'Type');
-      expect(
-          annotation.literal!.mapper!.type!.toTypeValue()!.getDisplayString(),
+      expect(annotation.literal!.mapper!.type!.name.codeWithoutAlias,
           'LiteralDoubleMapperImpl');
 
       expect(annotation.predicate.value, equals(SchemaBook.bookFormat));
@@ -881,10 +875,7 @@ void main() {
       expect(annotation.localResource, isNotNull);
       expect(annotation.localResource!.mapper, isNotNull);
       expect(annotation.localResource!.mapper!.type, isNotNull);
-      expect(
-          annotation.localResource!.mapper!.type!
-              .toTypeValue()!
-              .getDisplayString(),
+      expect(annotation.localResource!.mapper!.type!.name.codeWithoutAlias,
           'LocalResourceAuthorMapperImpl');
       expect(annotation.predicate.value, equals(SchemaBook.author));
     });

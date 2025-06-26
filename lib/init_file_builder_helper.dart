@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
-import 'package:rdf_mapper_generator/src/templates/data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
@@ -480,8 +479,7 @@ class InitFileBuilderHelper {
     final className = extractCodeProperty(mapperData, 'className');
     final mapperInterfaceType =
         extractCodeProperty(mapperData, 'mapperInterfaceType');
-    final customMapperType =
-        extractNullableCodeProperty(mapperData, 'customMapperType');
+    final isTypeBased = mapperData['isTypeBased'] as bool? ?? true;
     final customMapperInstance =
         extractNullableCodeProperty(mapperData, 'customMapperInstance');
     final customMapperName = mapperData['customMapperName'] as String?;
@@ -489,15 +487,18 @@ class InitFileBuilderHelper {
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
 
     if (registerGlobally) {
-      final code = DataBuilder.customMapperCode(
-          customMapperType, customMapperInstance, customMapperName);
+      final code = customMapperInstance ??
+          (customMapperName == null ? null : Code.literal(customMapperName));
+      if (code == null) {
+        throw ArgumentError('No valid code found for Custom mapper ');
+      }
       final customMapper = _CustomMapper(
         type: mapperInterfaceType,
         code: code,
         name: customMapperName,
         parameterName: customMapperName ?? 'customMapper',
         isNamed: customMapperName != null,
-        isTypeBased: customMapperType != null,
+        isTypeBased: isTypeBased,
         isInstance: customMapperInstance != null,
       );
       return (
@@ -587,8 +588,6 @@ class InitFileBuilderHelper {
     // Extract IRI mapper type and name information
     final type = extractNullableCodeProperty(mapper, 'type');
     final name = mapper['name'] as String?;
-    final implementationType =
-        extractNullableCodeProperty(mapper, 'implementationType');
 
     final isNamed = mapper['isNamed'] as bool? ?? false;
     final isTypeBased = mapper['isTypeBased'] as bool? ?? false;
@@ -596,8 +595,12 @@ class InitFileBuilderHelper {
     final instanceInitializationCode =
         extractNullableCodeProperty(mapper, 'instanceInitializationCode');
     if (type == null) return [];
-    final code = DataBuilder.customMapperCode(
-        implementationType, instanceInitializationCode, name);
+    final code = instanceInitializationCode ??
+        (name == null ? null : Code.literal(name));
+    if (code == null) {
+      throw ArgumentError(
+          'IRI mapper must have either a type or an instance initialization code');
+    }
     return [
       _CustomMapper(
           type: type,

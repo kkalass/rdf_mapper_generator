@@ -263,9 +263,8 @@ void main() {
       expect(annotation.mapper, isNotNull);
       expect(annotation.mapper!.name, isNull);
       expect(annotation.mapper!.type, isNotNull);
-      expect(annotation.mapper!.type!.type!.getDisplayString(), 'Type');
-      expect(annotation.mapper!.type!.toTypeValue()!.getDisplayString(),
-          'TestLiteralMapper');
+      expect(
+          annotation.mapper!.type!.name.codeWithoutAlias, 'TestLiteralMapper');
       expect(annotation.mapper!.instance, isNull);
       expect(annotation.datatype, isNull);
       expect(annotation.toLiteralTermMethod, isNull);

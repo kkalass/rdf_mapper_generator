@@ -7,9 +7,6 @@ class MapperRefData {
   /// The name of the mapper (for named mappers)
   final String? name;
 
-  /// The type of the mapper implementation (for type-based mappers)
-  final Code? implementationType;
-
   /// The (interface) type of the mapper (for all mappers)
   final Code type;
 
@@ -26,7 +23,6 @@ class MapperRefData {
 
   const MapperRefData({
     this.name,
-    this.implementationType,
     required this.type,
     this.isNamed = false,
     this.isTypeBased = false,
@@ -36,7 +32,6 @@ class MapperRefData {
 
   Map<String, dynamic> toMap() => {
         'name': name,
-        'implementationType': implementationType?.toMap(),
         'type': type.toMap(),
         'isNamed': isNamed,
         'isTypeBased': isTypeBased,
@@ -53,7 +48,7 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
   final String? customMapperName;
   final Code mapperInterfaceType;
   final Code className;
-  final Code? customMapperType;
+  final bool isTypeBased;
   final Code? customMapperInstance;
   final bool registerGlobally;
 
@@ -61,14 +56,12 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
     required this.className,
     required this.mapperInterfaceType,
     required this.customMapperName,
-    required this.customMapperType,
+    required this.isTypeBased,
     required this.customMapperInstance,
     required this.registerGlobally,
   }) : assert(
-          customMapperName != null ||
-              customMapperType != null ||
-              customMapperInstance != null,
-          'At least one of customMapperName, customMapperType or customMapperInstance must be provided',
+          customMapperName != null || customMapperInstance != null,
+          'At least one of customMapperName or customMapperInstance must be provided',
         );
 
   @override
@@ -77,10 +70,9 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
       'className': className.toMap(),
       'mapperInterfaceType': mapperInterfaceType.toMap(),
       'customMapperName': customMapperName,
-      'customMapperType': customMapperType?.toMap(),
       'customMapperInstance': customMapperInstance?.toMap(),
       'hasCustomMapperName': customMapperName != null,
-      'hasCustomMapperType': customMapperType != null,
+      'isTypeBased': isTypeBased,
       'hasCustomMapperInstance': customMapperInstance != null,
       'registerGlobally': registerGlobally,
     };

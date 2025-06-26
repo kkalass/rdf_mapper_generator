@@ -289,19 +289,19 @@ void main() {
       });
 
       test('deserializes parent with child and sibling relationships', () {
-        final childBn = BlankNodeTerm();
+        final childBn =
+            IriTerm('http://example.org/test/parentABC/child/child456.ttl');
         final triples = [
           // Parent properties
           Triple(
-            IriTerm('http://example.org/vocab/parentABC.ttl'),
+            IriTerm('http://example.org/test/parentABC.ttl'),
             ExampleVocab.child,
             childBn,
           ),
           Triple(
-            IriTerm('http://example.org/vocab/parentABC.ttl'),
+            IriTerm('http://example.org/test/parentABC.ttl'),
             ExampleVocab.sibling,
-            IriTerm(
-                'http://example.org/vocab/parentABC/sibling/siblingXYZ.ttl'),
+            IriTerm('http://example.org/test/parentABC/sibling/siblingXYZ.ttl'),
           ),
           // Child properties
           Triple(childBn, ExampleVocab.childName, LiteralTerm('Child Name')),
@@ -314,11 +314,11 @@ void main() {
         );
 
         final parentMapper = ParentMapper(
-          baseUriProvider: () => 'http://example.org/vocab',
+          baseUriProvider: () => 'http://example.org/test',
         );
 
         final parent = parentMapper.fromRdfResource(
-          IriTerm('http://example.org/vocab/parentABC.ttl'),
+          IriTerm('http://example.org/test/parentABC.ttl'),
           context,
         );
 

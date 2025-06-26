@@ -20,10 +20,14 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
   static final RegExp _regex = RegExp('^(?<baseUri>.*)/(?<id>[^/]*)\.ttl\$');
 
   final String Function() _baseUriProvider;
+  final GlobalResourceMapper<Child> _childMapper;
 
   /// Constructor requiring providers for context variables
-  const ParentMapper({required String Function() baseUriProvider})
-    : _baseUriProvider = baseUriProvider;
+  const ParentMapper({
+    required String Function() baseUriProvider,
+    GlobalResourceMapper<Child> childMapper = const ChildMapper(),
+  })  : _baseUriProvider = baseUriProvider,
+        _childMapper = childMapper;
 
   @override
   IriTerm? get typeIri => ExampleVocab.Parent;
@@ -40,7 +44,10 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     };
 
     final id = iriParts['id']!;
-    final Child child = reader.require(ExampleVocab.child);
+    final Child child = reader.require(
+      ExampleVocab.child,
+      globalResourceDeserializer: _childMapper,
+    );
     final String siblingId = reader.require(
       ExampleVocab.sibling,
       iriTermDeserializer: ParentSiblingIdMapper(
@@ -67,7 +74,11 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(ExampleVocab.child, resource.child)
+        .addValue(
+          ExampleVocab.child,
+          resource.child,
+          resourceSerializer: _childMapper,
+        )
         .addValue(
           ExampleVocab.sibling,
           resource.siblingId,
@@ -106,8 +117,8 @@ class ParentSiblingIdMapper implements IriTermMapper<String> {
   const ParentSiblingIdMapper({
     required String Function() baseUriProvider,
     required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
+  })  : _baseUriProvider = baseUriProvider,
+        _parentIdProvider = parentIdProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -150,8 +161,8 @@ class ChildMapper implements GlobalResourceMapper<Child> {
   const ChildMapper({
     required String Function() baseUriProvider,
     required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
+  })  : _baseUriProvider = baseUriProvider,
+        _parentIdProvider = parentIdProvider;
 
   @override
   IriTerm? get typeIri => ExampleVocab.Child;

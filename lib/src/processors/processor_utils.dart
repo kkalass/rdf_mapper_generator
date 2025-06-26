@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -83,7 +84,12 @@ MapperRefInfo<M>? getMapperRefInfo<M>(DartObject annotation) {
   if (isNull(nameField) && isNull(typeField) && isNull(instanceField)) {
     return null;
   }
-  return MapperRefInfo(name: name, type: typeField, instance: instanceField);
+  return MapperRefInfo(
+      name: name,
+      type: isNull(typeField)
+          ? null
+          : TypeInfo(name: typeToCode(typeField!.toTypeValue()!)),
+      instance: instanceField);
 }
 
 bool isRegisterGlobally(DartObject annotation) {
@@ -321,6 +327,7 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
   return FieldInfo(
     name: name,
     type: typeToCode(type),
+    typeNonNull: typeToCode(type, enforceNonNull: true),
     isFinal: isFinal,
     isLate: isLate,
     isStatic: isStatic,
@@ -371,4 +378,77 @@ List<EnumValueInfo> extractEnumValues(
   }
 
   return enumValues;
+}
+
+/// Information about RDF annotation on a type
+class RdfTypeAnnotationInfo {
+  final String annotationType; // 'RdfGlobalResource', 'RdfLocalResource', etc.
+  final bool registerGlobally;
+  final String mapperClassName;
+  final String mapperImportPath;
+
+  const RdfTypeAnnotationInfo({
+    required this.annotationType,
+    required this.registerGlobally,
+    required this.mapperClassName,
+    required this.mapperImportPath,
+  });
+
+  @override
+  String toString() =>
+      'RdfTypeAnnotationInfo(type: $annotationType, registerGlobally: $registerGlobally, '
+      'mapper: $mapperClassName)';
+}
+
+/// Analyzes a Dart type to determine if it has RDF annotations and whether
+/// a mapper should be inferred for it.
+RdfTypeAnnotationInfo? analyzeTypeForRdfAnnotation(DartType type) {
+  if (type is! InterfaceType) {
+    return null;
+  }
+
+  final element = type.element3;
+  final annotations = element.metadata2.annotations;
+
+  // Check for RDF annotations
+  final rdfAnnotations = [
+    'RdfGlobalResource',
+    'RdfLocalResource',
+    'RdfIri',
+    'RdfLiteral',
+  ];
+
+  for (final annotationType in rdfAnnotations) {
+    final annotation = getAnnotation(annotations, annotationType);
+    if (annotation != null) {
+      final registerGlobally = isRegisterGlobally(annotation);
+
+      // Generate mapper class name and import path
+      final className = element.name3;
+      final mapperClassName = '${className}Mapper';
+
+      // Determine import path based on the source library
+      final sourceLibrary = element.library2;
+      final sourceLibraryUri = sourceLibrary.identifier;
+
+      String mapperImportPath;
+      if (sourceLibraryUri.endsWith('.dart')) {
+        // Convert from 'package:foo/to/source.dart' to 'package:foo/to/source.rdf_mapper.g.dart'
+        mapperImportPath =
+            '${sourceLibraryUri.substring(0, sourceLibraryUri.length - '.dart'.length)}.rdf_mapper.g.dart';
+      } else {
+        // Fallback for package imports or other schemes
+        mapperImportPath = 'generated_mappers.dart';
+      }
+
+      return RdfTypeAnnotationInfo(
+        annotationType: annotationType,
+        registerGlobally: registerGlobally,
+        mapperClassName: mapperClassName,
+        mapperImportPath: mapperImportPath,
+      );
+    }
+  }
+
+  return null;
 }

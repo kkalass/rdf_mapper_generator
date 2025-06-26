@@ -752,6 +752,9 @@ class FieldInfo {
   /// The type of the field as a string
   final Code type;
 
+  /// The type of the field as a string
+  final Code typeNonNull;
+
   /// Whether this field is final
   final bool isFinal;
 
@@ -778,6 +781,7 @@ class FieldInfo {
   const FieldInfo({
     required this.name,
     required this.type,
+    Code? typeNonNull,
     required this.isFinal,
     required this.isLate,
     required this.isStatic,
@@ -787,12 +791,13 @@ class FieldInfo {
     this.provides = null,
     this.propertyInfo,
     this.isRequired = false,
-  });
+  }) : typeNonNull = typeNonNull ?? type;
 
   @override
   int get hashCode => Object.hashAll([
         name,
         type,
+        typeNonNull,
         isFinal,
         isLate,
         isStatic,
@@ -811,6 +816,7 @@ class FieldInfo {
     }
     return name == other.name &&
         type == other.type &&
+        typeNonNull == other.typeNonNull &&
         isFinal == other.isFinal &&
         isLate == other.isLate &&
         isStatic == other.isStatic &&
@@ -827,6 +833,7 @@ class FieldInfo {
     return 'FieldInfo{\n'
         '  name: $name,\n'
         '  type: $type,\n'
+        '  typeNonNull: $typeNonNull,\n'
         '  isFinal: $isFinal,\n'
         '  isLate: $isLate,\n'
         '  isStatic: $isStatic,\n'

@@ -17,8 +17,11 @@ List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   });
 }
 
-Code typeToCode(DartType type) {
-  final typeName = type.getDisplayString();
+Code typeToCode(DartType type, {bool enforceNonNull = false}) {
+  var typeName = type.getDisplayString();
+  if (enforceNonNull && typeName.endsWith('?')) {
+    typeName = typeName.substring(0, typeName.length - 1);
+  }
   final importUri = _getImportUriForType(type.element3);
   return Code.type(typeName, importUri: importUri);
 }

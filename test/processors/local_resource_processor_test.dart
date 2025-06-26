@@ -74,8 +74,7 @@ void main() {
       expect(annotation.mapper, isNotNull);
       expect(annotation.mapper!.name, isNull);
       expect(annotation.mapper!.type, isNotNull);
-      expect(annotation.mapper!.type!.type!.getDisplayString(), 'Type');
-      expect(annotation.mapper!.type!.toTypeValue()!.getDisplayString(),
+      expect(annotation.mapper!.type!.name.codeWithoutAlias,
           'TestLocalResourceMapper');
       expect(annotation.mapper!.instance, isNull);
 

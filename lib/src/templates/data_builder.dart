@@ -4,6 +4,7 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -14,17 +15,14 @@ final _log = Logger('GlobalResourceDataBuilder');
 
 /// Builds template data from processed resource information.
 class DataBuilder {
-  static Code customMapperCode(
-      Code? implementationType, Code? instanceInitializationCode, String? name,
+  static Code customMapperCode(TypeInfo? implementationType,
+      Code? instanceInitializationCode, String? name,
       {bool constContext = false}) {
     Code? code;
     if (implementationType != null) {
       // instantiate the constructor with empty parameters
-      code = Code.combine([
-        if (constContext) Code.literal('const '),
-        implementationType,
-        Code.literal('()')
-      ]);
+      code = implementationType.generateConstructorCall(
+          constContext: constContext);
     } else if (instanceInitializationCode != null) {
       code = instanceInitializationCode;
     }
@@ -40,8 +38,7 @@ class DataBuilder {
   static Code mapperRefInfoToCode(MapperRefInfo mapper,
       {bool constContext = false}) {
     var customMapperName = mapper.name;
-    var customMapperType =
-        mapper.type == null ? null : typeToCode(mapper.type!.toTypeValue()!);
+    var customMapperType = mapper.type;
     var customMapperInstance =
         mapper.instance == null ? null : toCode(mapper.instance);
     return customMapperCode(
@@ -60,8 +57,10 @@ class DataBuilder {
     // Build imports
 
     var customMapperName = mapper.name;
-    var customMapperType =
-        mapper.type == null ? null : typeToCode(mapper.type!.toTypeValue()!);
+    var customMapperType = mapper.type;
+    var isTypeBased = customMapperType != null;
+    var customMapperTypeCode =
+        isTypeBased ? customMapperType.generateConstructorCall() : null;
     var customMapperInstance =
         mapper.instance == null ? null : toCode(mapper.instance);
     if (customMapperName == null &&
@@ -76,8 +75,8 @@ class DataBuilder {
         className: className,
         mapperInterfaceType: mapperInterfaceType,
         customMapperName: customMapperName,
-        customMapperType: customMapperType,
-        customMapperInstance: customMapperInstance,
+        isTypeBased: isTypeBased,
+        customMapperInstance: customMapperTypeCode ?? customMapperInstance,
         registerGlobally: annotation.registerGlobally,
       )
     ];
@@ -745,10 +744,10 @@ class DataBuilder {
           type: type,
         );
       } else if (mapper.type != null) {
-        final typeValue = mapper.type?.toTypeValue();
+        final typeValue = mapper.type;
         if (typeValue != null) {
           mapperRef = MapperRefData(
-            implementationType: typeToCode(typeValue),
+            instanceInitializationCode: typeValue.generateConstructorCall(),
             isTypeBased: true,
             type: type,
           );
@@ -1223,7 +1222,7 @@ class DataBuilder {
       Code mapperInterface, FieldInfo field) {
     final propertyInfo = field.propertyInfo;
     if (propertyInfo == null) {
-      return codeGeneric1(mapperInterface, field.type);
+      return codeGeneric1(mapperInterface, field.typeNonNull);
     }
 
     final collectionInfo = propertyInfo.collectionInfo;
@@ -1243,6 +1242,6 @@ class DataBuilder {
     }
 
     // Default case: not a collection or collection not handled specially
-    return codeGeneric1(mapperInterface, field.type);
+    return codeGeneric1(mapperInterface, field.typeNonNull);
   }
 }

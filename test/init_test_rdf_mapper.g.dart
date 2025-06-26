@@ -38,6 +38,9 @@ import 'fixtures/rdf_mapper_annotations/examples/example_rdf_literal.dart'
     as erl;
 import 'fixtures/rdf_mapper_annotations/examples/example_rdf_literal.rdf_mapper.g.dart'
     as erlrmg;
+import 'fixtures/rdf_mapper_annotations/examples/inference_test.dart' as it;
+import 'fixtures/rdf_mapper_annotations/examples/inference_test.rdf_mapper.g.dart'
+    as itrmg;
 import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.dart'
     as lsm;
 import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.rdf_mapper.g.dart'
@@ -437,6 +440,9 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<erl.EnhancedRating>(erlrmg.EnhancedRatingMapper());
   registry.registerMapper<erl.Temperature>(erlrmg.TemperatureMapper());
   registry.registerMapper<erl.LocalizedText>(erlrmg.LocalizedTextMapper());
+  registry.registerMapper<it.InferenceTestContainer>(
+    itrmg.InferenceTestContainerMapper(),
+  );
   registry.registerMapper<lsm.Book>(lsmrmg.BookMapper());
   registry.registerMapper<provides.Parent>(
     prmg.ParentMapper(baseUriProvider: baseUriProvider),

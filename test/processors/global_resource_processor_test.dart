@@ -125,9 +125,8 @@ void main() {
       expect(annotation.iri!.mapper, isNotNull);
       expect(annotation.iri!.mapper!.name, isNull);
       expect(annotation.iri!.mapper!.type, isNotNull);
-      expect(annotation.iri!.mapper!.type!.type!.getDisplayString(), 'Type');
-      expect(annotation.iri!.mapper!.type!.toTypeValue()!.getDisplayString(),
-          'TestIriMapper');
+      expect(
+          annotation.iri!.mapper!.type!.name.codeWithoutAlias, 'TestIriMapper');
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
       expect(result.fields, hasLength(0));
@@ -199,8 +198,7 @@ void main() {
       expect(annotation.mapper, isNotNull);
       expect(annotation.mapper!.name, isNull);
       expect(annotation.mapper!.type, isNotNull);
-      expect(annotation.mapper!.type!.type!.getDisplayString(), 'Type');
-      expect(annotation.mapper!.type!.toTypeValue()!.getDisplayString(),
+      expect(annotation.mapper!.type!.name.codeWithoutAlias,
           'TestGlobalResourceMapper');
       expect(annotation.mapper!.instance, isNull);
 

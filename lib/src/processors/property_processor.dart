@@ -5,12 +5,30 @@ import 'package:analyzer/dart/element/type_system.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
+import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
+
+/// Container for inferred mapping information
+class _InferredMappings {
+  final GlobalResourceMappingInfo? globalResource;
+  final LocalResourceMappingInfo? localResource;
+  final LiteralMappingInfo? literal;
+  final IriMappingInfo? iri;
+
+  const _InferredMappings({
+    this.globalResource,
+    this.localResource,
+    this.literal,
+    this.iri,
+  });
+}
 
 /// Processes field elements to extract RDF property information.
 class PropertyProcessor {
@@ -153,16 +171,21 @@ class PropertyProcessor {
     // Extract IRI mapping if present
     final iri = _extractIriMapping(context, fieldName, fieldType, annotation);
 
+    // Smart inference: if no explicit mapping is provided and the field type
+    // has an RDF annotation with registerGlobally: false, infer the appropriate mapper
+    final inferredMappings = _inferMappingsFromType(
+        fieldType, localResource, literal, globalResource, iri);
+
     // Create and return the RdfProperty instance
     return RdfPropertyInfo(
       predicate,
       include: include,
       defaultValue: defaultValue,
       includeDefaultsInSerialization: includeDefaultsInSerialization,
-      localResource: localResource,
-      literal: literal,
-      globalResource: globalResource,
-      iri: iri,
+      localResource: inferredMappings.localResource ?? localResource,
+      literal: inferredMappings.literal ?? literal,
+      globalResource: inferredMappings.globalResource ?? globalResource,
+      iri: inferredMappings.iri ?? iri,
       collection: collection,
     );
   }
@@ -236,5 +259,89 @@ class PropertyProcessor {
     final mapper = getMapperRefInfo<IriTermMapper>(literal);
     return LiteralMappingInfo(
         language: language, datatype: datatype, mapper: mapper);
+  }
+
+  /// Infers appropriate mappings if no explicit mapping is provided
+  /// and the field type has an RDF annotation with registerGlobally: false.
+  static _InferredMappings _inferMappingsFromType(
+    DartType fieldType,
+    LocalResourceMappingInfo? existingLocalResource,
+    LiteralMappingInfo? existingLiteral,
+    GlobalResourceMappingInfo? existingGlobalResource,
+    IriMappingInfo? existingIri,
+  ) {
+    // Only infer if no explicit mapping is already provided
+    if (existingLocalResource != null ||
+        existingLiteral != null ||
+        existingGlobalResource != null ||
+        existingIri != null) {
+      return const _InferredMappings();
+    }
+
+    // Analyze the field type for RDF annotations
+    final rdfAnnotationInfo = analyzeTypeForRdfAnnotation(fieldType);
+    if (rdfAnnotationInfo == null) {
+      return const _InferredMappings();
+    }
+
+    // Only infer for types with registerGlobally: false
+    if (rdfAnnotationInfo.registerGlobally) {
+      return const _InferredMappings();
+    }
+    final type = TypeInfo(
+        name: Code.type(rdfAnnotationInfo.mapperClassName,
+            importUri: rdfAnnotationInfo.mapperImportPath));
+    // Create the appropriate mapper reference based on annotation type
+    switch (rdfAnnotationInfo.annotationType) {
+      case 'RdfGlobalResource':
+        final mapperRef = MapperRefInfo<GlobalResourceMapper>(
+          name: null,
+          type: type, // We'll use the mapper class name directly
+          instance: null,
+        );
+        return _InferredMappings(
+          globalResource: GlobalResourceMappingInfo(mapper: mapperRef),
+        );
+
+      case 'RdfLocalResource':
+        final mapperRef = MapperRefInfo<LocalResourceMapper>(
+          name: null,
+          type: type,
+          instance: null,
+        );
+        return _InferredMappings(
+          localResource: LocalResourceMappingInfo(mapper: mapperRef),
+        );
+
+      case 'RdfLiteral':
+        final mapperRef = MapperRefInfo<LiteralTermMapper>(
+          name: null,
+          type: type,
+          instance: null,
+        );
+        return _InferredMappings(
+          literal: LiteralMappingInfo(
+            language: null, // Default values since we're inferring
+            datatype: null,
+            mapper: mapperRef,
+          ),
+        );
+
+      case 'RdfIri':
+        final mapperRef = MapperRefInfo<IriTermMapper>(
+          name: null,
+          type: type,
+          instance: null,
+        );
+        return _InferredMappings(
+          iri: IriMappingInfo(
+            template: null, // Default template will be handled elsewhere
+            mapper: mapperRef,
+          ),
+        );
+
+      default:
+        return const _InferredMappings();
+    }
   }
 }
