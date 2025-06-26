@@ -49,7 +49,7 @@ void main() {
 
         final rating = mapper.fromRdfTerm(
           LiteralTerm('5',
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int')),
+              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           context,
         );
 

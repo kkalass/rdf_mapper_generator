@@ -445,7 +445,8 @@ void main() {
         final (subject, triples) = mapper.toRdfResource(book, context);
 
         expect(subject.iri, equals('http://example.org/books/TEST-123'));
-        expect(triples.length, greaterThan(4)); // At least 4 properties
+        expect(
+            triples.length, greaterThanOrEqualTo(4)); // At least 4 properties
 
         // Check that correct RDF terms are generated for each enum property
         final formatTriple =

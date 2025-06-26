@@ -3,6 +3,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper/src/context/deserialization_context_impl.dart';
 import 'package:rdf_mapper/src/context/serialization_context_impl.dart';
 import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies/xsd.dart';
 import 'package:test/test.dart';
 
 // Import test models
@@ -94,7 +95,7 @@ void main() {
 
         final rating = mapper.fromRdfTerm(
           LiteralTerm('4',
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int')),
+              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           context,
         );
 
@@ -157,7 +158,7 @@ void main() {
             blankNode,
             SchemaChapter.position,
             LiteralTerm('5',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int')),
+                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           ),
         ];
 
@@ -379,11 +380,12 @@ void main() {
               LiteralTerm('3',
                   datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
         ];
-
+        final myRegistry = mapper.registry.clone()
+          ..registerMapper(IntMapper(Xsd.int));
         final graph = RdfGraph.fromTriples(triples);
         final context = DeserializationContextImpl(
           graph: graph,
-          registry: mapper.registry,
+          registry: myRegistry,
         );
 
         const bookMapper = BookMapper();

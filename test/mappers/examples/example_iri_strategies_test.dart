@@ -145,7 +145,7 @@ void main() {
             IriTerm('http://invalid.org/profile/user'),
             context,
           ),
-          throwsA(isA<FormatException>()),
+          throwsA(isA<ArgumentError>()),
         );
       });
 
@@ -331,7 +331,7 @@ void main() {
             IriTerm('http://example.org/books/hobbit/chapters/1'),
             SchemaChapter.position,
             LiteralTerm('1',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int')),
+                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           ),
         ];
 
@@ -363,7 +363,7 @@ void main() {
             IriTerm('http://invalid.org/wrong/format'),
             context,
           ),
-          throwsA(isA<FormatException>()),
+          throwsA(isA<ArgumentError>()),
         );
       });
 

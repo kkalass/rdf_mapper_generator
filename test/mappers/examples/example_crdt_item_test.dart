@@ -212,7 +212,7 @@ void main() {
             entrySubject,
             SolidTaskVectorClockEntry.clockValue,
             LiteralTerm('15',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int')),
+                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           ),
         ];
 
