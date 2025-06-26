@@ -277,7 +277,7 @@ void main() {
 
         final item = Item(text: 'Test task', lastModifiedBy: 'user123');
         item.id = 'task456'; // Override random ID for predictable test
-        item.createdAt = DateTime(2023, 6, 15, 10, 30, 0);
+        item.createdAt = DateTime.utc(2023, 6, 15, 10, 30, 0);
         item.vectorClock = {'user123': 1, 'user456': 2};
         item.isDeleted = false;
 
@@ -386,7 +386,7 @@ void main() {
         expect(item.id, equals('taskABC'));
         expect(item.text, equals('Deserialized task'));
         expect(item.lastModifiedBy, equals('user789'));
-        expect(item.createdAt, equals(DateTime(2023, 7, 20, 14, 45, 30)));
+        expect(item.createdAt, equals(DateTime.utc(2023, 7, 20, 14, 45, 30)));
         expect(item.isDeleted, equals(true));
         // Note: Vector clock test may need adjustment based on actual implementation
         expect(item.vectorClock, isA<Map<String, int>>());
@@ -452,7 +452,7 @@ void main() {
           lastModifiedBy: 'testUser',
         );
         originalItem.id = 'roundTripTask';
-        originalItem.createdAt = DateTime(2023, 8, 1, 12, 0, 0);
+        originalItem.createdAt = DateTime.utc(2023, 8, 1, 12, 0, 0);
         originalItem.vectorClock = {
           'testUser': 5,
           'otherUser': 3,
@@ -585,11 +585,11 @@ void main() {
         final context = createSerializationContext();
 
         final edgeCaseDates = [
-          DateTime(1970, 1, 1), // Unix epoch
-          DateTime(2000, 1, 1), // Y2K
-          DateTime(2038, 1, 19, 3, 14, 7), // Unix timestamp limit
-          DateTime(2100, 12, 31, 23, 59, 59), // Future date
-          DateTime.now(), // Current time
+          DateTime.utc(1970, 1, 1), // Unix epoch
+          DateTime.utc(2000, 1, 1), // Y2K
+          DateTime.utc(2038, 1, 19, 3, 14, 7), // Unix timestamp limit
+          DateTime.utc(2100, 12, 31, 23, 59, 59), // Future date
+          DateTime.now().toUtc(), // Current time
         ];
 
         for (final date in edgeCaseDates) {

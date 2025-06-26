@@ -243,7 +243,7 @@ void main() {
           id: 'hobbit',
           title: 'The Hobbit',
           authorId: 'tolkien',
-          published: DateTime(1937, 9, 21),
+          published: DateTime.utc(1937, 9, 21),
           isbn: ISBN('9780261102217'),
           rating: Rating(5),
           chapters: chapters,
@@ -275,7 +275,7 @@ void main() {
         );
         expect(
           (pubTriple.object as LiteralTerm).value,
-          equals('1937-09-21T00:00:00.000'),
+          equals('1937-09-21T00:00:00.000Z'),
         );
 
         // Check ISBN IRI
@@ -325,7 +325,7 @@ void main() {
             IriTerm('http://example.org/book/lotr'),
             SchemaBook.datePublished,
             LiteralTerm(
-              '1954-07-29T00:00:00.000',
+              '1954-07-29T00:00:00.000Z',
               datatype: IriTerm('http://www.w3.org/2001/XMLSchema#dateTime'),
             ),
           ),
@@ -397,7 +397,7 @@ void main() {
         expect(book.id, equals('lotr'));
         expect(book.title, equals('The Lord of the Rings'));
         expect(book.authorId, equals('tolkien'));
-        expect(book.published, equals(DateTime(1954, 7, 29)));
+        expect(book.published, equals(DateTime.utc(1954, 7, 29)));
         expect(book.isbn.value, equals('9780261102385'));
         expect(book.rating.stars, equals(5));
         expect(book.chapters.length, equals(3));
@@ -443,7 +443,7 @@ void main() {
           id: 'test-book',
           title: 'Test Book Title',
           authorId: 'test-author',
-          published: DateTime(2023, 6, 15),
+          published: DateTime.utc(2023, 6, 15),
           isbn: ISBN('9781234567890'),
           rating: Rating(4),
           chapters: [
