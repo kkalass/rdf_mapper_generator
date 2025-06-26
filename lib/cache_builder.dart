@@ -74,12 +74,13 @@ class RdfMapperCacheBuilder implements Builder {
           .map((e) => e.element)
           .toList();
 
-      final generatedTemplateData = await _builderHelper.buildTemplateData(
-          inputId.path,
-          inputId.package,
-          classes,
-          enums,
-          BroaderImports.create(library));
+      final generatedTemplateData = (await _builderHelper.buildTemplateData(
+              inputId.path,
+              inputId.package,
+              classes,
+              enums,
+              BroaderImports.create(library)))
+          ?.toMap();
 
       // Only create output file if we generated code
       if (generatedTemplateData != null) {

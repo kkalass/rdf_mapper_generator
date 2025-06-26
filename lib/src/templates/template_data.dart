@@ -1,6 +1,7 @@
+import 'package:rdf_mapper_generator/src/mappers/resource_model_builder_support.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
-import 'package:rdf_mapper_generator/src/templates/data_builder.dart';
+
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 /// Information about a mapper reference
@@ -41,6 +42,7 @@ class MapperRefData {
       };
 }
 
+@Deprecated('Use code directly instead of this class')
 class UnresolvedInstantiationCodeData {
   final List<ResolvableInstantiationCodeData> unresolved = [];
 
@@ -49,10 +51,13 @@ class UnresolvedInstantiationCodeData {
       throw StateError(
           'ResolvableInstantiationCodeData is already added to unresolved list');
     }
+    // FIXME
+    data.resolve([], constContext: true);
     unresolved.add(data);
   }
 }
 
+@Deprecated('Use code directly instead of this class')
 class ResolvableInstantiationCodeData {
   final Code? mapperClassName;
   late final Code _resolvedCode;
@@ -145,7 +150,7 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
   final Code mapperInterfaceType;
   final Code className;
   final bool isTypeBased;
-  final ResolvableInstantiationCodeData? customMapperInstance;
+  final Code? customMapperInstance;
   final bool registerGlobally;
 
   const CustomMapperTemplateData({
@@ -352,18 +357,20 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
 
 class IriMapperTemplateData extends GeneratedMapperTemplateData {
   /// IRI strategy information
-  final IriData iriStrategy;
+  /// Variables that correspond to class properties with @RdfIriPart.
+  final Set<VariableNameData> propertyVariables;
+
+  /// The regex pattern built from the template.
+  final String regexPattern;
+
+  /// The template converted to Dart string interpolation syntax.
+  final String interpolatedTemplate;
 
   /// List of parameters for this constructor
   final List<ParameterData> constructorParameters;
 
   /// List of non-constructor fields that are IRI parts
   final List<ParameterData> nonConstructorFields;
-
-  /// Property mapping information
-  final List<PropertyData> properties;
-
-  final bool needsReader;
 
   /// Whether to register this mapper globally
   final bool registerGlobally;
@@ -374,20 +381,15 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
-    required IriData iriStrategy,
     required super.contextProviders,
-    required List<ParameterData> constructorParameters,
-    required List<ParameterData> nonConstructorFields,
-    required bool needsReader,
-    required bool registerGlobally,
-    required List<PropertyData> properties,
+    required this.interpolatedTemplate,
+    required this.propertyVariables,
+    required this.regexPattern,
+    required this.constructorParameters,
+    required this.nonConstructorFields,
+    required this.registerGlobally,
     this.singleMappedValue,
-  })  : iriStrategy = iriStrategy,
-        constructorParameters = constructorParameters,
-        nonConstructorFields = nonConstructorFields,
-        needsReader = needsReader,
-        registerGlobally = registerGlobally,
-        properties = properties;
+  });
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -395,7 +397,10 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
       'mapperInterfaceName': mapperInterfaceName.toMap(),
-      'iriStrategy': iriStrategy.toMap(),
+      'regexPattern': regexPattern,
+      'interpolatedTemplate': interpolatedTemplate,
+      'propertyVariables':
+          toMustacheList(propertyVariables.map((e) => e.toMap()).toList()),
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
       'nonConstructorFields':
@@ -405,11 +410,9 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
         ...constructorParameters,
         ...nonConstructorFields
       ].map((p) => p.toMap()).toList()),
-      'properties': properties.map((p) => p.toMap()).toList(),
       'contextProviders':
           toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
       'hasContextProviders': contextProviders.isNotEmpty,
-      'needsReader': needsReader,
       'registerGlobally': registerGlobally,
       'singleMappedValue': singleMappedValue?.toMap(),
       'hasSingleMappedValue': singleMappedValue != null,
@@ -431,11 +434,13 @@ class FileTemplateData {
   /// All generated mapper classes
   final List<MapperData> mappers;
 
+  final String mapperFileImportUri;
   const FileTemplateData({
     required this.header,
     required this.broaderImports,
     required this.originalImports,
     required this.mappers,
+    required this.mapperFileImportUri,
   });
 
   /// Converts this template data to a Map for mustache rendering
@@ -445,6 +450,7 @@ class FileTemplateData {
       'broaderImports': broaderImports.toMap(),
       'originalImports': originalImports,
       'mappers': mappers.map((m) => m.toMap()).toList(),
+      'mapperFileImportUri': mapperFileImportUri,
     };
   }
 }
@@ -503,14 +509,14 @@ class ContextProviderData {
   final String placeholder;
 
   final bool isField;
-
-  const ContextProviderData({
-    required this.variableName,
-    required this.privateFieldName,
-    required this.parameterName,
-    required this.placeholder,
-    this.isField = true,
-  });
+  final Code type;
+  const ContextProviderData(
+      {required this.variableName,
+      required this.privateFieldName,
+      required this.parameterName,
+      required this.placeholder,
+      this.isField = true,
+      this.type = const Code.literal('String Function()')});
 
   Map<String, dynamic> toMap() => {
         'variableName': variableName,
@@ -518,6 +524,7 @@ class ContextProviderData {
         'parameterName': parameterName,
         'placeholder': placeholder,
         'isField': isField,
+        'type': type.toMap()
       };
 }
 
@@ -640,8 +647,8 @@ class ConstructorParameterData {
   final String parameterName;
   final String fieldName;
   final ResolvableInstantiationCodeData? defaultValue;
-  final bool isLate;
-  final bool isField;
+  bool isLate;
+  bool isField;
 
   bool get needsAssignment => parameterName != fieldName && !isLate;
 
@@ -839,13 +846,18 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
+  final String? fromLiteralTermMethod;
+  final String? toLiteralTermMethod;
+
   const EnumLiteralMapperTemplateData({
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
-    this.datatype,
+    required this.datatype,
     required this.enumValues,
     required this.registerGlobally,
+    required this.fromLiteralTermMethod,
+    required this.toLiteralTermMethod,
   }) : super(contextProviders: const []);
 
   @override
@@ -858,6 +870,8 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
       'hasDatatype': datatype != null,
       'enumValues': toMustacheList(enumValues),
       'registerGlobally': registerGlobally,
+      'fromLiteralTermMethod': fromLiteralTermMethod,
+      'toLiteralTermMethod': toLiteralTermMethod,
     };
   }
 }

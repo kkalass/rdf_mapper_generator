@@ -28,9 +28,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
   /// Constructor requiring providers for context variables
   ItemMapper({required String Function() storageRootProvider})
     : _storageRootProvider = storageRootProvider {
-    _lastModifiedByMapper = ItemLastModifiedByMapper(
-      storageRootProvider: storageRootProvider,
-    );
+    _lastModifiedByMapper = const ItemLastModifiedByMapper();
   }
 
   @override
@@ -52,7 +50,6 @@ class ItemMapper implements GlobalResourceMapper<Item> {
       Dcterms.creator,
       iriTermDeserializer: _lastModifiedByMapper,
     );
-    final id = iriParts['id']!;
     final DateTime createdAt = reader.require(Dcterms.created);
     final Map<String, int> vectorClock = reader.getMap(
       SolidTaskTask.vectorClock,
@@ -60,7 +57,6 @@ class ItemMapper implements GlobalResourceMapper<Item> {
     final bool isDeleted = reader.require(SolidTaskTask.isDeleted);
 
     final retval = Item(text: text, lastModifiedBy: lastModifiedBy);
-    retval.id = id;
     retval.createdAt = createdAt;
     retval.vectorClock = vectorClock;
     retval.isDeleted = isDeleted;
@@ -155,9 +151,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
     required String Function() taskIdProvider,
   }) : _storageRootProvider = storageRootProvider,
        _taskIdProvider = taskIdProvider {
-    _clientIdMapper = VectorClockEntryClientIdMapper(
-      storageRootProvider: storageRootProvider,
-    );
+    _clientIdMapper = const VectorClockEntryClientIdMapper();
   }
 
   @override

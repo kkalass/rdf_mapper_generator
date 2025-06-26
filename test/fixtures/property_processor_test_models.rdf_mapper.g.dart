@@ -360,9 +360,7 @@ class IriMappingWithBaseUriTestMapper
   IriMappingWithBaseUriTestMapper({
     required String Function() baseUriProvider,
   }) {
-    _authorIdMapper = IriMappingWithBaseUriTestAuthorIdMapper(
-      baseUriProvider: baseUriProvider,
-    );
+    _authorIdMapper = const IriMappingWithBaseUriTestAuthorIdMapper();
   }
 
   @override

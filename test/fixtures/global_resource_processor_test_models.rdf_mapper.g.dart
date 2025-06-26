@@ -169,11 +169,8 @@ class ClassWithNoRdfTypeMapper
 
     final String name = reader.require(SchemaPerson.name);
     final int? age = reader.optional(SchemaPerson.foafAge);
-    final iri = subject.iri;
 
-    final retval = ClassWithNoRdfType(name, age: age);
-    retval.iri = iri;
-    return retval;
+    return ClassWithNoRdfType(name, age: age);
   }
 
   @override
@@ -585,8 +582,6 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
     final int? age = reader.optional(SchemaPerson.foafAge);
 
     final retval = ClassWithIriNamedMapperStrategy2PartsWithProperties();
-    retval.id = id;
-    retval.version = version;
     retval.givenName = givenName;
     retval.surname = surname;
     retval.age = age;

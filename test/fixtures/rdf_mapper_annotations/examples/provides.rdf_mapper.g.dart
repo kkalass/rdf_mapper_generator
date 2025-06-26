@@ -25,10 +25,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
   /// Constructor requiring providers for context variables
   const ParentMapper({
     required String Function() baseUriProvider,
-    GlobalResourceMapper<Child> childMapper = const ChildMapper(
-      baseUriProvider: baseUriProvider,
-      parentIdProvider: parentIdProvider,
-    ),
+    GlobalResourceMapper<Child> childMapper = const ChildMapper(),
   }) : _baseUriProvider = baseUriProvider,
        _childMapper = childMapper;
 
@@ -46,7 +43,6 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
     final Child child = reader.require(
       ExampleVocab.child,
       globalResourceDeserializer: _childMapper,
@@ -61,7 +57,6 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     );
 
     final retval = Parent();
-    retval.id = id;
     retval.child = child;
     retval.siblingId = siblingId;
     return retval;
@@ -181,11 +176,9 @@ class ChildMapper implements GlobalResourceMapper<Child> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
     final String name = reader.require(ExampleVocab.childName);
 
     final retval = Child();
-    retval.id = id;
     retval.name = name;
     return retval;
   }

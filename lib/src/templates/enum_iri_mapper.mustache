@@ -2,7 +2,7 @@
 /// 
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF IRI terms for enum type {{className}}.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{#requiresIriParsing}}
   static final RegExp _regex = RegExp(
     '{{{regexPattern}}}',

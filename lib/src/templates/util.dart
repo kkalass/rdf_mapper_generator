@@ -17,6 +17,8 @@ List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   });
 }
 
+final stringType = Code.coreType('String');
+
 Code typeToCode(DartType type, {bool enforceNonNull = false}) {
   var typeName = type.getDisplayString();
   if (enforceNonNull && typeName.endsWith('?')) {

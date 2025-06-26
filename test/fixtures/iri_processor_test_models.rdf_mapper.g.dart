@@ -328,11 +328,8 @@ class IriWithNonConstructorFieldsMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final id = iriParts['id']!;
 
-    final retval = IriWithNonConstructorFields();
-    retval.id = id;
-    return retval;
+    return IriWithNonConstructorFields();
   }
 
   @override
@@ -374,11 +371,8 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final id = iriParts['id']!;
 
-    final retval = IriWithNonConstructorFieldsAndBaseUriNonGlobal();
-    retval.id = id;
-    return retval;
+    return IriWithNonConstructorFieldsAndBaseUriNonGlobal();
   }
 
   @override
@@ -416,11 +410,8 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
     };
     final brand = iriParts['brand']!;
     final id = iriParts['id']!;
-    final productCategory = iriParts['category']!;
 
-    final retval = IriWithMixedFields(brand: brand, id: id);
-    retval.productCategory = productCategory;
-    return retval;
+    return IriWithMixedFields(brand: brand, id: id);
   }
 
   @override
