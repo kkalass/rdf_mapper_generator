@@ -1,10 +1,10 @@
 import 'package:analyzer/dart/constant/value.dart';
-import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 
 class MapperRefInfo<M> {
   final String? name;
 
-  final TypeInfo? type;
+  final Code? type;
 
   final DartObject? instance;
 

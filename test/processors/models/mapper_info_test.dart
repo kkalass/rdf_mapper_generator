@@ -860,43 +860,49 @@ void main() {
 
     setUp(() {
       testInstance = FieldInfo(
-        name: 'testField',
-        type: Code.literal('String'),
-        isFinal: true,
-        isLate: false,
-        isStatic: false,
-        isSynthetic: false,
-        isRdfValue: false,
-        isRdfLanguageTag: false,
-        propertyInfo: null,
-        isRequired: true,
-      );
+          name: 'testField',
+          type: Code.literal('String'),
+          isFinal: true,
+          isLate: false,
+          isStatic: false,
+          isSynthetic: false,
+          isRdfValue: false,
+          isRdfLanguageTag: false,
+          propertyInfo: null,
+          isRequired: true,
+          iriPart: null,
+          provides: null,
+          typeNonNull: null);
 
       identicalInstance = FieldInfo(
-        name: 'testField',
-        type: Code.literal('String'),
-        isFinal: true,
-        isLate: false,
-        isStatic: false,
-        isSynthetic: false,
-        isRdfValue: false,
-        isRdfLanguageTag: false,
-        propertyInfo: null,
-        isRequired: true,
-      );
+          name: 'testField',
+          type: Code.literal('String'),
+          isFinal: true,
+          isLate: false,
+          isStatic: false,
+          isSynthetic: false,
+          isRdfValue: false,
+          isRdfLanguageTag: false,
+          propertyInfo: null,
+          isRequired: true,
+          iriPart: null,
+          provides: null,
+          typeNonNull: null);
 
       differentInstance = FieldInfo(
-        name: 'differentField',
-        type: Code.literal('String'),
-        isFinal: true,
-        isLate: false,
-        isStatic: false,
-        isSynthetic: false,
-        isRdfValue: false,
-        isRdfLanguageTag: false,
-        propertyInfo: null,
-        isRequired: true,
-      );
+          name: 'differentField',
+          type: Code.literal('String'),
+          isFinal: true,
+          isLate: false,
+          isStatic: false,
+          isSynthetic: false,
+          isRdfValue: false,
+          isRdfLanguageTag: false,
+          propertyInfo: null,
+          isRequired: true,
+          iriPart: null,
+          provides: null,
+          typeNonNull: null);
     });
 
     test('equals returns true for identical instances', () {
@@ -927,17 +933,17 @@ void main() {
 
   group('ProvidesInfo', () {
     test('equals and hashCode work correctly', () {
-      final instance1 = ProvidesInfo(
+      final instance1 = ProvidesAnnotationInfo(
         name: 'testProvides',
         dartPropertyName: 'testProperty',
       );
 
-      final instance2 = ProvidesInfo(
+      final instance2 = ProvidesAnnotationInfo(
         name: 'testProvides',
         dartPropertyName: 'testProperty',
       );
 
-      final differentInstance = ProvidesInfo(
+      final differentInstance = ProvidesAnnotationInfo(
         name: 'differentProvides',
         dartPropertyName: 'testProperty',
       );

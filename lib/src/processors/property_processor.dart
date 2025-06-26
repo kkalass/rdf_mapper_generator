@@ -9,7 +9,6 @@ import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dar
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -288,9 +287,9 @@ class PropertyProcessor {
     if (rdfAnnotationInfo.registerGlobally) {
       return const _InferredMappings();
     }
-    final type = TypeInfo(
-        name: Code.type(rdfAnnotationInfo.mapperClassName,
-            importUri: rdfAnnotationInfo.mapperImportPath));
+    final type = Code.type(rdfAnnotationInfo.mapperClassName,
+        importUri: rdfAnnotationInfo.mapperImportPath);
+
     // Create the appropriate mapper reference based on annotation type
     switch (rdfAnnotationInfo.annotationType) {
       case 'RdfGlobalResource':

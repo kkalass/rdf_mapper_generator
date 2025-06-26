@@ -264,6 +264,41 @@ class IncludeDefaultsTestMapper
   }
 }
 
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+  );
+
+  /// Constructor
+  const IriMappingTestAuthorIdMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['authorId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorId = iriTermValue.toString();
+    return IriTerm('http://example.org/authors/${authorId}');
+  }
+}
+
 /// Generated mapper for [IriMappingTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -317,13 +352,17 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
-class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
+class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+    '^(?<baseUri>.*)/authors/(?<authorId>[^/]*)\$',
   );
 
+  final String Function() _baseUriProvider;
+
   /// Constructor
-  const IriMappingTestAuthorIdMapper();
+  const IriMappingWithBaseUriTestAuthorIdMapper({
+    required String Function() baseUriProvider,
+  }) : _baseUriProvider = baseUriProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -344,7 +383,8 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
     RdfSubject? parentSubject,
   }) {
     final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/authors/${authorId}');
+    final baseUri = _baseUriProvider();
+    return IriTerm('${baseUri}/authors/${authorId}');
   }
 }
 
@@ -355,11 +395,11 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
 class IriMappingWithBaseUriTestMapper
     implements LocalResourceMapper<IriMappingWithBaseUriTest> {
   late final IriTermMapper<String> _authorIdMapper;
+  final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
-  IriMappingWithBaseUriTestMapper({
-    required String Function() baseUriProvider,
-  }) {
+  /// Constructor
+  IriMappingWithBaseUriTestMapper({required String Function() baseUriProvider})
+    : _baseUriProvider = baseUriProvider {
     _authorIdMapper = IriMappingWithBaseUriTestAuthorIdMapper(
       baseUriProvider: baseUriProvider,
     );
@@ -399,47 +439,6 @@ class IriMappingWithBaseUriTestMapper
           iriTermSerializer: _authorIdMapper,
         )
         .build();
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
-class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/authors/(?<authorId>[^/]*)\$',
-  );
-
-  /// Provider for context variable 'baseUri'
-  final String Function() _baseUriProvider;
-
-  /// Constructor requiring providers for context variables
-  const IriMappingWithBaseUriTestAuthorIdMapper({
-    required String Function() baseUriProvider,
-  }) : _baseUriProvider = baseUriProvider;
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['authorId']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final authorId = iriTermValue.toString();
-    final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/authors/${authorId}');
   }
 }
 
@@ -543,6 +542,47 @@ class IriMappingFullIriSimpleTestMapper
   }
 }
 
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class IriMappingWithProviderTestAuthorIdMapper
+    implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/(?<category>[^/]*)/(?<authorId>[^/]*)\$',
+  );
+
+  final String Function() _categoryProvider;
+
+  /// Constructor
+  const IriMappingWithProviderTestAuthorIdMapper({
+    required String Function() categoryProvider,
+  }) : _categoryProvider = categoryProvider;
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['authorId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorId = iriTermValue.toString();
+    final category = _categoryProvider();
+    return IriTerm('http://example.org/${category}/${authorId}');
+  }
+}
+
 /// Generated mapper for [IriMappingWithProviderTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -598,19 +638,16 @@ class IriMappingWithProviderTestMapper
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
-class IriMappingWithProviderTestAuthorIdMapper
+class IriMappingWithBaseUriProviderTestAuthorIdMapper
     implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/(?<category>[^/]*)/(?<authorId>[^/]*)\$',
-  );
+  static final RegExp _regex = RegExp('^(?<baseUri>.*)/(?<authorId>[^/]*)\$');
 
-  /// Provider for context variable 'category'
-  final String Function() _categoryProvider;
+  final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
-  const IriMappingWithProviderTestAuthorIdMapper({
-    required String Function() categoryProvider,
-  }) : _categoryProvider = categoryProvider;
+  /// Constructor
+  const IriMappingWithBaseUriProviderTestAuthorIdMapper({
+    required String Function() baseUriProvider,
+  }) : _baseUriProvider = baseUriProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -631,8 +668,8 @@ class IriMappingWithProviderTestAuthorIdMapper
     RdfSubject? parentSubject,
   }) {
     final authorId = iriTermValue.toString();
-    final category = _categoryProvider();
-    return IriTerm('http://example.org/${category}/${authorId}');
+    final baseUri = _baseUriProvider();
+    return IriTerm('${baseUri}/${authorId}');
   }
 }
 
@@ -691,109 +728,15 @@ class IriMappingWithBaseUriProviderTestMapper
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
-class IriMappingWithBaseUriProviderTestAuthorIdMapper
-    implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp('^(?<baseUri>.*)/(?<authorId>[^/]*)\$');
-
-  /// Provider for context variable 'baseUri'
-  final String Function() _baseUriProvider;
-
-  /// Constructor requiring providers for context variables
-  const IriMappingWithBaseUriProviderTestAuthorIdMapper({
-    required String Function() baseUriProvider,
-  }) : _baseUriProvider = baseUriProvider;
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['authorId']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final authorId = iriTermValue.toString();
-    final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/${authorId}');
-  }
-}
-
-/// Generated mapper for [IriMappingWithProviderPropertyTest] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithProviderPropertyTest.
-class IriMappingWithProviderPropertyTestMapper
-    implements LocalResourceMapper<IriMappingWithProviderPropertyTest> {
-  /// Constructor
-  const IriMappingWithProviderPropertyTestMapper();
-
-  @override
-  IriTerm? get typeIri => null;
-
-  @override
-  IriMappingWithProviderPropertyTest fromRdfResource(
-    BlankNodeTerm subject,
-    DeserializationContext context,
-  ) {
-    final reader = context.reader(subject);
-
-    final String authorId = reader.require(
-      SchemaBook.author,
-      iriTermDeserializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
-        genreProvider: () =>
-            throw Exception('Must not call provider for deserialization'),
-      ),
-    );
-    final String genre = reader.require(SchemaBook.genre);
-
-    return IriMappingWithProviderPropertyTest(authorId: authorId, genre: genre);
-  }
-
-  @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
-    IriMappingWithProviderPropertyTest resource,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final subject = BlankNodeTerm();
-
-    return context
-        .resourceBuilder(subject)
-        .addValue(SchemaBook.genre, resource.genre)
-        .addValue(
-          SchemaBook.author,
-          resource.authorId,
-          iriTermSerializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
-            genreProvider: () => resource.genre,
-          ),
-        )
-        .build();
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
 class IriMappingWithProviderPropertyTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     '^http://example\.org/(?<genre>[^/]*)/(?<authorId>[^/]*)\$',
   );
 
-  /// Provider for context variable 'genre'
   final String Function() _genreProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const IriMappingWithProviderPropertyTestAuthorIdMapper({
     required String Function() genreProvider,
   }) : _genreProvider = genreProvider;
@@ -822,54 +765,40 @@ class IriMappingWithProviderPropertyTestAuthorIdMapper
   }
 }
 
-/// Generated mapper for [IriMappingWithProvidersAndBaseUriPropertyTest] global resources.
+/// Generated mapper for [IriMappingWithProviderPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithProvidersAndBaseUriPropertyTest.
-class IriMappingWithProvidersAndBaseUriPropertyTestMapper
-    implements
-        LocalResourceMapper<IriMappingWithProvidersAndBaseUriPropertyTest> {
-  final String Function() _baseUriProvider;
-
-  /// Constructor requiring providers for context variables
-  const IriMappingWithProvidersAndBaseUriPropertyTestMapper({
-    required String Function() baseUriProvider,
-  }) : _baseUriProvider = baseUriProvider;
+/// and RDF triples for resources of type IriMappingWithProviderPropertyTest.
+class IriMappingWithProviderPropertyTestMapper
+    implements LocalResourceMapper<IriMappingWithProviderPropertyTest> {
+  /// Constructor
+  const IriMappingWithProviderPropertyTestMapper();
 
   @override
   IriTerm? get typeIri => null;
 
   @override
-  IriMappingWithProvidersAndBaseUriPropertyTest fromRdfResource(
+  IriMappingWithProviderPropertyTest fromRdfResource(
     BlankNodeTerm subject,
     DeserializationContext context,
   ) {
     final reader = context.reader(subject);
 
+    final String genre = reader.require(SchemaBook.genre);
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer:
-          IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
-            baseUriProvider: _baseUriProvider,
-            genreProvider: () =>
-                throw Exception('Must not call provider for deserialization'),
-            versionProvider: () =>
-                throw Exception('Must not call provider for deserialization'),
-          ),
+      iriTermDeserializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
+        genreProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+      ),
     );
-    final String genre = reader.require(SchemaBook.genre);
-    final String version = reader.require(SchemaBook.version);
 
-    return IriMappingWithProvidersAndBaseUriPropertyTest(
-      authorId: authorId,
-      genre: genre,
-      version: version,
-    );
+    return IriMappingWithProviderPropertyTest(genre: genre, authorId: authorId);
   }
 
   @override
   (BlankNodeTerm, List<Triple>) toRdfResource(
-    IriMappingWithProvidersAndBaseUriPropertyTest resource,
+    IriMappingWithProviderPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
@@ -878,16 +807,12 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.genre, resource.genre)
-        .addValue(SchemaBook.version, resource.version)
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer:
-              IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
-                baseUriProvider: _baseUriProvider,
-                genreProvider: () => resource.genre,
-                versionProvider: () => resource.version,
-              ),
+          iriTermSerializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
+            genreProvider: () => resource.genre,
+          ),
         )
         .build();
   }
@@ -903,16 +828,11 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
     '^(?<baseUri>.*)/(?<genre>[^/]*)/(?<version>[^/]*)/(?<authorId>[^/]*)\$',
   );
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
-
-  /// Provider for context variable 'genre'
   final String Function() _genreProvider;
-
-  /// Provider for context variable 'version'
   final String Function() _versionProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper({
     required String Function() baseUriProvider,
     required String Function() genreProvider,
@@ -944,6 +864,77 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
     final genre = _genreProvider();
     final version = _versionProvider();
     return IriTerm('${baseUri}/${genre}/${version}/${authorId}');
+  }
+}
+
+/// Generated mapper for [IriMappingWithProvidersAndBaseUriPropertyTest] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type IriMappingWithProvidersAndBaseUriPropertyTest.
+class IriMappingWithProvidersAndBaseUriPropertyTestMapper
+    implements
+        LocalResourceMapper<IriMappingWithProvidersAndBaseUriPropertyTest> {
+  final String Function() _baseUriProvider;
+
+  /// Constructor
+  const IriMappingWithProvidersAndBaseUriPropertyTestMapper({
+    required String Function() baseUriProvider,
+  }) : _baseUriProvider = baseUriProvider;
+
+  @override
+  IriTerm? get typeIri => null;
+
+  @override
+  IriMappingWithProvidersAndBaseUriPropertyTest fromRdfResource(
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final String genre = reader.require(SchemaBook.genre);
+    final String version = reader.require(SchemaBook.version);
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer:
+          IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
+            baseUriProvider: _baseUriProvider,
+            genreProvider: () =>
+                throw Exception('Must not call provider for deserialization'),
+            versionProvider: () =>
+                throw Exception('Must not call provider for deserialization'),
+          ),
+    );
+
+    return IriMappingWithProvidersAndBaseUriPropertyTest(
+      genre: genre,
+      version: version,
+      authorId: authorId,
+    );
+  }
+
+  @override
+  (BlankNodeTerm, List<Triple>) toRdfResource(
+    IriMappingWithProvidersAndBaseUriPropertyTest resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = BlankNodeTerm();
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(SchemaBook.genre, resource.genre)
+        .addValue(SchemaBook.version, resource.version)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer:
+              IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
+                baseUriProvider: _baseUriProvider,
+                genreProvider: () => resource.genre,
+                versionProvider: () => resource.version,
+              ),
+        )
+        .build();
   }
 }
 
@@ -1007,7 +998,7 @@ class IriMappingMapperTestMapper
 
   /// Constructor
   const IriMappingMapperTestMapper({
-    IriTermMapper<String> authorIdMapper = IriMapperImpl(),
+    IriTermMapper<String> authorIdMapper = const IriMapperImpl(),
   }) : _authorIdMapper = authorIdMapper;
 
   @override
@@ -2043,7 +2034,7 @@ class LiteralTypeMapperTestMapper
 
   /// Constructor
   const LiteralTypeMapperTestMapper({
-    LiteralTermMapper<double> priceMapper = LiteralDoubleMapperImpl(),
+    LiteralTermMapper<double> priceMapper = const LiteralDoubleMapperImpl(),
   }) : _priceMapper = priceMapper;
 
   @override
@@ -2094,7 +2085,7 @@ class GlobalResourceTypeMapperTestMapper
   /// Constructor
   const GlobalResourceTypeMapperTestMapper({
     GlobalResourceMapper<Publisher> publisherMapper =
-        GlobalPublisherMapperImpl(),
+        const GlobalPublisherMapperImpl(),
   }) : _publisherMapper = publisherMapper;
 
   @override
@@ -2144,7 +2135,8 @@ class GlobalResourceMapperTestMapper
 
   /// Constructor
   const GlobalResourceMapperTestMapper({
-    GlobalResourceMapper<Object> publisherMapper = GlobalPublisherMapperImpl(),
+    GlobalResourceMapper<Object> publisherMapper =
+        const GlobalPublisherMapperImpl(),
   }) : _publisherMapper = publisherMapper;
 
   @override
@@ -2245,7 +2237,8 @@ class LocalResourceMapperTestMapper
 
   /// Constructor
   const LocalResourceMapperTestMapper({
-    LocalResourceMapper<Author> authorMapper = LocalResourceAuthorMapperImpl(),
+    LocalResourceMapper<Author> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
   }) : _authorMapper = authorMapper;
 
   @override
@@ -2295,7 +2288,8 @@ class LocalResourceMapperObjectPropertyTestMapper
 
   /// Constructor
   const LocalResourceMapperObjectPropertyTestMapper({
-    LocalResourceMapper<Object> authorMapper = LocalResourceAuthorMapperImpl(),
+    LocalResourceMapper<Object> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
   }) : _authorMapper = authorMapper;
 
   @override
@@ -2448,7 +2442,7 @@ class LiteralMapperTestMapper
 
   /// Constructor
   const LiteralMapperTestMapper({
-    LiteralTermMapper<int> pageCountMapper = IntMapper(),
+    LiteralTermMapper<int> pageCountMapper = const IntMapper(),
   }) : _pageCountMapper = pageCountMapper;
 
   @override

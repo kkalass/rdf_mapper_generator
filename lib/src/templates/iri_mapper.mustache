@@ -2,31 +2,25 @@
 /// 
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type {{className}}.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
 
-  {{#iriStrategy}}
-  {{#hasTemplate}}
-  static final RegExp _regex = RegExp('{{template.regexPattern}}');
-  {{/hasTemplate}}
-  {{/iriStrategy}}
+  static final RegExp _regex = RegExp('{{regexPattern}}');
 
-  {{#contextProviders}}
-  /// Provider for context variable '{{value.variableName}}'
-  final String Function() {{value.privateFieldName}};
-  {{/contextProviders}}
+  {{#mapperFields}}
+  {{#value.isLate}}late {{/value.isLate}}{{#value.isFinal}}final{{/value.isFinal}} {{value.type}} {{value.name}};
+  {{/mapperFields}}
 
-  /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
-  const {{mapperClassName}}({{#hasContextProviders}}{
-    {{#contextProviders}}
-    required String Function() {{value.parameterName}},
-    {{/contextProviders}}
-  }{{/hasContextProviders}}){{#hasContextProviders}} : {{#contextProviders}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
-       {{/last}}{{/contextProviders}}{{/hasContextProviders}};
+  /// Constructor
+  {{#mapperConstructor.isConst}}const {{/mapperConstructor.isConst}}{{mapperConstructor.className}}({{#mapperConstructor.hasParameters}}{
+    {{#mapperConstructor.parameters}}
+    {{^value.hasDefaultValue}}required {{/value.hasDefaultValue}}{{value.type}} {{value.parameterName}}{{#value.hasDefaultValue}} = {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}}, {{/last}}
+    {{/mapperConstructor.parameters}}
+  }{{/mapperConstructor.hasParameters}}){{#mapperConstructor.hasParameterAssignments}} : {{#mapperConstructor.parameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructor.parameterAssignments}}{{/mapperConstructor.hasParameterAssignments}}
+  {{^mapperConstructor.hasBodyAssignments}};{{/mapperConstructor.hasBodyAssignments}}
+  {{#mapperConstructor.hasBodyAssignments}}{ {{#mapperConstructor.bodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructor.bodyAssignments}}}{{/mapperConstructor.hasBodyAssignments}}
 
   @override
   {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
-    {{#iriStrategy}}
-    {{#hasTemplate}}
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
@@ -34,8 +28,6 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? ''
     };
-    {{/hasTemplate}}
-    {{/iriStrategy}}
     {{#hasSingleMappedValue}}
     return iriParts['{{singleMappedValue.variableName}}']!;
     {{/hasSingleMappedValue}}
@@ -66,16 +58,12 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    {{#iriStrategy}}
-    {{#hasTemplate}}
-    {{#template.propertyVariables}}
+    {{#propertyVariables}}
     final {{value.variableName}} = {{^value.isMappedValue}}iriTermValue.{{value.variableName}}{{/value.isMappedValue}}{{#value.isMappedValue}}iriTermValue{{/value.isMappedValue}}{{^value.isString}}.toString(){{/value.isString}};
-    {{/template.propertyVariables}}
-    {{#contextProviders}}
-    final {{value.variableName}} = {{value.privateFieldName}}();
-    {{/contextProviders}}
-    return IriTerm('{{template.interpolatedTemplate}}');
-    {{/hasTemplate}}
-    {{/iriStrategy}}
+    {{/propertyVariables}}
+    {{#contextVariables}}
+    final {{value.variableName}} = {{value.code}};
+    {{/contextVariables}}
+    return IriTerm('{{interpolatedTemplate}}');
   }
 }

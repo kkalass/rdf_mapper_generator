@@ -50,30 +50,19 @@ class _MustacheListEntry<T> {
 }
 
 class _ContextProvider {
-  /// The name of the context variable
-  final String variableName;
-
-  /// The name of the private field that stores the provider
-  final String privateFieldName;
-
   /// The name of the constructor parameter
   final String parameterName;
 
-  /// The placeholder pattern to replace in IRI templates (e.g., '{baseUri}')
-  final String placeholder;
+  final Code type;
 
-  const _ContextProvider({
-    required this.variableName,
-    required this.privateFieldName,
+  _ContextProvider({
     required this.parameterName,
-    required this.placeholder,
-  });
+    Code? type,
+  }) : type = type ?? Code.coreType('String');
 
   Map<String, dynamic> toMap() => {
-        'variableName': variableName,
-        'privateFieldName': privateFieldName,
         'parameterName': parameterName,
-        'placeholder': placeholder,
+        'type': type.toMap(),
       };
 }
 
@@ -125,24 +114,17 @@ class _CustomMapper {
 }
 
 class _Provider {
-  final String variableName;
   final String parameterName;
-  final String placeholder;
-  final String privateFieldName;
-  _Provider({
-    required this.variableName,
-    required this.parameterName,
-    required this.placeholder,
-    required this.privateFieldName,
-  });
+
+  final Code type;
+
+  _Provider({required this.parameterName, Code? type})
+      : type = type ?? Code.coreType('String');
 
   Map<String, dynamic> toMap() {
     return {
-      'variableName': variableName,
       'parameterName': parameterName,
-      'placeholder': placeholder,
-      'privateFieldName': privateFieldName,
-      'type': 'String', // Default type, can be extended if needed
+      'type': type.toMap(),
     };
   }
 }
@@ -531,14 +513,15 @@ class InitFileBuilderHelper {
   /// Extracts context providers from mapper data
   List<_MustacheListEntry<_ContextProvider>> _extractContextProviders(
       Map<String, dynamic> mapperData) {
+    /*
     var data = (mapperData['contextProviders'] as List?)
             ?.cast<Map<String, dynamic>>() ??
         [];
-    return data.map((d) {
+    var origContextProviders = data.map((d) {
       final value = d['value'] as Map<String, dynamic>;
       final contextProvider = _ContextProvider(
-          variableName: value['variableName'] as String,
-          privateFieldName: value['privateFieldName'] as String,
+          //variableName: value['variableName'] as String,
+          //privateFieldName: value['privateFieldName'] as String,
           parameterName: value['parameterName'] as String,
           placeholder: value['placeholder'] as String);
       final last = d['last'] as bool;
@@ -546,6 +529,36 @@ class InitFileBuilderHelper {
           (ct) => ct.toMap(), contextProvider,
           last: last);
     }).toList();
+    return origContextProviders;*/
+    final model = mapperData['mapperConstructor'] as Map<String, dynamic>?;
+    final constructorParams =
+        (model?['parameters'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final convertedConstructorParams = constructorParams
+        .map<_MustacheListEntry<_ContextProvider>?>((p) {
+          final value = p['value'] as Map<String, dynamic>;
+          final last = p['last'] as bool;
+          final type = value['type'] as Map<String, dynamic>?;
+          final typeCode = type == null ? null : Code.fromMap(type);
+
+          final isProvider = typeCode?.code == 'String Function()';
+          if (!isProvider) {
+            return null; // skip non-provider parameters
+          }
+          final hasDefaultValue = value['hasDefaultValue'] as bool? ?? false;
+          // we only need those that are absolutely required
+          if (hasDefaultValue) {
+            return null;
+          }
+          final contextProvider = _ContextProvider(
+            parameterName: value['parameterName'] as String,
+          );
+          return _MustacheListEntry<_ContextProvider>(
+              (ct) => ct.toMap(), contextProvider,
+              last: last);
+        })
+        .nonNulls
+        .toList();
+    return convertedConstructorParams;
   }
 
   /// Collects context providers into the providers map
@@ -553,11 +566,8 @@ class InitFileBuilderHelper {
           Iterable<_ContextProvider> contextProviders) =>
       {
         for (final provider in contextProviders)
-          provider.variableName: _Provider(
-            variableName: provider.variableName,
+          provider.parameterName: _Provider(
             parameterName: provider.parameterName,
-            placeholder: provider.placeholder,
-            privateFieldName: provider.privateFieldName,
           ),
       };
 
@@ -617,8 +627,11 @@ class InitFileBuilderHelper {
   List<_CustomMapper> _extractConstructorParameterMappers(
       Map<String, dynamic> mapperData,
       {Set<String>? excludeParameterNames}) {
+    final mapperConstructor =
+        mapperData['mapperConstructor'] as Map<String, dynamic>?;
+    if (mapperConstructor == null) return [];
     final constructorParameters =
-        (mapperData['mapperConstructorParameters'] as List? ?? [])
+        (mapperConstructor['parameters'] as List? ?? [])
             .cast<Map<String, dynamic>>();
 
     return constructorParameters

@@ -2,7 +2,7 @@
 /// 
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type {{className}}.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{#hasIriStrategy}}
   {{#iriStrategy}}
   {{#hasTemplate}}
@@ -13,22 +13,18 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{/iriStrategy}}
   {{/hasIriStrategy}}
 
-  {{#mapperConstructorParameters}}
-  {{#value.isField}}
-  {{#value.isLate}}late {{/value.isLate}}final {{value.type}} {{value.fieldName}};
-  {{/value.isField}}
-  {{/mapperConstructorParameters}}
+  {{#mapperFields}}
+  {{#value.isLate}}late {{/value.isLate}}{{#value.isFinal}}final{{/value.isFinal}} {{value.type}} {{value.name}};
+  {{/mapperFields}}
 
-  /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
-  {{^hasLateMapperConstructorParameters}}const {{/hasLateMapperConstructorParameters}}{{mapperClassName}}({{#hasMapperConstructorParameters}}{
-    {{#mapperConstructorParameters}}
-    {{^value.isLate}}
-    {{^value.hasDefaultValue}}required {{/value.hasDefaultValue}}{{#value.needsAssignment}}{{value.type}} {{/value.needsAssignment}}{{^value.needsAssignment}}this.{{/value.needsAssignment}}{{value.parameterName}}{{#value.hasDefaultValue}} = {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}}, {{/last}}
-    {{/value.isLate}}
-    {{/mapperConstructorParameters}}
-  }{{/hasMapperConstructorParameters}}){{#hasMapperConstructorParameterAssignments}} : {{#mapperConstructorParameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructorParameterAssignments}}{{/hasMapperConstructorParameterAssignments}}
-  {{^hasMapperConstructorBody}};{{/hasMapperConstructorBody}}
-  {{#hasMapperConstructorBody}}{ {{#mapperConstructorBodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructorBodyAssignments}}}{{/hasMapperConstructorBody}}
+    /// Constructor
+  {{#mapperConstructor.isConst}}const {{/mapperConstructor.isConst}}{{mapperConstructor.className}}({{#mapperConstructor.hasParameters}}{
+    {{#mapperConstructor.parameters}}
+    {{^value.hasDefaultValue}}required {{/value.hasDefaultValue}}{{value.type}} {{value.parameterName}}{{#value.hasDefaultValue}} = {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}}, {{/last}}
+    {{/mapperConstructor.parameters}}
+  }{{/mapperConstructor.hasParameters}}){{#mapperConstructor.hasParameterAssignments}} : {{#mapperConstructor.parameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructor.parameterAssignments}}{{/mapperConstructor.hasParameterAssignments}}
+  {{^mapperConstructor.hasBodyAssignments}};{{/mapperConstructor.hasBodyAssignments}}
+  {{#mapperConstructor.hasBodyAssignments}}{ {{#mapperConstructor.bodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructor.bodyAssignments}}}{{/mapperConstructor.hasBodyAssignments}}
 
   @override
   IriTerm? get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
@@ -135,9 +131,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
     {{#template.propertyVariables}}
     final {{value.variableName}} = resource.{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}};
     {{/template.propertyVariables}}
-    {{#contextProviders}}
-    final {{value.variableName}} = {{value.privateFieldName}}();
-    {{/contextProviders}}
+    {{#template.contextVariables}}
+    final {{value.variableName}} = {{value.code}};
+    {{/template.contextVariables}}
     return '{{template.interpolatedTemplate}}';
   }
   {{/hasFullIriPartTemplate}}

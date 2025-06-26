@@ -185,10 +185,9 @@ class FileFormatMapper implements IriTermMapper<FileFormat> {
     '^(?<baseUri>.*)/formats/(?<value>[^/]*)\$',
   );
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const FileFormatMapper({required String Function() baseUriProvider})
     : _baseUriProvider = baseUriProvider;
 
@@ -243,13 +242,10 @@ class ItemTypeMapper implements IriTermMapper<ItemType> {
     '^(?<baseUri>.*)/types/(?<category>[^/]*)/(?<value>[^/]*)\$',
   );
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
-
-  /// Provider for context variable 'category'
   final String Function() _categoryProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const ItemTypeMapper({
     required String Function() baseUriProvider,
     required String Function() categoryProvider,

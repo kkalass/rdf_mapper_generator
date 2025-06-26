@@ -13,6 +13,45 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'annotation_test_models.dart';
 import 'package:rdf_vocabularies/schema.dart';
 
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class BookWithMapperTitleMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^https://example\.org/books/(?<id>[^/]*)/(?<title>[^/]*)\$',
+  );
+
+  final String Function() _idProvider;
+
+  /// Constructor
+  const BookWithMapperTitleMapper({required String Function() idProvider})
+    : _idProvider = idProvider;
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['title']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final title = iriTermValue.toString();
+    final id = _idProvider();
+    return IriTerm('https://example.org/books/${id}/${title}');
+  }
+}
+
 /// Generated mapper for [BookWithMapper] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -21,8 +60,11 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   final IriTermMapper<(String id,)> _iriMapper;
 
   /// Constructor
-  const BookWithMapperMapper({required IriTermMapper<(String id,)> iriMapper})
-    : _iriMapper = iriMapper;
+  const BookWithMapperMapper({
+    IriTermMapper<(String id,)> iriMapper = const TestMapper(
+      prefix: 'https://example.org/books',
+    ),
+  }) : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -73,46 +115,6 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   }
 }
 
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
-class BookWithMapperTitleMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^https://example\.org/books/(?<id>[^/]*)/(?<title>[^/]*)\$',
-  );
-
-  /// Provider for context variable 'id'
-  final String Function() _idProvider;
-
-  /// Constructor requiring providers for context variables
-  const BookWithMapperTitleMapper({required String Function() idProvider})
-    : _idProvider = idProvider;
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['title']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final title = iriTermValue.toString();
-    final id = _idProvider();
-    return IriTerm('https://example.org/books/${id}/${title}');
-  }
-}
-
 /// Generated mapper for [BookWithMapperInstance] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -123,7 +125,9 @@ class BookWithMapperInstanceMapper
 
   /// Constructor
   const BookWithMapperInstanceMapper({
-    required IriTermMapper<(String id,)> iriMapper,
+    IriTermMapper<(String id,)> iriMapper = const TestMapper(
+      prefix: 'https://example.org/books',
+    ),
   }) : _iriMapper = iriMapper;
 
   @override

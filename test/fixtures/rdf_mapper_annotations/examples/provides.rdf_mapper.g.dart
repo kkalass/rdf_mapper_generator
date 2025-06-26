@@ -12,142 +12,6 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 // Other imports
 import 'provides.dart';
 
-/// Generated mapper for [Parent] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Parent.
-class ParentMapper implements GlobalResourceMapper<Parent> {
-  static final RegExp _regex = RegExp('^(?<baseUri>.*)/(?<id>[^/]*)\.ttl\$');
-
-  final String Function() _baseUriProvider;
-  final GlobalResourceMapper<Child> _childMapper;
-
-  /// Constructor requiring providers for context variables
-  const ParentMapper({
-    required String Function() baseUriProvider,
-    GlobalResourceMapper<Child> childMapper = ChildMapper(
-      baseUriProvider: baseUriProvider,
-      parentIdProvider: parentIdProvider,
-    ),
-  }) : _baseUriProvider = baseUriProvider,
-       _childMapper = childMapper;
-
-  @override
-  IriTerm? get typeIri => ExampleVocab.Parent;
-
-  @override
-  Parent fromRdfResource(IriTerm subject, DeserializationContext context) {
-    final reader = context.reader(subject);
-
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
-
-    final iriParts = {
-      for (var name in (match?.groupNames ?? const <String>[]))
-        name: match?.namedGroup(name) ?? '',
-    };
-
-    final id = iriParts['id']!;
-    final Child child = reader.require(
-      ExampleVocab.child,
-      globalResourceDeserializer: _childMapper,
-    );
-    final String siblingId = reader.require(
-      ExampleVocab.sibling,
-      iriTermDeserializer: ParentSiblingIdMapper(
-        baseUriProvider: _baseUriProvider,
-        parentIdProvider: () =>
-            throw Exception('Must not call provider for deserialization'),
-      ),
-    );
-
-    final retval = Parent();
-    retval.id = id;
-    retval.child = child;
-    retval.siblingId = siblingId;
-    return retval;
-  }
-
-  @override
-  (IriTerm, List<Triple>) toRdfResource(
-    Parent resource,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final subject = IriTerm(_buildIri(resource));
-
-    return context
-        .resourceBuilder(subject)
-        .addValue(
-          ExampleVocab.child,
-          resource.child,
-          resourceSerializer: _childMapper,
-        )
-        .addValue(
-          ExampleVocab.sibling,
-          resource.siblingId,
-          iriTermSerializer: ParentSiblingIdMapper(
-            baseUriProvider: _baseUriProvider,
-            parentIdProvider: () => resource.id,
-          ),
-        )
-        .build();
-  }
-
-  /// Builds the IRI for a resource instance using the IRI template.
-  String _buildIri(Parent resource) {
-    final id = resource.id;
-    final baseUri = _baseUriProvider();
-    return '${baseUri}/${id}.ttl';
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
-class ParentSiblingIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/(?<parentId>[^/]*)/sibling/(?<siblingId>[^/]*)\.ttl\$',
-  );
-
-  /// Provider for context variable 'baseUri'
-  final String Function() _baseUriProvider;
-
-  /// Provider for context variable 'parentId'
-  final String Function() _parentIdProvider;
-
-  /// Constructor requiring providers for context variables
-  const ParentSiblingIdMapper({
-    required String Function() baseUriProvider,
-    required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['siblingId']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final siblingId = iriTermValue.toString();
-    final baseUri = _baseUriProvider();
-    final parentId = _parentIdProvider();
-    return IriTerm('${baseUri}/${parentId}/sibling/${siblingId}.ttl');
-  }
-}
-
 /// Generated mapper for [Child] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -160,7 +24,7 @@ class ChildMapper implements GlobalResourceMapper<Child> {
   final String Function() _baseUriProvider;
   final String Function() _parentIdProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const ChildMapper({
     required String Function() baseUriProvider,
     required String Function() parentIdProvider,
@@ -210,5 +74,138 @@ class ChildMapper implements GlobalResourceMapper<Child> {
     final baseUri = _baseUriProvider();
     final parentId = _parentIdProvider();
     return '${baseUri}/${parentId}/child/${id}.ttl';
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class ParentSiblingIdMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^(?<baseUri>.*)/(?<parentId>[^/]*)/sibling/(?<siblingId>[^/]*)\.ttl\$',
+  );
+
+  final String Function() _baseUriProvider;
+  final String Function() _parentIdProvider;
+
+  /// Constructor
+  const ParentSiblingIdMapper({
+    required String Function() baseUriProvider,
+    required String Function() parentIdProvider,
+  }) : _baseUriProvider = baseUriProvider,
+       _parentIdProvider = parentIdProvider;
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['siblingId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final siblingId = iriTermValue.toString();
+    final baseUri = _baseUriProvider();
+    final parentId = _parentIdProvider();
+    return IriTerm('${baseUri}/${parentId}/sibling/${siblingId}.ttl');
+  }
+}
+
+/// Generated mapper for [Parent] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type Parent.
+class ParentMapper implements GlobalResourceMapper<Parent> {
+  static final RegExp _regex = RegExp('^(?<baseUri>.*)/(?<id>[^/]*)\.ttl\$');
+
+  final String Function() _baseUriProvider;
+
+  /// Constructor
+  const ParentMapper({required String Function() baseUriProvider})
+    : _baseUriProvider = baseUriProvider;
+
+  @override
+  IriTerm? get typeIri => ExampleVocab.Parent;
+
+  @override
+  Parent fromRdfResource(IriTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
+
+    final id = iriParts['id']!;
+    final Child child = reader.require(
+      ExampleVocab.child,
+      globalResourceDeserializer: ChildMapper(
+        baseUriProvider: _baseUriProvider,
+        parentIdProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+      ),
+    );
+    final String siblingId = reader.require(
+      ExampleVocab.sibling,
+      iriTermDeserializer: ParentSiblingIdMapper(
+        baseUriProvider: _baseUriProvider,
+        parentIdProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+      ),
+    );
+
+    final retval = Parent();
+    retval.id = id;
+    retval.child = child;
+    retval.siblingId = siblingId;
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    Parent resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = IriTerm(_buildIri(resource));
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          ExampleVocab.child,
+          resource.child,
+          resourceSerializer: ChildMapper(
+            baseUriProvider: _baseUriProvider,
+            parentIdProvider: () => resource.id,
+          ),
+        )
+        .addValue(
+          ExampleVocab.sibling,
+          resource.siblingId,
+          iriTermSerializer: ParentSiblingIdMapper(
+            baseUriProvider: _baseUriProvider,
+            parentIdProvider: () => resource.id,
+          ),
+        )
+        .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(Parent resource) {
+    final id = resource.id;
+    final baseUri = _baseUriProvider();
+    return '${baseUri}/${id}.ttl';
   }
 }

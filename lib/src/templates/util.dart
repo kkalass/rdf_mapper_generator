@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
+import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 
 import 'code.dart';
 
@@ -16,6 +17,8 @@ List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
     return {'value': values[i], 'last': i == values.length - 1};
   });
 }
+
+final stringType = Code.coreType('String');
 
 Code typeToCode(DartType type, {bool enforceNonNull = false}) {
   var typeName = type.getDisplayString();
@@ -174,3 +177,23 @@ Code codeGeneric1(Code mapperInterface, Code className) => Code.combine([
 
 Code codeGeneric2(Code type, Code p1, Code p2) => Code.combine(
     [type, Code.literal('<'), p1, Code.literal(', '), p2, Code.literal('>')]);
+
+Code createConstructorCall(
+    Code className, List<ConstructorParameterData> constructorParameters,
+    {bool constContext = false}) {
+  return Code.combine([
+    if (constContext) Code.literal(' const '),
+    className,
+    Code.literal('('),
+    Code.combine(
+        constructorParameters
+            .map((p) => Code.combine([
+                  Code.literal(p.parameterName),
+                  Code.literal(': '),
+                  Code.literal(p.parameterName)
+                ]))
+            .toList(),
+        separator: ', '),
+    Code.literal(')')
+  ]);
+}

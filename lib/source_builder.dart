@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:build/build.dart';
-import 'package:rdf_mapper_generator/builder_helper.dart';
+import 'package:rdf_mapper_generator/src/mappers/mapper_model_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 
 Builder rdfMapperSourceBuilder(BuilderOptions options) =>
@@ -33,8 +33,10 @@ class RdfMapperSourceBuilder implements Builder {
       // Read and parse the cache file
       final jsonString = await readAsString(inputId);
       final jsonData = jsonDecode(jsonString);
-      String mapperImportUri = getMapperImportUri(
-          inputId.package, inputId.path.replaceAll('.cache.json', '.g.dart'));
+      // FIXME: isn't this already in jsonData? Do we need the fallback?
+      String mapperImportUri = jsonData['mapperFileImportUri'] ??
+          MapperModelBuilder.getMapperImportUri(inputId.package,
+              inputId.path.replaceAll('.cache.json', '.g.dart'));
 
       // Render the template
       final generatedCode = await _templateRenderer.renderFileTemplate(

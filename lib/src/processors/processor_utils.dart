@@ -4,9 +4,10 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/type_system.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/type_info.dart';
+
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -86,9 +87,7 @@ MapperRefInfo<M>? getMapperRefInfo<M>(DartObject annotation) {
   }
   return MapperRefInfo(
       name: name,
-      type: isNull(typeField)
-          ? null
-          : TypeInfo(name: typeToCode(typeField!.toTypeValue()!)),
+      type: isNull(typeField) ? null : typeToCode(typeField!.toTypeValue()!),
       instance: instanceField);
 }
 
@@ -322,27 +321,41 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
   _log.finest('Annotations for field $name: $annotations');
   final isRdfValue = getAnnotation(annotations, 'RdfValue') != null;
   final isRdfLanguageTag = getAnnotation(annotations, 'RdfLanguageTag') != null;
+  final providesInfo = extractProvidesAnnotation(
+    name,
+    annotations,
+  );
+  final iriPart =
+      IriStrategyProcessor.extractIriPartAnnotation(name, annotations);
+
+  return FieldInfo(
+      name: name,
+      type: typeToCode(type),
+      typeNonNull: typeToCode(type, enforceNonNull: true),
+      isFinal: isFinal,
+      isLate: isLate,
+      isStatic: isStatic,
+      isSynthetic: isSynthetic,
+      propertyInfo: propertyInfo,
+      isRequired: propertyInfo?.isRequired ?? !isNullable,
+      isRdfLanguageTag: isRdfLanguageTag,
+      isRdfValue: isRdfValue,
+      provides: providesInfo,
+      iriPart: iriPart);
+}
+
+ProvidesAnnotationInfo? extractProvidesAnnotation(
+  String name,
+  Iterable<ElementAnnotation> annotations,
+) {
   final providesAnnotation = getAnnotation(annotations, 'RdfProvides');
   final providesName = providesAnnotation?.getField('name')?.toStringValue();
-  return FieldInfo(
-    name: name,
-    type: typeToCode(type),
-    typeNonNull: typeToCode(type, enforceNonNull: true),
-    isFinal: isFinal,
-    isLate: isLate,
-    isStatic: isStatic,
-    isSynthetic: isSynthetic,
-    propertyInfo: propertyInfo,
-    isRequired: propertyInfo?.isRequired ?? !isNullable,
-    isRdfLanguageTag: isRdfLanguageTag,
-    isRdfValue: isRdfValue,
-    provides: providesAnnotation != null
-        ? ProvidesInfo(
-            name: providesName ?? name,
-            dartPropertyName: name,
-          )
-        : null,
-  );
+  return providesAnnotation != null
+      ? ProvidesAnnotationInfo(
+          name: providesName ?? name,
+          dartPropertyName: name,
+        )
+      : null;
 }
 
 /// Extracts enum constants and their custom @RdfEnumValue annotations.

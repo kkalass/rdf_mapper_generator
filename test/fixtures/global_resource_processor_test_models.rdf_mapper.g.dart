@@ -13,6 +13,41 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'global_resource_processor_test_models.dart';
 import 'package:rdf_vocabularies/schema.dart';
 
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class BookAuthorIdMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+  );
+
+  /// Constructor
+  const BookAuthorIdMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['authorId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorId = iriTermValue.toString();
+    return IriTerm('http://example.org/authors/${authorId}');
+  }
+}
+
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -76,41 +111,6 @@ class BookMapper implements GlobalResourceMapper<Book> {
   String _buildIri(Book resource) {
     final isbn = resource.isbn;
     return 'http://example.org/books/${isbn}';
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
-class BookAuthorIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
-  );
-
-  /// Constructor
-  const BookAuthorIdMapper();
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['authorId']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/authors/${authorId}');
   }
 }
 
@@ -291,7 +291,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 
   final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const ClassWithIriTemplateAndContextVariableStrategyMapper({
     required String Function() baseUriProvider,
   }) : _baseUriProvider = baseUriProvider;
@@ -347,7 +347,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
 
   final String Function() _otherBaseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const ClassWithOtherBaseUriNonGlobalMapper({
     required String Function() otherBaseUriProvider,
   }) : _otherBaseUriProvider = otherBaseUriProvider;
@@ -624,7 +624,7 @@ class ClassWithIriMapperStrategyMapper
 
   /// Constructor
   const ClassWithIriMapperStrategyMapper({
-    required IriTermMapper<ClassWithIriMapperStrategy> iriMapper,
+    IriTermMapper<ClassWithIriMapperStrategy> iriMapper = const TestIriMapper(),
   }) : _iriMapper = iriMapper;
 
   @override
@@ -660,7 +660,8 @@ class ClassWithIriMapperInstanceStrategyMapper
 
   /// Constructor
   const ClassWithIriMapperInstanceStrategyMapper({
-    required IriTermMapper<ClassWithIriMapperInstanceStrategy> iriMapper,
+    IriTermMapper<ClassWithIriMapperInstanceStrategy> iriMapper =
+        const TestIriMapper2(),
   }) : _iriMapper = iriMapper;
 
   @override

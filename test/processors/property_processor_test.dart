@@ -3,12 +3,12 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
 import '../test_helper.dart';
-import 'local_resource_processor_test.dart';
 
 PropertyInfo? processField(FieldElement2 field) =>
     PropertyProcessor.processField(ValidationContext(), field);
@@ -248,7 +248,7 @@ void main() {
       expect(mapper.instance, isNull);
       expect(mapper.type, isNotNull);
 
-      expect(mapper.type!.name.codeWithoutAlias, 'IriMapperImpl');
+      expect(mapper.type!.codeWithoutAlias, 'IriMapperImpl');
     });
 
     test('should process property with IRI mapping (instance)', () {
@@ -544,7 +544,7 @@ void main() {
       expect(annotation.literal!.mapper!.name, isNull);
       expect(annotation.literal!.mapper!.instance, isNull);
       expect(annotation.literal!.mapper!.type, isNotNull);
-      expect(annotation.literal!.mapper!.type!.name.codeWithoutAlias,
+      expect(annotation.literal!.mapper!.type!.codeWithoutAlias,
           'LiteralDoubleMapperImpl');
 
       expect(annotation.predicate.value, equals(SchemaBook.bookFormat));
@@ -875,7 +875,7 @@ void main() {
       expect(annotation.localResource, isNotNull);
       expect(annotation.localResource!.mapper, isNotNull);
       expect(annotation.localResource!.mapper!.type, isNotNull);
-      expect(annotation.localResource!.mapper!.type!.name.codeWithoutAlias,
+      expect(annotation.localResource!.mapper!.type!.codeWithoutAlias,
           'LocalResourceAuthorMapperImpl');
       expect(annotation.predicate.value, equals(SchemaBook.author));
     });

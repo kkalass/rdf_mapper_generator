@@ -234,6 +234,24 @@ class VariableName {
       'VariableName(dartPropertyName: $dartPropertyName, name: $name, canBeUri: $canBeUri, isMappedValue: $isMappedValue)';
 }
 
+class IriPartAnnotationInfo {
+  final int pos;
+  final String name;
+
+  IriPartAnnotationInfo({
+    required this.pos,
+    required this.name,
+  });
+}
+
+class ProvidesAnnotation {
+  final String name;
+
+  ProvidesAnnotation({
+    required this.name,
+  });
+}
+
 class IriPartInfo {
   final String name;
   final String dartPropertyName;
@@ -721,18 +739,19 @@ class ParameterInfo {
   }
 }
 
-final class ProvidesInfo {
+final class ProvidesAnnotationInfo {
   final String name;
   final String dartPropertyName;
 
-  const ProvidesInfo({required this.name, required this.dartPropertyName});
+  const ProvidesAnnotationInfo(
+      {required this.name, required this.dartPropertyName});
 
   @override
   int get hashCode => Object.hash(name, dartPropertyName);
 
   @override
   bool operator ==(Object other) {
-    if (other is! ProvidesInfo) {
+    if (other is! ProvidesAnnotationInfo) {
       return false;
     }
     return name == other.name && dartPropertyName == other.dartPropertyName;
@@ -776,21 +795,23 @@ class FieldInfo {
   final bool isRdfValue;
   final bool isRdfLanguageTag;
 
-  final ProvidesInfo? provides;
+  final ProvidesAnnotationInfo? provides;
+  final IriPartAnnotationInfo? iriPart;
 
   const FieldInfo({
     required this.name,
     required this.type,
-    Code? typeNonNull,
+    required Code? typeNonNull,
     required this.isFinal,
     required this.isLate,
     required this.isStatic,
     required this.isSynthetic,
     required this.isRdfValue,
     required this.isRdfLanguageTag,
-    this.provides = null,
-    this.propertyInfo,
-    this.isRequired = false,
+    required this.provides,
+    required this.iriPart,
+    required this.propertyInfo,
+    required this.isRequired, // = false,
   }) : typeNonNull = typeNonNull ?? type;
 
   @override

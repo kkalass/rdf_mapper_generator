@@ -170,7 +170,7 @@ void main() {
             '__type__': 'ResourceMapperTemplateData',
             'className': 'Book',
             'mapperClassName': 'BookMapper',
-            'mapperInterfaceName': 'GlobalResourceMapper',
+            'mapperInterfaceName': 'GlobalResourceMapper<Book>',
             'termClass': 'IriTerm',
             'typeIri': 'SchemaBook.classIri',
             'hasTypeIri': true,
@@ -283,7 +283,7 @@ import '{{{.}}}';
 ''';
     } else if (id.path.endsWith('resource_mapper.mustache')) {
       return '''/// Generated mapper for [{{className}}] global resources.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
   // Generated resource mapper implementation
   @override
   {{className}} fromRdfResource({{termClass}} subject, DeserializationContext context) {
@@ -294,13 +294,13 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
 ''';
     } else if (id.path.endsWith('iri_mapper.mustache')) {
       return '''/// Generated mapper for [{{className}}] iri terms.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
   // Generated IRI mapper implementation
 }
 ''';
     } else if (id.path.endsWith('literal_mapper.mustache')) {
       return '''/// Generated mapper for [{{className}}] literal terms.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
   // Generated literal mapper implementation
 }
 ''';

@@ -1,6 +1,5 @@
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
-import 'package:rdf_mapper_generator/src/templates/data_builder.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
 /// Information about a mapper reference
@@ -20,7 +19,7 @@ class MapperRefData {
   /// Whether this is a direct instance
   final bool isInstance;
 
-  final ResolvableInstantiationCodeData? instanceInitializationCode;
+  final Code? instanceInitializationCode;
 
   const MapperRefData({
     this.name,
@@ -41,65 +40,6 @@ class MapperRefData {
       };
 }
 
-class UnresolvedInstantiationCodeData {
-  final List<ResolvableInstantiationCodeData> unresolved = [];
-
-  add(ResolvableInstantiationCodeData data) {
-    if (unresolved.contains(data)) {
-      throw StateError(
-          'ResolvableInstantiationCodeData is already added to unresolved list');
-    }
-    unresolved.add(data);
-  }
-}
-
-class ResolvableInstantiationCodeData {
-  final Code? mapperClassName;
-  late final Code _resolvedCode;
-  bool _isResolved = false;
-
-  ResolvableInstantiationCodeData._(this.mapperClassName);
-
-  factory ResolvableInstantiationCodeData(
-      Code mapperClassName, UnresolvedInstantiationCodeData unresolved) {
-    final r = ResolvableInstantiationCodeData._(mapperClassName);
-    unresolved.add(r);
-    return r;
-  }
-
-  ResolvableInstantiationCodeData.resolved(Code resolved)
-      : mapperClassName = null,
-        _resolvedCode = resolved;
-
-  bool get isResolved => _isResolved;
-
-  resolve(List<ConstructorParameterData> constructorParameters,
-      {bool constContext = false}) {
-    if (mapperClassName == null) {
-      throw StateError(
-          'MapperTypeInfoData is already resolved or has no mapper class name');
-    }
-    _resolvedCode = Code.combine([
-      if (constContext) Code.literal(' const '),
-      mapperClassName!,
-      Code.literal('('),
-      Code.combine(
-          constructorParameters
-              .map((p) => Code.combine([
-                    Code.literal(p.parameterName),
-                    Code.literal(': '),
-                    Code.literal(p.parameterName)
-                  ]))
-              .toList(),
-          separator: ', '),
-      Code.literal(')')
-    ]);
-    _isResolved = true;
-  }
-
-  Map<String, dynamic> toMap() => _resolvedCode.toMap();
-}
-
 sealed class MappableClassMapperTemplateData {
   Map<String, dynamic> toMap();
   const MappableClassMapperTemplateData();
@@ -115,29 +55,19 @@ sealed class GeneratedMapperTemplateData
 
   /// The name of the mapper interface
   final Code mapperInterfaceName;
+  final MapperConstructorTemplateData mapperConstructor;
+  final List<FieldData> mapperFields;
 
-  /// Context variable providers needed for IRI generation
-  final List<ContextProviderData> contextProviders;
-
-  const GeneratedMapperTemplateData({
+  GeneratedMapperTemplateData({
     required this.className,
     required this.mapperClassName,
     required this.mapperInterfaceName,
-    required this.contextProviders,
-  });
-
-  /// Most mappers will only have context providers as constructor parameters,
-  /// but some may have additional parameters.
-  List<ConstructorParameterData>
-      get mapperConstructorParameters => contextProviders
-          .map((p) => ConstructorParameterData(
-              type: contextProviderType,
-              parameterName: p.variableName,
-              fieldName: p.privateFieldName,
-              defaultValue: null,
-              isLate: false,
-              isField: p.isField))
-          .toList();
+    required this.mapperConstructor,
+    required List<FieldData> mapperFields,
+  }) : mapperFields = mapperFields.toSet().toList(growable: false)
+          ..sort(
+            (a, b) => a.name.compareTo(b.name),
+          );
 }
 
 class CustomMapperTemplateData implements MappableClassMapperTemplateData {
@@ -145,7 +75,7 @@ class CustomMapperTemplateData implements MappableClassMapperTemplateData {
   final Code mapperInterfaceType;
   final Code className;
   final bool isTypeBased;
-  final ResolvableInstantiationCodeData? customMapperInstance;
+  final Code? customMapperInstance;
   final bool registerGlobally;
 
   const CustomMapperTemplateData({
@@ -189,40 +119,39 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
   final IriData? iriStrategy;
 
   /// List of parameters for this constructor
-  final List<ParameterData> constructorParameters;
-  final List<ParameterData> nonConstructorFields;
+  final List<PropertyData> propertiesToDeserializeAsConstructorParameters;
+  final List<PropertyData> propertiesToDeserializeAsFields;
 
   /// Property mapping information
-  final List<PropertyData> properties;
+  final List<PropertyData> propertiesToSerialize;
 
-  /// Context variable providers needed for IRI generation
-  final List<ConstructorParameterData> mapperConstructorParameters;
   final bool needsReader;
 
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
-  const ResourceMapperTemplateData({
+  ResourceMapperTemplateData({
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
+    required super.mapperConstructor,
+    required super.mapperFields,
     required this.termClass,
     required Code? typeIri,
     required IriData? iriStrategy,
-    required super.contextProviders,
-    required List<ParameterData> constructorParameters,
+    required List<PropertyData> propertiesToDeserializeAsConstructorParameters,
     required bool needsReader,
     required bool registerGlobally,
-    required List<PropertyData> properties,
-    required List<ParameterData> nonConstructorFields,
-    required this.mapperConstructorParameters,
+    required List<PropertyData> propertiesToSerialize,
+    required List<PropertyData> propertiesToDeserializeAsFields,
   })  : typeIri = typeIri,
         iriStrategy = iriStrategy,
-        constructorParameters = constructorParameters,
-        nonConstructorFields = nonConstructorFields,
+        propertiesToDeserializeAsConstructorParameters =
+            propertiesToDeserializeAsConstructorParameters,
+        propertiesToDeserializeAsFields = propertiesToDeserializeAsFields,
         needsReader = needsReader,
         registerGlobally = registerGlobally,
-        properties = properties;
+        propertiesToSerialize = propertiesToSerialize;
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -235,41 +164,154 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
       'hasTypeIri': typeIri != null,
       'hasIriStrategy': iriStrategy != null,
       'iriStrategy': iriStrategy?.toMap(),
-      'constructorParameters':
-          toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
-      'nonConstructorFields':
-          toMustacheList(nonConstructorFields.map((p) => p.toMap()).toList()),
+      'constructorParameters': toMustacheList(
+          propertiesToDeserializeAsConstructorParameters
+              .map((p) => p.toMap())
+              .toList()),
+      'nonConstructorFields': toMustacheList(
+          propertiesToDeserializeAsFields.map((p) => p.toMap()).toList()),
       'constructorParametersOrOtherFields': toMustacheList([
-        ...constructorParameters,
-        ...nonConstructorFields
+        ...propertiesToDeserializeAsConstructorParameters,
+        ...propertiesToDeserializeAsFields
       ].map((p) => p.toMap()).toList()),
-      'hasNonConstructorFields': nonConstructorFields.isNotEmpty,
-      'properties': properties.map((p) => p.toMap()).toList(),
-      'contextProviders':
-          toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
-      'hasContextProviders': contextProviders.isNotEmpty,
-      'mapperConstructorParameters': toMustacheList(
-          mapperConstructorParameters.map((p) => p.toMap()).toList()),
-      'hasLateMapperConstructorParameters':
-          mapperConstructorParameters.where((p) => p.isLate).isNotEmpty,
-      'mapperConstructorParameterAssignments': toMustacheList(
-          mapperConstructorParameters
-              .where((p) => p.needsAssignment && p.isField)
-              .map((p) => p.toMap())
-              .toList()),
-      'hasMapperConstructorParameters': mapperConstructorParameters.isNotEmpty,
-      'hasMapperConstructorParameterAssignments': mapperConstructorParameters
-          .where((p) => p.needsAssignment && p.isField)
-          .isNotEmpty,
-      'mapperConstructorBodyAssignments': toMustacheList(
-          mapperConstructorParameters
-              .where((p) => p.isLate)
-              .map((p) => p.toMap())
-              .toList()),
-      'hasMapperConstructorBody':
-          mapperConstructorParameters.where((p) => p.isLate).isNotEmpty,
+      'hasNonConstructorFields': propertiesToDeserializeAsFields.isNotEmpty,
+      'properties': propertiesToSerialize.map((p) => p.toMap()).toList(),
+      'mapperConstructor': mapperConstructor.toMap(),
+      'mapperFields':
+          toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
+      'hasMapperFields': mapperFields.isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
+    };
+  }
+}
+
+class FieldData {
+  final String name;
+  final Code type;
+  final bool isLate;
+  final bool isFinal;
+
+  FieldData(
+      {required this.name,
+      required this.type,
+      required this.isLate,
+      required this.isFinal});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'type': type.toMap(),
+      'isLate': isLate,
+      'isFinal': isFinal,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'FieldData{name: $name, type: $type, isLate: $isLate, isFinal: $isFinal}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is FieldData &&
+        other.name == name &&
+        other.type == type &&
+        other.isLate == isLate &&
+        other.isFinal == isFinal;
+  }
+
+  @override
+  int get hashCode {
+    return name.hashCode ^ type.hashCode ^ isLate.hashCode ^ isFinal.hashCode;
+  }
+}
+
+class ParameterAssignmentData {
+  final String fieldName;
+  final String parameterName;
+
+  ParameterAssignmentData(
+      {required this.fieldName, required this.parameterName});
+  Map<String, dynamic> toMap() {
+    return {
+      'fieldName': fieldName,
+      'parameterName': parameterName,
+    };
+  }
+
+  @override
+  int get hashCode => fieldName.hashCode ^ parameterName.hashCode;
+
+  @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ParameterAssignmentData &&
+        other.fieldName == fieldName &&
+        other.parameterName == parameterName;
+  }
+}
+
+class BodyAssignmentData {
+  final String fieldName;
+  final Code defaultValue;
+
+  BodyAssignmentData({required this.fieldName, required this.defaultValue});
+  Map<String, dynamic> toMap() {
+    return {
+      'fieldName': fieldName,
+      'defaultValue': defaultValue.toMap(),
+    };
+  }
+
+  @override
+  int get hashCode => fieldName.hashCode ^ defaultValue.hashCode;
+
+  @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is BodyAssignmentData &&
+        other.fieldName == fieldName &&
+        other.defaultValue == defaultValue;
+  }
+}
+
+class MapperConstructorTemplateData {
+  /// The name of the generated mapper class
+  final Code mapperClassName;
+
+  /// The name of the mapper interface
+  final List<ParameterAssignmentData> parameterAssignments;
+  final List<BodyAssignmentData> bodyAssignments;
+  final List<ConstructorParameterData> mapperConstructorParameters;
+  final bool isConst;
+
+  MapperConstructorTemplateData({
+    required this.mapperClassName,
+    required this.parameterAssignments,
+    required this.bodyAssignments,
+    required this.mapperConstructorParameters,
+    required this.isConst,
+  });
+
+  /// Converts this template data to a Map for mustache rendering
+  Map<String, dynamic> toMap() {
+    return {
+      'className': mapperClassName.toMap(),
+      'isConst': isConst,
+      'parameters': toMustacheList(
+          mapperConstructorParameters.map((p) => p.toMap()).toList()),
+      'hasParameters': mapperConstructorParameters.isNotEmpty,
+      'parameterAssignments':
+          toMustacheList(parameterAssignments.map((p) => p.toMap()).toList()),
+      'hasParameterAssignments': parameterAssignments.isNotEmpty,
+      'bodyAssignments':
+          toMustacheList(bodyAssignments.map((p) => p.toMap()).toList()),
+      'hasBodyAssignments': bodyAssignments.isNotEmpty,
     };
   }
 }
@@ -281,10 +323,10 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
   ]).toMap();
 
   /// List of parameters for this constructor
-  final List<ParameterData> constructorParameters;
+  final List<PropertyData> constructorParameters;
 
   /// List of non-constructor fields that are RDF value or language tag fields
-  final List<ParameterData> nonConstructorFields;
+  final List<PropertyData> nonConstructorFields;
 
   /// Property mapping information
   final List<PropertyData> properties;
@@ -295,27 +337,29 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
   final Code? datatype;
   final String? toLiteralTermMethod;
   final String? fromLiteralTermMethod;
-  final ParameterData? rdfValue;
-  final ParameterData? rdfLanguageTag;
+  final PropertyData? rdfValue;
+  final PropertyData? rdfLanguageTag;
 
-  const LiteralMapperTemplateData({
+  LiteralMapperTemplateData({
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
+    required super.mapperConstructor,
+    required super.mapperFields,
     required this.datatype,
     required this.toLiteralTermMethod,
     required this.fromLiteralTermMethod,
     required this.rdfValue,
     required this.rdfLanguageTag,
-    required List<ParameterData> constructorParameters,
-    required List<ParameterData> nonConstructorFields,
+    required List<PropertyData> constructorParameters,
+    required List<PropertyData> nonConstructorFields,
     required bool registerGlobally,
     required List<PropertyData> properties,
   })  : constructorParameters = constructorParameters,
         nonConstructorFields = nonConstructorFields,
         registerGlobally = registerGlobally,
         properties = properties,
-        super(contextProviders: const []);
+        super();
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -338,6 +382,10 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
         ...constructorParameters,
         ...nonConstructorFields
       ].map((p) => p.toMap()).toList()),
+      'mapperConstructor': mapperConstructor.toMap(),
+      'mapperFields':
+          toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
+      'hasMapperFields': mapperFields.isNotEmpty,
       'properties': properties.map((p) => p.toMap()).toList(),
       'registerGlobally': registerGlobally,
       'rdfValue': rdfValue?.toMap(),
@@ -352,42 +400,43 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
 
 class IriMapperTemplateData extends GeneratedMapperTemplateData {
   /// IRI strategy information
-  final IriData iriStrategy;
+  /// Variables that correspond to class properties with @RdfIriPart.
+  final Set<VariableNameData> propertyVariables;
+
+  final Set<DependencyUsingVariableData> contextVariables;
+
+  /// The regex pattern built from the template.
+  final String regexPattern;
+
+  /// The template converted to Dart string interpolation syntax.
+  final String interpolatedTemplate;
 
   /// List of parameters for this constructor
-  final List<ParameterData> constructorParameters;
+  final List<PropertyData> constructorParameters;
 
   /// List of non-constructor fields that are IRI parts
-  final List<ParameterData> nonConstructorFields;
-
-  /// Property mapping information
-  final List<PropertyData> properties;
-
-  final bool needsReader;
+  final List<PropertyData> nonConstructorFields;
 
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
   final VariableNameData? singleMappedValue;
 
-  const IriMapperTemplateData({
+  IriMapperTemplateData({
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
-    required IriData iriStrategy,
-    required super.contextProviders,
-    required List<ParameterData> constructorParameters,
-    required List<ParameterData> nonConstructorFields,
-    required bool needsReader,
-    required bool registerGlobally,
-    required List<PropertyData> properties,
+    required super.mapperConstructor,
+    required super.mapperFields,
+    required this.interpolatedTemplate,
+    required this.propertyVariables,
+    required this.regexPattern,
+    required this.constructorParameters,
+    required this.nonConstructorFields,
+    required this.registerGlobally,
+    required this.contextVariables,
     this.singleMappedValue,
-  })  : iriStrategy = iriStrategy,
-        constructorParameters = constructorParameters,
-        nonConstructorFields = nonConstructorFields,
-        needsReader = needsReader,
-        registerGlobally = registerGlobally,
-        properties = properties;
+  });
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
@@ -395,7 +444,10 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
       'mapperInterfaceName': mapperInterfaceName.toMap(),
-      'iriStrategy': iriStrategy.toMap(),
+      'regexPattern': regexPattern,
+      'interpolatedTemplate': interpolatedTemplate,
+      'propertyVariables':
+          toMustacheList(propertyVariables.map((e) => e.toMap()).toList()),
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
       'nonConstructorFields':
@@ -405,11 +457,13 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
         ...constructorParameters,
         ...nonConstructorFields
       ].map((p) => p.toMap()).toList()),
-      'properties': properties.map((p) => p.toMap()).toList(),
-      'contextProviders':
-          toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
-      'hasContextProviders': contextProviders.isNotEmpty,
-      'needsReader': needsReader,
+      'contextVariables':
+          toMustacheList(contextVariables.map((p) => p.toMap()).toList()),
+      'hasContextVariables': contextVariables.isNotEmpty,
+      'mapperConstructor': mapperConstructor.toMap(),
+      'mapperFields':
+          toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
+      'hasMapperFields': mapperFields.isNotEmpty,
       'registerGlobally': registerGlobally,
       'singleMappedValue': singleMappedValue?.toMap(),
       'hasSingleMappedValue': singleMappedValue != null,
@@ -431,11 +485,13 @@ class FileTemplateData {
   /// All generated mapper classes
   final List<MapperData> mappers;
 
+  final String mapperFileImportUri;
   const FileTemplateData({
     required this.header,
     required this.broaderImports,
     required this.originalImports,
     required this.mappers,
+    required this.mapperFileImportUri,
   });
 
   /// Converts this template data to a Map for mustache rendering
@@ -445,6 +501,7 @@ class FileTemplateData {
       'broaderImports': broaderImports.toMap(),
       'originalImports': originalImports,
       'mappers': mappers.map((m) => m.toMap()).toList(),
+      'mapperFileImportUri': mapperFileImportUri,
     };
   }
 }
@@ -503,14 +560,14 @@ class ContextProviderData {
   final String placeholder;
 
   final bool isField;
-
-  const ContextProviderData({
-    required this.variableName,
-    required this.privateFieldName,
-    required this.parameterName,
-    required this.placeholder,
-    this.isField = true,
-  });
+  final Code type;
+  const ContextProviderData(
+      {required this.variableName,
+      required this.privateFieldName,
+      required this.parameterName,
+      required this.placeholder,
+      this.isField = true,
+      this.type = const Code.literal('String Function()')});
 
   Map<String, dynamic> toMap() => {
         'variableName': variableName,
@@ -518,6 +575,7 @@ class ContextProviderData {
         'parameterName': parameterName,
         'placeholder': placeholder,
         'isField': isField,
+        'type': type.toMap()
       };
 }
 
@@ -542,6 +600,40 @@ class VariableNameData {
       };
 }
 
+class DependencyUsingVariableData {
+  final String variableName;
+  final Code code;
+
+  const DependencyUsingVariableData({
+    required this.variableName,
+    required this.code,
+  });
+
+  Map<String, dynamic> toMap() => {
+        'variableName': variableName,
+        'code': code.toMap(),
+      };
+
+  @override
+  String toString() {
+    return 'DependencyUsingVariableData{variableName: $variableName, code: $code}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is DependencyUsingVariableData &&
+        other.variableName == variableName &&
+        other.code == code;
+  }
+
+  @override
+  int get hashCode {
+    return variableName.hashCode ^ code.hashCode;
+  }
+}
+
 class IriTemplateData {
   /// The original template string.
   final String template;
@@ -553,7 +645,7 @@ class IriTemplateData {
   final Set<VariableNameData> propertyVariables;
 
   /// Variables that need to be provided from context.
-  final Set<VariableNameData> contextVariables;
+  final Set<DependencyUsingVariableData> contextVariables;
 
   /// The regex pattern built from the template.
   final String regexPattern;
@@ -606,14 +698,13 @@ class IriPartData {
 class IriData {
   final IriTemplateData? template;
   final bool hasFullIriPartTemplate;
-  final MapperRefData? mapper;
+
   final bool hasMapper;
   final List<IriPartData> iriMapperParts;
 
   const IriData({
     this.template,
     required this.hasFullIriPartTemplate,
-    this.mapper,
     this.hasMapper = false,
     required this.iriMapperParts,
   });
@@ -623,7 +714,6 @@ class IriData {
   Map<String, dynamic> toMap() => {
         'template': template?.toMap(),
         'hasTemplate': hasTemplate,
-        'mapper': mapper?.toMap(),
         'hasMapper': hasMapper,
         'iriMapperParts':
             toMustacheList(iriMapperParts.map((p) => p.toMap()).toList()),
@@ -638,137 +728,65 @@ class IriData {
 class ConstructorParameterData {
   final Code type;
   final String parameterName;
-  final String fieldName;
-  final ResolvableInstantiationCodeData? defaultValue;
-  final bool isLate;
-  final bool isField;
-
-  bool get needsAssignment => parameterName != fieldName && !isLate;
+  final Code? defaultValue;
 
   ConstructorParameterData(
       {required this.type,
       required this.parameterName,
-      required this.fieldName,
-      required this.defaultValue,
-      required this.isLate,
-      this.isField = true});
+      required this.defaultValue});
 
   Map<String, dynamic> toMap() => {
         'type': type.toMap(),
         'parameterName': parameterName,
-        'fieldName': fieldName,
-        'needsAssignment': needsAssignment,
         'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': defaultValue != null,
-        'isLate': isLate,
-        'isField': isField,
       };
-}
 
-/// Data for constructor parameters
-class ParameterData {
-  final String name;
-  final Code dartType;
-  final bool isRequired;
-  final bool isFieldNullable;
-  final bool isIriPart;
-  final bool isRdfProperty;
-  final bool isNamed;
-  final String? iriPartName;
-  final Code? predicate;
-  final Code? defaultValue;
-  final bool hasDefaultValue;
-  final bool isRdfValue;
-  final bool isRdfLanguageTag;
-  final Code? mapperSerializerCode;
-  final Code? mapperDeserializerCode;
-  final String? mapperFieldName;
-  final String? mapperParameterSerializer;
-  final String? mapperParameterDeserializer;
-  final Code readerMethod;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
 
-  final bool isMap;
-  final bool isList;
-  final bool isSet;
-  final bool isCollection;
+    return other is ConstructorParameterData &&
+        other.type == type &&
+        other.parameterName == parameterName &&
+        other.defaultValue == defaultValue;
+  }
 
-  const ParameterData({
-    required this.name,
-    required this.dartType,
-    required this.isRequired,
-    required this.isFieldNullable,
-    required this.isIriPart,
-    required this.isRdfProperty,
-    required this.isNamed,
-    required this.iriPartName,
-    required this.predicate,
-    required this.defaultValue,
-    required this.hasDefaultValue,
-    required this.isRdfValue,
-    required this.isRdfLanguageTag,
-    required this.mapperFieldName,
-    required this.mapperParameterSerializer,
-    required this.mapperParameterDeserializer,
-    required this.mapperSerializerCode,
-    required this.mapperDeserializerCode,
-    required this.readerMethod,
-    required this.isMap,
-    required this.isList,
-    required this.isSet,
-    required this.isCollection,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'name': name,
-        'dartType': dartType.toMap(),
-        // if default value is provided, then it is not required
-        'isRequired': isRequired && !hasDefaultValue,
-        'isFieldNullable': isFieldNullable,
-        'useOptionalReader': isFieldNullable || hasDefaultValue,
-        'isIriPart': isIriPart && !isRdfProperty,
-        'isRdfProperty': isRdfProperty,
-        'isNamed': isNamed,
-        'iriPartName': iriPartName,
-        'predicate': predicate?.toMap(),
-        'defaultValue': defaultValue?.toMap(),
-        'hasDefaultValue': hasDefaultValue,
-        'isRdfValue': isRdfValue,
-        'isRdfLanguageTag': isRdfLanguageTag,
-        'hasMapper': mapperFieldName != null,
-        'mapperFieldName': mapperFieldName,
-        'mapperParameterSerializer': mapperParameterSerializer,
-        'mapperSerializerCode': mapperSerializerCode?.toMap(),
-        'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
-        'mapperParameterDeserializer': mapperParameterDeserializer,
-        'readerMethod': readerMethod.toMap(),
-        'isMap': isMap,
-        'isList': isList,
-        'isSet': isSet,
-        'isCollection': isCollection,
-      };
+  @override
+  int get hashCode {
+    return type.hashCode ^
+        parameterName.hashCode ^
+        (defaultValue?.hashCode ?? 0);
+  }
 }
 
 /// Data for RDF properties
 class PropertyData {
-  final String propertyName;
+  final String propertyName; // not in ParameterData
   final bool isRequired;
   final bool isFieldNullable;
   final bool isRdfProperty;
-  final bool include;
+  final bool isIriPart;
+  final bool isRdfValue;
+  final bool isRdfLanguageTag;
+  final String? iriPartName;
+  final String? name; // constructorParameterName
+  final bool isNamed; // isNamedConstructorParameter
+  final bool include; // not in ParameterData
   final Code? predicate;
   final Code? defaultValue;
   final bool hasDefaultValue;
-  final bool includeDefaultsInSerialization;
+  final bool includeDefaultsInSerialization; // not in ParameterData
   final String? mapperFieldName;
   final String? mapperParameterSerializer;
   final String? mapperParameterDeserializer;
   final Code? mapperSerializerCode;
   final Code? mapperDeserializerCode;
+  final Code readerMethod;
+  final Code serializerMethod; // not in ParameterData
+  final Code dartType;
   final bool isCollection;
   final bool isMap;
-  final Code readerMethod;
-  final Code serializerMethod;
-  final Code? dartType;
   final bool isList;
   final bool isSet;
 
@@ -777,9 +795,15 @@ class PropertyData {
     required this.isRequired,
     required this.isFieldNullable,
     required this.isRdfProperty,
+    required this.isIriPart,
+    required this.isRdfValue,
+    required this.isRdfLanguageTag,
+    required this.iriPartName,
+    required this.name,
+    required this.isNamed,
     required this.include,
-    this.predicate,
-    this.defaultValue,
+    required this.predicate,
+    required this.defaultValue,
     required this.hasDefaultValue,
     required this.includeDefaultsInSerialization,
     required this.mapperFieldName,
@@ -791,17 +815,26 @@ class PropertyData {
     required this.isMap,
     required this.readerMethod,
     required this.serializerMethod,
-    this.dartType,
+    required this.dartType,
     required this.isList,
     required this.isSet,
   });
 
+  bool get isConstructorParameter => (name ?? '').isNotEmpty;
+
   Map<String, dynamic> toMap() => {
         'propertyName': propertyName,
-        'isRequired': isRequired,
+        'isRequired': !(isFieldNullable || hasDefaultValue),
         'isFieldNullable': isFieldNullable,
         'useOptionalSerialization': isFieldNullable,
+        'useOptionalReader': isFieldNullable || hasDefaultValue,
         'isRdfProperty': isRdfProperty,
+        'isIriPart': isIriPart && !isRdfProperty,
+        'isRdfValue': isRdfValue,
+        'isRdfLanguageTag': isRdfLanguageTag,
+        'iriPartName': iriPartName,
+        'name': (name ?? '').isNotEmpty ? name : propertyName,
+        'isNamed': isNamed,
         'include': include,
         'predicate': predicate?.toMap(),
         'defaultValue': defaultValue?.toMap(),
@@ -819,7 +852,7 @@ class PropertyData {
         'isMap': isMap,
         'readerMethod': readerMethod.toMap(),
         'serializerMethod': serializerMethod.toMap(),
-        'dartType': dartType?.toMap(),
+        'dartType': dartType.toMap(),
         'isList': isList,
         'isSet': isSet,
       };
@@ -839,14 +872,21 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
-  const EnumLiteralMapperTemplateData({
+  final String? fromLiteralTermMethod;
+  final String? toLiteralTermMethod;
+
+  EnumLiteralMapperTemplateData({
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
-    this.datatype,
+    required super.mapperConstructor,
+    required super.mapperFields,
+    required this.datatype,
     required this.enumValues,
     required this.registerGlobally,
-  }) : super(contextProviders: const []);
+    required this.fromLiteralTermMethod,
+    required this.toLiteralTermMethod,
+  }) : super();
 
   @override
   Map<String, dynamic> toMap() {
@@ -858,6 +898,12 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
       'hasDatatype': datatype != null,
       'enumValues': toMustacheList(enumValues),
       'registerGlobally': registerGlobally,
+      'fromLiteralTermMethod': fromLiteralTermMethod,
+      'toLiteralTermMethod': toLiteralTermMethod,
+      'mapperConstructor': mapperConstructor.toMap(),
+      'mapperFields':
+          toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
+      'hasMapperFields': mapperFields.isNotEmpty,
     };
   }
 }
@@ -867,9 +913,6 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
 /// This class contains all data needed to render mustache templates
 /// for enum mappers annotated with @RdfIri.
 class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
-  /// IRI template for serialization
-  final String? template;
-
   /// Regex pattern for deserialization
   final String? regexPattern;
 
@@ -883,19 +926,22 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
   final bool registerGlobally;
 
   /// Whether this uses a full IRI part template (no regex parsing needed)
-  final bool hasFullIriPartTemplate;
+  final bool requiresIriParsing;
 
-  const EnumIriMapperTemplateData({
+  final Set<DependencyUsingVariableData> contextVariables;
+
+  EnumIriMapperTemplateData({
     required super.className,
     required super.mapperClassName,
     required super.mapperInterfaceName,
-    this.template,
-    this.regexPattern,
-    this.interpolatedTemplate,
+    required super.mapperConstructor,
+    required super.mapperFields,
+    required this.regexPattern,
+    required this.interpolatedTemplate,
     required this.enumValues,
-    required super.contextProviders,
     required this.registerGlobally,
-    required this.hasFullIriPartTemplate,
+    required this.requiresIriParsing,
+    required this.contextVariables,
   });
 
   @override
@@ -904,17 +950,18 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
       'mapperInterfaceName': mapperInterfaceName.toMap(),
-      'template': template,
-      'hasTemplate': template != null,
       'regexPattern': regexPattern,
       'interpolatedTemplate': interpolatedTemplate,
       'enumValues': toMustacheList(enumValues),
-      'contextProviders':
-          toMustacheList(contextProviders.map((p) => p.toMap()).toList()),
-      'hasContextProviders': contextProviders.isNotEmpty,
+      'contextVariables':
+          toMustacheList(contextVariables.map((c) => c.toMap()).toList()),
+      'hasContextVariables': contextVariables.isNotEmpty,
       'registerGlobally': registerGlobally,
-      'hasFullIriPartTemplate': hasFullIriPartTemplate,
-      'requiresIriParsing': !hasFullIriPartTemplate,
+      'requiresIriParsing': requiresIriParsing,
+      'mapperConstructor': mapperConstructor.toMap(),
+      'mapperFields':
+          toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
+      'hasMapperFields': mapperFields.isNotEmpty,
     };
   }
 }

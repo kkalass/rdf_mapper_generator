@@ -13,6 +13,48 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'example_crdt_item.dart';
 import 'package:rdf_vocabularies/dcterms.dart';
 
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class ItemLastModifiedByMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$',
+  );
+
+  final String Function() _storageRootProvider;
+
+  /// Constructor
+  const ItemLastModifiedByMapper({
+    required String Function() storageRootProvider,
+  }) : _storageRootProvider = storageRootProvider;
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['lastModifiedBy']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final lastModifiedBy = iriTermValue.toString();
+    final storageRoot = _storageRootProvider();
+    return IriTerm(
+      '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl',
+    );
+  }
+}
+
 /// Generated mapper for [Item] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -22,10 +64,10 @@ class ItemMapper implements GlobalResourceMapper<Item> {
     '^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl\$',
   );
 
-  final String Function() _storageRootProvider;
   late final IriTermMapper<String> _lastModifiedByMapper;
+  final String Function() _storageRootProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   ItemMapper({required String Function() storageRootProvider})
     : _storageRootProvider = storageRootProvider {
     _lastModifiedByMapper = ItemLastModifiedByMapper(
@@ -101,16 +143,15 @@ class ItemMapper implements GlobalResourceMapper<Item> {
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
-class ItemLastModifiedByMapper implements IriTermMapper<String> {
+class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$',
+    '^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl\$',
   );
 
-  /// Provider for context variable 'storageRoot'
   final String Function() _storageRootProvider;
 
-  /// Constructor requiring providers for context variables
-  const ItemLastModifiedByMapper({
+  /// Constructor
+  const VectorClockEntryClientIdMapper({
     required String Function() storageRootProvider,
   }) : _storageRootProvider = storageRootProvider;
 
@@ -123,7 +164,7 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    return iriParts['lastModifiedBy']!;
+    return iriParts['clientId']!;
   }
 
   @override
@@ -132,11 +173,9 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final lastModifiedBy = iriTermValue.toString();
+    final clientId = iriTermValue.toString();
     final storageRoot = _storageRootProvider();
-    return IriTerm(
-      '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl',
-    );
+    return IriTerm('${storageRoot}/solidtask/appinstance/${clientId}.ttl');
   }
 }
 
@@ -145,11 +184,11 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type VectorClockEntry.
 class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
+  late final IriTermMapper<String> _clientIdMapper;
   final String Function() _storageRootProvider;
   final String Function() _taskIdProvider;
-  late final IriTermMapper<String> _clientIdMapper;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   VectorClockEntryMapper({
     required String Function() storageRootProvider,
     required String Function() taskIdProvider,
@@ -204,46 +243,5 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
     final storageRoot = _storageRootProvider();
     final taskId = _taskIdProvider();
     return '${storageRoot}/solidtask/task/${taskId}/vectorclock/${clientId}.ttl';
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
-class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl\$',
-  );
-
-  /// Provider for context variable 'storageRoot'
-  final String Function() _storageRootProvider;
-
-  /// Constructor requiring providers for context variables
-  const VectorClockEntryClientIdMapper({
-    required String Function() storageRootProvider,
-  }) : _storageRootProvider = storageRootProvider;
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['clientId']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final clientId = iriTermValue.toString();
-    final storageRoot = _storageRootProvider();
-    return IriTerm('${storageRoot}/solidtask/appinstance/${clientId}.ttl');
   }
 }

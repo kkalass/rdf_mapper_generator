@@ -3,13 +3,13 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:test/test.dart';
 
 import '../test_helper.dart';
 
-final stringType = Code.coreType('String');
 void main() {
   group('LocalResourceProcessor', () {
     late LibraryElement2 libraryElement;
@@ -74,8 +74,8 @@ void main() {
       expect(annotation.mapper, isNotNull);
       expect(annotation.mapper!.name, isNull);
       expect(annotation.mapper!.type, isNotNull);
-      expect(annotation.mapper!.type!.name.codeWithoutAlias,
-          'TestLocalResourceMapper');
+      expect(
+          annotation.mapper!.type!.codeWithoutAlias, 'TestLocalResourceMapper');
       expect(annotation.mapper!.instance, isNull);
 
       expect(result.constructors, hasLength(1));

@@ -1,6 +1,4 @@
-import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
-import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data_builder.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
@@ -10,24 +8,26 @@ void main() {
   group('TemplateDataBuilder Tests', () {
     late ValidationContext context;
     late BroaderImports broaderImports;
-
+    late Map<String, String> originalImports;
     setUp(() {
       context = ValidationContext();
       broaderImports = BroaderImports(<String, String>{});
+      originalImports = <String, String>{};
     });
 
     test('buildFileTemplate creates FileTemplateData with header', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       expect(result.header.sourcePath, equals(sourcePath));
       expect(result.header.generatedOn, isNotEmpty);
@@ -39,15 +39,16 @@ void main() {
         () {
       final sourcePath = 'lib/empty.dart';
       final mapperImportUri = 'asset:test/lib/empty.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       expect(result, isA<FileTemplateData>());
       expect(result.header, isA<FileHeaderData>());
@@ -59,15 +60,16 @@ void main() {
     test('buildFileTemplate generates ISO8601 timestamp', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       // Verify the timestamp is a valid ISO8601 string
       expect(() => DateTime.parse(result.header.generatedOn), returnsNormally);
@@ -82,19 +84,20 @@ void main() {
     test('buildFileTemplate handles ValidationContext', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       // Should not throw even if context has warnings
       context.addWarning('Test warning');
 
       expect(
         () => TemplateDataBuilder.buildFileTemplate(
-            context,
-            sourcePath,
-            mapperImportUri,
-            resourceInfos,
-            broaderImports,
-            UnresolvedInstantiationCodeData()),
+          context,
+          sourcePath,
+          mapperDatas,
+          broaderImports,
+          originalImports,
+          mapperImportUri,
+        ),
         returnsNormally,
       );
     });
@@ -102,15 +105,16 @@ void main() {
     test('buildFileTemplate preserves BroaderImports reference', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       // The result should preserve the same BroaderImports instance
       expect(result.broaderImports, same(broaderImports));
@@ -120,26 +124,28 @@ void main() {
         () async {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result1 = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       // Wait a tiny bit to ensure different timestamp
       await Future.delayed(Duration(milliseconds: 1));
 
       final result2 = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       // Timestamps should be different (or at least not identical)
       expect(result1.header.generatedOn,
@@ -150,15 +156,16 @@ void main() {
       final sourcePath = 'lib/complex/nested/test.dart';
       final mapperImportUri =
           'asset:test/lib/complex/nested/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       expect(result.header.sourcePath, equals(sourcePath));
       // The mapper import URI should be used by the data builder for individual mappers
@@ -177,15 +184,16 @@ void main() {
       for (final sourcePath in testCases) {
         final mapperImportUri =
             'asset:test/$sourcePath'.replaceAll('.dart', '.rdf_mapper.g.dart');
-        final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+        final mapperDatas = <MappableClassMapperTemplateData>[];
 
         final result = TemplateDataBuilder.buildFileTemplate(
-            ValidationContext(),
-            sourcePath,
-            mapperImportUri,
-            resourceInfos,
-            BroaderImports(<String, String>{}),
-            UnresolvedInstantiationCodeData());
+          ValidationContext(),
+          sourcePath,
+          mapperDatas,
+          broaderImports,
+          originalImports,
+          mapperImportUri,
+        );
 
         expect(result.header.sourcePath, equals(sourcePath));
         expect(result, isA<FileTemplateData>());
@@ -195,15 +203,16 @@ void main() {
     test('FileHeaderData contains expected fields', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       final header = result.header;
       expect(header.sourcePath, isA<String>());
@@ -215,28 +224,30 @@ void main() {
     test('buildFileTemplate works with different validation contexts', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       // Test with root context
       final rootContext = ValidationContext();
       final result1 = TemplateDataBuilder.buildFileTemplate(
-          rootContext,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        rootContext,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       // Test with nested context
       final nestedContext =
           ValidationContext('ParentContext').withContext('ChildContext');
       final result2 = TemplateDataBuilder.buildFileTemplate(
-          nestedContext,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        nestedContext,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       expect(result1, isA<FileTemplateData>());
       expect(result2, isA<FileTemplateData>());
@@ -246,15 +257,16 @@ void main() {
     test('FileTemplateData toMap method works correctly', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       final map = result.toMap();
       expect(map, isA<Map<String, dynamic>>());
@@ -266,15 +278,16 @@ void main() {
     test('FileHeaderData toMap method works correctly', () {
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          broaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        broaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       final headerMap = result.header.toMap();
       expect(headerMap, isA<Map<String, dynamic>>());
@@ -290,15 +303,16 @@ void main() {
 
       final sourcePath = 'lib/test.dart';
       final mapperImportUri = 'asset:test/lib/test.rdf_mapper.g.dart';
-      final resourceInfos = <(MappableClassInfo, ClassElement2)>[];
+      final mapperDatas = <MappableClassMapperTemplateData>[];
 
       final result = TemplateDataBuilder.buildFileTemplate(
-          context,
-          sourcePath,
-          mapperImportUri,
-          resourceInfos,
-          testBroaderImports,
-          UnresolvedInstantiationCodeData());
+        context,
+        sourcePath,
+        mapperDatas,
+        testBroaderImports,
+        originalImports,
+        mapperImportUri,
+      );
 
       expect(result.broaderImports, same(testBroaderImports));
 

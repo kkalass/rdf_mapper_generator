@@ -179,10 +179,9 @@ class IriWithBaseUriAndTwoPartsMapper
     '^(?<baseUri>.*)/(?<type>[^/]*)/(?<value>[^/]*)\$',
   );
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const IriWithBaseUriAndTwoPartsMapper({
     required String Function() baseUriProvider,
   }) : _baseUriProvider = baseUriProvider;
@@ -225,10 +224,9 @@ class IriWithBaseUriAndTwoPartsMapper
 class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
   static final RegExp _regex = RegExp('^(?<baseUri>.*)/books/(?<isbn>[^/]*)\$');
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const IriWithBaseUriMapper({required String Function() baseUriProvider})
     : _baseUriProvider = baseUriProvider;
 
@@ -266,10 +264,9 @@ class IriWithBaseUriNoGlobalMapper
     implements IriTermMapper<IriWithBaseUriNoGlobal> {
   static final RegExp _regex = RegExp('^(?<baseUri>.*)/books/(?<isbn>[^/]*)\$');
 
-  /// Provider for context variable 'baseUri'
   final String Function() _baseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const IriWithBaseUriNoGlobalMapper({
     required String Function() baseUriProvider,
   }) : _baseUriProvider = baseUriProvider;
@@ -354,10 +351,9 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     implements IriTermMapper<IriWithNonConstructorFieldsAndBaseUriNonGlobal> {
   static final RegExp _regex = RegExp('^(?<myBaseUri>.*)/items/(?<id>[^/]*)\$');
 
-  /// Provider for context variable 'myBaseUri'
   final String Function() _myBaseUriProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper({
     required String Function() myBaseUriProvider,
   }) : _myBaseUriProvider = myBaseUriProvider;

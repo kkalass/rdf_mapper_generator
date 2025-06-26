@@ -14,6 +14,41 @@ import 'example_full_book.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:rdf_vocabularies/rdf.dart' as rdf;
 
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class BookAuthorIdMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/author/(?<authorId>[^/]*)\$',
+  );
+
+  /// Constructor
+  const BookAuthorIdMapper();
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['authorId']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final authorId = iriTermValue.toString();
+    return IriTerm('http://example.org/author/${authorId}');
+  }
+}
+
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
@@ -95,41 +130,6 @@ class BookMapper implements GlobalResourceMapper<Book> {
   String _buildIri(Book resource) {
     final id = resource.id;
     return 'http://example.org/book/${id}';
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
-class BookAuthorIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/author/(?<authorId>[^/]*)\$',
-  );
-
-  /// Constructor
-  const BookAuthorIdMapper();
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['authorId']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/author/${authorId}');
   }
 }
 

@@ -153,19 +153,19 @@ class TestIriMapper implements IriTermMapper<TestIri> {
 class InferenceTestContainerMapper
     implements LocalResourceMapper<InferenceTestContainer> {
   final GlobalResourceMapper<TestGlobalResource> _globalResourceMapper;
-  final LocalResourceMapper<TestLocalResource> _localResourceMapper;
   final IriTermMapper<TestIri> _iriMapper;
+  final LocalResourceMapper<TestLocalResource> _localResourceMapper;
 
   /// Constructor
   const InferenceTestContainerMapper({
     GlobalResourceMapper<TestGlobalResource> globalResourceMapper =
-        TestGlobalResourceMapper(),
+        const TestGlobalResourceMapper(),
+    IriTermMapper<TestIri> iriMapper = const TestIriMapper(),
     LocalResourceMapper<TestLocalResource> localResourceMapper =
-        TestLocalResourceMapper(),
-    IriTermMapper<TestIri> iriMapper = TestIriMapper(),
+        const TestLocalResourceMapper(),
   }) : _globalResourceMapper = globalResourceMapper,
-       _localResourceMapper = localResourceMapper,
-       _iriMapper = iriMapper;
+       _iriMapper = iriMapper,
+       _localResourceMapper = localResourceMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;

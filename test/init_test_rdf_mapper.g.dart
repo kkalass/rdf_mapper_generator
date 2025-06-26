@@ -53,13 +53,13 @@ import 'fixtures/rdf_mapper_annotations/examples/provides.rdf_mapper.g.dart'
 ///
 /// [rdfMapper] An optional RdfMapper instance to use. If not provided, a new one will be created.
 /// Provider parameters:
-/// * [apiBaseProvider] {+apiBase}
-/// * [baseUriProvider] {+baseUri}
-/// * [baseVocabProvider] {+baseVocab}
-/// * [departmentProvider] {department}
-/// * [orgNamespaceProvider] {+orgNamespace}
-/// * [storageRootProvider] {+storageRoot}
-/// * [versionProvider] {version}
+/// * [apiBaseProvider]
+/// * [baseUriProvider]
+/// * [baseVocabProvider]
+/// * [departmentProvider]
+/// * [orgNamespaceProvider]
+/// * [storageRootProvider]
+/// * [versionProvider]
 /// named mapper parameters:
 /// * [chapterIdMapper] mapper
 /// * [customPriorityMapper] mapper
@@ -112,11 +112,7 @@ RdfMapper initTestRdfMapper({
   }
   var registry = rdfMapper.registry;
 
-  registry.registerMapper<atm.BookWithMapper>(
-    atmrmg.BookWithMapperMapper(
-      iriMapper: const atm.TestMapper(prefix: 'https://example.org/books'),
-    ),
-  );
+  registry.registerMapper<atm.BookWithMapper>(atmrmg.BookWithMapperMapper());
   registry.registerMapper<atm.BookWithTemplate>(
     atmrmg.BookWithTemplateMapper(),
   );
@@ -153,12 +149,10 @@ RdfMapper initTestRdfMapper({
     ),
   );
   registry.registerMapper<grptm.ClassWithIriMapperStrategy>(
-    grptmrmg.ClassWithIriMapperStrategyMapper(iriMapper: grptm.TestIriMapper()),
+    grptmrmg.ClassWithIriMapperStrategyMapper(),
   );
   registry.registerMapper<grptm.ClassWithIriMapperInstanceStrategy>(
-    grptmrmg.ClassWithIriMapperInstanceStrategyMapper(
-      iriMapper: const grptm.TestIriMapper2(),
-    ),
+    grptmrmg.ClassWithIriMapperInstanceStrategyMapper(),
   );
   registry.registerMapper<grptm.ClassWithMapperNamedMapperStrategy>(
     testGlobalResourceMapper,
@@ -418,8 +412,8 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<ems.EmployeeRole>(
     emsrmg.EmployeeRoleMapper(
-      orgNamespaceProvider: orgNamespaceProvider,
       departmentProvider: departmentProvider,
+      orgNamespaceProvider: orgNamespaceProvider,
     ),
   );
   registry.registerMapper<eci.Item>(

@@ -184,7 +184,7 @@ void main() {
       expect(annotation.mapper, isNotNull);
       expect(annotation.mapper!.name, isNull);
       expect(annotation.mapper!.type, isNotNull);
-      expect(annotation.mapper!.type!.name.codeWithoutAlias, 'TestIriMapper');
+      expect(annotation.mapper!.type!.codeWithoutAlias, 'TestIriMapper');
       expect(annotation.mapper!.instance, isNull);
       expect(annotation.template, isNull);
 

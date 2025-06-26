@@ -85,7 +85,7 @@ class Code {
   }
 
   /// Combines multiple Code instances, merging their imports
-  factory Code.combine(List<Code> codes, {String separator = ''}) {
+  factory Code.combine(Iterable<Code> codes, {String separator = ''}) {
     if (codes.isEmpty) return Code.literal('');
     if (codes.length == 1) return codes.first;
 

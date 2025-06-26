@@ -2,25 +2,25 @@
 /// 
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF IRI terms for enum type {{className}}.
-class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
+class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{#requiresIriParsing}}
   static final RegExp _regex = RegExp(
     '{{{regexPattern}}}',
   );
   {{/requiresIriParsing}}
 
-  {{#contextProviders}}
-  /// Provider for context variable '{{value.variableName}}'
-  final String Function() {{value.privateFieldName}};
-  {{/contextProviders}}
+  {{#mapperFields}}
+  {{#value.isLate}}late {{/value.isLate}}{{#value.isFinal}}final{{/value.isFinal}} {{value.type}} {{value.name}};
+  {{/mapperFields}}
 
-  /// Constructor{{#hasContextProviders}} requiring providers for context variables{{/hasContextProviders}}
-  const {{mapperClassName}}({{#hasContextProviders}}{
-    {{#contextProviders}}
-    required String Function() {{value.parameterName}},
-    {{/contextProviders}}
-  }{{/hasContextProviders}}){{#hasContextProviders}} : {{#contextProviders}}{{value.privateFieldName}} = {{value.parameterName}}{{^last}},
-       {{/last}}{{/contextProviders}}{{/hasContextProviders}};
+  /// Constructor
+  {{#mapperConstructor.isConst}}const {{/mapperConstructor.isConst}}{{mapperConstructor.className}}({{#mapperConstructor.hasParameters}}{
+    {{#mapperConstructor.parameters}}
+    {{^value.hasDefaultValue}}required {{/value.hasDefaultValue}}{{value.type}} {{value.parameterName}}{{#value.hasDefaultValue}} = {{value.defaultValue}}{{/value.hasDefaultValue}}{{^last}}, {{/last}}
+    {{/mapperConstructor.parameters}}
+  }{{/mapperConstructor.hasParameters}}){{#mapperConstructor.hasParameterAssignments}} : {{#mapperConstructor.parameterAssignments}}{{value.fieldName}} = {{value.parameterName}}{{^last}}, {{/last}}{{/mapperConstructor.parameterAssignments}}{{/mapperConstructor.hasParameterAssignments}}
+  {{^mapperConstructor.hasBodyAssignments}};{{/mapperConstructor.hasBodyAssignments}}
+  {{#mapperConstructor.hasBodyAssignments}}{ {{#mapperConstructor.bodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructor.bodyAssignments}}}{{/mapperConstructor.hasBodyAssignments}}
 
   @override
   {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -70,9 +70,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}}<{{className}}> {
   {{#requiresIriParsing}}
   /// Generates the complete IRI for a given enum value
   String _buildIri(String value) {
-    {{#contextProviders}}
-    final {{value.variableName}} = {{value.privateFieldName}}();
-    {{/contextProviders}}
+    {{#contextVariables}}
+    final {{value.variableName}} = {{value.code}};
+    {{/contextVariables}}
     return '{{interpolatedTemplate}}';
   }
   {{/requiresIriParsing}}

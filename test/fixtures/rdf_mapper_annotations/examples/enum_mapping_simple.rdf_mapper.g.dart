@@ -464,10 +464,9 @@ class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
     '^(?<baseVocab>.*)/categories/(?<value>[^/]*)\$',
   );
 
-  /// Provider for context variable 'baseVocab'
   final String Function() _baseVocabProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const ProductCategoryMapper({required String Function() baseVocabProvider})
     : _baseVocabProvider = baseVocabProvider;
 
@@ -526,13 +525,10 @@ class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
     '^(?<apiBase>.*)/(?<version>[^/]*)/shipping-methods/(?<value>[^/]*)\$',
   );
 
-  /// Provider for context variable 'apiBase'
   final String Function() _apiBaseProvider;
-
-  /// Provider for context variable 'version'
   final String Function() _versionProvider;
 
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const ShippingMethodMapper({
     required String Function() apiBaseProvider,
     required String Function() versionProvider,
@@ -593,18 +589,15 @@ class EmployeeRoleMapper implements IriTermMapper<EmployeeRole> {
     '^(?<orgNamespace>.*)/departments/(?<department>[^/]*)/roles/(?<value>[^/]*)\$',
   );
 
-  /// Provider for context variable 'orgNamespace'
+  final String Function() _departmentProvider;
   final String Function() _orgNamespaceProvider;
 
-  /// Provider for context variable 'department'
-  final String Function() _departmentProvider;
-
-  /// Constructor requiring providers for context variables
+  /// Constructor
   const EmployeeRoleMapper({
-    required String Function() orgNamespaceProvider,
     required String Function() departmentProvider,
-  }) : _orgNamespaceProvider = orgNamespaceProvider,
-       _departmentProvider = departmentProvider;
+    required String Function() orgNamespaceProvider,
+  }) : _departmentProvider = departmentProvider,
+       _orgNamespaceProvider = orgNamespaceProvider;
 
   @override
   EmployeeRole fromRdfTerm(IriTerm term, DeserializationContext context) {
