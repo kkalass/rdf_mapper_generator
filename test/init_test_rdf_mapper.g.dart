@@ -153,7 +153,9 @@ RdfMapper initTestRdfMapper({
     ),
   );
   registry.registerMapper<grptm.ClassWithIriMapperStrategy>(
-    grptmrmg.ClassWithIriMapperStrategyMapper(iriMapper: grptm.TestIriMapper()),
+    grptmrmg.ClassWithIriMapperStrategyMapper(
+      iriMapper: const grptm.TestIriMapper(),
+    ),
   );
   registry.registerMapper<grptm.ClassWithIriMapperInstanceStrategy>(
     grptmrmg.ClassWithIriMapperInstanceStrategyMapper(
@@ -164,7 +166,7 @@ RdfMapper initTestRdfMapper({
     testGlobalResourceMapper,
   );
   registry.registerMapper<grptm.ClassWithMapperStrategy>(
-    grptm.TestGlobalResourceMapper(),
+    const grptm.TestGlobalResourceMapper(),
   );
   registry.registerMapper<grptm.ClassWithMapperInstanceStrategy>(
     const grptm.TestGlobalResourceMapper2(),
@@ -186,7 +188,7 @@ RdfMapper initTestRdfMapper({
     iptmrmg.IriWithBaseUriMapper(baseUriProvider: baseUriProvider),
   );
   registry.registerMapper<iptm.IriWithNamedMapper>(testIriMapper);
-  registry.registerMapper<iptm.IriWithMapper>(iptm.TestIriMapper());
+  registry.registerMapper<iptm.IriWithMapper>(const iptm.TestIriMapper());
   registry.registerMapper<iptm.IriWithMapperInstance>(
     const iptm.TestIriMapper2(),
   );
@@ -209,7 +211,9 @@ RdfMapper initTestRdfMapper({
     lptmrmg.DoubleAsMilliunitMapper(),
   );
   registry.registerMapper<lptm.LiteralWithNamedMapper>(testLiteralMapper);
-  registry.registerMapper<lptm.LiteralWithMapper>(lptm.TestLiteralMapper());
+  registry.registerMapper<lptm.LiteralWithMapper>(
+    const lptm.TestLiteralMapper(),
+  );
   registry.registerMapper<lptm.LiteralWithMapperInstance>(
     const lptm.TestLiteralMapper2(),
   );
@@ -251,7 +255,7 @@ RdfMapper initTestRdfMapper({
     testLocalResourceMapper,
   );
   registry.registerMapper<lrptm.ClassWithMapperStrategy>(
-    lrptm.TestLocalResourceMapper(),
+    const lrptm.TestLocalResourceMapper(),
   );
   registry.registerMapper<lrptm.ClassWithMapperInstanceStrategy>(
     const lrptm.TestLocalResourceMapper2(),

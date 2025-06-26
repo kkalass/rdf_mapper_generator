@@ -159,10 +159,10 @@ class InferenceTestContainerMapper
   /// Constructor
   const InferenceTestContainerMapper({
     GlobalResourceMapper<TestGlobalResource> globalResourceMapper =
-        TestGlobalResourceMapper(),
+        const TestGlobalResourceMapper(),
     LocalResourceMapper<TestLocalResource> localResourceMapper =
-        TestLocalResourceMapper(),
-    IriTermMapper<TestIri> iriMapper = TestIriMapper(),
+        const TestLocalResourceMapper(),
+    IriTermMapper<TestIri> iriMapper = const TestIriMapper(),
   }) : _globalResourceMapper = globalResourceMapper,
        _localResourceMapper = localResourceMapper,
        _iriMapper = iriMapper;

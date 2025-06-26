@@ -73,27 +73,72 @@ class BuilderHelper {
           mapper.mapperClassName: mapper.mapperConstructorParameters
       };
       print(
-          'Constructor parameters by class name: $constructorParametersByClassName');
-      for (var resolvable in unresolved.unresolved) {
-        if (resolvable.mapperClassName == null) {
-          _log.warning(
-              'Unresolved code data without mapper class name: $resolvable');
-          continue;
+          'Found ${constructorParametersByClassName.length} mappers: ${constructorParametersByClassName.keys.map((m) => m.code).join(', ')}');
+
+      // irimapper template
+      for (var mapper in result.mappers) {
+        final mapperData = mapper.mapperData;
+        if (mapperData is GeneratedMapperTemplateData) {
+          for (final constructorParam
+              in mapperData.mapperConstructorParameters) {
+            if (constructorParam.defaultValue != null &&
+                !constructorParam.defaultValue!.isResolved) {
+              // Resolve the default value code data for the constructor parameter
+              resolve(constructorParam.defaultValue!,
+                  constructorParametersByClassName,
+                  constContext:
+                      constructorParam.isField && !constructorParam.isLate);
+            }
+          }
         }
-        var params =
-            constructorParametersByClassName[resolvable.mapperClassName];
-        print(
-            'Resolving parameters for ${resolvable.mapperClassName}: $params');
-        if (params != null) {
-          // Resolve the instantiation code data
-          resolvable.resolve(
-            params,
-          );
-        } else {
-          _log.warning(
-              'Unresolved code data of type ${resolvable.mapperClassName} cannot be properly resolved because we did not find it in the generated mappers. Assuming no-args default constructor.');
-          resolvable.resolve([]);
+        switch (mapperData) {
+          case ResourceMapperTemplateData resourceMapper:
+            {
+              if (resourceMapper.iriStrategy != null &&
+                  resourceMapper.iriStrategy!.mapper != null) {
+                final mapper = resourceMapper.iriStrategy!.mapper!;
+                final code = mapper.instanceInitializationCode;
+                if (code != null && !code.isResolved) {
+                  // Resolve the instantiation code data for the IRI strategy mapper
+                  resolve(code, constructorParametersByClassName,
+                      constContext: true);
+                }
+              }
+            }
+          case IriMapperTemplateData iriMapper:
+            {
+              final mapper = iriMapper.iriStrategy.mapper;
+              if (mapper != null) {
+                final code = mapper.instanceInitializationCode;
+                if (code != null && !code.isResolved) {
+                  // Resolve the instantiation code data for the IRI strategy mapper
+                  resolve(code, constructorParametersByClassName,
+                      constContext: true);
+                }
+              }
+            }
+          case CustomMapperTemplateData customMapperTemplateData:
+            {
+              final code = customMapperTemplateData.customMapperInstance;
+              if (code != null && !code.isResolved) {
+                // Resolve the instantiation code data for the custom mapper
+                resolve(code, constructorParametersByClassName,
+                    constContext: true);
+              }
+            }
+          default:
+            // Other mappers do not have further instantiation code data to resolve
+            break;
+          // Resolve global resource mappers
         }
+      }
+
+      var stillUnresolved =
+          unresolved.unresolved.where((r) => !r.isResolved).toList();
+
+      if (stillUnresolved.isNotEmpty) {
+        throw StateError(
+            'There are still unresolved instantiation code data: ${stillUnresolved.map((r) => r.mapperClassName?.code).join(', ')}');
       }
     }
 
@@ -107,6 +152,27 @@ class BuilderHelper {
     var map = result?.toMap();
 
     return map;
+  }
+
+  void resolve(
+      ResolvableInstantiationCodeData resolvable,
+      Map<Code, List<ConstructorParameterData>>
+          constructorParametersByClassName,
+      {required bool constContext}) {
+    if (resolvable.mapperClassName == null) {
+      _log.warning(
+          'Unresolved code data without mapper class name: $resolvable');
+      return;
+    }
+    var params = constructorParametersByClassName[resolvable.mapperClassName];
+    if (params != null) {
+      // Resolve the instantiation code data
+      resolvable.resolve(params, constContext: constContext);
+    } else {
+      _log.warning(
+          'Unresolved code data of type ${resolvable.mapperClassName?.code} cannot be properly resolved because we did not find it in the generated mappers. Assuming no-args default constructor.');
+      resolvable.resolve([], constContext: constContext);
+    }
   }
 
   List<(MappableClassInfo, Element2?)> collectResourceInfos(

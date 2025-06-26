@@ -250,7 +250,8 @@ class DataBuilder {
                   resourceInfo.className,
                   mapperImportUri,
                   iri.template!,
-                  provides)
+                  provides,
+                  unresolved)
             else if (iri.isFullIriTemplate)
               constructorParameterWithValue(
                   f.name,
@@ -339,7 +340,8 @@ class DataBuilder {
           Code className,
           String mapperImportUri,
           IriTemplateInfo iriTemplateInfo,
-          Set<String> provides) {
+          Set<String> provides,
+          UnresolvedInstantiationCodeData unresolved) {
     final isLate = iriTemplateInfo.contextVariables.isNotEmpty;
     final isOnDemand =
         iriTemplateInfo.contextVariables.any((v) => provides.contains(v));
@@ -348,6 +350,7 @@ class DataBuilder {
     }
     final generatedMapperName =
         buildPropertyMapperName(className, f.name, mapperImportUri);
+    /*
     Code? defaultValue = null;
     if (isLate) {
       // default value actually needs to be set to the constructor
@@ -363,6 +366,7 @@ class DataBuilder {
       defaultValue = Code.combine(
           [Code.literal('const '), generatedMapperName, Code.literal('()')]);
     }
+    */
     return [
       ConstructorParameterData(
           fieldName: _buildMapperFieldName(f.name),
@@ -370,7 +374,8 @@ class DataBuilder {
           type: _buildMapperInterfaceTypeForProperty(
               Code.type(mapperInterface, importUri: importRdfMapper), f),
           isLate: isLate,
-          defaultValue: ResolvableInstantiationCodeData.resolved(defaultValue))
+          defaultValue:
+              ResolvableInstantiationCodeData(generatedMapperName, unresolved))
     ];
   }
 

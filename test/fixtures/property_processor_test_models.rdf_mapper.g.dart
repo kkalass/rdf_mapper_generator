@@ -1007,7 +1007,7 @@ class IriMappingMapperTestMapper
 
   /// Constructor
   const IriMappingMapperTestMapper({
-    IriTermMapper<String> authorIdMapper = IriMapperImpl(),
+    IriTermMapper<String> authorIdMapper = const IriMapperImpl(),
   }) : _authorIdMapper = authorIdMapper;
 
   @override
@@ -2043,7 +2043,7 @@ class LiteralTypeMapperTestMapper
 
   /// Constructor
   const LiteralTypeMapperTestMapper({
-    LiteralTermMapper<double> priceMapper = LiteralDoubleMapperImpl(),
+    LiteralTermMapper<double> priceMapper = const LiteralDoubleMapperImpl(),
   }) : _priceMapper = priceMapper;
 
   @override
@@ -2094,7 +2094,7 @@ class GlobalResourceTypeMapperTestMapper
   /// Constructor
   const GlobalResourceTypeMapperTestMapper({
     GlobalResourceMapper<Publisher> publisherMapper =
-        GlobalPublisherMapperImpl(),
+        const GlobalPublisherMapperImpl(),
   }) : _publisherMapper = publisherMapper;
 
   @override
@@ -2144,7 +2144,8 @@ class GlobalResourceMapperTestMapper
 
   /// Constructor
   const GlobalResourceMapperTestMapper({
-    GlobalResourceMapper<Object> publisherMapper = GlobalPublisherMapperImpl(),
+    GlobalResourceMapper<Object> publisherMapper =
+        const GlobalPublisherMapperImpl(),
   }) : _publisherMapper = publisherMapper;
 
   @override
@@ -2245,7 +2246,8 @@ class LocalResourceMapperTestMapper
 
   /// Constructor
   const LocalResourceMapperTestMapper({
-    LocalResourceMapper<Author> authorMapper = LocalResourceAuthorMapperImpl(),
+    LocalResourceMapper<Author> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
   }) : _authorMapper = authorMapper;
 
   @override
@@ -2295,7 +2297,8 @@ class LocalResourceMapperObjectPropertyTestMapper
 
   /// Constructor
   const LocalResourceMapperObjectPropertyTestMapper({
-    LocalResourceMapper<Object> authorMapper = LocalResourceAuthorMapperImpl(),
+    LocalResourceMapper<Object> authorMapper =
+        const LocalResourceAuthorMapperImpl(),
   }) : _authorMapper = authorMapper;
 
   @override
@@ -2448,7 +2451,7 @@ class LiteralMapperTestMapper
 
   /// Constructor
   const LiteralMapperTestMapper({
-    LiteralTermMapper<int> pageCountMapper = IntMapper(),
+    LiteralTermMapper<int> pageCountMapper = const IntMapper(),
   }) : _pageCountMapper = pageCountMapper;
 
   @override

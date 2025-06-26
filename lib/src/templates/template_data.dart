@@ -132,7 +132,7 @@ sealed class GeneratedMapperTemplateData
       get mapperConstructorParameters => contextProviders
           .map((p) => ConstructorParameterData(
               type: contextProviderType,
-              parameterName: p.variableName,
+              parameterName: p.parameterName,
               fieldName: p.privateFieldName,
               defaultValue: null,
               isLate: false,
