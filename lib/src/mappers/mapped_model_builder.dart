@@ -16,7 +16,7 @@ class MappedClassModelBuilder {
       String mapperImportUri,
       List<ConstructorInfo> constructors,
       List<FieldInfo> fields,
-      bool Function(ParameterData) rdfFilter) {
+      bool Function(ParameterModel) rdfFilter) {
     // Build constructor parameters
     final constructorParameters = _buildConstructorParameters(
         mappedClass, constructors, fields, mapperImportUri);
@@ -42,9 +42,9 @@ class MappedClassModelBuilder {
   }
 
   /// Builds constructor parameter data for the template.
-  static Iterable<ParameterData> _buildNonConstructorFields(
+  static Iterable<ParameterModel> _buildNonConstructorFields(
       Code className,
-      List<ParameterData> constructorParameters,
+      List<ParameterModel> constructorParameters,
       List<FieldInfo> fields,
       IriData? iriStrategy,
       String mapperImportUri) {
@@ -76,7 +76,7 @@ class MappedClassModelBuilder {
       final (readerMethod, _) =
           _getReaderAndSerializerMethods(field.propertyInfo, field.isRequired);
 
-      return ParameterData(
+      return ParameterModel(
         name: field.name,
         dartType: field.type,
         isRequired: field.isRequired,
@@ -107,13 +107,13 @@ class MappedClassModelBuilder {
     });
   }
 
-  static List<ParameterData> _buildConstructorParameters(
+  static List<ParameterModel> _buildConstructorParameters(
       Code className,
       List<ConstructorInfo> constructors,
       List<FieldInfo> fields,
       String mapperImportUri) {
     final provides = _collectProvidesByVariableNames(fields);
-    final parameters = <ParameterData>[];
+    final parameters = <ParameterModel>[];
     if (constructors.isEmpty) {
       return parameters; // No constructors, return empty list
     }
@@ -147,7 +147,7 @@ class MappedClassModelBuilder {
       final defaultValueCode = toCode(defaultValue);
 
       parameters.add(
-        ParameterData(
+        ParameterModel(
           name: param.name,
           dartType: param.type,
           isRequired: param.isRequired,
@@ -181,7 +181,7 @@ class MappedClassModelBuilder {
     return parameters;
   }
 
-  static List<PropertyData> _buildPropertyData(
+  static List<PropertyModel> _buildPropertyData(
       Code className, List<FieldInfo> fields, String mapperImportUri) {
     final provides = _collectProvidesByVariableNames(fields);
     return fields.where((p) => p.propertyInfo != null).map((p) {
@@ -201,7 +201,7 @@ class MappedClassModelBuilder {
       final (readerMethod, serializerMethod) =
           _getReaderAndSerializerMethods(p.propertyInfo, p.isRequired);
 
-      return PropertyData(
+      return PropertyModel(
         isRdfProperty: p.propertyInfo != null,
         isRequired: p.isRequired,
         isFieldNullable: !p.isRequired,

@@ -84,15 +84,171 @@ enum MapperType {
   const MapperType(this.dartInterfaceName);
 }
 
-// FIXME contains template data classes, probably should be an intermediate layer
+class ParameterModel {
+  final String name;
+  final Code dartType;
+  final bool isRequired;
+  final bool isFieldNullable;
+  final bool isIriPart;
+  final bool isRdfProperty;
+  final bool isNamed;
+  final String? iriPartName;
+  final Code? predicate;
+  final Code? defaultValue;
+  final bool hasDefaultValue;
+  final bool isRdfValue;
+  final bool isRdfLanguageTag;
+  final Code? mapperSerializerCode;
+  final Code? mapperDeserializerCode;
+  final String? mapperFieldName;
+  final String? mapperParameterSerializer;
+  final String? mapperParameterDeserializer;
+  final Code readerMethod;
+
+  final bool isMap;
+  final bool isList;
+  final bool isSet;
+  final bool isCollection;
+
+  const ParameterModel({
+    required this.name,
+    required this.dartType,
+    required this.isRequired,
+    required this.isFieldNullable,
+    required this.isIriPart,
+    required this.isRdfProperty,
+    required this.isNamed,
+    required this.iriPartName,
+    required this.predicate,
+    required this.defaultValue,
+    required this.hasDefaultValue,
+    required this.isRdfValue,
+    required this.isRdfLanguageTag,
+    required this.mapperFieldName,
+    required this.mapperParameterSerializer,
+    required this.mapperParameterDeserializer,
+    required this.mapperSerializerCode,
+    required this.mapperDeserializerCode,
+    required this.readerMethod,
+    required this.isMap,
+    required this.isList,
+    required this.isSet,
+    required this.isCollection,
+  });
+
+  ParameterResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return ParameterResolvedModel(
+      name: name,
+      dartType: dartType,
+      isRequired: isRequired,
+      isFieldNullable: isFieldNullable,
+      isIriPart: isIriPart,
+      isRdfProperty: isRdfProperty,
+      isNamed: isNamed,
+      iriPartName: iriPartName,
+      predicate: predicate,
+      defaultValue: defaultValue,
+      hasDefaultValue: hasDefaultValue,
+      isRdfValue: isRdfValue,
+      isRdfLanguageTag: isRdfLanguageTag,
+      mapperFieldName: mapperFieldName,
+      mapperParameterSerializer: mapperParameterSerializer,
+      mapperParameterDeserializer: mapperParameterDeserializer,
+      mapperSerializerCode: mapperSerializerCode,
+      mapperDeserializerCode: mapperDeserializerCode,
+      readerMethod: readerMethod,
+      isMap: isMap,
+      isList: isList,
+      isSet: isSet,
+      isCollection: isCollection,
+    );
+  }
+}
+
+class PropertyModel {
+  final String propertyName;
+  final bool isRequired;
+  final bool isFieldNullable;
+  final bool isRdfProperty;
+  final bool include;
+  final Code? predicate;
+  final Code? defaultValue;
+  final bool hasDefaultValue;
+  final bool includeDefaultsInSerialization;
+  final String? mapperFieldName;
+  final String? mapperParameterSerializer;
+  final String? mapperParameterDeserializer;
+  final Code? mapperSerializerCode;
+  final Code? mapperDeserializerCode;
+  final bool isCollection;
+  final bool isMap;
+  final Code readerMethod;
+  final Code serializerMethod;
+  final Code? dartType;
+  final bool isList;
+  final bool isSet;
+
+  const PropertyModel({
+    required this.propertyName,
+    required this.isRequired,
+    required this.isFieldNullable,
+    required this.isRdfProperty,
+    required this.include,
+    this.predicate,
+    this.defaultValue,
+    required this.hasDefaultValue,
+    required this.includeDefaultsInSerialization,
+    required this.mapperFieldName,
+    required this.mapperParameterSerializer,
+    required this.mapperParameterDeserializer,
+    required this.mapperSerializerCode,
+    required this.mapperDeserializerCode,
+    required this.isCollection,
+    required this.isMap,
+    required this.readerMethod,
+    required this.serializerMethod,
+    this.dartType,
+    required this.isList,
+    required this.isSet,
+  });
+
+  PropertyResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return PropertyResolvedModel(
+      propertyName: propertyName,
+      isRequired: isRequired,
+      isFieldNullable: isFieldNullable,
+      isRdfProperty: isRdfProperty,
+      include: include,
+      predicate: predicate,
+      defaultValue: defaultValue,
+      hasDefaultValue: hasDefaultValue,
+      includeDefaultsInSerialization: includeDefaultsInSerialization,
+      mapperFieldName: mapperFieldName,
+      mapperParameterSerializer: mapperParameterSerializer,
+      mapperParameterDeserializer: mapperParameterDeserializer,
+      mapperSerializerCode: mapperSerializerCode,
+      mapperDeserializerCode: mapperDeserializerCode,
+      isCollection: isCollection,
+      isMap: isMap,
+      readerMethod: readerMethod,
+      serializerMethod: serializerMethod,
+      dartType: dartType ?? Code.literal('dynamic'),
+      isList: isList,
+      isSet: isSet,
+    );
+  }
+}
+
 class MappedClassModel {
   final Code className;
-  final List<ParameterData> constructorParameters;
-  final List<ParameterData> constructorRdfFields;
-  final List<ParameterData> nonConstructorRdfFields;
-  final List<PropertyData> properties;
+  final List<ParameterModel> constructorParameters;
+  final List<ParameterModel> constructorRdfFields;
+  final List<ParameterModel> nonConstructorRdfFields;
+  final List<PropertyModel> properties;
 
-  List<ParameterData> get allRdfFields =>
+  List<ParameterModel> get allRdfFields =>
       [...constructorRdfFields, ...nonConstructorRdfFields];
 
   const MappedClassModel(
@@ -104,6 +260,25 @@ class MappedClassModel {
 
   @override
   String toString() => 'MappedClass(className: $className)';
+
+  MappedClassResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return MappedClassResolvedModel(
+      className: className,
+      constructorParameters: constructorParameters
+          .map((p) => p.resolve(context, resolvedDependencies))
+          .toList(growable: false),
+      constructorRdfFields: constructorRdfFields
+          .map((p) => p.resolve(context, resolvedDependencies))
+          .toList(growable: false),
+      nonConstructorRdfFields: nonConstructorRdfFields
+          .map((p) => p.resolve(context, resolvedDependencies))
+          .toList(growable: false),
+      properties: properties
+          .map((p) => p.resolve(context, resolvedDependencies))
+          .toList(growable: false),
+    );
+  }
 }
 
 /// Contains information about an enum value and its serialized representation
@@ -154,8 +329,6 @@ sealed class MapperModel {
   /// dependencies though
   List<DependencyModel> get dependencies;
 
-  late final List<ConstructorParameterModel> constructorParameters;
-
   /// Called once all mappers are known, in order to compute the correct
   /// constructor dependencies and other additional state.
   ///
@@ -169,6 +342,42 @@ sealed class MapperModel {
 sealed class GeneratedMapperModel extends MapperModel {
   /// The generated mapper class name
   Code get implementationClass;
+}
+
+class ContextProviderModel {
+  /// The name of the context variable
+  final String variableName;
+
+  /// The name of the private field that stores the provider
+  final String privateFieldName;
+
+  /// The name of the constructor parameter
+  final String parameterName;
+
+  /// The placeholder pattern to replace in IRI templates (e.g., '{baseUri}')
+  final String placeholder;
+
+  final bool isField;
+  final Code type;
+  const ContextProviderModel(
+      {required this.variableName,
+      required this.privateFieldName,
+      required this.parameterName,
+      required this.placeholder,
+      this.isField = true,
+      this.type = const Code.literal('String Function()')});
+
+  ContextProviderResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return ContextProviderResolvedModel(
+      variableName: variableName,
+      privateFieldName: privateFieldName,
+      parameterName: parameterName,
+      placeholder: placeholder,
+      isField: isField,
+      type: type,
+    );
+  }
 }
 
 /// A mapper for global resources
@@ -200,10 +409,10 @@ class ResourceMapperModel extends GeneratedMapperModel {
   final Code termClass;
 
   /// IRI strategy information
-  final IriData? iriStrategy;
+  final IriModel? iriStrategy;
 
-  final List<ConstructorParameterData> mapperConstructorParametersData;
-  final List<ContextProviderData> contextProviders;
+  final List<ConstructorParameterModel> mapperConstructorParameters;
+  final List<ContextProviderModel> contextProviders;
   final bool needsReader;
 
   ResourceMapperModel({
@@ -216,7 +425,7 @@ class ResourceMapperModel extends GeneratedMapperModel {
     required this.typeIri,
     required this.termClass,
     required this.iriStrategy,
-    required this.mapperConstructorParametersData,
+    required this.mapperConstructorParameters,
     required this.contextProviders,
     required this.needsReader,
   });
@@ -227,16 +436,76 @@ class ResourceMapperModel extends GeneratedMapperModel {
     return ResourceResolvedMapperModel(
       id: id,
       mappedClass: mappedClass,
-      mappedClassModel: mappedClassModel,
+      mappedClassModel: mappedClassModel.resolve(context, resolvedDependencies),
       implementationClass: implementationClass,
       registerGlobally: registerGlobally,
       typeIri: typeIri,
       termClass: termClass,
-      iriStrategy: iriStrategy,
-      mapperConstructorParametersData: mapperConstructorParametersData,
-      contextProviders: contextProviders,
+      iriStrategy: iriStrategy?.resolve(
+        context,
+        resolvedDependencies,
+      ),
+      mapperConstructorParameters: mapperConstructorParameters
+          .map((p) => p.resolve(context, resolvedDependencies))
+          .toList(growable: false),
+      contextProviders: contextProviders
+          .map((p) => p.resolve(context, resolvedDependencies))
+          .toList(growable: false),
       needsReader: needsReader,
     );
+  }
+}
+
+class ConstructorParameterModelNew {
+  final Code type;
+  final String paramName;
+  final String? associatedFieldName;
+  final DependencyModel? dependency;
+
+  ConstructorParameterModelNew(
+      {required this.type,
+      required this.paramName,
+      required this.associatedFieldName,
+      required this.dependency});
+
+  ConstructorParameterResolvedModelNew resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return ConstructorParameterResolvedModelNew(
+        type: type,
+        paramName: paramName,
+        associatedFieldName: associatedFieldName,
+        dependency: dependency //?.resolve(context, resolvedDependencies),
+        );
+  }
+}
+
+class ConstructorParameterModel {
+  final Code type;
+  final String parameterName;
+  final String fieldName;
+  final ResolvableInstantiationCodeData? defaultValue;
+  bool isLate;
+  bool isField;
+
+  bool get needsAssignment => parameterName != fieldName && !isLate;
+
+  ConstructorParameterModel(
+      {required this.type,
+      required this.parameterName,
+      required this.fieldName,
+      required this.defaultValue,
+      required this.isLate,
+      this.isField = true});
+
+  ConstructorParameterResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return ConstructorParameterResolvedModel(
+        type: type,
+        parameterName: parameterName,
+        fieldName: fieldName,
+        defaultValue: defaultValue,
+        isLate: isLate,
+        isField: isField);
   }
 }
 
@@ -269,7 +538,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
 
   /// FIXME partially wrong layer
   /// Variables that correspond to class properties with @RdfIriPart.
-  final Set<VariableNameData> propertyVariables;
+  final Set<VariableNameModel> propertyVariables;
 
   final Set<VariableForDependencyModel> contextVariables;
 
@@ -279,7 +548,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
 
-  final VariableNameData? singleMappedValue;
+  final VariableNameModel? singleMappedValue;
 
   IriMapperModel(
       {required this.id,
@@ -293,9 +562,12 @@ sealed class IriMapperModel extends GeneratedMapperModel {
       required this.singleMappedValue,
       required this.contextVariables});
 
-  (List<ContextProviderData>, List<FieldModel>, List<ConstructorParameterModel>)
-      resolveDepencencies(ValidationContext context,
-          Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+  (
+    List<ContextProviderResolvedModel>,
+    List<FieldResolvedModel>,
+    List<ConstructorParameterResolvedModelNew>
+  ) resolveDepencencies(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
     var dependenciesById = {for (var dep in dependencies) dep.id: dep};
     var resolvedVariables = contextVariables.map((v) {
       final dependency = dependenciesById[v.dependencyId];
@@ -307,11 +579,11 @@ sealed class IriMapperModel extends GeneratedMapperModel {
       final privateFieldName = '_${paramName}';
       final type = dependency.type;
 
-      final field = FieldModel(
+      final field = FieldResolvedModel(
         name: privateFieldName,
         type: type,
       );
-      final constructorParameter = ConstructorParameterModel(
+      final constructorParameter = ConstructorParameterResolvedModelNew(
         paramName: paramName,
         type: type,
         associatedFieldName: privateFieldName,
@@ -319,7 +591,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
       );
 
       // FIXME: this should rather be something like "variable assignment data"
-      final contextProviderData = ContextProviderData(
+      final contextProvider = ContextProviderResolvedModel(
         variableName: v.name.dartPropertyName,
         parameterName: constructorParameter.paramName,
         privateFieldName: constructorParameter.associatedFieldName!,
@@ -328,7 +600,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
         // FIXME What do we need the placeholder for here?
         placeholder: v.name.canBeUri ? '{+${v.name.name}}' : '{${v.name.name}}',
       );
-      return (field, constructorParameter, contextProviderData);
+      return (field, constructorParameter, contextProvider);
     });
     final contextProviders =
         resolvedVariables.map((v) => v.$3).toList(growable: false);
@@ -363,15 +635,19 @@ class IriClassMapperModel extends IriMapperModel {
     return IriClassResolvedMapperModel(
         id: id,
         mappedClass: mappedClass,
-        mappedClassModel: mappedClassModel,
+        mappedClassModel:
+            mappedClassModel.resolve(context, resolvedDependencies),
         implementationClass: implementationClass,
         registerGlobally: registerGlobally,
         mapperFields: fields,
-        propertyVariables: propertyVariables,
+        propertyVariables: propertyVariables
+            .map((v) => v.resolve(context, resolvedDependencies))
+            .toSet(),
         interpolatedTemplate: interpolatedTemplate,
         regexPattern: regexPattern,
-        singleMappedValue: singleMappedValue,
-        mapperConstructorParameters: constructorParameters,
+        singleMappedValue:
+            singleMappedValue?.resolve(context, resolvedDependencies),
+        mapperConstructorParametersNew: constructorParameters,
         contextProviders: contextProviders);
   }
 }
@@ -406,11 +682,14 @@ class IriEnumMapperModel extends IriMapperModel {
         implementationClass: implementationClass,
         registerGlobally: registerGlobally,
         mapperFields: fields,
-        propertyVariables: propertyVariables,
+        propertyVariables: propertyVariables
+            .map((p) => p.resolve(context, resolvedDependencies))
+            .toSet(),
         interpolatedTemplate: interpolatedTemplate,
         regexPattern: regexPattern,
-        singleMappedValue: singleMappedValue,
-        mapperConstructorParameters: constructorParameters,
+        singleMappedValue:
+            singleMappedValue?.resolve(context, resolvedDependencies),
+        mapperConstructorParametersNew: constructorParameters,
         contextProviders: contextProviders,
         hasFullIriTemplate: hasFullIriTemplate);
   }
@@ -460,10 +739,10 @@ sealed class LiteralMapperModel extends GeneratedMapperModel {
 class LiteralClassMapperModel extends LiteralMapperModel {
   final MappedClassModel mappedClassModel;
 
-  ParameterData? get rdfValueField =>
+  ParameterModel? get rdfValueField =>
       mappedClassModel.allRdfFields.where((p) => p.isRdfValue).singleOrNull;
 
-  ParameterData? get rdfLanguageField => mappedClassModel.allRdfFields
+  ParameterModel? get rdfLanguageField => mappedClassModel.allRdfFields
       .where((p) => p.isRdfLanguageTag)
       .singleOrNull;
 
@@ -488,10 +767,172 @@ class LiteralClassMapperModel extends LiteralMapperModel {
         implementationClass: implementationClass,
         registerGlobally: registerGlobally,
         datatype: datatype,
-        mappedClassModel: mappedClassModel,
+        mappedClassModel:
+            mappedClassModel.resolve(context, resolvedDependencies),
         fromLiteralTermMethod: fromLiteralTermMethod,
         toLiteralTermMethod: toLiteralTermMethod);
   }
+}
+
+class IriPartModel {
+  final String name;
+  final String dartPropertyName;
+  final bool isRdfProperty;
+
+  const IriPartModel({
+    required this.name,
+    required this.dartPropertyName,
+    required this.isRdfProperty,
+  });
+
+  IriPartResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return IriPartResolvedModel(
+      name: name,
+      dartPropertyName: dartPropertyName,
+      isRdfProperty: isRdfProperty,
+    );
+  }
+}
+
+class VariableNameModel {
+  final String variableName;
+  final String placeholder;
+  final bool isString;
+  final bool isMappedValue;
+
+  const VariableNameModel({
+    required this.variableName,
+    required this.placeholder,
+    required this.isString,
+    required this.isMappedValue,
+  });
+
+  VariableNameResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return VariableNameResolvedModel(
+      variableName: variableName,
+      placeholder: placeholder,
+      isString: isString,
+      isMappedValue: isMappedValue,
+    );
+  }
+}
+
+class IriTemplateModel {
+  /// The original template string.
+  final String template;
+
+  /// All variables found in the template.
+  final Set<VariableNameModel> variables;
+
+  /// Variables that correspond to class properties with @RdfIriPart.
+  final Set<VariableNameModel> propertyVariables;
+
+  /// Variables that need to be provided from context.
+  final Set<VariableNameModel> contextVariables;
+
+  /// The regex pattern built from the template.
+  final String regexPattern;
+
+  /// The template converted to Dart string interpolation syntax.
+  final String interpolatedTemplate;
+
+  const IriTemplateModel({
+    required this.template,
+    required this.variables,
+    required this.propertyVariables,
+    required this.contextVariables,
+    required this.regexPattern,
+    required this.interpolatedTemplate,
+  });
+
+  IriTemplateResolvedModel resolve(ValidationContext context,
+      Map<MapperId, ResolvedMapperModel> resolvedDependencies) {
+    return IriTemplateResolvedModel(
+      template: template,
+      variables: variables
+          .map((v) => v.resolve(context, resolvedDependencies))
+          .toSet(),
+      propertyVariables: propertyVariables
+          .map((v) => v.resolve(context, resolvedDependencies))
+          .toSet(),
+      contextVariables: contextVariables
+          .map((v) => v.resolve(context, resolvedDependencies))
+          .toSet(),
+      regexPattern: regexPattern,
+      interpolatedTemplate: interpolatedTemplate,
+    );
+  }
+}
+
+class IriModel {
+  final IriTemplateModel? template;
+  final bool hasFullIriPartTemplate;
+  final MapperRefModel? mapper;
+  final bool hasMapper;
+  final List<IriPartModel> iriMapperParts;
+
+  const IriModel({
+    this.template,
+    required this.hasFullIriPartTemplate,
+    this.mapper,
+    this.hasMapper = false,
+    required this.iriMapperParts,
+  });
+
+  bool get hasTemplate => template != null;
+
+  IriResolvedModel resolve(ValidationContext context,
+          Map<MapperId, ResolvedMapperModel> resolvedDependencies) =>
+      IriResolvedModel(
+          template: template?.resolve(context, resolvedDependencies),
+          hasFullIriPartTemplate: hasFullIriPartTemplate,
+          mapper: mapper == null
+              ? null
+              : mapper!.resolve(context, resolvedDependencies),
+          hasMapper: hasMapper,
+          iriMapperParts: iriMapperParts
+              .map((part) => part.resolve(context, resolvedDependencies))
+              .toList(growable: false));
+}
+
+class MapperRefModel {
+  /// The name of the mapper (for named mappers)
+  final String? name;
+
+  /// The (interface) type of the mapper (for all mappers)
+  final Code type;
+
+  /// Whether this is a named mapper
+  final bool isNamed;
+
+  /// Whether this is a type-based mapper
+  final bool isTypeBased;
+
+  /// Whether this is a direct instance
+  final bool isInstance;
+
+  final ResolvableInstantiationCodeData? instanceInitializationCode;
+
+  const MapperRefModel({
+    this.name,
+    required this.type,
+    this.isNamed = false,
+    this.isTypeBased = false,
+    this.isInstance = false,
+    this.instanceInitializationCode,
+  });
+
+  MapperRefResolvedModel resolve(ValidationContext context,
+          Map<MapperId, ResolvedMapperModel> resolvedDependencies) =>
+      MapperRefResolvedModel(
+          type: type,
+          name: name,
+          isNamed: isNamed,
+          isTypeBased: isTypeBased,
+          isInstance: isInstance,
+          instanceInitializationCode: instanceInitializationCode);
 }
 
 class LiteralEnumMapperModel extends LiteralMapperModel {
@@ -600,6 +1041,7 @@ class DependencyId {
   String toString() => 'DependencyId($id)';
 }
 
+// FIXME rename? Or is there a DepencencyResolvedModel?
 /// Represents a dependency that a model has
 sealed class DependencyModel {
   DependencyId get id;

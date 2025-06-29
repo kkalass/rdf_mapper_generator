@@ -15,7 +15,7 @@ final _log = Logger('IriModelBuilderSupport');
 
 class IriModelBuilderSupport {
   /// FIXME bad code
-  static IriData? buildIriData(
+  static IriModel? buildIriData(
       String? template,
       MapperRefInfo<IriTermMapper>? mapper,
       Code? type,
@@ -23,10 +23,10 @@ class IriModelBuilderSupport {
       IriTemplateInfo? templateInfo,
       List<FieldInfo>? fields,
       UnresolvedInstantiationCodeData unresolved) {
-    MapperRefData? mapperRef;
+    MapperRefModel? mapperRef;
     if (mapper != null && type != null) {
       if (mapper.name != null) {
-        mapperRef = MapperRefData(
+        mapperRef = MapperRefModel(
           name: mapper.name,
           isNamed: true,
           type: type,
@@ -34,7 +34,7 @@ class IriModelBuilderSupport {
       } else if (mapper.type != null) {
         final typeValue = mapper.type;
         if (typeValue != null) {
-          mapperRef = MapperRefData(
+          mapperRef = MapperRefModel(
             instanceInitializationCode:
                 ResolvableInstantiationCodeData(typeValue.name, unresolved),
             isTypeBased: true,
@@ -44,7 +44,7 @@ class IriModelBuilderSupport {
           _log.warning('Mapper type is not based on a type: $mapper');
         }
       } else if (mapper.instance != null) {
-        mapperRef = MapperRefData(
+        mapperRef = MapperRefModel(
           isInstance: true,
           type: type,
           instanceInitializationCode:
@@ -57,7 +57,7 @@ class IriModelBuilderSupport {
         .map((f) => f.propertyInfo!.name)
         .toSet();
     final iriMapperParts = iriParts
-            ?.map((p) => IriPartData(
+            ?.map((p) => IriPartModel(
                   name: p.name,
                   dartPropertyName: p.dartPropertyName,
                   isRdfProperty:
@@ -65,7 +65,7 @@ class IriModelBuilderSupport {
                 ))
             .toList() ??
         [];
-    return IriData(
+    return IriModel(
       template: template == null
           ? null
           : _buildTemplateData(templateInfo!, fields ?? []),
@@ -76,17 +76,17 @@ class IriModelBuilderSupport {
     );
   }
 
-  static IriTemplateData _buildTemplateData(
+  static IriTemplateModel _buildTemplateData(
       IriTemplateInfo iriTemplateInfo, List<FieldInfo> fields) {
     final isStringByFieldName = {
       for (var field in fields) field.name: stringType == field.type,
     };
-    VariableNameData buildVariableNameData(VariableName variable) =>
+    VariableNameModel buildVariableNameData(VariableName variable) =>
         _buildVariableNameData(
             variable, isStringByFieldName[variable.dartPropertyName] ?? false);
     var propertyVariables =
         iriTemplateInfo.propertyVariables.map(buildVariableNameData).toSet();
-    return IriTemplateData(
+    return IriTemplateModel(
       template: iriTemplateInfo.template,
       propertyVariables: propertyVariables,
       contextVariables: iriTemplateInfo.contextVariableNames
@@ -100,20 +100,20 @@ class IriModelBuilderSupport {
     );
   }
 
-  static Set<VariableNameData> buildPropertyVariables(
+  static Set<VariableNameModel> buildPropertyVariables(
       IriTemplateInfo iriTemplateInfo, List<FieldInfo> fields) {
     final isStringByFieldName = {
       for (var field in fields) field.name: stringType == field.type,
     };
-    VariableNameData buildVariableNameData(VariableName variable) =>
+    VariableNameModel buildVariableNameData(VariableName variable) =>
         _buildVariableNameData(
             variable, isStringByFieldName[variable.dartPropertyName] ?? false);
     return iriTemplateInfo.propertyVariables.map(buildVariableNameData).toSet();
   }
 
-  static VariableNameData _buildVariableNameData(
+  static VariableNameModel _buildVariableNameData(
       VariableName variable, bool isString) {
-    return VariableNameData(
+    return VariableNameModel(
       isString: isString,
       variableName: variable.dartPropertyName,
       isMappedValue: variable.isMappedValue,
@@ -185,7 +185,7 @@ class IriModelBuilderSupport {
       List<EnumValueInfo> enumValues = const []}) {
     final singleMappedValue = templateInfo.propertyVariables
         .where((v) => v.isMappedValue)
-        .map((v) => VariableNameData(
+        .map((v) => VariableNameModel(
             isMappedValue: v.isMappedValue,
             variableName: v.name,
             isString: mappedClassName == stringType,
@@ -257,10 +257,10 @@ class IriModelBuilderSupport {
       bool registerGlobally,
       List<GenericDependency> dependencies,
       String interpolatedTemplate,
-      Set<VariableNameData> propertyVariables,
+      Set<VariableNameModel> propertyVariables,
       String regexPattern,
       List<(VariableForDependencyModel, GenericDependency)> contextVariables,
-      VariableNameData? singleMappedValue,
+      VariableNameModel? singleMappedValue,
       List<EnumValueInfo> enumValues) {
     return [
       IriEnumMapperModel(
@@ -290,10 +290,10 @@ class IriModelBuilderSupport {
       bool registerGlobally,
       List<GenericDependency> dependencies,
       String interpolatedTemplate,
-      Set<VariableNameData> propertyVariables,
+      Set<VariableNameModel> propertyVariables,
       String regexPattern,
       List<(VariableForDependencyModel, GenericDependency)> contextVariables,
-      VariableNameData? singleMappedValue) {
+      VariableNameModel? singleMappedValue) {
     final mappedClassModel = MappedClassModelBuilder.buildMappedClassModel(
         mappedClassName,
         mapperImportUri,

@@ -72,7 +72,7 @@ class ResourceModelBuilderSupport {
         contextProviders: contextProviders,
         needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
-        mapperConstructorParametersData: mapperConstructorParameters);
+        mapperConstructorParameters: mapperConstructorParameters);
 
     final propertyMappers = resourceInfo.fields.expand((f) {
       var pi = f.propertyInfo;
@@ -104,13 +104,13 @@ class ResourceModelBuilderSupport {
   }
 
   /// Builds context provider data for context variables.
-  static List<ContextProviderData> _buildContextProvidersForIriTemplate(
+  static List<ContextProviderModel> _buildContextProvidersForIriTemplate(
       IriTemplateInfo? templateInfo) {
     if (templateInfo == null) return [];
     return templateInfo.contextVariableNames.map((variable) {
       final d = _buildVariableNameData(
           variable, false /* not relevant here actually */);
-      return ContextProviderData(
+      return ContextProviderModel(
         variableName: d.variableName,
         privateFieldName: '_${d.variableName}Provider',
         parameterName: '${d.variableName}Provider',
@@ -119,11 +119,11 @@ class ResourceModelBuilderSupport {
     }).toList();
   }
 
-  static List<ContextProviderData> _buildContextProvidersForResource(
+  static List<ContextProviderModel> _buildContextProvidersForResource(
       ResourceInfo resourceInfo) {
     final provides = _collectProvidesVariableNames(resourceInfo.fields);
     final annotation = resourceInfo.annotation;
-    final contextProviders = <ContextProviderData>[
+    final contextProviders = <ContextProviderModel>[
       if (annotation is RdfGlobalResourceInfo)
         ..._buildContextProvidersForIriTemplate(annotation.iri?.templateInfo),
       ...resourceInfo.fields.expand((f) {
@@ -142,7 +142,7 @@ class ResourceModelBuilderSupport {
             .map((variable) {
           final d = _buildVariableNameData(
               variable, f.type == stringType /* is string */);
-          return ContextProviderData(
+          return ContextProviderModel(
             variableName: d.variableName,
             privateFieldName: '_${d.variableName}Provider',
             parameterName: '${d.variableName}Provider',
@@ -154,7 +154,7 @@ class ResourceModelBuilderSupport {
       }),
     ];
     // deduplicate context providers by parameterName
-    final result = <ContextProviderData>[];
+    final result = <ContextProviderModel>[];
     final seenParameterNames = <String>{};
 
     for (final provider in contextProviders) {
@@ -169,16 +169,16 @@ class ResourceModelBuilderSupport {
   static Set<String> _collectProvidesVariableNames(List<FieldInfo> fields) =>
       fields.map((f) => f.provides?.name).nonNulls.toSet();
 
-  static List<ConstructorParameterData> _buildMapperConstructorParameters(
-      IriData? iriStrategy,
-      List<ContextProviderData> contextProviders,
+  static List<ConstructorParameterModel> _buildMapperConstructorParameters(
+      IriModel? iriStrategy,
+      List<ContextProviderModel> contextProviders,
       ResourceInfo resourceInfo,
       String mapperImportUri,
       UnresolvedInstantiationCodeData unresolved) {
     final provides = _collectProvidesVariableNames(resourceInfo.fields);
-    final List<ConstructorParameterData> mapperConstructorParameters = [
+    final List<ConstructorParameterModel> mapperConstructorParameters = [
       if (iriStrategy?.hasMapper ?? false)
-        ConstructorParameterData(
+        ConstructorParameterModel(
             fieldName: '_iriMapper',
             parameterName:
                 iriStrategy!.mapper!.isNamed && iriStrategy.mapper!.name != null
@@ -187,7 +187,7 @@ class ResourceModelBuilderSupport {
             type: iriStrategy.mapper!.type,
             defaultValue: null,
             isLate: false),
-      ...contextProviders.map((provider) => ConstructorParameterData(
+      ...contextProviders.map((provider) => ConstructorParameterModel(
           fieldName: provider.privateFieldName,
           parameterName: provider.parameterName,
           isLate: false,
@@ -269,7 +269,7 @@ class ResourceModelBuilderSupport {
     return mapperConstructorParameters;
   }
 
-  static List<ConstructorParameterData>
+  static List<ConstructorParameterModel>
       _propertyIriTemplateMapperConstructorParameter(
           FieldInfo f,
           String mapperInterface,
@@ -304,7 +304,7 @@ class ResourceModelBuilderSupport {
     }
     */
     return [
-      ConstructorParameterData(
+      ConstructorParameterModel(
           fieldName: _buildMapperFieldName(f.name),
           parameterName: f.name + 'Mapper',
           type: _buildMapperInterfaceTypeForProperty(
@@ -318,9 +318,9 @@ class ResourceModelBuilderSupport {
   static String _buildMapperFieldName(String fieldName) =>
       '_' + fieldName + 'Mapper';
 
-  static ConstructorParameterData _constructorParameterWithValue(
+  static ConstructorParameterModel _constructorParameterWithValue(
       String fieldName, FieldInfo f, String mapperInterfaceType, Code value) {
-    return ConstructorParameterData(
+    return ConstructorParameterModel(
         fieldName: _buildMapperFieldName(fieldName),
         parameterName: fieldName + 'Mapper',
         type: _buildMapperInterfaceTypeForProperty(
@@ -357,12 +357,12 @@ class ResourceModelBuilderSupport {
     return codeGeneric1(mapperInterface, field.typeNonNull);
   }
 
-  static ConstructorParameterData _mappingToConstructorParameter(
+  static ConstructorParameterModel _mappingToConstructorParameter(
       FieldInfo f,
       MapperRefInfo<dynamic> iriMapper,
       String mapperInterface,
       UnresolvedInstantiationCodeData unresolved) {
-    return ConstructorParameterData(
+    return ConstructorParameterModel(
         fieldName: _buildMapperFieldName(f.name),
         parameterName: iriMapper.name ?? f.name + 'Mapper',
         type: _buildMapperInterfaceTypeForProperty(
@@ -416,7 +416,7 @@ class ResourceModelBuilderSupport {
     return classIriInfo?.code;
   }
 
-  static IriData? _buildIriStrategyForResource(
+  static IriModel? _buildIriStrategyForResource(
       ResourceInfo resourceInfo, UnresolvedInstantiationCodeData unresolved) {
     final annotation = resourceInfo.annotation;
     if (annotation is! RdfGlobalResourceInfo) {
@@ -439,7 +439,7 @@ class ResourceModelBuilderSupport {
   }
 
   /// Builds IRI strategy data.
-  static IriData? _buildIriData(
+  static IriModel? _buildIriData(
       String? template,
       MapperRefInfo<IriTermMapper>? mapper,
       Code? type,
@@ -447,10 +447,10 @@ class ResourceModelBuilderSupport {
       IriTemplateInfo? templateInfo,
       List<FieldInfo>? fields,
       UnresolvedInstantiationCodeData unresolved) {
-    MapperRefData? mapperRef;
+    MapperRefModel? mapperRef;
     if (mapper != null && type != null) {
       if (mapper.name != null) {
-        mapperRef = MapperRefData(
+        mapperRef = MapperRefModel(
           name: mapper.name,
           isNamed: true,
           type: type,
@@ -458,7 +458,7 @@ class ResourceModelBuilderSupport {
       } else if (mapper.type != null) {
         final typeValue = mapper.type;
         if (typeValue != null) {
-          mapperRef = MapperRefData(
+          mapperRef = MapperRefModel(
             instanceInitializationCode:
                 ResolvableInstantiationCodeData(typeValue.name, unresolved),
             isTypeBased: true,
@@ -468,7 +468,7 @@ class ResourceModelBuilderSupport {
           _log.warning('Mapper type is not based on a type: $mapper');
         }
       } else if (mapper.instance != null) {
-        mapperRef = MapperRefData(
+        mapperRef = MapperRefModel(
           isInstance: true,
           type: type,
           instanceInitializationCode:
@@ -481,7 +481,7 @@ class ResourceModelBuilderSupport {
         .map((f) => f.propertyInfo!.name)
         .toSet();
     final iriMapperParts = iriParts
-            ?.map((p) => IriPartData(
+            ?.map((p) => IriPartModel(
                   name: p.name,
                   dartPropertyName: p.dartPropertyName,
                   isRdfProperty:
@@ -489,7 +489,7 @@ class ResourceModelBuilderSupport {
                 ))
             .toList() ??
         [];
-    return IriData(
+    return IriModel(
       template: template == null
           ? null
           : _buildTemplateData(templateInfo!, fields ?? []),
@@ -501,15 +501,15 @@ class ResourceModelBuilderSupport {
     );
   }
 
-  static IriTemplateData _buildTemplateData(
+  static IriTemplateModel _buildTemplateData(
       IriTemplateInfo iriTemplateInfo, List<FieldInfo> fields) {
     final isStringByFieldName = {
       for (var field in fields) field.name: stringType == field.type,
     };
-    VariableNameData buildVariableNameData(VariableName variable) =>
+    VariableNameModel buildVariableNameData(VariableName variable) =>
         _buildVariableNameData(
             variable, isStringByFieldName[variable.dartPropertyName] ?? false);
-    return IriTemplateData(
+    return IriTemplateModel(
       template: iriTemplateInfo.template,
       propertyVariables:
           iriTemplateInfo.propertyVariables.map(buildVariableNameData).toSet(),
@@ -525,9 +525,9 @@ class ResourceModelBuilderSupport {
     );
   }
 
-  static VariableNameData _buildVariableNameData(
+  static VariableNameModel _buildVariableNameData(
       VariableName variable, bool isString) {
-    return VariableNameData(
+    return VariableNameModel(
       isString: isString,
       variableName: variable.dartPropertyName,
       isMappedValue: variable.isMappedValue,

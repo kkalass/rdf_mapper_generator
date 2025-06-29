@@ -4,9 +4,7 @@ import 'package:rdf_mapper_generator/src/mappers/mapped_model_builder.dart';
 import 'package:rdf_mapper_generator/src/mappers/resource_model_builder_support.dart';
 import 'package:rdf_mapper_generator/src/mappers/util.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
-import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
-import 'package:rdf_mapper_generator/src/utils/iri_parser.dart';
 
 import '../processors/models/mapper_info.dart';
 import '../validation/validation_context.dart';
