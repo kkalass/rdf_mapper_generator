@@ -170,7 +170,7 @@ void main() {
             '__type__': 'ResourceMapperTemplateData',
             'className': 'Book',
             'mapperClassName': 'BookMapper',
-            'mapperInterfaceName': 'GlobalResourceMapper',
+            'mapperInterfaceName': 'GlobalResourceMapper<Book>',
             'termClass': 'IriTerm',
             'typeIri': 'SchemaBook.classIri',
             'hasTypeIri': true,

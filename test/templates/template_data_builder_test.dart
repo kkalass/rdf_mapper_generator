@@ -311,7 +311,7 @@ void main() {
         context,
         sourcePath,
         mapperDatas,
-        broaderImports,
+        testBroaderImports,
         originalImports,
         mapperImportUri,
       );
