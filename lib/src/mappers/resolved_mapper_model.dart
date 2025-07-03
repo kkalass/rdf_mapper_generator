@@ -426,7 +426,6 @@ class PropertyResolvedModel {
     );
     return PropertyData(
         propertyName: propertyName,
-        isRequired: isRequired,
         isFieldNullable: isFieldNullable,
         isRdfProperty: isRdfProperty,
         isIriPart: isIriPart,
@@ -435,23 +434,9 @@ class PropertyResolvedModel {
         iriPartName: iriPartName,
         name: constructorParameterName,
         isNamed: isNamedConstructorParameter,
-        include: include,
-        predicate: predicate,
         defaultValue: defaultValue,
         hasDefaultValue: hasDefaultValue,
-        includeDefaultsInSerialization: includeDefaultsInSerialization,
-        mapperFieldName: mapperFieldName,
-        mapperParameterSerializer: mapperParameterSerializer,
-        mapperParameterDeserializer: mapperParameterDeserializer,
-        mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
-        mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
-        isCollection: isCollection,
-        isMap: isMap,
-        readerMethod: readerMethod,
-        serializerMethod: serializerMethod,
         dartType: dartType,
-        isList: isList,
-        isSet: isSet,
         readerCall: readerCall,
         builderCall: builderCall);
   }

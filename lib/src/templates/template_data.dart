@@ -763,7 +763,6 @@ class ConstructorParameterData {
 /// Data for RDF properties
 class PropertyData {
   final String propertyName; // not in ParameterData
-  final bool isRequired;
   final bool isFieldNullable;
   final bool isRdfProperty;
   final bool isIriPart;
@@ -772,30 +771,15 @@ class PropertyData {
   final String? iriPartName;
   final String? name; // constructorParameterName
   final bool isNamed; // isNamedConstructorParameter
-  final bool include; // not in ParameterData
-  final Code? predicate;
   final Code? defaultValue;
   final bool hasDefaultValue;
-  final bool includeDefaultsInSerialization; // not in ParameterData
-  final String? mapperFieldName;
-  final String? mapperParameterSerializer;
-  final String? mapperParameterDeserializer;
-  final Code? mapperSerializerCode;
-  final Code? mapperDeserializerCode;
-  final Code readerMethod;
-  final Code serializerMethod; // not in ParameterData
   final Code dartType;
-  final bool isCollection;
-  final bool isMap;
-  final bool isList;
-  final bool isSet;
 
   final Code? readerCall;
   final Code? builderCall;
 
   const PropertyData({
     required this.propertyName,
-    required this.isRequired,
     required this.isFieldNullable,
     required this.isRdfProperty,
     required this.isIriPart,
@@ -804,23 +788,9 @@ class PropertyData {
     required this.iriPartName,
     required this.name,
     required this.isNamed,
-    required this.include,
-    required this.predicate,
     required this.defaultValue,
     required this.hasDefaultValue,
-    required this.includeDefaultsInSerialization,
-    required this.mapperFieldName,
-    required this.mapperParameterSerializer,
-    required this.mapperParameterDeserializer,
-    required this.mapperSerializerCode,
-    required this.mapperDeserializerCode,
-    required this.isCollection,
-    required this.isMap,
-    required this.readerMethod,
-    required this.serializerMethod,
     required this.dartType,
-    required this.isList,
-    required this.isSet,
     required this.readerCall,
     required this.builderCall,
   });
@@ -828,11 +798,7 @@ class PropertyData {
   bool get isConstructorParameter => (name ?? '').isNotEmpty;
 
   Map<String, dynamic> toMap() => {
-        'propertyName': propertyName,
         'isRequired': !(isFieldNullable || hasDefaultValue),
-        'isFieldNullable': isFieldNullable,
-        'useOptionalSerialization': isFieldNullable,
-        'useOptionalReader': isFieldNullable || hasDefaultValue,
         'isRdfProperty': isRdfProperty,
         'isIriPart': isIriPart && !isRdfProperty,
         'isRdfValue': isRdfValue,
@@ -840,26 +806,9 @@ class PropertyData {
         'iriPartName': iriPartName,
         'name': (name ?? '').isNotEmpty ? name : propertyName,
         'isNamed': isNamed,
-        'include': include,
-        'predicate': predicate?.toMap(),
         'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': hasDefaultValue,
-        'includeDefaultsInSerialization': includeDefaultsInSerialization,
-        'useConditionalSerialization':
-            hasDefaultValue && !includeDefaultsInSerialization,
-        'mapperFieldName': mapperFieldName,
-        'mapperParameterSerializer': mapperParameterSerializer,
-        'mapperParameterDeserializer': mapperParameterDeserializer,
-        'hasMapper': mapperFieldName != null,
-        'mapperSerializerCode': mapperSerializerCode?.toMap(),
-        'mapperDeserializerCode': mapperDeserializerCode?.toMap(),
-        'isCollection': isCollection,
-        'isMap': isMap,
-        'readerMethod': readerMethod.toMap(),
-        'serializerMethod': serializerMethod.toMap(),
         'dartType': dartType.toMap(),
-        'isList': isList,
-        'isSet': isSet,
         'hasReaderCall': readerCall != null,
         'readerCall': readerCall?.toMap(),
         'hasBuilderCall': builderCall != null,
