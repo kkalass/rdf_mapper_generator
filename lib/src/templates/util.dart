@@ -184,16 +184,14 @@ Code createConstructorCall(
   return Code.combine([
     if (constContext) Code.literal(' const '),
     className,
-    Code.literal('('),
-    Code.combine(
-        constructorParameters
-            .map((p) => Code.combine([
-                  Code.literal(p.parameterName),
-                  Code.literal(': '),
-                  Code.literal(p.parameterName)
-                ]))
-            .toList(),
-        separator: ', '),
-    Code.literal(')')
+    Code.paramsList(
+      constructorParameters
+          .map((p) => Code.combine([
+                Code.literal(p.parameterName),
+                Code.literal(': '),
+                Code.literal(p.parameterName)
+              ]))
+          .toList(),
+    ),
   ]);
 }

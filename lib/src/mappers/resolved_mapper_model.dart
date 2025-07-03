@@ -327,8 +327,7 @@ class PropertyResolvedModel {
     final serializerCall = Code.combine([
       Code.literal('.'),
       serializerMethod,
-      Code.literal('('),
-      Code.combine([
+      Code.paramsList([
         predicate!,
         Code.combine([
           Code.literal('resource.'),
@@ -340,8 +339,7 @@ class PropertyResolvedModel {
             Code.literal(': '),
             mapperSerializerCode,
           ])
-      ], separator: ', '),
-      Code.literal(')'),
+      ]),
     ]);
     final checkDefaultValue =
         hasDefaultValue && !includeDefaultsInSerialization;
@@ -352,8 +350,8 @@ class PropertyResolvedModel {
       return serializerCall;
     }
     return Code.combine([
-      Code.literal('.when('),
-      Code.combine([
+      Code.literal('.when'),
+      Code.paramsList([
         Code.combine([
           if (checkDefaultValue)
             Code.literal('resource.$propertyName != $defaultValue'),
@@ -363,8 +361,7 @@ class PropertyResolvedModel {
           Code.literal('(b) => b'),
           serializerCall,
         ])
-      ], separator: ', '),
-      Code.literal(')'),
+      ]),
     ]);
   }
 
@@ -393,16 +390,15 @@ class PropertyResolvedModel {
     return Code.combine([
       Code.literal('reader.'),
       readerMethod,
-      Code.literal('('),
-      predicate!,
-      if (hasMapper)
-        Code.combine([
-          Code.literal(', '),
-          Code.literal(mapperParameterDeserializer),
-          Code.literal(': '),
-          mapperDeserializerCode,
-        ]),
-      Code.literal(')'),
+      Code.paramsList([
+        predicate!,
+        if (hasMapper)
+          Code.combine([
+            Code.literal(mapperParameterDeserializer),
+            Code.literal(': '),
+            mapperDeserializerCode,
+          ]),
+      ]),
       if (isCollection)
         if (isList)
           Code.literal('.toList()')
@@ -1279,17 +1275,14 @@ Code _buildMapperSerializerCode(
   }
   return Code.combine([
     mapperName,
-    Code.literal('('),
-    ...mapperConstructorParameterNames.map((v) {
+    Code.paramsList(mapperConstructorParameterNames.map((v) {
       final provides = providesByConstructorParameterNames[v];
       if (provides == null) {
         // context variable is not provided, so it will be injected as a field
-        return Code.literal('${v}: _${v}, ');
+        return Code.literal('${v}: _${v}');
       }
-      return Code.literal(
-          '${v}: () => resource.${provides.dartPropertyName}, ');
-    }),
-    Code.literal(')')
+      return Code.literal('${v}: () => resource.${provides.dartPropertyName}');
+    })),
   ]);
 }
 
@@ -1369,16 +1362,14 @@ Code _buildMapperDeserializerCode(
   // we will need to build our own initialization code
   return Code.combine([
     mapperClassName,
-    Code.literal('('),
-    ...constructorParameterNames.map((v) {
+    Code.paramsList(constructorParameterNames.map((v) {
       final provides = providesByConstructorParameterNames[v];
       if (provides == null) {
         // context variable is not provided, so it will be injected as a field
-        return Code.literal('${v}: _${v}, ');
+        return Code.literal('${v}: _${v}');
       }
       return Code.literal(
-          "${v}: () => throw Exception('Must not call provider for deserialization'), ");
-    }),
-    Code.literal(')')
+          "${v}: () => throw Exception('Must not call provider for deserialization')");
+    })),
   ]);
 }

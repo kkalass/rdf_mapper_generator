@@ -1172,16 +1172,13 @@ class MapperDependency extends DependencyModel {
                         paramName: parameterName,
                         defaultValue: Code.combine([
                           implRef.code,
-                          Code.literal('('),
-                          Code.combine(
-                              otherConstructorParamNames
-                                  .map((d) => Code.combine([
-                                        Code.literal(d),
-                                        Code.literal(': '),
-                                        Code.literal(d),
-                                      ])),
-                              separator: ', '),
-                          Code.literal(')')
+                          Code.paramsList(
+                            otherConstructorParamNames.map((d) => Code.combine([
+                                  Code.literal(d),
+                                  Code.literal(': '),
+                                  Code.literal(d),
+                                ])),
+                          ),
                         ])),
                 usageCode: Code.literal(fieldName),
               )

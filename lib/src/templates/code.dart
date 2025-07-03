@@ -84,7 +84,20 @@ class Code {
     return Code.literal(constructorCall);
   }
 
-  /// Combines multiple Code instances, merging their imports
+  /// Combines multiple Code instances to a parameter list
+  factory Code.paramsList(Iterable<Code> params) {
+    return Code.combine(
+      [
+        Code.literal('('),
+        Code.combine(
+          params,
+          separator: ', ',
+        ),
+        Code.literal(')')
+      ],
+    );
+  }
+
   factory Code.combine(Iterable<Code> codes, {String separator = ''}) {
     if (codes.isEmpty) return Code.literal('');
     if (codes.length == 1) return codes.first;

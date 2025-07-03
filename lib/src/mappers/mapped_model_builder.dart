@@ -170,9 +170,7 @@ class MappedClassModelBuilder {
         codeGeneric1(
             Code.type('DatatypeOverrideMapper', importUri: importRdfMapper),
             dartTypeNonNull),
-        Code.literal('('),
-        literal.datatype!.code,
-        Code.literal(')')
+        Code.paramsList([literal.datatype!.code]),
       ]));
     } else if (literal.language != null) {
       mapperRef = MapperRef.fromInstantiationCode(Code.combine([
@@ -180,7 +178,7 @@ class MappedClassModelBuilder {
         codeGeneric1(
             Code.type('LanguageOverrideMapper', importUri: importRdfMapper),
             dartTypeNonNull),
-        Code.literal("('${literal.language!}')")
+        Code.paramsList([Code.literal("'${literal.language!}'")])
       ]));
     } else {
       throw Exception(

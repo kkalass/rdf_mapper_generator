@@ -325,10 +325,10 @@ class InitFileBuilderHelper {
       Code mapperClassName, List<(String paramName, Code paramValue)> params) {
     return Code.combine([
       mapperClassName,
-      Code.literal('('),
-      ...params.map((cp) => Code.combine(
-          [Code.literal(cp.$1), Code.literal(':'), cp.$2, Code.literal(', ')])),
-      Code.literal(')')
+      Code.paramsList(
+        params.map((cp) =>
+            Code.combine([Code.literal(cp.$1), Code.literal(':'), cp.$2])),
+      )
     ]);
   }
 
