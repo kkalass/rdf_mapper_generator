@@ -1,8 +1,10 @@
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+import 'package:rdf_vocabularies/rdf.dart';
 
 /// Contains information about a class annotated with @RdfGlobalResource
 sealed class MappableClassInfo {
@@ -763,6 +765,55 @@ final class ProvidesAnnotationInfo {
   }
 }
 
+final class RdfMapKeyAnnotationInfo {
+  static const RdfMapKeyAnnotationInfo instance = RdfMapKeyAnnotationInfo._();
+
+  const RdfMapKeyAnnotationInfo._();
+
+  factory RdfMapKeyAnnotationInfo() => instance;
+
+  @override
+  String toString() {
+    return 'RdfMapKeyAnnotationInfo';
+  }
+}
+
+final class RdfMapValueAnnotationInfo {
+  static const RdfMapValueAnnotationInfo instance =
+      RdfMapValueAnnotationInfo._();
+
+  const RdfMapValueAnnotationInfo._();
+
+  factory RdfMapValueAnnotationInfo() => instance;
+
+  @override
+  String toString() {
+    return 'RdfMapValueAnnotationInfo';
+  }
+}
+
+final class RdfMapEntryAnnotationInfo {
+  final Code itemType;
+
+  const RdfMapEntryAnnotationInfo({required this.itemType});
+
+  @override
+  int get hashCode => itemType.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfMapEntryAnnotationInfo) {
+      return false;
+    }
+    return itemType == other.itemType;
+  }
+
+  @override
+  String toString() {
+    return 'RdfMapEntryAnnotationInfo{itemType: $itemType}';
+  }
+}
+
 /// Information about a field
 class FieldInfo {
   /// The name of the field
@@ -798,6 +849,10 @@ class FieldInfo {
   final ProvidesAnnotationInfo? provides;
   final IriPartAnnotationInfo? iriPart;
 
+  final RdfMapEntryAnnotationInfo? mapEntry;
+  final RdfMapKeyAnnotationInfo? mapKey;
+  final RdfMapValueAnnotationInfo? mapValue;
+
   const FieldInfo({
     required this.name,
     required this.type,
@@ -812,6 +867,9 @@ class FieldInfo {
     required this.iriPart,
     required this.propertyInfo,
     required this.isRequired, // = false,
+    this.mapEntry,
+    this.mapKey,
+    this.mapValue,
   }) : typeNonNull = typeNonNull ?? type;
 
   @override
@@ -828,6 +886,10 @@ class FieldInfo {
         isRdfValue,
         isRdfLanguageTag,
         provides,
+        mapEntry,
+        mapKey,
+        mapValue,
+        iriPart,
       ]);
 
   @override
@@ -846,7 +908,11 @@ class FieldInfo {
         isRequired == other.isRequired &&
         isRdfValue == other.isRdfValue &&
         isRdfLanguageTag == other.isRdfLanguageTag &&
-        provides == other.provides;
+        provides == other.provides &&
+        mapEntry == other.mapEntry &&
+        mapKey == other.mapKey &&
+        mapValue == other.mapValue &&
+        iriPart == other.iriPart;
   }
 
   @override
@@ -864,6 +930,10 @@ class FieldInfo {
         '  isRdfValue: $isRdfValue,\n'
         '  isRdfLanguageTag: $isRdfLanguageTag\n'
         '  provides: $provides\n'
+        '  iriPart: $iriPart\n'
+        '  mapEntry: $mapEntry\n'
+        '  mapKey: $mapKey\n'
+        '  mapValue: $mapValue\n'
         '}';
   }
 }

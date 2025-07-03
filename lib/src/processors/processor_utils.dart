@@ -4,10 +4,8 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:analyzer/dart/element/type_system.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
-
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -73,16 +71,63 @@ DartObject? getAnnotation(
   return null;
 }
 
+IriPartAnnotationInfo? extractIriPartAnnotation(
+    String fieldName, Iterable<ElementAnnotation> annotations) {
+  // Check for @RdfIriPart annotation
+  final iriPartAnnotation = getAnnotation(annotations, 'RdfIriPart');
+  if (iriPartAnnotation == null) {
+    return null;
+  }
+  final name = getFieldStringValue(iriPartAnnotation, 'name') ?? fieldName;
+  final pos = getField(iriPartAnnotation, 'pos')?.toIntValue() ?? 0;
+  return IriPartAnnotationInfo(
+    name: name,
+    pos: pos,
+  );
+}
+
+RdfMapEntryAnnotationInfo? extractMapEntryAnnotation(ValidationContext context,
+    String fieldName, Iterable<ElementAnnotation> annotations) {
+  // Check for @RdfMapEntry annotation
+  final mapEntryAnnotation = getAnnotation(annotations, 'RdfMapEntry');
+  if (mapEntryAnnotation == null) {
+    return null;
+  }
+  final itemClass = getField(mapEntryAnnotation, 'itemClass');
+  final itemClassType = itemClass?.toTypeValue();
+  if (itemClassType == null) {
+    context.addError(
+        'RdfMapEntry annotation on field $fieldName must specify a type for itemClass');
+    return null;
+  }
+  final itemType = typeToCode(itemClassType);
+
+  return RdfMapEntryAnnotationInfo(
+    itemType: itemType,
+  );
+}
+
+RdfMapKeyAnnotationInfo? extractMapKeyAnnotation(
+    String fieldName, Iterable<ElementAnnotation> annotations) {
+  final mapKeyAnnotation = getAnnotation(annotations, 'RdfMapKey');
+  return mapKeyAnnotation == null ? null : RdfMapKeyAnnotationInfo();
+}
+
+RdfMapValueAnnotationInfo? extractMapValueAnnotation(
+    String fieldName, Iterable<ElementAnnotation> annotations) {
+  final mapValueAnnotation = getAnnotation(annotations, 'RdfMapValue');
+  return mapValueAnnotation == null ? null : RdfMapValueAnnotationInfo();
+}
+
 bool isNull(DartObject? field) {
   return field == null || field.isNull;
 }
 
 MapperRefInfo<M>? getMapperRefInfo<M>(DartObject annotation) {
-  final nameField = getField(annotation, '_mapperName');
   final typeField = getField(annotation, '_mapperType');
   final instanceField = getField(annotation, '_mapperInstance');
-  final name = nameField?.toStringValue();
-  if (isNull(nameField) && isNull(typeField) && isNull(instanceField)) {
+  final name = getFieldStringValue(annotation, '_mapperName');
+  if (name == null && isNull(typeField) && isNull(instanceField)) {
     return null;
   }
   return MapperRefInfo(
@@ -113,6 +158,11 @@ DartObject? getField(DartObject obj, String fieldName) {
   return getField(superInstance, fieldName);
 }
 
+String? getFieldStringValue(DartObject obj, String fieldName) {
+  final retval = getField(obj, fieldName)?.toStringValue();
+  return retval == null || retval.isEmpty ? null : retval;
+}
+
 E getEnumFieldValue<E extends Enum>(
     DartObject annotation, String fieldName, List<E> values, E defaultValue) {
   final collectionField = getField(annotation, 'collection');
@@ -131,7 +181,7 @@ IriTerm? getIriTerm(DartObject? iriTermObject) {
   try {
     if (iriTermObject != null && !iriTermObject.isNull) {
       // Get the IRI string from the IriTerm
-      final iriValue = iriTermObject.getField('iri')?.toStringValue();
+      final iriValue = getFieldStringValue(iriTermObject, 'iri');
       if (iriValue != null) {
         return IriTerm(iriValue);
       }
@@ -325,9 +375,10 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
     name,
     annotations,
   );
-  final iriPart =
-      IriStrategyProcessor.extractIriPartAnnotation(name, annotations);
-
+  final iriPart = extractIriPartAnnotation(name, annotations);
+  final mapEntry = extractMapEntryAnnotation(context, name, annotations);
+  final mapKey = extractMapKeyAnnotation(name, annotations);
+  final mapValue = extractMapValueAnnotation(name, annotations);
   return FieldInfo(
       name: name,
       type: typeToCode(type),
@@ -341,7 +392,10 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
       isRdfLanguageTag: isRdfLanguageTag,
       isRdfValue: isRdfValue,
       provides: providesInfo,
-      iriPart: iriPart);
+      iriPart: iriPart,
+      mapEntry: mapEntry,
+      mapKey: mapKey,
+      mapValue: mapValue);
 }
 
 ProvidesAnnotationInfo? extractProvidesAnnotation(
@@ -349,13 +403,14 @@ ProvidesAnnotationInfo? extractProvidesAnnotation(
   Iterable<ElementAnnotation> annotations,
 ) {
   final providesAnnotation = getAnnotation(annotations, 'RdfProvides');
-  final providesName = providesAnnotation?.getField('name')?.toStringValue();
-  return providesAnnotation != null
-      ? ProvidesAnnotationInfo(
-          name: providesName ?? name,
-          dartPropertyName: name,
-        )
-      : null;
+  if (providesAnnotation == null) {
+    return null;
+  }
+  final providesName = getFieldStringValue(providesAnnotation, 'name');
+  return ProvidesAnnotationInfo(
+    name: providesName ?? name,
+    dartPropertyName: name,
+  );
 }
 
 /// Extracts enum constants and their custom @RdfEnumValue annotations.
@@ -371,8 +426,7 @@ List<EnumValueInfo> extractEnumValues(
     String serializedValue;
     if (enumValueAnnotation != null) {
       // Use custom value from @RdfEnumValue
-      final customValue =
-          getField(enumValueAnnotation, 'value')?.toStringValue();
+      final customValue = getFieldStringValue(enumValueAnnotation, 'value');
       if (customValue == null || customValue.isEmpty) {
         context.addError(
             'Custom value for enum constant $constantName cannot be empty');

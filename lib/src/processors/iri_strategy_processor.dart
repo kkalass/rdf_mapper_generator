@@ -189,51 +189,7 @@ class IriStrategyProcessor {
     return result;
   }
 
-  static IriPartAnnotationInfo? extractIriPartAnnotation(
-      String fieldName, Iterable<ElementAnnotation> annotations) {
-    // Check for @RdfIriPart annotation
-    DartObject? iriPartAnnotation;
-    for (final elementAnnotation in annotations) {
-      try {
-        final annotation = elementAnnotation.computeConstantValue();
-        if (annotation != null) {
-          final name = annotation.type?.element3?.name3;
-          if (name == 'RdfIriPart') {
-            iriPartAnnotation = annotation;
-            break;
-          }
-        }
-      } catch (_) {
-        // Ignore errors for individual annotations
-        continue;
-      }
-    }
-
-    if (iriPartAnnotation != null) {
-      // Try to get the variable name from the annotation,
-      // fallback to field name if not specified
-      String name = fieldName;
-
-      final annotationValue = iriPartAnnotation;
-      // Check for named parameter in @RdfIriPart(name)
-      final nameField = annotationValue.getField('name');
-      if (nameField != null && !nameField.isNull) {
-        final nameValue = nameField.toStringValue();
-        if (nameValue != null && nameValue.isNotEmpty) {
-          name = nameValue;
-        }
-      }
-      final pos = annotationValue.getField('pos')?.toIntValue() ?? 0;
-      // Add to property variables if it matches a template variable
-
-      return IriPartAnnotationInfo(
-        name: name,
-        pos: pos,
-      );
-    }
-    return null;
-  }
-
+  
   /// Validates an IRI template for correctness and common issues.
   ///
   /// Checks for:
