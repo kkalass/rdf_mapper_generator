@@ -32,7 +32,7 @@ class BookMapper implements LocalResourceMapper<Book> {
   Book fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final Map<String, String> translations = reader.getMap(
+    final Map<String, String> translations = reader.getMap<String, String>(
       const IriTerm.prevalidated('http://example.org/book/title'),
       literalTermDeserializer: _translationsMapper,
     );
@@ -50,7 +50,7 @@ class BookMapper implements LocalResourceMapper<Book> {
 
     return context
         .resourceBuilder(subject)
-        .addMap(
+        .addMap<String, String>(
           const IriTerm.prevalidated('http://example.org/book/title'),
           resource.translations,
           literalTermSerializer: _translationsMapper,

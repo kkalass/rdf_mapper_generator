@@ -96,7 +96,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
     );
     final id = iriParts['id']!;
     final DateTime createdAt = reader.require(Dcterms.created);
-    final Map<String, int> vectorClock = reader.getMap(
+    final Map<String, int> vectorClock = reader.getMap<String, int>(
       SolidTaskTask.vectorClock,
     );
     final bool isDeleted = reader.require(SolidTaskTask.isDeleted);
@@ -121,7 +121,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
         .resourceBuilder(subject)
         .addValue(SolidTaskTask.text, resource.text)
         .addValue(Dcterms.created, resource.createdAt)
-        .addMap(SolidTaskTask.vectorClock, resource.vectorClock)
+        .addMap<String, int>(SolidTaskTask.vectorClock, resource.vectorClock)
         .addValue(SolidTaskTask.isDeleted, resource.isDeleted)
         .addValue(
           Dcterms.creator,

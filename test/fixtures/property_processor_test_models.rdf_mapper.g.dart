@@ -1526,7 +1526,7 @@ class MapLocalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Map<String, String> reviews = reader.getMap(
+    final Map<String, String> reviews = reader.getMap<String, String>(
       SchemaBook.reviews,
       localResourceDeserializer: _reviewsMapper,
     );
@@ -1544,7 +1544,7 @@ class MapLocalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addMap(
+        .addMap<String, String>(
           SchemaBook.reviews,
           resource.reviews,
           resourceSerializer: _reviewsMapper,

@@ -96,8 +96,9 @@ class MappedClassModelBuilder {
             isCollection: collectionInfo?.isCollection ?? false,
             isMap: collectionInfo?.isMap ?? false,
             isIterable: collectionInfo?.isIterable ?? false,
-            elementTypeCode: collectionInfo?.elementTypeCode ??
-                const Code.literal('dynamic')),
+            elementTypeCode: collectionInfo?.elementTypeCode,
+            mapValueTypeCode: collectionInfo?.valueTypeCode,
+            mapKeyTypeCode: collectionInfo?.keyTypeCode),
 
         collectionType:
             propertyInfo?.annotation.collection ?? RdfCollectionType.none,

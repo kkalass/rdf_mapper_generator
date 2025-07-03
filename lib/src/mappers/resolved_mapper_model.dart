@@ -230,12 +230,16 @@ class CollectionResolvedModel {
   final bool isMap;
   final bool isIterable;
   final Code? elementTypeCode;
+  final Code? mapKeyTypeCode;
+  final Code? mapValueTypeCode;
 
   const CollectionResolvedModel({
     required this.isCollection,
     required this.isMap,
     required this.isIterable,
     required this.elementTypeCode,
+    required this.mapKeyTypeCode,
+    required this.mapValueTypeCode,
   });
 }
 
@@ -1247,12 +1251,18 @@ Code _getReaderCall(PropertyResolvedModel propertyInfo,
   return switch (propertyInfo) {
     // Case 1: Property is a collection (not none), and it's specifically a Map.
     PropertyResolvedModel(
-      collectionInfo: CollectionResolvedModel(isCollection: true, isMap: true),
+      collectionInfo: CollectionResolvedModel(
+        isCollection: true,
+        isMap: true,
+        mapKeyTypeCode: final mapKeyType?,
+        mapValueTypeCode: final mapValueType?
+      ),
       collectionType: final type
     )
         when type != RdfCollectionType.none =>
       Code.combine([
-        Code.literal('reader.getMap'),
+        Code.literal('reader.'),
+        codeGeneric2(Code.literal('getMap'), mapKeyType, mapValueType),
         Code.paramsList([
           predicate,
           ...extraNamedParameters,
@@ -1323,13 +1333,16 @@ Code _generateSerializerCall(PropertyResolvedModel? propertyInfo,
       PropertyResolvedModel(
         collectionInfo: CollectionResolvedModel(
           isCollection: true,
-          isMap: true
+          isMap: true,
+          mapKeyTypeCode: final mapKeyType?,
+          mapValueTypeCode: final mapValueType?
         ),
         collectionType: final type
       )
           when type != RdfCollectionType.none =>
         Code.combine([
-          Code.literal('.addMap'),
+          Code.literal('.'),
+          codeGeneric2(Code.literal('addMap'), mapKeyType, mapValueType),
           Code.paramsList([
             predicate,
             Code.literal('resource.$propertyName'),

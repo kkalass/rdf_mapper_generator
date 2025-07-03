@@ -189,12 +189,16 @@ class CollectionModel {
   final bool isMap;
   final bool isIterable;
   final Code? elementTypeCode;
+  final Code? mapKeyTypeCode;
+  final Code? mapValueTypeCode;
 
   const CollectionModel({
     required this.isCollection,
     required this.isMap,
     required this.isIterable,
     required this.elementTypeCode,
+    required this.mapKeyTypeCode,
+    required this.mapValueTypeCode,
   });
   CollectionResolvedModel resolve(
     ResolveStep2Context context,
@@ -204,6 +208,8 @@ class CollectionModel {
       isMap: isMap,
       isIterable: isIterable,
       elementTypeCode: elementTypeCode,
+      mapKeyTypeCode: mapKeyTypeCode,
+      mapValueTypeCode: mapValueTypeCode,
     );
   }
 }
