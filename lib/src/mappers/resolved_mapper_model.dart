@@ -1,5 +1,6 @@
 library;
 
+import 'package:meta/meta.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'
     show RdfCollectionType;
 import 'package:rdf_mapper_generator/src/mappers/mapper_model.dart';
@@ -300,10 +301,8 @@ class PropertyResolvedModel {
 
   bool get isConstructorParameter => constructorParameterName != null;
 
-  Code? generateBuilderCall({
-    required Code? mapperSerializerCode,
-    required String? mapperParameterSerializer,
-    required Code serializerMethod,
+  Code? _generateBuilderCall({
+    required Map<String, ProvidesResolvedModel> providesByProviderNames,
   }) {
     if (!isRdfProperty || predicate == null) {
       return null;
@@ -311,55 +310,85 @@ class PropertyResolvedModel {
     if (!include) {
       return null;
     }
+    final (
+      mapperParameterSerializer,
+      mapperSerializerCode,
+    ) = extractCustomSerializer(
+      constructorParameterName ?? propertyName,
+      this,
+      providesByProviderNames,
+    );
 
     final hasMapper =
         mapperParameterSerializer != null && mapperSerializerCode != null;
+
+    final serializerMethod = getSerializerMethod(this);
 
     final serializerCall = Code.combine([
       Code.literal('.'),
       serializerMethod,
       Code.literal('('),
-      predicate!,
-      Code.literal(', resource.'),
-      Code.literal(propertyName),
-      if (hasMapper)
+      Code.combine([
+        predicate!,
         Code.combine([
-          Code.literal(', '),
-          Code.literal(mapperParameterSerializer),
-          Code.literal(': '),
-          mapperSerializerCode,
+          Code.literal('resource.'),
+          Code.literal(propertyName),
         ]),
+        if (hasMapper)
+          Code.combine([
+            Code.literal(mapperParameterSerializer),
+            Code.literal(': '),
+            mapperSerializerCode,
+          ])
+      ], separator: ', '),
       Code.literal(')'),
     ]);
     final checkDefaultValue =
         hasDefaultValue && !includeDefaultsInSerialization;
     final checkNullValue = isFieldNullable;
     final useConditionalSerialization = checkDefaultValue || checkNullValue;
+
     if (!useConditionalSerialization) {
       return serializerCall;
     }
     return Code.combine([
       Code.literal('.when('),
       Code.combine([
-        if (checkDefaultValue)
-          Code.literal('resource.$propertyName != $defaultValue'),
-        if (checkNullValue) Code.literal('resource.$propertyName != null'),
-      ], separator: ' && '),
-      Code.literal(', (b) => b'),
-      serializerCall,
+        Code.combine([
+          if (checkDefaultValue)
+            Code.literal('resource.$propertyName != $defaultValue'),
+          if (checkNullValue) Code.literal('resource.$propertyName != null'),
+        ], separator: ' && '),
+        Code.combine([
+          Code.literal('(b) => b'),
+          serializerCall,
+        ])
+      ], separator: ', '),
       Code.literal(')'),
     ]);
   }
 
-  Code? generateReaderCall(
-      {required Code readerMethod,
-      String? mapperParameterDeserializer,
-      Code? mapperDeserializerCode}) {
+  Code? _generateReaderCall({
+    required Map<String, ProvidesResolvedModel> providesByProviderNames,
+  }) {
     if (!isRdfProperty || predicate == null) {
       return null;
     }
+    final (
+      mapperParameterDeserializer,
+      mapperDeserializerCode,
+    ) = _extractCustomDeserializer(
+      constructorParameterName != null
+          ? constructorParameterName!
+          : propertyName,
+      this,
+      providesByProviderNames,
+    );
     final hasMapper =
         mapperParameterDeserializer != null && mapperDeserializerCode != null;
+
+    final readerMethod =
+        getReaderMethod(this, !isFieldNullable && !hasDefaultValue);
 
     return Code.combine([
       Code.literal('reader.'),
@@ -392,37 +421,12 @@ class PropertyResolvedModel {
       Code className,
       Map<String, ProvidesResolvedModel> providesByProviderNames,
       String mapperImportUri) {
-    final (
-      mapperFieldName,
-      mapperSerializerCode,
-      mapperDeserializerCode,
-      mapperParameterSerializer,
-      mapperParameterDeserializer
-    ) = _extractPropertyMapperInfos(
-        className,
-        constructorParameterName != null
-            ? constructorParameterName!
-            : propertyName,
-        this,
-        providesByProviderNames,
-        mapperImportUri);
-    final mapperFieldNameCode =
-        mapperFieldName == null ? null : Code.literal(mapperFieldName);
-
-    // Determine collection information and methods
-    final (readerMethod, serializerMethod) = _getReaderAndSerializerMethods(
-        this, !isFieldNullable && !hasDefaultValue);
-
-    final builderCall = generateBuilderCall(
-      serializerMethod: serializerMethod,
-      mapperParameterSerializer: mapperParameterSerializer,
-      mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
+    final builderCall = _generateBuilderCall(
+      providesByProviderNames: providesByProviderNames,
     );
 
-    final readerCall = generateReaderCall(
-      readerMethod: readerMethod,
-      mapperParameterDeserializer: mapperParameterDeserializer,
-      mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
+    final readerCall = _generateReaderCall(
+      providesByProviderNames: providesByProviderNames,
     );
     return PropertyData(
         propertyName: propertyName,
@@ -1158,83 +1162,93 @@ final class ProvidesResolvedModel {
 String _buildMapperFieldName(String fieldName) => '_' + fieldName + 'Mapper';
 
 (
-  String? mapperFieldName,
-  Code? mapperSerializerCode,
-  Code? mapperDeserializerCode,
-  String? mapperParameterSerializer,
-  String? mapperParameterDeserializer
-) _extractPropertyMapperInfos(
-    Code className,
+  String? parameterName,
+  Code? code,
+) _extractCustomDeserializer(
     String fieldName,
     PropertyResolvedModel? propertyInfo,
-    Map<String, ProvidesResolvedModel> providesByConstructorParameterNames,
-    String mapperImportUri) {
-  if (propertyInfo == null) {
-    return _noMapperInfos;
+    Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
+  final (paramName, resolvedMapper) = switch (propertyInfo) {
+    PropertyResolvedModel(
+      iriMapping: var iriMapping?,
+    ) =>
+      ('iriTermDeserializer', iriMapping.resolvedMapper),
+    PropertyResolvedModel(
+      literalMapping: var literalMapping?,
+    ) =>
+      ('literalTermDeserializer', literalMapping.resolvedMapper),
+    PropertyResolvedModel(
+      globalResourceMapping: var globalResourceMapping?,
+    ) =>
+      ('globalResourceDeserializer', globalResourceMapping.resolvedMapper),
+    PropertyResolvedModel(
+      localResourceMapping: var localResourceMapping?,
+    ) =>
+      ('localResourceDeserializer', localResourceMapping.resolvedMapper),
+    _ => const (null, null)
+  };
+  if (paramName == null) {
+    return const (null, null);
   }
 
-  final collectionInfo = propertyInfo.collectionInfo;
   final mapperFieldName = _buildMapperFieldName(fieldName);
+  final (parameterNames, generatedMapperName) =
+      _extractGeneratedMapperInfos(resolvedMapper);
 
-  final iri = propertyInfo.iriMapping;
-  if (iri != null) {
-    return _propertyMapperInfosForResolvedMapper(
-        iri.resolvedMapper,
-        mapperFieldName,
-        'iriTermSerializer',
-        'iriTermDeserializer',
-        providesByConstructorParameterNames);
-  }
-  final literal = propertyInfo.literalMapping;
-  if (literal != null) {
-    return _propertyMapperInfosForResolvedMapper(
-        literal.resolvedMapper,
-        mapperFieldName,
-        'literalTermSerializer',
-        'literalTermDeserializer',
-        providesByConstructorParameterNames);
-  }
-  final globalResource = propertyInfo.globalResourceMapping;
-  if (globalResource != null && globalResource.hasMapper) {
-    return _propertyMapperInfosForResolvedMapper(
-        globalResource.resolvedMapper,
-        mapperFieldName,
-        'resourceSerializer',
-        'globalResourceDeserializer',
-        providesByConstructorParameterNames);
-  }
-  final localResource = propertyInfo.localResourceMapping;
-  if (localResource != null && localResource.hasMapper) {
-    return _propertyMapperInfosForResolvedMapper(
-        localResource.resolvedMapper,
-        mapperFieldName,
-        'resourceSerializer',
-        'localResourceDeserializer',
-        providesByConstructorParameterNames);
-  }
-
-  // For collections without explicit mapping, we need to determine the serialization method
-  if (collectionInfo.isCollection) {
-    return (
-      null, // No custom mapper field needed
-      null,
-      null,
-      collectionInfo.isMap ? 'resourceSerializer' : 'valueIterable',
-      collectionInfo.isMap
-          ? 'globalResourceDeserializer'
-          : 'globalResourceDeserializer'
-    );
-  }
-
-  return _noMapperInfos;
+  return (
+    paramName,
+    generatedMapperName != null && parameterNames.isNotEmpty
+        ? _buildMapperDeserializerCode(generatedMapperName, mapperFieldName,
+            parameterNames, providesByConstructorParameterNames)
+        : Code.literal(mapperFieldName),
+  );
 }
 
-(String, Code?, Code?, String, String) _propertyMapperInfosForResolvedMapper(
-    ResolvedMapperModel? resolvedMapper,
-    String mapperFieldName,
-    String mapperParameterSerializer,
-    String mapperParameterDeserializer,
+@visibleForTesting
+(
+  String? parameterName,
+  Code? code,
+) extractCustomSerializer(String fieldName, PropertyResolvedModel? propertyInfo,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
+  final (paramName, resolvedMapper) = switch (propertyInfo) {
+    PropertyResolvedModel(
+      iriMapping: var iriMapping?,
+    ) =>
+      ('iriTermSerializer', iriMapping.resolvedMapper),
+    PropertyResolvedModel(
+      literalMapping: var literalMapping?,
+    ) =>
+      ('literalTermSerializer', literalMapping.resolvedMapper),
+    PropertyResolvedModel(
+      globalResourceMapping: var globalResourceMapping?,
+    ) =>
+      ('resourceSerializer', globalResourceMapping.resolvedMapper),
+    PropertyResolvedModel(
+      localResourceMapping: var localResourceMapping?,
+    ) =>
+      ('resourceSerializer', localResourceMapping.resolvedMapper),
+    _ => const (null, null)
+  };
+
+  if (paramName == null) {
+    return const (null, null);
+  }
+
+  final mapperFieldName = _buildMapperFieldName(fieldName);
+  final (parameterNames, generatedMapperName) =
+      _extractGeneratedMapperInfos(resolvedMapper);
+
+  return (
+    paramName,
+    generatedMapperName != null && parameterNames.isNotEmpty
+        ? _buildMapperSerializerCode(generatedMapperName, mapperFieldName,
+            parameterNames, providesByConstructorParameterNames)
+        : Code.literal(mapperFieldName),
+  );
+}
+
+(List<String>, Code?) _extractGeneratedMapperInfos(
+    ResolvedMapperModel? resolvedMapper) {
   final generatedMapper =
       resolvedMapper is GeneratedResolvedMapperModel ? resolvedMapper : null;
   final parameterNames = (generatedMapper?.dependencies ?? const [])
@@ -1245,38 +1259,10 @@ String _buildMapperFieldName(String fieldName) => '_' + fieldName + 'Mapper';
     ..sort();
 
   final generatedMapperName = generatedMapper?.implementationClass;
-  final computeCustomSerializer =
-      generatedMapperName != null && parameterNames.isNotEmpty;
-  return (
-    mapperFieldName,
-    computeCustomSerializer
-        ? _buildMapperSerializerCode(generatedMapperName, mapperFieldName,
-            parameterNames, providesByConstructorParameterNames)
-        : null,
-    computeCustomSerializer
-        ? _buildMapperDeserializerCode(generatedMapperName, mapperFieldName,
-            parameterNames, providesByConstructorParameterNames)
-        : null,
-    mapperParameterSerializer,
-    mapperParameterDeserializer
-  );
+  return (parameterNames, generatedMapperName);
 }
 
-const (
-  String? mapperFieldName,
-  Code? mapperSerializerCode,
-  Code? mapperDeserializerCode,
-  String? mapperParameterSerializer,
-  String? mapperParameterDeserializer
-) _noMapperInfos = (
-  null,
-  null,
-  null,
-  null,
-  null,
-);
-
-_buildMapperSerializerCode(
+Code _buildMapperSerializerCode(
     Code mapperName,
     String mapperFieldName,
     List<String> mapperConstructorParameterNames,
@@ -1307,34 +1293,65 @@ _buildMapperSerializerCode(
   ]);
 }
 
-(Code readerMethod, Code serializerMethod) _getReaderAndSerializerMethods(
-    PropertyResolvedModel? propertyInfo, bool isRequired) {
-  final collectionType = propertyInfo?.collectionType;
-  final collectionInfo = propertyInfo?.collectionInfo;
-  // Determine reader and serializer methods based on collection type
-  final isCollection = collectionInfo?.isCollection ?? false;
-  final isMap = collectionInfo?.isMap ?? false;
-  final isIterable = collectionInfo?.isIterable ?? false;
+@visibleForTesting
+Code getReaderMethod(PropertyResolvedModel? propertyInfo, bool isRequired) {
+  return switch (propertyInfo) {
+    // Case 1: Property is a collection (not none), and it's specifically a Map.
+    PropertyResolvedModel(
+      collectionInfo: CollectionResolvedModel(isCollection: true, isMap: true),
+      collectionType: final type
+    )
+        when type != RdfCollectionType.none =>
+      const Code.literal('getMap'),
 
-  if (isCollection && collectionType != RdfCollectionType.none) {
-    if (isMap) {
-      return const (Code.literal('getMap'), Code.literal('addMap'));
-    }
-    if (isIterable) {
-      final elementType = collectionInfo!.elementTypeCode!;
-      return (
-        codeGeneric1(Code.literal('getValues'), elementType),
-        codeGeneric1(Code.literal('addValues'), elementType),
-      );
-    }
-  }
-  if (isRequired) {
-    return const (Code.literal('require'), Code.literal('addValue'));
-  }
-  return const (Code.literal('optional'), Code.literal('addValue'));
+    // Case 2: Property is a collection (not none), and it's specifically an Iterable.
+    PropertyResolvedModel(
+      collectionInfo: CollectionResolvedModel(
+        isCollection: true,
+        isIterable: true,
+        elementTypeCode: final elementType?
+      ), // Destructure elementTypeCode here
+      collectionType: final type
+    )
+        when type != RdfCollectionType.none =>
+      codeGeneric1(Code.literal('getValues'), elementType),
+
+    // Default Case: Any other scenario (not a collection, or collectionType is none, or just a single value)
+    _ => isRequired ? const Code.literal('require') : Code.literal('optional'),
+  };
 }
 
-_buildMapperDeserializerCode(
+@visibleForTesting
+Code getSerializerMethod(PropertyResolvedModel? propertyInfo) =>
+    switch (propertyInfo) {
+      // Case 1: Property is a collection (not none), and it's specifically a Map.
+      PropertyResolvedModel(
+        collectionInfo: CollectionResolvedModel(
+          isCollection: true,
+          isMap: true
+        ),
+        collectionType: final type
+      )
+          when type != RdfCollectionType.none =>
+        const Code.literal('addMap'),
+
+      // Case 2: Property is a collection (not none), and it's specifically an Iterable.
+      PropertyResolvedModel(
+        collectionInfo: CollectionResolvedModel(
+          isCollection: true,
+          isIterable: true,
+          elementTypeCode: final elementType?
+        ), // Destructure elementTypeCode here
+        collectionType: final type
+      )
+          when type != RdfCollectionType.none =>
+        codeGeneric1(Code.literal('addValues'), elementType),
+
+      // Default Case: Any other scenario (not a collection, or collectionType is none, or just a single value)
+      _ => const Code.literal('addValue'),
+    };
+
+Code _buildMapperDeserializerCode(
     Code mapperClassName,
     String mapperFieldName,
     Iterable<String> constructorParameterNames,
