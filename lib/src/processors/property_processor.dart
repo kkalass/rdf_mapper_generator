@@ -37,17 +37,18 @@ class PropertyProcessor {
   /// otherwise returns `null`.
   static PropertyInfo? processField(
       ValidationContext context, FieldElement2 field) {
-    return processFieldAlike(
-      context,
-      typeSystem: field.library2.typeSystem,
-      name: field.name3!,
-      annotations: field.metadata2.annotations,
-      isFinal: field.isFinal,
-      isLate: field.isLate,
-      isStatic: field.isStatic,
-      isSynthetic: field.isSynthetic,
-      type: field.type,
-    );
+    final mapEntry = extractMapEntryAnnotation(
+        context, field.name3!, field.metadata2.annotations);
+    return processFieldAlike(context,
+        typeSystem: field.library2.typeSystem,
+        name: field.name3!,
+        annotations: field.metadata2.annotations,
+        isFinal: field.isFinal,
+        isLate: field.isLate,
+        isStatic: field.isStatic,
+        isSynthetic: field.isSynthetic,
+        type: field.type,
+        mapEntry: mapEntry);
   }
 
   static PropertyInfo? processFieldAlike(ValidationContext context,
@@ -58,17 +59,19 @@ class PropertyProcessor {
       required bool isStatic,
       required bool isFinal,
       required bool isLate,
-      required bool isSynthetic}) {
+      required bool isSynthetic,
+      required RdfMapEntryAnnotationInfo? mapEntry}) {
     final annotationObj = _getRdfPropertyAnnotation(annotations);
     if (annotationObj == null) {
       return null;
     }
 
-    // Create an instance of RdfProperty from the annotation data
-    final rdfProperty = _createRdfProperty(context, name, type, annotationObj);
-
     // Analyze collection information
-    final collectionInfo = analyzeCollectionType(type, rdfProperty.collection);
+    final collectionInfo = analyzeCollectionType(type);
+
+    // Create an instance of RdfProperty from the annotation data
+    final rdfProperty = _createRdfProperty(
+        context, name, type, collectionInfo, mapEntry, annotationObj);
 
     // Check if the type is nullable
     final isNullable = type.isDartCoreNull ||
@@ -90,12 +93,8 @@ class PropertyProcessor {
 
   /// Analyzes a property type to determine collection information
   static CollectionInfo analyzeCollectionType(
-      DartType dartType, RdfCollectionType collectionAnnotation) {
-    // If explicitly set to none, treat as single value
-    if (collectionAnnotation == RdfCollectionType.none) {
-      return const CollectionInfo(treatAsCollection: false);
-    }
-
+    DartType dartType,
+  ) {
     // Check if it's a collection type
     if (dartType is InterfaceType) {
       final element = dartType.element3;
@@ -106,7 +105,7 @@ class PropertyProcessor {
         return CollectionInfo(
           type: CollectionType.list,
           elementTypeCode: typeToCode(dartType.typeArguments[0]),
-          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+          elementType: dartType.typeArguments[0],
         );
       }
 
@@ -115,7 +114,7 @@ class PropertyProcessor {
         return CollectionInfo(
           type: CollectionType.set,
           elementTypeCode: typeToCode(dartType.typeArguments[0]),
-          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+          elementType: dartType.typeArguments[0],
         );
       } // Check for Map
       if (className == 'Map' && dartType.typeArguments.length == 2) {
@@ -128,7 +127,6 @@ class PropertyProcessor {
               null, // We'll handle this specially in code generation
           keyTypeCode: typeToCode(keyType),
           valueTypeCode: typeToCode(valueType),
-          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
         );
       }
 
@@ -136,13 +134,13 @@ class PropertyProcessor {
         return CollectionInfo(
           type: CollectionType.iterable,
           elementTypeCode: typeToCode(dartType.typeArguments[0]),
-          treatAsCollection: collectionAnnotation == RdfCollectionType.auto,
+          elementType: dartType.typeArguments[0],
         );
       }
     }
 
     // Not a recognized collection type
-    return const CollectionInfo(treatAsCollection: false);
+    return const CollectionInfo();
   }
 
   static DartObject? _getRdfPropertyAnnotation(
@@ -150,8 +148,15 @@ class PropertyProcessor {
     return getAnnotation(annotations, 'RdfProperty');
   }
 
-  static RdfPropertyInfo _createRdfProperty(ValidationContext context,
-      String fieldName, DartType fieldType, DartObject annotation) {
+  static RdfPropertyInfo _createRdfProperty(
+      ValidationContext context,
+      String fieldName,
+
+      /// The field's Dart type (e.g. List<Foo>)
+      DartType fieldType,
+      CollectionInfo collectionInfo,
+      RdfMapEntryAnnotationInfo? rdfMapEntryAnnotation,
+      DartObject annotation) {
     // Extract the predicate IRI
     final predicate = getIriTermInfo(getField(annotation, 'predicate'));
     if (predicate == null) {
@@ -167,13 +172,31 @@ class PropertyProcessor {
     final globalResource = _extractGlobalResourceMapping(annotation);
     final collection = getEnumFieldValue(annotation, 'collection',
         RdfCollectionType.values, RdfCollectionType.auto);
+
+    final isCollection =
+        collectionInfo.isCollection && collection != RdfCollectionType.none;
+
+    /// The dart type that is used for the serialization/deserialization
+    /// of the field, e.g. Foo for List<Foo>
+    /// or MapEntry<Foo, Bar> for Map<Foo, Bar>
+    /// or even Baz for Map<Foo, Bar> if property is annotated with
+    /// @RdfMapEntry(Baz)
+    ///
+    /// FIXME: we need many tests, also for Lists of IriTerm, LiteralTerm etc
+    DartType fieldMappedClassType = (isCollection
+            ? rdfMapEntryAnnotation?.itemClassType ?? collectionInfo.elementType
+            : null) ??
+        fieldType;
+    collectionInfo.elementTypeCode;
+
     // Extract IRI mapping if present
-    final iri = _extractIriMapping(context, fieldName, fieldType, annotation);
+    final iri = _extractIriMapping(
+        context, fieldName, fieldMappedClassType, annotation);
 
     // Smart inference: if no explicit mapping is provided and the field type
     // has an RDF annotation with registerGlobally: false, infer the appropriate mapper
     final inferredMappings = _inferMappingsFromType(
-        fieldType, localResource, literal, globalResource, iri);
+        fieldMappedClassType, localResource, literal, globalResource, iri);
 
     // Create and return the RdfProperty instance
     return RdfPropertyInfo(

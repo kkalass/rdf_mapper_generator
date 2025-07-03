@@ -1,3 +1,5 @@
+import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
@@ -20,10 +22,15 @@ sealed class MappableClassInfo<A extends BaseMappingAnnotationInfo> {
 
   /// Class-Level annotation if the entire class shall be used as a map value
   RdfMapValueAnnotationInfo? get rdfMapValue;
+
+  List<AnnotationInfo> get annotations =>
+      [if (rdfMapValue != null) rdfMapValue!];
+
+  const MappableClassInfo();
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
-class IriInfo implements MappableClassInfo<RdfIriInfo> {
+class IriInfo extends MappableClassInfo<RdfIriInfo> {
   /// The name of the class
   @override
   final Code className;
@@ -87,7 +94,7 @@ class IriInfo implements MappableClassInfo<RdfIriInfo> {
 }
 
 /// Contains information about a class annotated with @RdfLiteral
-class LiteralInfo implements MappableClassInfo<RdfLiteralInfo> {
+class LiteralInfo extends MappableClassInfo<RdfLiteralInfo> {
   /// The name of the class
   @override
   final Code className;
@@ -151,7 +158,7 @@ class LiteralInfo implements MappableClassInfo<RdfLiteralInfo> {
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
-class ResourceInfo implements MappableClassInfo<RdfResourceInfo> {
+class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
   /// The name of the class
   @override
   final Code className;
@@ -279,7 +286,7 @@ class VariableName {
       'VariableName(dartPropertyName: $dartPropertyName, name: $name, canBeUri: $canBeUri, isMappedValue: $isMappedValue)';
 }
 
-class IriPartAnnotationInfo {
+class IriPartAnnotationInfo extends AnnotationInfo {
   final int pos;
   final String name;
 
@@ -784,7 +791,12 @@ class ParameterInfo {
   }
 }
 
-final class ProvidesAnnotationInfo {
+// Marker interface
+sealed class AnnotationInfo {
+  const AnnotationInfo();
+}
+
+final class ProvidesAnnotationInfo extends AnnotationInfo {
   final String name;
   final String dartPropertyName;
 
@@ -808,7 +820,7 @@ final class ProvidesAnnotationInfo {
   }
 }
 
-final class RdfMapKeyAnnotationInfo {
+final class RdfMapKeyAnnotationInfo extends AnnotationInfo {
   static const RdfMapKeyAnnotationInfo instance = RdfMapKeyAnnotationInfo._();
 
   const RdfMapKeyAnnotationInfo._();
@@ -821,7 +833,7 @@ final class RdfMapKeyAnnotationInfo {
   }
 }
 
-final class RdfMapValueAnnotationInfo {
+final class RdfMapValueAnnotationInfo extends AnnotationInfo {
   static const RdfMapValueAnnotationInfo instance =
       RdfMapValueAnnotationInfo._();
 
@@ -835,25 +847,32 @@ final class RdfMapValueAnnotationInfo {
   }
 }
 
-final class RdfMapEntryAnnotationInfo {
+final class RdfMapEntryAnnotationInfo extends AnnotationInfo {
   final Code itemType;
+  final ClassElement2 itemClassElement;
+  final DartType itemClassType;
 
-  const RdfMapEntryAnnotationInfo({required this.itemType});
+  const RdfMapEntryAnnotationInfo(
+      {required this.itemType,
+      required this.itemClassElement,
+      required this.itemClassType});
 
   @override
-  int get hashCode => itemType.hashCode;
+  int get hashCode => Object.hash(itemType, itemClassElement, itemClassType);
 
   @override
   bool operator ==(Object other) {
     if (other is! RdfMapEntryAnnotationInfo) {
       return false;
     }
-    return itemType == other.itemType;
+    return itemType == other.itemType &&
+        itemClassElement == other.itemClassElement &&
+        itemClassType == other.itemClassType;
   }
 
   @override
   String toString() {
-    return 'RdfMapEntryAnnotationInfo{itemType: $itemType}';
+    return 'RdfMapEntryAnnotationInfo{itemType: $itemType, itemClassElement: $itemClassElement, itemClassType: $itemClassType}';
   }
 }
 

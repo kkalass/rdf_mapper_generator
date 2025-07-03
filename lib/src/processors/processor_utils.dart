@@ -101,9 +101,19 @@ RdfMapEntryAnnotationInfo? extractMapEntryAnnotation(ValidationContext context,
     return null;
   }
   final itemType = typeToCode(itemClassType);
-
+  final itemClassTypeElement =
+      itemClassType is InterfaceType ? itemClassType.element3 : null;
+  final ClassElement2? itemClassElement =
+      itemClassTypeElement is ClassElement2 ? itemClassTypeElement : null;
+  if (itemClassElement == null) {
+    context.addError(
+        'RdfMapEntry annotation on field $fieldName must specify a class for itemClass');
+    return null;
+  }
   return RdfMapEntryAnnotationInfo(
     itemType: itemType,
+    itemClassElement: itemClassElement,
+    itemClassType: itemClassType,
   );
 }
 
@@ -355,15 +365,22 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
     required bool isFinal,
     required bool isLate,
     required bool isSynthetic}) {
-  final propertyInfo = PropertyProcessor.processFieldAlike(context,
-      type: type,
-      typeSystem: typeSystem,
-      name: name,
-      annotations: annotations,
-      isStatic: isStatic,
-      isFinal: isFinal,
-      isLate: isLate,
-      isSynthetic: isSynthetic);
+  final mapEntry = extractMapEntryAnnotation(context, name, annotations);
+  final mapKey = extractMapKeyAnnotation(annotations);
+  final mapValue = extractMapValueAnnotation(annotations);
+
+  final propertyInfo = PropertyProcessor.processFieldAlike(
+    context,
+    type: type,
+    typeSystem: typeSystem,
+    name: name,
+    annotations: annotations,
+    isStatic: isStatic,
+    isFinal: isFinal,
+    isLate: isLate,
+    isSynthetic: isSynthetic,
+    mapEntry: mapEntry,
+  );
   final isNullable = type.isDartCoreNull ||
       (type is InterfaceType && type.isDartCoreNull) ||
       typeSystem.isNullable(type);
@@ -376,9 +393,6 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
     annotations,
   );
   final iriPart = extractIriPartAnnotation(name, annotations);
-  final mapEntry = extractMapEntryAnnotation(context, name, annotations);
-  final mapKey = extractMapKeyAnnotation(annotations);
-  final mapValue = extractMapValueAnnotation(annotations);
   return FieldInfo(
       name: name,
       type: typeToCode(type),

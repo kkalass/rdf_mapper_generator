@@ -192,6 +192,8 @@ class CollectionModel {
   final Code? mapKeyTypeCode;
   final Code? mapValueTypeCode;
 
+  final MappedClassModel? mapEntryClassModel;
+
   const CollectionModel({
     required this.isCollection,
     required this.isMap,
@@ -199,7 +201,9 @@ class CollectionModel {
     required this.elementTypeCode,
     required this.mapKeyTypeCode,
     required this.mapValueTypeCode,
+    required this.mapEntryClassModel,
   });
+
   CollectionResolvedModel resolve(
     ResolveStep2Context context,
   ) {
@@ -210,7 +214,22 @@ class CollectionModel {
       elementTypeCode: elementTypeCode,
       mapKeyTypeCode: mapKeyTypeCode,
       mapValueTypeCode: mapValueTypeCode,
+      mapEntryClassModel: resolveEntryClassModel(context),
     );
+  }
+
+  MappedClassResolvedModel? resolveEntryClassModel(
+      ResolveStep2Context context) {
+    if (mapEntryClassModel == null) {
+      return null;
+    }
+    if (mapEntryClassModel!.isMapValue) {
+      // If the map entry class is a map value, we resolve it as a regular class
+      return mapEntryClassModel!.resolve(
+          context, (p) => p.isRdfMapKey || p.isRdfProperty || p.isIriPart);
+    }
+    return mapEntryClassModel?.resolve(
+        context, (p) => p.isRdfMapKey || p.isRdfMapValue);
   }
 }
 
@@ -222,6 +241,9 @@ class PropertyModel {
   final bool isRdfProperty;
   final bool isRdfValue;
   final bool isRdfLanguageTag;
+  final bool isRdfMapEntry;
+  final bool isRdfMapKey;
+  final bool isRdfMapValue;
   final bool isIriPart;
   final String? iriPartName;
   final bool isProvides;
@@ -296,6 +318,9 @@ class PropertyModel {
     required this.literalMapping,
     required this.globalResourceMapping,
     required this.localResourceMapping,
+    required this.isRdfMapEntry,
+    required this.isRdfMapKey,
+    required this.isRdfMapValue,
   });
 
   PropertyResolvedModel resolve(
@@ -306,6 +331,9 @@ class PropertyModel {
       isRequired: isRequired,
       isFieldNullable: isFieldNullable,
       isRdfProperty: isRdfProperty,
+      isRdfMapEntry: isRdfMapEntry,
+      isRdfMapKey: isRdfMapKey,
+      isRdfMapValue: isRdfMapValue,
       include: include,
       predicate: predicate,
       defaultValue: defaultValue,
@@ -338,11 +366,13 @@ class MappedClassModel {
   /// empty for the default constructor
   final String? constructorName;
   final List<PropertyModel> properties;
+  final bool isMapValue;
 
   const MappedClassModel(
       {required this.constructorName,
       required this.className,
-      required this.properties});
+      required this.properties,
+      required this.isMapValue});
 
   @override
   String toString() => 'MappedClass(className: $className)';
@@ -351,6 +381,7 @@ class MappedClassModel {
       ResolveStep2Context context, IsRdfFieldFilter isRdfFieldFilter) {
     return MappedClassResolvedModel(
         className: className,
+        isMapValue: isMapValue,
         properties:
             properties.map((p) => p.resolve(context)).toList(growable: false),
         isRdfFieldFilter: isRdfFieldFilter);
@@ -383,6 +414,8 @@ sealed class MapperModel {
 
   /// The class this mapper handles
   Code get mappedClass;
+
+  MappedClassModel? get mappedClassModel => null;
 
   /// the type of mapper
   MapperType get type;
@@ -512,6 +545,7 @@ class ResourceMapperModel extends GeneratedMapperModel {
   @override
   final Code mappedClass;
 
+  @override
   final MappedClassModel mappedClassModel;
 
   @override
@@ -615,6 +649,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
 }
 
 class IriClassMapperModel extends IriMapperModel {
+  @override
   final MappedClassModel mappedClassModel;
 
   IriClassMapperModel(
@@ -733,6 +768,7 @@ sealed class LiteralMapperModel extends GeneratedMapperModel {
 }
 
 class LiteralClassMapperModel extends LiteralMapperModel {
+  @override
   final MappedClassModel mappedClassModel;
 
   LiteralClassMapperModel({
@@ -1112,6 +1148,7 @@ class MapperDependency extends DependencyModel {
             // those can have dependencies.
             final otherConstructorRequiredDepencencies = resolvedMapperModel
                 .dependencies
+                //c?.defaultValue != null && (e.field?.isLate ?? false)
                 .where((d) =>
                     d.constructorParam != null &&
                     d.constructorParam!.isRequired)

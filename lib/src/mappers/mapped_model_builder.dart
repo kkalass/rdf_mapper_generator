@@ -1,6 +1,8 @@
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'
     hide MapperRef;
+import 'package:rdf_mapper_generator/builder_helper.dart';
 import 'package:rdf_mapper_generator/src/mappers/iri_model_builder_support.dart';
+import 'package:rdf_mapper_generator/src/mappers/mapper_model_builder.dart';
 import 'package:rdf_mapper_generator/src/mappers/util.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
@@ -17,7 +19,8 @@ class MappedClassModelBuilder {
       Code mappedClass,
       String mapperImportUri,
       List<ConstructorInfo> constructors,
-      List<FieldInfo> fields) {
+      List<FieldInfo> fields,
+      List<AnnotationInfo> annotations) {
     final constructor = constructors.firstOrNull;
     final properties = _buildPropertyData(context, mappedClass, fields,
         constructor?.parameters ?? const [], mapperImportUri);
@@ -26,6 +29,7 @@ class MappedClassModelBuilder {
       constructorName: constructor?.name,
       className: mappedClass,
       properties: properties,
+      isMapValue: annotations.any((a) => a is RdfMapValueAnnotationInfo),
     );
   }
 
@@ -58,12 +62,52 @@ class MappedClassModelBuilder {
       final globalResource = propertyInfo?.annotation.globalResource;
       final localResource = propertyInfo?.annotation.localResource;
 
+      final MappedClassModel? mapEntryClassModel;
+      if (f?.mapEntry != null) {
+        final mapEntry = f!.mapEntry!;
+        final entryClassInfo =
+            BuilderHelper.processClass(context, mapEntry.itemClassElement);
+        // FIXME: mapperImportUri might be wrong here! Maybe we should use
+        // the importUri from the mapEntry.itemType or maybe better entryClassInfo.className?
+        if (entryClassInfo == null) {
+          context.addError(
+              'Could not find class for map entry type: ${mapEntry.itemType}');
+          mapEntryClassModel = null;
+        } else {
+          final entryClassModels = MapperModelBuilder.buildModel(
+              context, mapperImportUri, entryClassInfo);
+          final entryClassModel = entryClassModels
+              .firstWhere((m) => m.mappedClass == mapEntry.itemType)
+              .mappedClassModel;
+          mapEntryClassModel = entryClassModel;
+        }
+      } else {
+        mapEntryClassModel = null;
+      }
+
+      var collectionType =
+          propertyInfo?.annotation.collection ?? RdfCollectionType.none;
+      var isCollection = (collectionInfo?.isCollection ?? false) &&
+          collectionType != RdfCollectionType.none;
+      var collectionModel = CollectionModel(
+        isCollection: isCollection,
+        isMap: collectionInfo?.isMap ?? false,
+        isIterable: collectionInfo?.isIterable ?? false,
+        elementTypeCode: collectionInfo?.elementTypeCode,
+        mapValueTypeCode: collectionInfo?.valueTypeCode,
+        mapKeyTypeCode: collectionInfo?.keyTypeCode,
+        mapEntryClassModel: mapEntryClassModel,
+      );
+
       return PropertyModel(
         propertyName: propertyName,
         dartType: dartType,
         isRdfProperty: propertyInfo != null,
         isRdfValue: f?.isRdfValue ?? c?.isRdfValue ?? false,
         isRdfLanguageTag: f?.isRdfLanguageTag ?? c?.isRdfLanguageTag ?? false,
+        isRdfMapEntry: f?.mapEntry != null,
+        isRdfMapKey: f?.mapKey != null,
+        isRdfMapValue: f?.mapValue != null,
         isIriPart: f?.iriPart != null,
         iriPartName: f?.iriPart?.name,
         isProvides: f?.provides != null,
@@ -76,7 +120,7 @@ class MappedClassModelBuilder {
             propertyInfo?.annotation.includeDefaultsInSerialization ?? false,
 
         // FIXME: move to CollectionModel?
-        isCollection: collectionInfo?.isCollection ?? false,
+        isCollection: collectionModel.isCollection,
         isMap: collectionInfo?.isMap ?? false,
         isList: collectionInfo?.isList ?? false,
         isSet: collectionInfo?.isSet ?? false,
@@ -92,33 +136,34 @@ class MappedClassModelBuilder {
         isFieldSynthetic: f?.isSynthetic ?? false,
         isFieldNullable: !(f?.isRequired ?? true),
 
-        collectionInfo: CollectionModel(
-            isCollection: collectionInfo?.isCollection ?? false,
-            isMap: collectionInfo?.isMap ?? false,
-            isIterable: collectionInfo?.isIterable ?? false,
-            elementTypeCode: collectionInfo?.elementTypeCode,
-            mapValueTypeCode: collectionInfo?.valueTypeCode,
-            mapKeyTypeCode: collectionInfo?.keyTypeCode),
+        collectionInfo: collectionModel,
 
-        collectionType:
-            propertyInfo?.annotation.collection ?? RdfCollectionType.none,
+        collectionType: collectionType,
 
         iriMapping: iri == null
             ? null
-            : buildIriMapping(context, mappedClass, mapperImportUri, iri,
-                propertyInfo!, fields, dartTypeNonNull, propertyName),
+            : buildIriMapping(
+                context,
+                mappedClass,
+                mapperImportUri,
+                iri,
+                propertyInfo!,
+                collectionModel,
+                fields,
+                dartTypeNonNull,
+                propertyName),
         literalMapping: literal == null
             ? null
-            : buildLiteralMapping(
-                literal, propertyInfo!, dartTypeNonNull, propertyName),
+            : buildLiteralMapping(literal, propertyInfo!, collectionModel,
+                dartTypeNonNull, propertyName),
         globalResourceMapping: globalResource == null
             ? null
-            : buildGlobalResourceMapping(
-                globalResource, propertyInfo!, dartTypeNonNull, propertyName),
+            : buildGlobalResourceMapping(globalResource, propertyInfo!,
+                collectionModel, dartTypeNonNull, propertyName),
         localResourceMapping: localResource == null
             ? null
-            : buildLocalResourceMapping(
-                localResource, propertyInfo!, dartTypeNonNull, propertyName),
+            : buildLocalResourceMapping(localResource, propertyInfo!,
+                collectionModel, dartTypeNonNull, propertyName),
       );
     }).toList();
   }
@@ -126,12 +171,13 @@ class MappedClassModelBuilder {
   static LocalResourceMappingModel buildLocalResourceMapping(
       LocalResourceMappingInfo localResource,
       PropertyInfo propertyInfo,
+      CollectionModel collectionModel,
       Code dartTypeNonNull,
       String propertyName) {
     return LocalResourceMappingModel(
         hasMapper: true,
         dependency: createMapperDependency(
-            propertyInfo.collectionInfo,
+            collectionModel,
             localResource.mapper!,
             dartTypeNonNull,
             propertyName,
@@ -141,20 +187,25 @@ class MappedClassModelBuilder {
   static GlobalResourceMappingModel buildGlobalResourceMapping(
       GlobalResourceMappingInfo globalResource,
       PropertyInfo propertyInfo,
+      CollectionModel collectionModel,
       Code dartTypeNonNull,
       String propertyName) {
     return GlobalResourceMappingModel(
         hasMapper: true,
         dependency: createMapperDependency(
-            propertyInfo.collectionInfo,
+            collectionModel,
             globalResource.mapper!,
             dartTypeNonNull,
             propertyName,
             'GlobalResourceMapper'));
   }
 
-  static LiteralMappingModel? buildLiteralMapping(LiteralMappingInfo literal,
-      PropertyInfo propertyInfo, Code dartTypeNonNull, String propertyName) {
+  static LiteralMappingModel? buildLiteralMapping(
+      LiteralMappingInfo literal,
+      PropertyInfo propertyInfo,
+      CollectionModel collectionModel,
+      Code dartTypeNonNull,
+      String propertyName) {
     if (literal.mapper == null &&
         literal.datatype == null &&
         literal.language == null) {
@@ -188,7 +239,7 @@ class MappedClassModelBuilder {
     final dependency = DependencyModel.mapper(
       buildMapperInterfaceTypeForProperty(
           Code.type('LiteralTermMapper', importUri: importRdfMapper),
-          propertyInfo.collectionInfo,
+          collectionModel,
           dartTypeNonNull),
       propertyName,
       mapperRef,
@@ -204,6 +255,7 @@ class MappedClassModelBuilder {
       String mapperImportUri,
       IriMappingInfo iri,
       PropertyInfo propertyInfo,
+      CollectionModel collectionModel,
       List<FieldInfo> fields,
       Code dartTypeNonNull,
       String propertyName) {
@@ -247,7 +299,7 @@ class MappedClassModelBuilder {
     final dependency = DependencyModel.mapper(
       buildMapperInterfaceTypeForProperty(
           Code.type('IriTermMapper', importUri: importRdfMapper),
-          propertyInfo.collectionInfo,
+          collectionModel,
           dartTypeNonNull),
       propertyName,
       mapperRef,
@@ -272,7 +324,7 @@ class MappedClassModelBuilder {
   }
 
   static MapperDependency createMapperDependency(
-      CollectionInfo? collectionInfo,
+      CollectionModel? collectionModel,
       MapperRefInfo mapper,
       Code dartTypeNonNull,
       String propertyName,
@@ -280,7 +332,7 @@ class MappedClassModelBuilder {
     return DependencyModel.mapper(
       buildMapperInterfaceTypeForProperty(
           Code.type(interfaceTypeName, importUri: importRdfMapper),
-          collectionInfo,
+          collectionModel,
           dartTypeNonNull),
       propertyName,
       IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper),

@@ -55,6 +55,7 @@ sealed class ResolvedMapperModel {
       dependencies.isEmpty
           ? const []
           : dependencies
+              .where((d) => d.constructorParam?.isRequired ?? false)
               .map((d) => d.constructorParam)
               .nonNulls
               .toList(growable: false);
@@ -233,14 +234,16 @@ class CollectionResolvedModel {
   final Code? mapKeyTypeCode;
   final Code? mapValueTypeCode;
 
-  const CollectionResolvedModel({
-    required this.isCollection,
-    required this.isMap,
-    required this.isIterable,
-    required this.elementTypeCode,
-    required this.mapKeyTypeCode,
-    required this.mapValueTypeCode,
-  });
+  final MappedClassResolvedModel? mapEntryClassModel;
+
+  const CollectionResolvedModel(
+      {required this.isCollection,
+      required this.isMap,
+      required this.isIterable,
+      required this.elementTypeCode,
+      required this.mapKeyTypeCode,
+      required this.mapValueTypeCode,
+      required this.mapEntryClassModel});
 }
 
 class PropertyResolvedModel {
@@ -251,6 +254,9 @@ class PropertyResolvedModel {
   final bool isIriPart;
   final bool isRdfValue;
   final bool isRdfLanguageTag;
+  final bool isRdfMapEntry;
+  final bool isRdfMapKey;
+  final bool isRdfMapValue;
   final String? iriPartName;
   final String? constructorParameterName;
   final bool isNamedConstructorParameter;
@@ -281,6 +287,9 @@ class PropertyResolvedModel {
     required this.isIriPart,
     required this.isRdfValue,
     required this.isRdfLanguageTag,
+    required this.isRdfMapEntry,
+    required this.isRdfMapKey,
+    required this.isRdfMapValue,
     required this.iriPartName,
     required this.constructorParameterName,
     required this.isNamedConstructorParameter,
@@ -304,7 +313,8 @@ class PropertyResolvedModel {
 
   bool get isConstructorParameter => constructorParameterName != null;
 
-  Code? _generateBuilderCall({
+  Code? _generateBuilderCall(
+    ValidationContext context, {
     required Map<String, ProvidesResolvedModel> providesByProviderNames,
   }) {
     if (!isRdfProperty || predicate == null) {
@@ -321,6 +331,7 @@ class PropertyResolvedModel {
     );
 
     final serializerCall = _generateSerializerCall(
+      context,
       this,
       namedParameters: customSerializerParameters,
       predicate: predicate!,
@@ -377,6 +388,7 @@ class PropertyResolvedModel {
       Map<String, ProvidesResolvedModel> providesByProviderNames,
       String mapperImportUri) {
     final builderCall = _generateBuilderCall(
+      context,
       providesByProviderNames: providesByProviderNames,
     );
 
@@ -390,6 +402,9 @@ class PropertyResolvedModel {
         isIriPart: isIriPart,
         isRdfValue: isRdfValue,
         isRdfLanguageTag: isRdfLanguageTag,
+        isRdfMapEntry: isRdfMapEntry,
+        isRdfMapKey: isRdfMapKey,
+        isRdfMapValue: isRdfMapValue,
         iriPartName: iriPartName,
         name: constructorParameterName,
         isNamed: isNamedConstructorParameter,
@@ -407,11 +422,12 @@ class MappedClassResolvedModel {
   final Code className;
   final List<PropertyResolvedModel> properties;
   final IsRdfFieldFilter _isRdfField;
-
+  final bool isMapValue;
   const MappedClassResolvedModel(
       {required this.className,
       required this.properties,
-      required IsRdfFieldFilter isRdfFieldFilter})
+      required IsRdfFieldFilter isRdfFieldFilter,
+      required this.isMapValue})
       : _isRdfField = isRdfFieldFilter;
 
   @override
@@ -598,11 +614,11 @@ MapperConstructorTemplateData _toMapperConstructorTemplateData(
 ) {
   List<ConstructorParameterData> mapperConstructorParameters = dependencies
       .map((e) {
-        final c = e.constructorParam?.toTemplateData(context);
-        if (c?.defaultValue != null && (e.field?.isLate ?? false)) {
+        if (e.constructorParam?.defaultValue != null &&
+            (e.field?.isLate ?? false)) {
           return null; // skip late fields with default values
         } else {
-          return c;
+          return e.constructorParam?.toTemplateData(context);
         }
       })
       .nonNulls
@@ -1208,12 +1224,11 @@ List<Code> _extractCustomSerializerParameters(
   final generatedMapper =
       resolvedMapper is GeneratedResolvedMapperModel ? resolvedMapper : null;
   final parameterNames = (generatedMapper?.dependencies ?? const [])
-      .where((e) => e.constructorParam != null)
+      .where((e) => e.constructorParam?.isRequired ?? false)
       .map((e) => e.constructorParam!.paramName)
       .toSet()
       .toList(growable: false)
     ..sort();
-
   final generatedMapperName = generatedMapper?.implementationClass;
   return (parameterNames, generatedMapperName);
 }
@@ -1249,7 +1264,23 @@ Code _buildMapperSerializerCode(
 Code _getReaderCall(PropertyResolvedModel propertyInfo,
     {required Code predicate, required List<Code> extraNamedParameters}) {
   return switch (propertyInfo) {
-    // Case 1: Property is a collection (not none), and it's specifically a Map.
+    // Case 1a: Property is a collection (not none), and it's specifically a Map, but it
+    // shall be mapped with the help of a supplement MapEntry class.
+    PropertyResolvedModel(
+      collectionInfo: CollectionResolvedModel(
+        isCollection: true,
+        isMap: true,
+        mapKeyTypeCode: final mapKeyType?,
+        mapValueTypeCode: final mapValueType?,
+        mapEntryClassModel: final mapEntryClassModel?
+      ),
+      collectionType: final type
+    )
+        when type != RdfCollectionType.none =>
+      _generateMapEntryReaderCall(mapEntryClassModel, mapKeyType, mapValueType,
+          predicate, extraNamedParameters),
+
+    // Case 1b: Property is a collection (not none), and it's specifically a Map.
     PropertyResolvedModel(
       collectionInfo: CollectionResolvedModel(
         isCollection: true,
@@ -1262,13 +1293,13 @@ Code _getReaderCall(PropertyResolvedModel propertyInfo,
         when type != RdfCollectionType.none =>
       Code.combine([
         Code.literal('reader.'),
-        codeGeneric2(Code.literal('getMap'), mapKeyType, mapValueType),
+        Code.literal('getMap'),
+        Code.genericParamsList([mapKeyType, mapValueType]),
         Code.paramsList([
           predicate,
           ...extraNamedParameters,
         ]),
       ]),
-
     // Case 2: Property is a collection (not none), and it's specifically an Iterable.
     PropertyResolvedModel(
       collectionInfo: CollectionResolvedModel(
@@ -1324,12 +1355,116 @@ Code _getReaderCall(PropertyResolvedModel propertyInfo,
   };
 }
 
-Code _generateSerializerCall(PropertyResolvedModel? propertyInfo,
+Code _generateMapEntryReaderCall(
+    MappedClassResolvedModel mapEntryClassModel,
+    Code mapKeyType,
+    Code mapValueType,
+    Code predicate,
+    List<Code> extraNamedParameters) {
+  final keyPropertyName = mapEntryClassModel.properties
+      .firstWhere((p) => p.isRdfMapKey)
+      .constructorParameterName;
+  final valuePropertyName = mapEntryClassModel.properties
+      .firstWhere((p) => p.isRdfMapValue)
+      .constructorParameterName;
+  return Code.combine([
+    Code.literal('reader.'),
+    codeGeneric2(Code.literal('collect'), mapEntryClassModel.className,
+        codeGeneric2(Code.coreType('Map'), mapKeyType, mapValueType)),
+    Code.paramsList([
+      predicate,
+      Code.literal(
+          "(it) => {for (var vc in it) vc.${keyPropertyName}: ${mapEntryClassModel.isMapValue ? 'vc' : 'vc.${valuePropertyName}'}}"),
+      ...extraNamedParameters,
+    ]),
+  ]);
+}
+
+Code _generateMapEntryBuilderCall(
+    ValidationContext context,
+    MappedClassResolvedModel mapEntryClassModel,
+    Code predicate,
+    String propertyName,
+    List<Code> namedParameters) {
+  return Code.combine([
+    Code.literal('.'),
+    codeGeneric1(Code.literal('addValues'), mapEntryClassModel.className),
+    Code.paramsList([
+      predicate,
+      Code.combine([
+        Code.literal('resource.${propertyName}.entries.map((e)=>'),
+        if (mapEntryClassModel.isMapValue)
+          Code.literal('e.value')
+        else
+          _generateMapEntryConstructorCall(context, mapEntryClassModel),
+        Code.literal(')'),
+      ]),
+      ...namedParameters
+    ]),
+  ]);
+}
+
+Code _generateMapEntryConstructorCall(
+    ValidationContext context, MappedClassResolvedModel mapEntryClassModel) {
+  final constructorParams = mapEntryClassModel.properties
+      .where((e) => e.isConstructorParameter)
+      .map((e) {
+    Code? value = _getMapEntryReference(e);
+    if (value == null) {
+      context.addError(
+          'The Constructor parameter ${e.constructorParameterName} of MapEntry mapping class ${mapEntryClassModel.className} either does not have a corresponding field, or the corresponding field is neither is annotated with @RdfMapKey nor with @RdfMapValue. We thus cannot instantiate this class.');
+      return null;
+    }
+    if (e.isNamedConstructorParameter) {
+      return Code.combine([
+        Code.literal('${e.constructorParameterName}: '),
+        value,
+      ]);
+    }
+    return value;
+  }).nonNulls;
+  final nonConstructorSetters = mapEntryClassModel.properties
+      .where((e) =>
+          !e.isConstructorParameter && (e.isRdfMapValue || e.isRdfMapKey))
+      .map((e) => Code.combine([
+            Code.literal('..${e.constructorParameterName}='),
+            _getMapEntryReference(e)!,
+          ]));
+  return Code.combine([
+    mapEntryClassModel.className,
+    Code.paramsList(constructorParams),
+    ...nonConstructorSetters
+  ]);
+}
+
+Code? _getMapEntryReference(PropertyResolvedModel e) {
+  final value = e.isRdfMapKey
+      ? const Code.literal('e.key')
+      : (e.isRdfMapValue ? const Code.literal('e.value') : null);
+  return value;
+}
+
+Code _generateSerializerCall(
+        ValidationContext context, PropertyResolvedModel? propertyInfo,
         {required String propertyName,
         required Code predicate,
         required List<Code> namedParameters}) =>
     switch (propertyInfo) {
-      // Case 1: Property is a collection (not none), and it's specifically a Map.
+      // Case 1a: Property is a collection (not none), and it's specifically a Map, but it
+      // shall be mapped with the help of a supplement MapEntry class.
+      PropertyResolvedModel(
+        collectionInfo: CollectionResolvedModel(
+          isCollection: true,
+          isMap: true,
+          mapEntryClassModel: final mapEntryClassModel?
+        ),
+        collectionType: final type
+      )
+          when type != RdfCollectionType.none =>
+        _generateMapEntryBuilderCall(context, mapEntryClassModel, predicate,
+            propertyName, namedParameters),
+
+      // Case 1b: Property is a collection (not none), and it's specifically a Map.
       PropertyResolvedModel(
         collectionInfo: CollectionResolvedModel(
           isCollection: true,

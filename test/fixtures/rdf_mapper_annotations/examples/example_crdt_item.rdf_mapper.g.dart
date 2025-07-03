@@ -17,132 +17,6 @@ import 'package:rdf_vocabularies/dcterms.dart';
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
-class ItemLastModifiedByMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$',
-  );
-
-  final String Function() _storageRootProvider;
-
-  /// Constructor
-  const ItemLastModifiedByMapper({
-    required String Function() storageRootProvider,
-  }) : _storageRootProvider = storageRootProvider;
-
-  @override
-  String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
-
-    final iriParts = {
-      for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
-    };
-    return iriParts['lastModifiedBy']!;
-  }
-
-  @override
-  IriTerm toRdfTerm(
-    String iriTermValue,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final lastModifiedBy = iriTermValue.toString();
-    final storageRoot = _storageRootProvider();
-    return IriTerm(
-      '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl',
-    );
-  }
-}
-
-/// Generated mapper for [Item] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Item.
-class ItemMapper implements GlobalResourceMapper<Item> {
-  static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl\$',
-  );
-
-  late final IriTermMapper<String> _lastModifiedByMapper;
-  final String Function() _storageRootProvider;
-
-  /// Constructor
-  ItemMapper({required String Function() storageRootProvider})
-    : _storageRootProvider = storageRootProvider {
-    _lastModifiedByMapper = ItemLastModifiedByMapper(
-      storageRootProvider: storageRootProvider,
-    );
-  }
-
-  @override
-  IriTerm? get typeIri => SolidTaskTask.classIri;
-
-  @override
-  Item fromRdfResource(IriTerm subject, DeserializationContext context) {
-    final reader = context.reader(subject);
-
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
-
-    final iriParts = {
-      for (var name in (match?.groupNames ?? const <String>[]))
-        name: match?.namedGroup(name) ?? '',
-    };
-
-    final String text = reader.require(SolidTaskTask.text);
-    final String lastModifiedBy = reader.require(
-      Dcterms.creator,
-      iriTermDeserializer: _lastModifiedByMapper,
-    );
-    final id = iriParts['id']!;
-    final DateTime createdAt = reader.require(Dcterms.created);
-    final Map<String, int> vectorClock = reader.getMap<String, int>(
-      SolidTaskTask.vectorClock,
-    );
-    final bool isDeleted = reader.require(SolidTaskTask.isDeleted);
-
-    final retval = Item(text: text, lastModifiedBy: lastModifiedBy);
-    retval.id = id;
-    retval.createdAt = createdAt;
-    retval.vectorClock = vectorClock;
-    retval.isDeleted = isDeleted;
-    return retval;
-  }
-
-  @override
-  (IriTerm, List<Triple>) toRdfResource(
-    Item resource,
-    SerializationContext context, {
-    RdfSubject? parentSubject,
-  }) {
-    final subject = IriTerm(_buildIri(resource));
-
-    return context
-        .resourceBuilder(subject)
-        .addValue(SolidTaskTask.text, resource.text)
-        .addValue(Dcterms.created, resource.createdAt)
-        .addMap<String, int>(SolidTaskTask.vectorClock, resource.vectorClock)
-        .addValue(SolidTaskTask.isDeleted, resource.isDeleted)
-        .addValue(
-          Dcterms.creator,
-          resource.lastModifiedBy,
-          iriTermSerializer: _lastModifiedByMapper,
-        )
-        .build();
-  }
-
-  /// Builds the IRI for a resource instance using the IRI template.
-  String _buildIri(Item resource) {
-    final id = resource.id;
-    final storageRoot = _storageRootProvider();
-    return '${storageRoot}/solidtask/task/${id}.ttl';
-  }
-}
-
-/// Generated mapper for [String] global resources.
-///
-/// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
 class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     '^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl\$',
@@ -243,5 +117,147 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
     final storageRoot = _storageRootProvider();
     final taskId = _taskIdProvider();
     return '${storageRoot}/solidtask/task/${taskId}/vectorclock/${clientId}.ttl';
+  }
+}
+
+/// Generated mapper for [String] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF terms for iri terms of type String.
+class ItemLastModifiedByMapper implements IriTermMapper<String> {
+  static final RegExp _regex = RegExp(
+    '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$',
+  );
+
+  final String Function() _storageRootProvider;
+
+  /// Constructor
+  const ItemLastModifiedByMapper({
+    required String Function() storageRootProvider,
+  }) : _storageRootProvider = storageRootProvider;
+
+  @override
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    final iriParts = {
+      for (var name in match?.groupNames ?? const <String>[])
+        name: match?.namedGroup(name) ?? '',
+    };
+    return iriParts['lastModifiedBy']!;
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    String iriTermValue,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final lastModifiedBy = iriTermValue.toString();
+    final storageRoot = _storageRootProvider();
+    return IriTerm(
+      '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl',
+    );
+  }
+}
+
+/// Generated mapper for [Item] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type Item.
+class ItemMapper implements GlobalResourceMapper<Item> {
+  static final RegExp _regex = RegExp(
+    '^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl\$',
+  );
+
+  late final IriTermMapper<String> _lastModifiedByMapper;
+  final String Function() _storageRootProvider;
+
+  /// Constructor
+  ItemMapper({required String Function() storageRootProvider})
+    : _storageRootProvider = storageRootProvider {
+    _lastModifiedByMapper = ItemLastModifiedByMapper(
+      storageRootProvider: storageRootProvider,
+    );
+  }
+
+  @override
+  IriTerm? get typeIri => SolidTaskTask.classIri;
+
+  @override
+  Item fromRdfResource(IriTerm subject, DeserializationContext context) {
+    final reader = context.reader(subject);
+
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
+
+    final String text = reader.require(SolidTaskTask.text);
+    final String lastModifiedBy = reader.require(
+      Dcterms.creator,
+      iriTermDeserializer: _lastModifiedByMapper,
+    );
+    final id = iriParts['id']!;
+    final DateTime createdAt = reader.require(Dcterms.created);
+    final Map<String, int> vectorClock = reader
+        .collect<VectorClockEntry, Map<String, int>>(
+          SolidTaskTask.vectorClock,
+          (it) => {for (var vc in it) vc.clientId: vc.clockValue},
+          globalResourceDeserializer: VectorClockEntryMapper(
+            storageRootProvider: _storageRootProvider,
+            taskIdProvider: () =>
+                throw Exception('Must not call provider for deserialization'),
+          ),
+        );
+    final bool isDeleted = reader.require(SolidTaskTask.isDeleted);
+
+    final retval = Item(text: text, lastModifiedBy: lastModifiedBy);
+    retval.id = id;
+    retval.createdAt = createdAt;
+    retval.vectorClock = vectorClock;
+    retval.isDeleted = isDeleted;
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    Item resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = IriTerm(_buildIri(resource));
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(SolidTaskTask.text, resource.text)
+        .addValue(Dcterms.created, resource.createdAt)
+        .addValues<VectorClockEntry>(
+          SolidTaskTask.vectorClock,
+          resource.vectorClock.entries.map(
+            (e) => VectorClockEntry(e.key, e.value),
+          ),
+          resourceSerializer: VectorClockEntryMapper(
+            storageRootProvider: _storageRootProvider,
+            taskIdProvider: () => resource.id,
+          ),
+        )
+        .addValue(SolidTaskTask.isDeleted, resource.isDeleted)
+        .addValue(
+          Dcterms.creator,
+          resource.lastModifiedBy,
+          iriTermSerializer: _lastModifiedByMapper,
+        )
+        .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(Item resource) {
+    final id = resource.id;
+    final storageRoot = _storageRootProvider();
+    return '${storageRoot}/solidtask/task/${id}.ttl';
   }
 }

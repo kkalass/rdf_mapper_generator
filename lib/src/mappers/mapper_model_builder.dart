@@ -58,25 +58,28 @@ class MapperModelBuilder {
     Iterable<MappableClassInfo> classInfos,
   ) {
     return classInfos
-        .expand<MapperModel>((classInfo) => switch (classInfo) {
-              ResourceInfo _ => classInfo.annotation.mapper != null
-                  ? buildCustomMapper(
-                      context, classInfo.className, classInfo.annotation)
-                  : // generate custom mapper if specified
-                  ResourceModelBuilderSupport.buildResourceMapper(
-                      context, classInfo, mapperImportUri),
-              IriInfo iriInfo => iriInfo.annotation.mapper != null
-                  ? buildCustomMapper(
-                      context, iriInfo.className, iriInfo.annotation)
-                  : IriModelBuilderSupport.buildIriMapperFromIriInfo(
-                      context, iriInfo, mapperImportUri),
-              LiteralInfo literalInfo => literalInfo.annotation.mapper != null
-                  ? buildCustomMapper(
-                      context, literalInfo.className, literalInfo.annotation)
-                  : buildLiteralMapper(context, literalInfo, mapperImportUri),
-            })
+        .expand<MapperModel>((m) => buildModel(context, mapperImportUri, m))
         .toList();
   }
+
+  static List<MapperModel> buildModel(ValidationContext context,
+          String mapperImportUri, MappableClassInfo classInfo) =>
+      switch (classInfo) {
+        ResourceInfo _ => classInfo.annotation.mapper != null
+            ? buildCustomMapper(
+                context, classInfo.className, classInfo.annotation)
+            : // generate custom mapper if specified
+            ResourceModelBuilderSupport.buildResourceMapper(
+                context, classInfo, mapperImportUri),
+        IriInfo iriInfo => iriInfo.annotation.mapper != null
+            ? buildCustomMapper(context, iriInfo.className, iriInfo.annotation)
+            : IriModelBuilderSupport.buildIriMapperFromIriInfo(
+                context, iriInfo, mapperImportUri),
+        LiteralInfo literalInfo => literalInfo.annotation.mapper != null
+            ? buildCustomMapper(
+                context, literalInfo.className, literalInfo.annotation)
+            : buildLiteralMapper(context, literalInfo, mapperImportUri),
+      };
 
   static List<MapperModel> buildCustomMapper(ValidationContext context,
       Code className, BaseMappingAnnotationInfo annotation) {
@@ -160,11 +163,13 @@ class MapperModelBuilder {
       String? fromLiteralTermMethod,
       String? toLiteralTermMethod) {
     final mappedClassModel = MappedClassModelBuilder.buildMappedClassModel(
-        context,
-        mappedClass,
-        mapperImportUri,
-        literalInfo.constructors,
-        literalInfo.fields);
+      context,
+      mappedClass,
+      mapperImportUri,
+      literalInfo.constructors,
+      literalInfo.fields,
+      literalInfo.annotations,
+    );
 
     final isMethodBased =
         fromLiteralTermMethod != null && toLiteralTermMethod != null;

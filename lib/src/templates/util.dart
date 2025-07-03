@@ -170,13 +170,13 @@ String? _getImportUriForType(Element2? element) {
 
 Code codeGeneric1(Code mapperInterface, Code className) => Code.combine([
       mapperInterface,
-      Code.literal('<'),
-      className,
-      Code.literal('>'),
+      Code.genericParamsList([className])
     ]);
 
-Code codeGeneric2(Code type, Code p1, Code p2) => Code.combine(
-    [type, Code.literal('<'), p1, Code.literal(', '), p2, Code.literal('>')]);
+Code codeGeneric2(Code type, Code p1, Code p2) => Code.combine([
+      type,
+      Code.genericParamsList([p1, p2])
+    ]);
 
 Code createConstructorCall(
     Code className, List<ConstructorParameterData> constructorParameters,

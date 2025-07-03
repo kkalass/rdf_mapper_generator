@@ -768,6 +768,10 @@ class PropertyData {
   final bool isIriPart;
   final bool isRdfValue;
   final bool isRdfLanguageTag;
+  final bool isRdfMapEntry;
+  final bool isRdfMapKey;
+  final bool isRdfMapValue;
+
   final String? iriPartName;
   final String? name; // constructorParameterName
   final bool isNamed; // isNamedConstructorParameter
@@ -782,6 +786,9 @@ class PropertyData {
     required this.propertyName,
     required this.isFieldNullable,
     required this.isRdfProperty,
+    required this.isRdfMapEntry,
+    required this.isRdfMapKey,
+    required this.isRdfMapValue,
     required this.isIriPart,
     required this.isRdfValue,
     required this.isRdfLanguageTag,

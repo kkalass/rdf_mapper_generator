@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/constant/value.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
@@ -198,6 +199,7 @@ class CollectionInfo {
 
   /// The element type for List/Set, or MapEntry&lt;K,V&gt; type for Map
   final Code? elementTypeCode;
+  final DartType? elementType;
 
   /// For Maps: the key type
   final Code? keyTypeCode;
@@ -205,29 +207,27 @@ class CollectionInfo {
   /// For Maps: the value type
   final Code? valueTypeCode;
 
-  /// Whether this should be treated as a collection based on RdfCollectionType
-  final bool treatAsCollection;
-
   const CollectionInfo({
     this.type,
     this.elementTypeCode,
     this.keyTypeCode,
     this.valueTypeCode,
-    required this.treatAsCollection,
+    this.elementType,
   });
 
-  bool get isCollection => type != null && treatAsCollection;
+  bool get isCollection => type != null;
   bool get isList => type == CollectionType.list;
   bool get isSet => type == CollectionType.set;
   bool get isMap => type == CollectionType.map;
   bool get isIterable => type == CollectionType.iterable || isList || isSet;
+
   @override
   int get hashCode => Object.hashAll([
         type,
         elementTypeCode,
         keyTypeCode,
         valueTypeCode,
-        treatAsCollection,
+        elementType,
       ]);
 
   @override
@@ -239,12 +239,12 @@ class CollectionInfo {
         elementTypeCode == other.elementTypeCode &&
         keyTypeCode == other.keyTypeCode &&
         valueTypeCode == other.valueTypeCode &&
-        treatAsCollection == other.treatAsCollection;
+        elementType == other.elementType;
   }
 
   @override
   String toString() {
-    return 'CollectionInfo{type: $type, elementType: ${elementTypeCode?.code}, keyType: ${keyTypeCode?.code}, valueType: ${valueTypeCode?.code}, treatAsCollection: $treatAsCollection}';
+    return 'CollectionInfo{type: $type, elementType: ${elementTypeCode?.code}, keyType: ${keyTypeCode?.code}, valueType: ${valueTypeCode?.code}, elementType: ${elementType}}';
   }
 }
 

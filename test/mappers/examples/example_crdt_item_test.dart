@@ -3,6 +3,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper/src/context/deserialization_context_impl.dart';
 import 'package:rdf_mapper/src/context/serialization_context_impl.dart';
 import 'package:rdf_vocabularies/dcterms.dart';
+import 'package:rdf_vocabularies/rdf.dart';
 import 'package:test/test.dart';
 
 // Import test models
@@ -332,7 +333,12 @@ void main() {
         final itemSubject = IriTerm(
           'http://example.org/storage/solidtask/task/taskABC.ttl',
         );
-
+        final user789Subject = IriTerm(
+          'http://example.org/storage/solidtask/appinstance/user789.ttl',
+        );
+        final clockUser789Subject = IriTerm(
+          'http://example.org/storage/solidtask/task/taskABC/vectorclock/user789.ttl',
+        );
         final triples = [
           Triple(
             itemSubject,
@@ -349,7 +355,7 @@ void main() {
             itemSubject,
             Dcterms.created,
             LiteralTerm(
-              '2023-07-20T14:45:30.000',
+              '2023-07-20T14:45:30.000Z',
               datatype: IriTerm('http://www.w3.org/2001/XMLSchema#dateTime'),
             ),
           ),
@@ -362,12 +368,22 @@ void main() {
           Triple(
             itemSubject,
             SolidTaskTask.vectorClock,
-            LiteralTerm('3'),
+            clockUser789Subject,
           ),
           Triple(
-            itemSubject,
-            SolidTaskTask.vectorClock,
-            LiteralTerm('1'),
+            clockUser789Subject,
+            Rdf.type,
+            SolidTaskVectorClockEntry.classIri,
+          ),
+          Triple(
+            clockUser789Subject,
+            SolidTaskVectorClockEntry.clientId,
+            user789Subject,
+          ),
+          Triple(
+            clockUser789Subject,
+            SolidTaskVectorClockEntry.clockValue,
+            LiteralTerm.integer(1),
           ),
         ];
 
@@ -390,6 +406,8 @@ void main() {
         expect(item.isDeleted, equals(true));
         // Note: Vector clock test may need adjustment based on actual implementation
         expect(item.vectorClock, isA<Map<String, int>>());
+        expect(item.vectorClock['user789'], equals(1));
+        expect(item.vectorClock.length, equals(1));
       });
 
       test('handles empty vector clock', () {
@@ -462,7 +480,7 @@ void main() {
 
         final (subject, triples) =
             itemMapper0.toRdfResource(originalItem, serContext);
-
+        print('Serialized triples: ${triples.join(',\n')}');
         final graph = RdfGraph.fromTriples(triples);
         final context = DeserializationContextImpl(
           graph: graph,

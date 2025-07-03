@@ -97,6 +97,18 @@ class Code {
       ],
     );
   }
+  factory Code.genericParamsList(Iterable<Code> params) {
+    return Code.combine(
+      [
+        Code.literal('<'),
+        Code.combine(
+          params,
+          separator: ', ',
+        ),
+        Code.literal('>')
+      ],
+    );
+  }
 
   factory Code.combine(Iterable<Code> codes, {String separator = ''}) {
     if (codes.isEmpty) return Code.literal('');

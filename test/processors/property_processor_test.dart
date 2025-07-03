@@ -373,7 +373,7 @@ void main() {
       expect(result?.annotation.collection, isNotNull);
       expect(result?.annotation.collection, equals(RdfCollectionType.auto));
       expect(result?.collectionInfo, isNotNull);
-      expect(result?.collectionInfo.treatAsCollection, isTrue);
+
       expect(result?.collectionInfo.isList, isTrue);
       expect(result?.collectionInfo.isMap, isFalse);
       expect(result?.collectionInfo.isSet, isFalse);

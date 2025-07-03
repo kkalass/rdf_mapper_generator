@@ -265,7 +265,7 @@ void main() {
         isLate: false,
         isStatic: false,
         isSynthetic: false,
-        collectionInfo: const CollectionInfo(treatAsCollection: false),
+        collectionInfo: const CollectionInfo(),
       );
 
       identicalInstance = PropertyInfo(
@@ -277,7 +277,7 @@ void main() {
         isLate: false,
         isStatic: false,
         isSynthetic: false,
-        collectionInfo: const CollectionInfo(treatAsCollection: false),
+        collectionInfo: const CollectionInfo(),
       );
 
       differentInstance = PropertyInfo(
@@ -289,7 +289,7 @@ void main() {
         isLate: false,
         isStatic: false,
         isSynthetic: false,
-        collectionInfo: const CollectionInfo(treatAsCollection: false),
+        collectionInfo: const CollectionInfo(),
       );
     });
 

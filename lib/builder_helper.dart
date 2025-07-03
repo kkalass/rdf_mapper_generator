@@ -96,18 +96,8 @@ class BuilderHelper {
     final resourceInfosWithElements = <(MappableClassInfo, Element2?)>[];
 
     for (final classElement in classElements) {
-      final MappableClassInfo? resourceInfo = ResourceProcessor.processClass(
-            context.withContext(classElement.name3!),
-            classElement,
-          ) ??
-          IriProcessor.processClass(
-            context.withContext(classElement.name3!),
-            classElement,
-          ) ??
-          LiteralProcessor.processClass(
-            context.withContext(classElement.name3!),
-            classElement,
-          );
+      final MappableClassInfo? resourceInfo =
+          processClass(context, classElement);
 
       if (resourceInfo != null) {
         resourceInfosWithElements.add((resourceInfo, classElement));
@@ -126,6 +116,22 @@ class BuilderHelper {
       }
     }
     return resourceInfosWithElements;
+  }
+
+  static MappableClassInfo<BaseMappingAnnotationInfo<dynamic>>? processClass(
+      ValidationContext context, ClassElement2 classElement) {
+    return ResourceProcessor.processClass(
+          context.withContext(classElement.name3!),
+          classElement,
+        ) ??
+        IriProcessor.processClass(
+          context.withContext(classElement.name3!),
+          classElement,
+        ) ??
+        LiteralProcessor.processClass(
+          context.withContext(classElement.name3!),
+          classElement,
+        );
   }
 
   /// Performs a topological sort on mappers to ensure dependencies are processed first.

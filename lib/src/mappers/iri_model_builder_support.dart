@@ -152,6 +152,7 @@ class IriModelBuilderSupport {
             _toImplementationClass(iriInfo.className, mapperImportUri),
         constructors: iriInfo.constructors,
         fields: iriInfo.fields,
+        annotations: iriInfo.annotations,
         registerGlobally: annotation.registerGlobally,
         mapperImportUri: mapperImportUri,
         enumValues: iriInfo.enumValues);
@@ -170,6 +171,7 @@ class IriModelBuilderSupport {
       required Code mapperClassName,
       List<ConstructorInfo> constructors = const [],
       List<FieldInfo> fields = const [],
+      List<AnnotationInfo> annotations = const [],
       bool registerGlobally = false,
       required String mapperImportUri,
       List<EnumValueInfo> enumValues = const []}) {
@@ -222,6 +224,7 @@ class IriModelBuilderSupport {
         mapperImportUri,
         constructors,
         fields,
+        annotations,
         context,
         mapperClassName,
         registerGlobally,
@@ -272,6 +275,7 @@ class IriModelBuilderSupport {
       String mapperImportUri,
       List<ConstructorInfo> constructors,
       List<FieldInfo> fields,
+      List<AnnotationInfo> annotations,
       ValidationContext context,
       Code mapperClassName,
       bool registerGlobally,
@@ -282,7 +286,12 @@ class IriModelBuilderSupport {
       Set<DependencyUsingVariableModel> contextVariables,
       VariableNameModel? singleMappedValue) {
     final mappedClassModel = MappedClassModelBuilder.buildMappedClassModel(
-        context, mappedClassName, mapperImportUri, constructors, fields);
+        context,
+        mappedClassName,
+        mapperImportUri,
+        constructors,
+        fields,
+        annotations);
 
     // Check that all constructor parameters and non-constructor fields are IRI parts
     final invalidParameters = mappedClassModel.properties

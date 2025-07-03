@@ -37,6 +37,7 @@ class ResourceModelBuilderSupport {
       mapperImportUri,
       resourceInfo.constructors,
       resourceInfo.fields,
+      resourceInfo.annotations,
     );
 
     final invalidParameters = mappedClassModel.properties
