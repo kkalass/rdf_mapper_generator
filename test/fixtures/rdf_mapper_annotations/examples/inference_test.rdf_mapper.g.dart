@@ -207,20 +207,29 @@ class InferenceTestContainerMapper
 
     return context
         .resourceBuilder(subject)
-        .addValueIfNotNull(
-          SchemaBook.author,
-          resource.globalResource,
-          resourceSerializer: _globalResourceMapper,
+        .when(
+          resource.globalResource != null,
+          (b) => b.addValue(
+            SchemaBook.author,
+            resource.globalResource,
+            resourceSerializer: _globalResourceMapper,
+          ),
         )
-        .addValueIfNotNull(
-          SchemaBook.publisher,
-          resource.localResource,
-          resourceSerializer: _localResourceMapper,
+        .when(
+          resource.localResource != null,
+          (b) => b.addValue(
+            SchemaBook.publisher,
+            resource.localResource,
+            resourceSerializer: _localResourceMapper,
+          ),
         )
-        .addValueIfNotNull(
-          SchemaBook.identifier,
-          resource.iri,
-          iriTermSerializer: _iriMapper,
+        .when(
+          resource.iri != null,
+          (b) => b.addValue(
+            SchemaBook.identifier,
+            resource.iri,
+            iriTermSerializer: _iriMapper,
+          ),
         )
         .build();
   }

@@ -174,7 +174,10 @@ class OptionalPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValueIfNotNull(SchemaBook.name, resource.name)
+        .when(
+          resource.name != null,
+          (b) => b.addValue(SchemaBook.name, resource.name),
+        )
         .build();
   }
 }
@@ -1720,7 +1723,10 @@ class FinalPropertyTestMapper
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.name, resource.name)
-        .addValueIfNotNull(SchemaBook.description, resource.description)
+        .when(
+          resource.description != null,
+          (b) => b.addValue(SchemaBook.description, resource.description),
+        )
         .build();
   }
 }
@@ -1763,7 +1769,10 @@ class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.name, resource.name)
-        .addValueIfNotNull(SchemaBook.description, resource.description)
+        .when(
+          resource.description != null,
+          (b) => b.addValue(SchemaBook.description, resource.description),
+        )
         .build();
   }
 }
@@ -1804,7 +1813,10 @@ class MutablePropertyTestMapper
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.name, resource.name)
-        .addValueIfNotNull(SchemaBook.description, resource.description)
+        .when(
+          resource.description != null,
+          (b) => b.addValue(SchemaBook.description, resource.description),
+        )
         .build();
   }
 }

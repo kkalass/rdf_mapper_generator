@@ -187,7 +187,10 @@ class ClassWithNoRdfTypeMapper
     return context
         .resourceBuilder(subject)
         .addValue(SchemaPerson.name, resource.name)
-        .addValueIfNotNull(SchemaPerson.foafAge, resource.age)
+        .when(
+          resource.age != null,
+          (b) => b.addValue(SchemaPerson.foafAge, resource.age),
+        )
         .build();
   }
 }
@@ -609,7 +612,10 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
         .resourceBuilder(subject)
         .addValue(SchemaPerson.givenName, resource.givenName)
         .addValue(SchemaPerson.foafSurname, resource.surname)
-        .addValueIfNotNull(SchemaPerson.foafAge, resource.age)
+        .when(
+          resource.age != null,
+          (b) => b.addValue(SchemaPerson.foafAge, resource.age),
+        )
         .build();
   }
 }

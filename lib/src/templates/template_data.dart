@@ -790,6 +790,9 @@ class PropertyData {
   final bool isList;
   final bool isSet;
 
+  final Code? readerCall;
+  final Code? builderCall;
+
   const PropertyData({
     required this.propertyName,
     required this.isRequired,
@@ -818,6 +821,8 @@ class PropertyData {
     required this.dartType,
     required this.isList,
     required this.isSet,
+    required this.readerCall,
+    required this.builderCall,
   });
 
   bool get isConstructorParameter => (name ?? '').isNotEmpty;
@@ -855,6 +860,10 @@ class PropertyData {
         'dartType': dartType.toMap(),
         'isList': isList,
         'isSet': isSet,
+        'hasReaderCall': readerCall != null,
+        'readerCall': readerCall?.toMap(),
+        'hasBuilderCall': builderCall != null,
+        'builderCall': builderCall?.toMap(),
       };
 }
 

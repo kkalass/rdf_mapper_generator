@@ -63,9 +63,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/iriStrategy.hasTemplate}}
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
-    {{#value.isRdfProperty}}
-    final {{value.dartType}} {{value.name}} = {{#value.isCollection}}{{/value.isCollection}}reader.{{value.readerMethod}}({{value.predicate}}{{#value.hasMapper}}, {{value.mapperParameterDeserializer}}: {{value.mapperDeserializerCode}}{{/value.hasMapper}}){{#value.isCollection}}{{#value.isList}}.toList(){{/value.isList}}{{#value.isSet}}.toSet(){{/value.isSet}}{{/value.isCollection}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
-    {{/value.isRdfProperty}}
+    {{#value.hasReaderCall}}
+    final {{value.dartType}} {{value.name}} = {{value.readerCall}};
+    {{/value.hasReaderCall}}
     {{/constructorParametersOrOtherFields}}
 
     {{#hasNonConstructorFields}}final retval = {{/hasNonConstructorFields}}{{^hasNonConstructorFields}}return {{/hasNonConstructorFields}}{{className}}(
@@ -108,16 +108,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     
     return context.resourceBuilder(subject)
     {{#properties}}
-    {{#isRdfProperty}}
-    {{#include}}
-    {{#useConditionalSerialization}}
-      .when(resource.{{propertyName}} != {{defaultValue}}, (b) => b.{{serializerMethod}}{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperSerializerCode}}{{/hasMapper}}))
-    {{/useConditionalSerialization}}
-    {{^useConditionalSerialization}}
-      .{{serializerMethod}}{{#useOptionalSerialization}}IfNotNull{{/useOptionalSerialization}}({{predicate}}, resource.{{propertyName}}{{#hasMapper}}, {{mapperParameterSerializer}}: {{mapperSerializerCode}}{{/hasMapper}})
-    {{/useConditionalSerialization}}
-    {{/include}}
-    {{/isRdfProperty}}
+    {{#hasBuilderCall}}
+    {{builderCall}}
+    {{/hasBuilderCall}}
     {{/properties}}
       .build();
   }

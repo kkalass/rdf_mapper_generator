@@ -300,6 +300,93 @@ class PropertyResolvedModel {
 
   bool get isConstructorParameter => constructorParameterName != null;
 
+  Code? generateBuilderCall({
+    required Code? mapperSerializerCode,
+    required String? mapperParameterSerializer,
+    required Code serializerMethod,
+  }) {
+    if (!isRdfProperty || predicate == null) {
+      return null;
+    }
+    if (!include) {
+      return null;
+    }
+
+    final hasMapper =
+        mapperParameterSerializer != null && mapperSerializerCode != null;
+
+    final serializerCall = Code.combine([
+      Code.literal('.'),
+      serializerMethod,
+      Code.literal('('),
+      predicate!,
+      Code.literal(', resource.'),
+      Code.literal(propertyName),
+      if (hasMapper)
+        Code.combine([
+          Code.literal(', '),
+          Code.literal(mapperParameterSerializer),
+          Code.literal(': '),
+          mapperSerializerCode,
+        ]),
+      Code.literal(')'),
+    ]);
+    final checkDefaultValue =
+        hasDefaultValue && !includeDefaultsInSerialization;
+    final checkNullValue = isFieldNullable;
+    final useConditionalSerialization = checkDefaultValue || checkNullValue;
+    if (!useConditionalSerialization) {
+      return serializerCall;
+    }
+    return Code.combine([
+      Code.literal('.when('),
+      Code.combine([
+        if (checkDefaultValue)
+          Code.literal('resource.$propertyName != $defaultValue'),
+        if (checkNullValue) Code.literal('resource.$propertyName != null'),
+      ], separator: ' && '),
+      Code.literal(', (b) => b'),
+      serializerCall,
+      Code.literal(')'),
+    ]);
+  }
+
+  Code? generateReaderCall(
+      {required Code readerMethod,
+      String? mapperParameterDeserializer,
+      Code? mapperDeserializerCode}) {
+    if (!isRdfProperty || predicate == null) {
+      return null;
+    }
+    final hasMapper =
+        mapperParameterDeserializer != null && mapperDeserializerCode != null;
+
+    return Code.combine([
+      Code.literal('reader.'),
+      readerMethod,
+      Code.literal('('),
+      predicate!,
+      if (hasMapper)
+        Code.combine([
+          Code.literal(', '),
+          Code.literal(mapperParameterDeserializer),
+          Code.literal(': '),
+          mapperDeserializerCode,
+        ]),
+      Code.literal(')'),
+      if (isCollection)
+        if (isList)
+          Code.literal('.toList()')
+        else if (isSet)
+          Code.literal('.toSet()'),
+      if (hasDefaultValue)
+        Code.combine([
+          Code.literal(' ?? '),
+          defaultValue!,
+        ])
+    ]);
+  }
+
   PropertyData toTemplateData(
       ValidationContext context,
       Code className,
@@ -326,35 +413,47 @@ class PropertyResolvedModel {
     final (readerMethod, serializerMethod) = _getReaderAndSerializerMethods(
         this, !isFieldNullable && !hasDefaultValue);
 
-    return PropertyData(
-      propertyName: propertyName,
-      isRequired: isRequired,
-      isFieldNullable: isFieldNullable,
-      isRdfProperty: isRdfProperty,
-      isIriPart: isIriPart,
-      isRdfValue: isRdfValue,
-      isRdfLanguageTag: isRdfLanguageTag,
-      iriPartName: iriPartName,
-      name: constructorParameterName,
-      isNamed: isNamedConstructorParameter,
-      include: include,
-      predicate: predicate,
-      defaultValue: defaultValue,
-      hasDefaultValue: hasDefaultValue,
-      includeDefaultsInSerialization: includeDefaultsInSerialization,
-      mapperFieldName: mapperFieldName,
-      mapperParameterSerializer: mapperParameterSerializer,
-      mapperParameterDeserializer: mapperParameterDeserializer,
-      mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
-      mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
-      isCollection: isCollection,
-      isMap: isMap,
-      readerMethod: readerMethod,
+    final builderCall = generateBuilderCall(
       serializerMethod: serializerMethod,
-      dartType: dartType,
-      isList: isList,
-      isSet: isSet,
+      mapperParameterSerializer: mapperParameterSerializer,
+      mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
     );
+
+    final readerCall = generateReaderCall(
+      readerMethod: readerMethod,
+      mapperParameterDeserializer: mapperParameterDeserializer,
+      mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
+    );
+    return PropertyData(
+        propertyName: propertyName,
+        isRequired: isRequired,
+        isFieldNullable: isFieldNullable,
+        isRdfProperty: isRdfProperty,
+        isIriPart: isIriPart,
+        isRdfValue: isRdfValue,
+        isRdfLanguageTag: isRdfLanguageTag,
+        iriPartName: iriPartName,
+        name: constructorParameterName,
+        isNamed: isNamedConstructorParameter,
+        include: include,
+        predicate: predicate,
+        defaultValue: defaultValue,
+        hasDefaultValue: hasDefaultValue,
+        includeDefaultsInSerialization: includeDefaultsInSerialization,
+        mapperFieldName: mapperFieldName,
+        mapperParameterSerializer: mapperParameterSerializer,
+        mapperParameterDeserializer: mapperParameterDeserializer,
+        mapperSerializerCode: mapperSerializerCode ?? mapperFieldNameCode,
+        mapperDeserializerCode: mapperDeserializerCode ?? mapperFieldNameCode,
+        isCollection: isCollection,
+        isMap: isMap,
+        readerMethod: readerMethod,
+        serializerMethod: serializerMethod,
+        dartType: dartType,
+        isList: isList,
+        isSet: isSet,
+        readerCall: readerCall,
+        builderCall: builderCall);
   }
 }
 

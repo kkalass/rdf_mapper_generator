@@ -333,7 +333,10 @@ class ClassWithNonFinalOptionalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .addValueIfNotNull(SchemaPerson.name, resource.name)
+        .when(
+          resource.name != null,
+          (b) => b.addValue(SchemaPerson.name, resource.name),
+        )
         .build();
   }
 }
