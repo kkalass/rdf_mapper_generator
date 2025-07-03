@@ -1,6 +1,5 @@
 library;
 
-import 'package:meta/meta.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'
     show RdfCollectionType;
 import 'package:rdf_mapper_generator/src/mappers/mapper_model.dart';
@@ -310,37 +309,20 @@ class PropertyResolvedModel {
     if (!include) {
       return null;
     }
-    final (
-      mapperParameterSerializer,
-      mapperSerializerCode,
-    ) = extractCustomSerializer(
+
+    final customSerializerParameters = _extractCustomSerializerParameters(
       constructorParameterName ?? propertyName,
       this,
       providesByProviderNames,
     );
 
-    final hasMapper =
-        mapperParameterSerializer != null && mapperSerializerCode != null;
+    final serializerCall = _generateSerializerCall(
+      this,
+      namedParameters: customSerializerParameters,
+      predicate: predicate!,
+      propertyName: propertyName,
+    );
 
-    final serializerMethod = getSerializerMethod(this);
-
-    final serializerCall = Code.combine([
-      Code.literal('.'),
-      serializerMethod,
-      Code.paramsList([
-        predicate!,
-        Code.combine([
-          Code.literal('resource.'),
-          Code.literal(propertyName),
-        ]),
-        if (hasMapper)
-          Code.combine([
-            Code.literal(mapperParameterSerializer),
-            Code.literal(': '),
-            mapperSerializerCode,
-          ])
-      ]),
-    ]);
     final checkDefaultValue =
         hasDefaultValue && !includeDefaultsInSerialization;
     final checkNullValue = isFieldNullable;
@@ -371,45 +353,18 @@ class PropertyResolvedModel {
     if (!isRdfProperty || predicate == null) {
       return null;
     }
-    final (
-      mapperParameterDeserializer,
-      mapperDeserializerCode,
-    ) = _extractCustomDeserializer(
+
+    final customDeserializerParameters = _extractCustomDeserializerParameters(
       constructorParameterName != null
           ? constructorParameterName!
           : propertyName,
       this,
       providesByProviderNames,
     );
-    final hasMapper =
-        mapperParameterDeserializer != null && mapperDeserializerCode != null;
 
-    final readerMethod =
-        getReaderMethod(this, !isFieldNullable && !hasDefaultValue);
-
-    return Code.combine([
-      Code.literal('reader.'),
-      readerMethod,
-      Code.paramsList([
-        predicate!,
-        if (hasMapper)
-          Code.combine([
-            Code.literal(mapperParameterDeserializer),
-            Code.literal(': '),
-            mapperDeserializerCode,
-          ]),
-      ]),
-      if (isCollection)
-        if (isList)
-          Code.literal('.toList()')
-        else if (isSet)
-          Code.literal('.toSet()'),
-      if (hasDefaultValue)
-        Code.combine([
-          Code.literal(' ?? '),
-          defaultValue!,
-        ])
-    ]);
+    return _getReaderCall(this,
+        predicate: predicate!,
+        extraNamedParameters: customDeserializerParameters);
   }
 
   PropertyData toTemplateData(
@@ -1157,10 +1112,7 @@ final class ProvidesResolvedModel {
 
 String _buildMapperFieldName(String fieldName) => '_' + fieldName + 'Mapper';
 
-(
-  String? parameterName,
-  Code? code,
-) _extractCustomDeserializer(
+List<Code> _extractCustomDeserializerParameters(
     String fieldName,
     PropertyResolvedModel? propertyInfo,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
@@ -1184,27 +1136,28 @@ String _buildMapperFieldName(String fieldName) => '_' + fieldName + 'Mapper';
     _ => const (null, null)
   };
   if (paramName == null) {
-    return const (null, null);
+    return const <Code>[];
   }
 
   final mapperFieldName = _buildMapperFieldName(fieldName);
   final (parameterNames, generatedMapperName) =
       _extractGeneratedMapperInfos(resolvedMapper);
 
-  return (
-    paramName,
-    generatedMapperName != null && parameterNames.isNotEmpty
-        ? _buildMapperDeserializerCode(generatedMapperName, mapperFieldName,
-            parameterNames, providesByConstructorParameterNames)
-        : Code.literal(mapperFieldName),
-  );
+  return [
+    Code.combine([
+      Code.literal(paramName),
+      Code.literal(': '),
+      generatedMapperName != null && parameterNames.isNotEmpty
+          ? _buildMapperDeserializerCode(generatedMapperName, mapperFieldName,
+              parameterNames, providesByConstructorParameterNames)
+          : Code.literal(mapperFieldName),
+    ])
+  ];
 }
 
-@visibleForTesting
-(
-  String? parameterName,
-  Code? code,
-) extractCustomSerializer(String fieldName, PropertyResolvedModel? propertyInfo,
+List<Code> _extractCustomSerializerParameters(
+    String fieldName,
+    PropertyResolvedModel? propertyInfo,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
   final (paramName, resolvedMapper) = switch (propertyInfo) {
     PropertyResolvedModel(
@@ -1227,20 +1180,23 @@ String _buildMapperFieldName(String fieldName) => '_' + fieldName + 'Mapper';
   };
 
   if (paramName == null) {
-    return const (null, null);
+    return const <Code>[];
   }
 
   final mapperFieldName = _buildMapperFieldName(fieldName);
   final (parameterNames, generatedMapperName) =
       _extractGeneratedMapperInfos(resolvedMapper);
 
-  return (
-    paramName,
-    generatedMapperName != null && parameterNames.isNotEmpty
-        ? _buildMapperSerializerCode(generatedMapperName, mapperFieldName,
-            parameterNames, providesByConstructorParameterNames)
-        : Code.literal(mapperFieldName),
-  );
+  return [
+    Code.combine([
+      Code.literal(paramName),
+      Code.literal(': '),
+      generatedMapperName != null && parameterNames.isNotEmpty
+          ? _buildMapperSerializerCode(generatedMapperName, mapperFieldName,
+              parameterNames, providesByConstructorParameterNames)
+          : Code.literal(mapperFieldName),
+    ])
+  ];
 }
 
 (List<String>, Code?) _extractGeneratedMapperInfos(
@@ -1286,8 +1242,8 @@ Code _buildMapperSerializerCode(
   ]);
 }
 
-@visibleForTesting
-Code getReaderMethod(PropertyResolvedModel? propertyInfo, bool isRequired) {
+Code _getReaderCall(PropertyResolvedModel propertyInfo,
+    {required Code predicate, required List<Code> extraNamedParameters}) {
   return switch (propertyInfo) {
     // Case 1: Property is a collection (not none), and it's specifically a Map.
     PropertyResolvedModel(
@@ -1295,7 +1251,13 @@ Code getReaderMethod(PropertyResolvedModel? propertyInfo, bool isRequired) {
       collectionType: final type
     )
         when type != RdfCollectionType.none =>
-      const Code.literal('getMap'),
+      Code.combine([
+        Code.literal('reader.getMap'),
+        Code.paramsList([
+          predicate,
+          ...extraNamedParameters,
+        ]),
+      ]),
 
     // Case 2: Property is a collection (not none), and it's specifically an Iterable.
     PropertyResolvedModel(
@@ -1304,18 +1266,58 @@ Code getReaderMethod(PropertyResolvedModel? propertyInfo, bool isRequired) {
         isIterable: true,
         elementTypeCode: final elementType?
       ), // Destructure elementTypeCode here
+      isList: final isList,
+      isSet: final isSet,
       collectionType: final type
     )
         when type != RdfCollectionType.none =>
-      codeGeneric1(Code.literal('getValues'), elementType),
+      Code.combine([
+        Code.literal('reader.'),
+        codeGeneric1(Code.literal('getValues'), elementType),
+        Code.paramsList([
+          predicate,
+          ...extraNamedParameters,
+        ]),
+        if (isList)
+          Code.literal('.toList()')
+        else if (isSet)
+          Code.literal('.toSet()'),
+      ]),
 
-    // Default Case: Any other scenario (not a collection, or collectionType is none, or just a single value)
-    _ => isRequired ? const Code.literal('require') : Code.literal('optional'),
+    // Case 3: not to be treated as a collection, but required value
+    PropertyResolvedModel(isFieldNullable: false, hasDefaultValue: false) =>
+      Code.combine([
+        Code.literal('reader.require'),
+        Code.paramsList([
+          predicate,
+          ...extraNamedParameters,
+        ]),
+      ]),
+
+    // Default Case: Any other scenario (not a collection, or collectionType is none, or just a single value and not required)
+    PropertyResolvedModel(
+      hasDefaultValue: final hasDefaultValue,
+      defaultValue: final defaultValue
+    ) =>
+      Code.combine([
+        Code.literal('reader.optional'),
+        Code.paramsList([
+          predicate,
+          ...extraNamedParameters,
+        ]),
+        if (hasDefaultValue)
+          Code.combine([
+            Code.literal(' ?? '),
+            defaultValue!,
+          ])
+      ]),
   };
 }
 
-@visibleForTesting
-Code getSerializerMethod(PropertyResolvedModel? propertyInfo) =>
+Code _generateSerializerCall(PropertyResolvedModel? propertyInfo,
+        {required String propertyName,
+        required Code predicate,
+        required List<Code> namedParameters}) =>
     switch (propertyInfo) {
       // Case 1: Property is a collection (not none), and it's specifically a Map.
       PropertyResolvedModel(
@@ -1326,7 +1328,14 @@ Code getSerializerMethod(PropertyResolvedModel? propertyInfo) =>
         collectionType: final type
       )
           when type != RdfCollectionType.none =>
-        const Code.literal('addMap'),
+        Code.combine([
+          Code.literal('.addMap'),
+          Code.paramsList([
+            predicate,
+            Code.literal('resource.$propertyName'),
+            ...namedParameters
+          ]),
+        ]),
 
       // Case 2: Property is a collection (not none), and it's specifically an Iterable.
       PropertyResolvedModel(
@@ -1338,10 +1347,25 @@ Code getSerializerMethod(PropertyResolvedModel? propertyInfo) =>
         collectionType: final type
       )
           when type != RdfCollectionType.none =>
-        codeGeneric1(Code.literal('addValues'), elementType),
+        Code.combine([
+          Code.literal('.'),
+          codeGeneric1(Code.literal('addValues'), elementType),
+          Code.paramsList([
+            predicate,
+            Code.literal('resource.$propertyName'),
+            ...namedParameters
+          ]),
+        ]),
 
       // Default Case: Any other scenario (not a collection, or collectionType is none, or just a single value)
-      _ => const Code.literal('addValue'),
+      _ => Code.combine([
+          Code.literal('.addValue'),
+          Code.paramsList([
+            predicate,
+            Code.literal('resource.$propertyName'),
+            ...namedParameters
+          ]),
+        ]),
     };
 
 Code _buildMapperDeserializerCode(
