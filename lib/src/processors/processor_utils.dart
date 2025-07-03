@@ -108,13 +108,13 @@ RdfMapEntryAnnotationInfo? extractMapEntryAnnotation(ValidationContext context,
 }
 
 RdfMapKeyAnnotationInfo? extractMapKeyAnnotation(
-    String fieldName, Iterable<ElementAnnotation> annotations) {
+    Iterable<ElementAnnotation> annotations) {
   final mapKeyAnnotation = getAnnotation(annotations, 'RdfMapKey');
   return mapKeyAnnotation == null ? null : RdfMapKeyAnnotationInfo();
 }
 
 RdfMapValueAnnotationInfo? extractMapValueAnnotation(
-    String fieldName, Iterable<ElementAnnotation> annotations) {
+    Iterable<ElementAnnotation> annotations) {
   final mapValueAnnotation = getAnnotation(annotations, 'RdfMapValue');
   return mapValueAnnotation == null ? null : RdfMapValueAnnotationInfo();
 }
@@ -377,8 +377,8 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
   );
   final iriPart = extractIriPartAnnotation(name, annotations);
   final mapEntry = extractMapEntryAnnotation(context, name, annotations);
-  final mapKey = extractMapKeyAnnotation(name, annotations);
-  final mapValue = extractMapValueAnnotation(name, annotations);
+  final mapKey = extractMapKeyAnnotation(annotations);
+  final mapValue = extractMapValueAnnotation(annotations);
   return FieldInfo(
       name: name,
       type: typeToCode(type),

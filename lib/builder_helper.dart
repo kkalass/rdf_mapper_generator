@@ -96,7 +96,7 @@ class BuilderHelper {
     final resourceInfosWithElements = <(MappableClassInfo, Element2?)>[];
 
     for (final classElement in classElements) {
-      final resourceInfo = ResourceProcessor.processClass(
+      final MappableClassInfo? resourceInfo = ResourceProcessor.processClass(
             context.withContext(classElement.name3!),
             classElement,
           ) ??

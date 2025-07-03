@@ -32,12 +32,15 @@ class IriProcessor {
     final fields = extractFields(context, classElement);
     final constructors = extractConstructors(
         classElement, fields, rdfIriAnnotation.templateInfo);
+    final rdfMapValue =
+        extractMapValueAnnotation(classElement.metadata2.annotations);
 
     return IriInfo(
       className: className,
       annotation: rdfIriAnnotation,
       constructors: constructors,
       fields: fields,
+      rdfMapValue: rdfMapValue,
     );
   }
 
@@ -67,6 +70,7 @@ class IriProcessor {
       constructors: [],
       fields: [],
       enumValues: enumValues,
+      rdfMapValue: extractMapValueAnnotation(enumElement.metadata2.annotations),
     );
   }
 

@@ -1,30 +1,48 @@
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
-import 'package:rdf_vocabularies/rdf.dart';
 
 /// Contains information about a class annotated with @RdfGlobalResource
-sealed class MappableClassInfo {
+sealed class MappableClassInfo<A extends BaseMappingAnnotationInfo> {
   /// The name of the class
   Code get className;
+
+  /// The RdfGlobalResource or RdfLocalResource annotation instance
+  A get annotation;
+
+  /// List of constructors in the class
+  List<ConstructorInfo> get constructors;
+
+  /// List of fields in the class
+  List<FieldInfo> get fields;
+
+  /// Class-Level annotation if the entire class shall be used as a map value
+  RdfMapValueAnnotationInfo? get rdfMapValue;
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
-class IriInfo implements MappableClassInfo {
+class IriInfo implements MappableClassInfo<RdfIriInfo> {
   /// The name of the class
+  @override
   final Code className;
 
   /// The RdfIri annotation instance
+  @override
   final RdfIriInfo annotation;
 
   /// List of constructors in the class
+  @override
   final List<ConstructorInfo> constructors;
 
   /// List of fields in the class
+  @override
   final List<FieldInfo> fields;
+
+  /// Class-Level annotation if the entire class shall be used as a map value
+  @override
+  final RdfMapValueAnnotationInfo? rdfMapValue;
 
   /// List of enum values (empty for classes, populated for enums)
   final List<EnumValueInfo> enumValues;
@@ -34,12 +52,13 @@ class IriInfo implements MappableClassInfo {
     required this.annotation,
     required this.constructors,
     required this.fields,
+    this.rdfMapValue,
     this.enumValues = const [],
   });
 
   @override
-  int get hashCode =>
-      Object.hashAll([className, annotation, constructors, fields, enumValues]);
+  int get hashCode => Object.hashAll(
+      [className, annotation, constructors, fields, enumValues, rdfMapValue]);
 
   @override
   bool operator ==(Object other) {
@@ -50,7 +69,8 @@ class IriInfo implements MappableClassInfo {
         annotation == other.annotation &&
         constructors == other.constructors &&
         fields == other.fields &&
-        enumValues == other.enumValues;
+        enumValues == other.enumValues &&
+        rdfMapValue == other.rdfMapValue;
   }
 
   @override
@@ -59,25 +79,34 @@ class IriInfo implements MappableClassInfo {
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
-        '  fields: $fields\n'
-        '  enumValues: $enumValues\n'
+        '  fields: $fields,\n'
+        '  enumValues: $enumValues,\n'
+        '  rdfMapValue: $rdfMapValue\n'
         '}';
   }
 }
 
 /// Contains information about a class annotated with @RdfLiteral
-class LiteralInfo implements MappableClassInfo {
+class LiteralInfo implements MappableClassInfo<RdfLiteralInfo> {
   /// The name of the class
+  @override
   final Code className;
 
   /// The RdfLiteral annotation instance
+  @override
   final RdfLiteralInfo annotation;
 
   /// List of constructors in the class
+  @override
   final List<ConstructorInfo> constructors;
 
   /// List of fields in the class
+  @override
   final List<FieldInfo> fields;
+
+  /// Class-Level annotation if the entire class shall be used as a map value
+  @override
+  final RdfMapValueAnnotationInfo? rdfMapValue;
 
   /// List of enum values (empty for classes, populated for enums)
   final List<EnumValueInfo> enumValues;
@@ -87,12 +116,13 @@ class LiteralInfo implements MappableClassInfo {
     required this.annotation,
     required this.constructors,
     required this.fields,
+    this.rdfMapValue,
     this.enumValues = const [],
   });
 
   @override
-  int get hashCode =>
-      Object.hashAll([className, annotation, constructors, fields, enumValues]);
+  int get hashCode => Object.hashAll(
+      [className, annotation, constructors, fields, enumValues, rdfMapValue]);
 
   @override
   bool operator ==(Object other) {
@@ -103,7 +133,8 @@ class LiteralInfo implements MappableClassInfo {
         annotation == other.annotation &&
         constructors == other.constructors &&
         fields == other.fields &&
-        enumValues == other.enumValues;
+        enumValues == other.enumValues &&
+        rdfMapValue == other.rdfMapValue;
   }
 
   @override
@@ -112,38 +143,48 @@ class LiteralInfo implements MappableClassInfo {
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
-        '  fields: $fields\n'
-        '  enumValues: $enumValues\n'
+        '  fields: $fields,\n'
+        '  enumValues: $enumValues,\n'
+        '  rdfMapValue: $rdfMapValue,\n'
         '}';
   }
 }
 
 /// Contains information about a class annotated with @RdfGlobalResource
-class ResourceInfo implements MappableClassInfo {
+class ResourceInfo implements MappableClassInfo<RdfResourceInfo> {
   /// The name of the class
+  @override
   final Code className;
 
   /// The RdfGlobalResource or RdfLocalResource annotation instance
+  @override
   final RdfResourceInfo annotation;
 
   /// List of constructors in the class
+  @override
   final List<ConstructorInfo> constructors;
 
   /// List of fields in the class
+  @override
   final List<FieldInfo> fields;
+
+  /// Class-Level annotation if the entire class shall be used as a map value
+  @override
+  final RdfMapValueAnnotationInfo? rdfMapValue;
 
   const ResourceInfo({
     required this.className,
     required this.annotation,
     required this.constructors,
     required this.fields,
+    this.rdfMapValue,
   });
 
   bool get isGlobalResource => annotation is RdfGlobalResourceInfo;
 
   @override
-  int get hashCode =>
-      Object.hashAll([className, annotation, constructors, fields]);
+  int get hashCode => Object.hashAll(
+      [className, annotation, constructors, fields, rdfMapValue]);
 
   @override
   bool operator ==(Object other) {
@@ -153,7 +194,8 @@ class ResourceInfo implements MappableClassInfo {
     return className == other.className &&
         annotation == other.annotation &&
         constructors == other.constructors &&
-        fields == other.fields;
+        fields == other.fields &&
+        rdfMapValue == other.rdfMapValue;
   }
 
   @override
@@ -162,7 +204,8 @@ class ResourceInfo implements MappableClassInfo {
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
-        '  fields: $fields\n'
+        '  fields: $fields,\n'
+        '  rdfMapValue: $rdfMapValue,\n'
         '}';
   }
 }

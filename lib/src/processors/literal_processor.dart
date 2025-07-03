@@ -29,12 +29,15 @@ class LiteralProcessor {
     }
     final fields = extractFields(context, classElement);
     final constructors = extractConstructors(classElement, fields, null);
+    final rdfMapValue =
+        extractMapValueAnnotation(classElement.metadata2.annotations);
 
     return LiteralInfo(
       className: className,
       annotation: rdfIriAnnotation,
       constructors: constructors,
       fields: fields,
+      rdfMapValue: rdfMapValue,
     );
   }
 
@@ -64,6 +67,7 @@ class LiteralProcessor {
       constructors: [],
       fields: [],
       enumValues: enumValues,
+      rdfMapValue: extractMapValueAnnotation(enumElement.metadata2.annotations),
     );
   }
 

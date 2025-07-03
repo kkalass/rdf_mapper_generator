@@ -39,13 +39,14 @@ class ResourceProcessor {
           RdfGlobalResourceInfo _ => rdfResource.iri?.templateInfo,
           RdfLocalResourceInfo _ => null,
         });
-
+    final rdfMapValue =
+        extractMapValueAnnotation(classElement.metadata2.annotations);
     return ResourceInfo(
-      className: className,
-      annotation: rdfResource,
-      constructors: constructors,
-      fields: fields,
-    );
+        className: className,
+        annotation: rdfResource,
+        constructors: constructors,
+        fields: fields,
+        rdfMapValue: rdfMapValue);
   }
 
   static RdfResourceInfo? _createRdfResource(
