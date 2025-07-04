@@ -19,8 +19,8 @@ class DartCodeFormatter implements CodeFormatter {
   DartCodeFormatter({DartFormatter? formatter})
       : _formatter = formatter ??
             DartFormatter(
-              languageVersion: DartFormatter.latestLanguageVersion,
-            );
+                //languageVersion: DartFormatter.latestLanguageVersion,
+                );
 
   @override
   String formatCode(String code) {

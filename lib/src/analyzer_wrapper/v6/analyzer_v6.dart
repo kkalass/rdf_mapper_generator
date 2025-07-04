@@ -1,30 +1,28 @@
 // Actually working with analyzer v7.4.0
 //
-/*
 export 'package:analyzer/dart/constant/value.dart' show DartObject;
 export 'package:analyzer/dart/analysis/utilities.dart' show parseString;
 export 'package:analyzer/dart/analysis/analysis_context_collection.dart'
     show AnalysisContextCollection;
 export 'package:analyzer/dart/analysis/results.dart' show ResolvedUnitResult;
 
-export 'package:analyzer/dart/element/element2.dart'
+export 'package:analyzer/dart/element/element.dart'
     show
-        Element2,
-        ClassElement2,
-        EnumElement2,
-        LibraryElement2,
-        FieldElement2,
+        Element,
+        ClassElement,
+        EnumElement,
+        LibraryElement,
+        FieldElement,
         ElementAnnotation,
-        LibraryExport,
-        LibraryImport,
-        ConstructorElement2,
-        FormalParameterElement,
-        GetterElement,
-        SetterElement,
-        VariableElement2;
+        LibraryImportElement,
+        ConstructorElement,
+        ParameterElement,
+        PrefixElement,
+        PropertyAccessorElement,
+        VariableElement;
 export 'package:analyzer/dart/element/type.dart' show DartType, InterfaceType;
-*/
 
+/*
 // Dummy types for compatibility with analyzer v7.4.0 wrapper,
 // this will not run though.
 typedef DartObject = dynamic;
@@ -63,3 +61,4 @@ class AnalysisContextCollection {
         'contextFor is not implemented in this analyzer version');
   }
 }
+*/
