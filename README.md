@@ -1,7 +1,7 @@
 # RDF Mapper Generator for Dart
 
 [![pub package](https://img.shields.io/pub/v/rdf_mapper_generator.svg)](https://pub.dev/packages/rdf_mapper_generator)
-[![build](https://github.com/kkalass/rdf_mapper_generator/actions/workflows/ci.yml/badge.svg)](https://github.com/klaclass/rdf_mapper_generator/actions)
+[![build](https://github.com/kkalass/rdf_mapper_generator/actions/workflows/ci.yml/badge.svg)](https://github.com/kkalass/rdf_mapper_generator/actions)
 [![codecov](https://codecov.io/gh/kkalass/rdf_mapper_generator/branch/main/graph/badge.svg)](https://codecov.io/gh/kkalass/rdf_mapper_generator)
 [![license](https://img.shields.io/github/license/kkalass/rdf_mapper_generator.svg)](https://github.com/kkalass/rdf_mapper_generator/blob/main/LICENSE)
 
