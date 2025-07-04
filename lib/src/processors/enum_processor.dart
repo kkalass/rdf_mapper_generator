@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/literal_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
@@ -15,7 +16,7 @@ class EnumProcessor {
   /// RDF term annotation, null otherwise.
   static MappableClassInfo? processEnum(
     ValidationContext context,
-    EnumElement2 enumElement,
+    EnumElem enumElement,
   ) {
     // Try IRI processing first
     final iriInfo = IriProcessor.processEnum(context, enumElement);

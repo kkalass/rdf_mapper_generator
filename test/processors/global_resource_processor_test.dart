@@ -1,5 +1,6 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
@@ -10,7 +11,7 @@ import '../test_helper.dart';
 
 void main() {
   group('GlobalResourceProcessor', () {
-    late LibraryElement2 libraryElement;
+    late LibraryElem libraryElement;
 
     setUpAll(() async {
       (libraryElement, _) =
@@ -21,7 +22,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithEmptyIriStrategy')!);
+          libraryElement.getClass('ClassWithEmptyIriStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -42,7 +43,7 @@ void main() {
       final result = ResourceProcessor.processClass(
           validationContext,
           libraryElement
-              .getClass2('ClassWithEmptyIriStrategyNoRegisterGlobally')!);
+              .getClass('ClassWithEmptyIriStrategyNoRegisterGlobally')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -61,7 +62,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriTemplateStrategy')!);
+          libraryElement.getClass('ClassWithIriTemplateStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -87,7 +88,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriNamedMapperStrategy')!);
+          libraryElement.getClass('ClassWithIriNamedMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -110,7 +111,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriMapperStrategy')!);
+          libraryElement.getClass('ClassWithIriMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -134,7 +135,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriMapperInstanceStrategy')!);
+          libraryElement.getClass('ClassWithIriMapperInstanceStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -161,7 +162,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMapperNamedMapperStrategy')!);
+          libraryElement.getClass('ClassWithMapperNamedMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -184,7 +185,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMapperStrategy')!);
+          libraryElement.getClass('ClassWithMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -208,7 +209,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMapperInstanceStrategy')!);
+          libraryElement.getClass('ClassWithMapperInstanceStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -233,7 +234,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('Book')!);
+          validationContext, libraryElement.getClass('Book')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -251,7 +252,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('NotAnnotated')!);
+          validationContext, libraryElement.getClass('NotAnnotated')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -262,7 +263,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('Book')!);
+          validationContext, libraryElement.getClass('Book')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -284,7 +285,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('Book')!);
+          validationContext, libraryElement.getClass('Book')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -304,7 +305,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriMapperStrategy')!);
+          libraryElement.getClass('ClassWithIriMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -326,7 +327,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriMapperInstanceStrategy')!);
+          libraryElement.getClass('ClassWithIriMapperInstanceStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -349,7 +350,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriNamedMapperStrategy')!);
+          libraryElement.getClass('ClassWithIriNamedMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -368,7 +369,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('ClassWithNoRdfType')!);
+          validationContext, libraryElement.getClass('ClassWithNoRdfType')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -390,7 +391,7 @@ void main() {
       final result = ResourceProcessor.processClass(
           validationContext,
           libraryElement
-              .getClass2('ClassWithIriTemplateAndContextVariableStrategy')!);
+              .getClass('ClassWithIriTemplateAndContextVariableStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -417,7 +418,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriNamedMapperStrategy1Part')!);
+          libraryElement.getClass('ClassWithIriNamedMapperStrategy1Part')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -442,7 +443,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithIriNamedMapperStrategy2Parts')!);
+          libraryElement.getClass('ClassWithIriNamedMapperStrategy2Parts')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -469,7 +470,7 @@ void main() {
       final result = ResourceProcessor.processClass(
           validationContext,
           libraryElement
-              .getClass2('ClassWithIriNamedMapperStrategy2PartsSwapped')!);
+              .getClass('ClassWithIriNamedMapperStrategy2PartsSwapped')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -495,7 +496,7 @@ void main() {
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
           validationContext,
-          libraryElement.getClass2(
+          libraryElement.getClass(
               'ClassWithIriNamedMapperStrategy2PartsWithProperties')!);
       validationContext.throwIfErrors();
 

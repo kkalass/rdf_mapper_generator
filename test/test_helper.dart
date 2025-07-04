@@ -1,11 +1,18 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
-import 'package:analyzer/dart/analysis/results.dart';
-import 'package:analyzer/dart/element/element2.dart';
-import 'package:path/path.dart' as p;
-import 'package:logging/logging.dart';
 
+import 'package:logging/logging.dart';
+// import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
+// import 'package:analyzer/dart/analysis/results.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:path/path.dart' as p;
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_service.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_service_factory.dart';
+
+final AnalyzerWrapperService _analyzerWrapperService =
+    AnalyzerWrapperServiceFactory
+        .create(); // Use the appropriate version for your tests
 StreamSubscription<LogRecord>? _currentSubscription;
 
 void setupTestLogging({Level level = Level.WARNING}) {
@@ -26,7 +33,7 @@ void setupTestLogging({Level level = Level.WARNING}) {
   });
 }
 
-Future<(LibraryElement2 library, String path)> analyzeTestFile(
+Future<(LibraryElem library, String path)> analyzeTestFile(
     String filename) async {
   // Get the path to the test file relative to the project root
   final testFilePath = p.normalize(p.absolute(
@@ -41,15 +48,9 @@ Future<(LibraryElement2 library, String path)> analyzeTestFile(
 
   // Set up analysis context - use the fixtures directory
   final fixturesDir = p.dirname(testFilePath);
-  final collection = AnalysisContextCollection(
-    includedPaths: [fixturesDir],
-  );
-
-  // Parse the test file
-  final session = collection.contextFor(testFilePath).currentSession;
-  final result =
-      await session.getResolvedUnit(testFilePath) as ResolvedUnitResult;
+  final libraryElem =
+      await _analyzerWrapperService.loadLibrary(fixturesDir, testFilePath);
 
   // Get class elements
-  return (result.libraryElement2, testFilePath);
+  return (libraryElem, testFilePath);
 }

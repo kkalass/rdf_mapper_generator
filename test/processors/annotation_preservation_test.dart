@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
@@ -9,17 +10,17 @@ import 'package:test/test.dart';
 import '../test_helper.dart';
 
 void main() {
-  late ClassElement2 bookWithMapperClass;
-  late ClassElement2 bookWithMapperInstanceClass;
-  late ClassElement2 bookWithTemplateClass;
+  late ClassElem bookWithMapperClass;
+  late ClassElem bookWithMapperInstanceClass;
+  late ClassElem bookWithTemplateClass;
 
   setUpAll(() async {
     final (libraryElement, _) =
         await analyzeTestFile('annotation_test_models.dart');
-    bookWithMapperClass = libraryElement.getClass2('BookWithMapper')!;
+    bookWithMapperClass = libraryElement.getClass('BookWithMapper')!;
     bookWithMapperInstanceClass =
-        libraryElement.getClass2('BookWithMapperInstance')!;
-    bookWithTemplateClass = libraryElement.getClass2('BookWithTemplate')!;
+        libraryElement.getClass('BookWithMapperInstance')!;
+    bookWithTemplateClass = libraryElement.getClass('BookWithTemplate')!;
   });
 
   group('Annotation Preservation Tests', () {
@@ -108,8 +109,8 @@ void main() {
 
     test('should preserve all RdfProperty parameters', () {
       // Find the title field in the BookWithMapper class
-      final titleField = bookWithMapperClass.fields2.firstWhere(
-        (f) => f.name3 == 'title',
+      final titleField = bookWithMapperClass.fields.firstWhere(
+        (f) => f.name == 'title',
       );
 
       // Act

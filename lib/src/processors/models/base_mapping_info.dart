@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/constant/value.dart';
+// import 'package:analyzer/dart/constant/value.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 
 class MapperRefInfo<M> {

@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
@@ -8,14 +9,14 @@ import '../test_helper.dart';
 
 void main() {
   group('IriStrategyProcessor', () {
-    late ClassElement2 bookClass;
-    late ClassElement2 simpleClass;
+    late ClassElem bookClass;
+    late ClassElem simpleClass;
 
     setUpAll(() async {
       final (libraryElement, _) =
           await analyzeTestFile('global_resource_processor_test_models.dart');
-      bookClass = libraryElement.getClass2('Book')!;
-      simpleClass = libraryElement.getClass2('ClassWithIriTemplateStrategy')!;
+      bookClass = libraryElement.getClass('Book')!;
+      simpleClass = libraryElement.getClass('ClassWithIriTemplateStrategy')!;
     });
 
     group('processTemplate', () {

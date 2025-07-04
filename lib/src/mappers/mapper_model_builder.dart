@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/mappers/iri_model_builder_support.dart';
 import 'package:rdf_mapper_generator/src/mappers/mapped_model_builder.dart';
 import 'package:rdf_mapper_generator/src/mappers/resource_model_builder_support.dart';
@@ -17,16 +18,15 @@ class MapperModelBuilder {
       'asset:$packageName/${sourcePath}';
 
   static Map<String, String> _indexImportAliasByIdentifier(
-    List<(MappableClassInfo, Element2?)> classInfosWithElement,
+    List<(MappableClassInfo, Elem?)> classInfosWithElement,
   ) {
     final allLibraryImports = classInfosWithElement
         .where((e) => e.$2 != null)
-        .expand<LibraryFragment>((e) => e.$2!.library2?.fragments ?? [])
-        .expand<LibraryImport>((f) => f.libraryImports2);
+        .expand<LibraryImport>((e) => e.$2!.libraryImports);
     return {
       for (final import in allLibraryImports)
-        if (import.importedLibrary2 != null)
-          import.importedLibrary2!.identifier: import.prefix2?.name2 ?? '',
+        if (import.libraryIdentifier != null)
+          import.libraryIdentifier!: import.prefix ?? '',
     };
   }
 
@@ -34,7 +34,7 @@ class MapperModelBuilder {
     ValidationContext context,
     String packageName,
     String sourcePath,
-    List<(MappableClassInfo, Element2?)> classInfosWithElement,
+    List<(MappableClassInfo, Elem?)> classInfosWithElement,
   ) {
     String mapperImportUri = getMapperImportUri(
         packageName, sourcePath.replaceAll('.dart', '.rdf_mapper.g.dart'));

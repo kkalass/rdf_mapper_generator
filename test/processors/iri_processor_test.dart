@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_processor.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:test/test.dart';
@@ -7,7 +8,7 @@ import '../test_helper.dart';
 
 void main() {
   group('IriProcessor', () {
-    late LibraryElement2 libraryElement;
+    late LibraryElem libraryElement;
 
     setUpAll(() async {
       (libraryElement, _) =
@@ -18,7 +19,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(
-          validationContext, libraryElement.getClass2('IriWithOnePart')!);
+          validationContext, libraryElement.getClass('IriWithOnePart')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -37,7 +38,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(validationContext,
-          libraryElement.getClass2('IriWithOnePartExplicitlyGlobal')!);
+          libraryElement.getClass('IriWithOnePartExplicitlyGlobal')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -56,7 +57,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(
-          validationContext, libraryElement.getClass2('IriWithOnePartNamed')!);
+          validationContext, libraryElement.getClass('IriWithOnePartNamed')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -75,7 +76,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(
-          validationContext, libraryElement.getClass2('IriWithTwoParts')!);
+          validationContext, libraryElement.getClass('IriWithTwoParts')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -94,7 +95,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(validationContext,
-          libraryElement.getClass2('IriWithBaseUriAndTwoParts')!);
+          libraryElement.getClass('IriWithBaseUriAndTwoParts')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -113,7 +114,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(
-          validationContext, libraryElement.getClass2('IriWithBaseUri')!);
+          validationContext, libraryElement.getClass('IriWithBaseUri')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -132,7 +133,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(validationContext,
-          libraryElement.getClass2('IriWithBaseUriNoGlobal')!);
+          libraryElement.getClass('IriWithBaseUriNoGlobal')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -151,7 +152,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(
-          validationContext, libraryElement.getClass2('IriWithNamedMapper')!);
+          validationContext, libraryElement.getClass('IriWithNamedMapper')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -173,7 +174,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = IriProcessor.processClass(
-          validationContext, libraryElement.getClass2('IriWithMapper')!);
+          validationContext, libraryElement.getClass('IriWithMapper')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -195,8 +196,8 @@ void main() {
     test('should process IriWithMapperInstance', () {
       // Act
       final validationContext = ValidationContext();
-      final result = IriProcessor.processClass(validationContext,
-          libraryElement.getClass2('IriWithMapperInstance')!);
+      final result = IriProcessor.processClass(
+          validationContext, libraryElement.getClass('IriWithMapperInstance')!);
       validationContext.throwIfErrors();
 
       // Assert

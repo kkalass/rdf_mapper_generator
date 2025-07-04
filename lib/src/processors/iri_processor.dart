@@ -1,7 +1,8 @@
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/constant/value.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
@@ -18,9 +19,8 @@ class IriProcessor {
   /// Returns a [MappableClassInfo] containing the processed information if the class is annotated
   /// with `@RdfIri`, otherwise returns `null`.
   static IriInfo? processClass(
-      ValidationContext context, ClassElement2 classElement) {
-    final annotation =
-        getAnnotation(classElement.metadata2.annotations, 'RdfIri');
+      ValidationContext context, ClassElem classElement) {
+    final annotation = getAnnotation(classElement.annotations, 'RdfIri');
     final className = classToCode(classElement);
 
     // Create the RdfGlobalResource instance from the annotation
@@ -32,8 +32,7 @@ class IriProcessor {
     final fields = extractFields(context, classElement);
     final constructors = extractConstructors(
         classElement, fields, rdfIriAnnotation.templateInfo);
-    final rdfMapValue =
-        extractMapValueAnnotation(classElement.metadata2.annotations);
+    final rdfMapValue = extractMapValueAnnotation(classElement.annotations);
 
     return IriInfo(
       className: className,
@@ -48,10 +47,8 @@ class IriProcessor {
   ///
   /// Returns an [IriInfo] containing the processed information if the enum is annotated
   /// with `@RdfIri`, otherwise returns `null`.
-  static IriInfo? processEnum(
-      ValidationContext context, EnumElement2 enumElement) {
-    final annotation =
-        getAnnotation(enumElement.metadata2.annotations, 'RdfIri');
+  static IriInfo? processEnum(ValidationContext context, EnumElem enumElement) {
+    final annotation = getAnnotation(enumElement.annotations, 'RdfIri');
     final enumName = enumToCode(enumElement);
 
     // Create the RdfIri instance from the annotation
@@ -70,12 +67,12 @@ class IriProcessor {
       constructors: [],
       fields: [],
       enumValues: enumValues,
-      rdfMapValue: extractMapValueAnnotation(enumElement.metadata2.annotations),
+      rdfMapValue: extractMapValueAnnotation(enumElement.annotations),
     );
   }
 
   static RdfIriInfo? _createRdfIriAnnotation(
-      ValidationContext context, DartObject? annotation, Element2 element) {
+      ValidationContext context, DartObject? annotation, Elem element) {
     try {
       if (annotation == null) {
         return null;
@@ -90,7 +87,7 @@ class IriProcessor {
       final templateFieldValue =
           getField(annotation, 'template')?.toStringValue();
 
-      if (element is ClassElement2) {
+      if (element is ClassElem) {
         final (template, templateInfo, iriParts) =
             IriStrategyProcessor.processIriPartsAndTemplate(
                 context, element, templateFieldValue, mapper);

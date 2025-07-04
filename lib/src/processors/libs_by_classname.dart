@@ -1,28 +1,28 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 
 /// Helper class for resolving public library imports by exported class names.
 /// This is used during code generation to generate proper import statements
 /// for referenced classes and their static members.
 
 class LibsByClassName {
-  final Map<String, LibraryElement2> _libsByExportedNames;
+  final Map<String, LibraryElem> _libsByExportedNames;
 
   LibsByClassName(this._libsByExportedNames);
 
   /// Gets the library associated with the provided export name.
   ///
-  /// Returns the [LibraryElement2] for the given export [name],
+  /// Returns the [LibraryElem] for the given export [name],
   /// or null if no library was found with that name.
-  LibraryElement2? operator [](String name) => _libsByExportedNames[name];
+  LibraryElem? operator [](String name) => _libsByExportedNames[name];
 
-  static LibsByClassName create(LibraryElement2 libraryElement) {
-    final libs = libraryElement.fragments
-        .expand((frag) => frag.importedLibraries2)
-        .toList();
+  static LibsByClassName create(LibraryElem libraryElement) {
+    final libs = libraryElement.importedLibraries;
 
     final libsByExportedNames = {
       for (final lib in libs)
-        for (final name in lib.exportNamespace.definedNames2.keys) name: lib,
+        for (final name in lib.exportDefinedNames) name: lib,
     };
     return LibsByClassName(libsByExportedNames);
   }

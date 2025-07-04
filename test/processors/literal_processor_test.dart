@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/literal_processor.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:test/test.dart';
@@ -7,7 +8,7 @@ import '../test_helper.dart';
 
 void main() {
   group('LiteralProcessor', () {
-    late LibraryElement2 libraryElement;
+    late LibraryElem libraryElement;
 
     setUpAll(() async {
       (libraryElement, _) =
@@ -18,7 +19,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('LiteralString')!);
+          validationContext, libraryElement.getClass('LiteralString')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -41,7 +42,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('Rating')!);
+          validationContext, libraryElement.getClass('Rating')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -66,7 +67,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('LocalizedText')!);
+          validationContext, libraryElement.getClass('LocalizedText')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -98,7 +99,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('LiteralDouble')!);
+          validationContext, libraryElement.getClass('LiteralDouble')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -127,7 +128,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('LiteralInteger')!);
+          validationContext, libraryElement.getClass('LiteralInteger')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -156,7 +157,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('Temperature')!);
+          validationContext, libraryElement.getClass('Temperature')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -179,7 +180,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('CustomLocalizedText')!);
+          validationContext, libraryElement.getClass('CustomLocalizedText')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -203,7 +204,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('DoubleAsMilliunit')!);
+          validationContext, libraryElement.getClass('DoubleAsMilliunit')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -226,7 +227,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(validationContext,
-          libraryElement.getClass2('LiteralWithNamedMapper')!);
+          libraryElement.getClass('LiteralWithNamedMapper')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -252,7 +253,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(
-          validationContext, libraryElement.getClass2('LiteralWithMapper')!);
+          validationContext, libraryElement.getClass('LiteralWithMapper')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -279,7 +280,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = LiteralProcessor.processClass(validationContext,
-          libraryElement.getClass2('LiteralWithMapperInstance')!);
+          libraryElement.getClass('LiteralWithMapperInstance')!);
       validationContext.throwIfErrors();
 
       // Assert

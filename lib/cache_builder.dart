@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:analyzer/dart/analysis/utilities.dart';
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/analysis/utilities.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_service.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_service_factory.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 
 Builder rdfMapperCacheBuilder(BuilderOptions options) =>
@@ -14,17 +17,17 @@ Builder rdfMapperCacheBuilder(BuilderOptions options) =>
 /// This builder runs before the main builder and stores the template data in JSON format.
 class RdfMapperCacheBuilder implements Builder {
   static final _builderHelper = BuilderHelper();
+  static final AnalyzerWrapperService _analyzerWrapperService =
+      AnalyzerWrapperServiceFactory.create();
 
   @override
   Future<void> build(BuildStep buildStep) => buildIt(
       buildStep.inputId,
       buildStep.readAsString,
       buildStep.writeAsString,
-      (inputId, {bool allowSyntaxErrors = false}) async => (await buildStep
-              .resolver
-              .libraryFor(inputId, allowSyntaxErrors: allowSyntaxErrors))
-          // The library element from build system is LibraryElement, cast to Element2
-          as LibraryElement2);
+      (inputId, {bool allowSyntaxErrors = false}) async =>
+          _analyzerWrapperService.libraryFor(buildStep, inputId,
+              allowSyntaxErrors: allowSyntaxErrors));
 
   Future<void> buildIt(
       AssetId inputId,
@@ -32,8 +35,7 @@ class RdfMapperCacheBuilder implements Builder {
       Future<void> Function(AssetId id, FutureOr<String> contents,
               {Encoding encoding})
           writeAsString,
-      Future<LibraryElement2> Function(AssetId assetId,
-              {bool allowSyntaxErrors})
+      Future<LibraryElem> Function(AssetId assetId, {bool allowSyntaxErrors})
           libraryFor) async {
     // Only process .dart files, skip generated files
     if (!inputId.path.endsWith('.dart') ||
@@ -46,7 +48,7 @@ class RdfMapperCacheBuilder implements Builder {
       final sourceContent = await readAsString(inputId);
 
       // Parse the source file using the analyzer
-      final parseResult = parseString(
+      final parseResult = _analyzerWrapperService.parseString(
         content: sourceContent,
         path: inputId.path,
       );
@@ -64,15 +66,9 @@ class RdfMapperCacheBuilder implements Builder {
         return;
       }
 
-      final classes = library.fragments
-          .expand((f) => f.classes2)
-          .map((c) => c.element)
-          .toList();
+      final classes = library.classes;
 
-      final enums = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .toList();
+      final enums = library.enums;
 
       final generatedTemplateData = (await _builderHelper.buildTemplateData(
               inputId.path,
@@ -101,9 +97,8 @@ class RdfMapperCacheBuilder implements Builder {
   }
 
   /// Resolves the library for the current build step.
-  Future<LibraryElement2?> _resolveLibrary(
-      Future<LibraryElement2> Function(AssetId assetId,
-              {bool allowSyntaxErrors})
+  Future<LibraryElem?> _resolveLibrary(
+      Future<LibraryElem> Function(AssetId assetId, {bool allowSyntaxErrors})
           libraryFor,
       AssetId inputId) async {
     try {

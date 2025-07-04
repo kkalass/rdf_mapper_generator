@@ -1,5 +1,6 @@
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:test/test.dart';
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper_generator/src/processors/enum_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
@@ -8,7 +9,7 @@ import '../test_helper.dart';
 /// Tests for enum mapper generation functionality
 void main() {
   group('EnumProcessor', () {
-    late LibraryElement2 library;
+    late LibraryElem library;
 
     setUpAll(() async {
       (library, _) = await analyzeTestFile('enum_test_models.dart');
@@ -18,10 +19,7 @@ void main() {
       final validationContext = ValidationContext();
 
       // Get all enums from the library
-      final enums = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .toList();
+      final enums = library.enums;
 
       expect(enums.length, equals(6), reason: 'Should find all 6 test enums');
 
@@ -62,10 +60,8 @@ void main() {
       final validationContext = ValidationContext();
 
       // Test Priority enum (simple literal)
-      final priorityEnum = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .firstWhere((e) => e.name3 == 'Priority');
+      final priorityEnum =
+          library.enums.firstWhere((e) => e.name == 'Priority');
 
       final priorityResult =
           EnumProcessor.processEnum(validationContext, priorityEnum);
@@ -73,10 +69,7 @@ void main() {
       expect(priorityResult!.className.codeWithoutAlias, equals('Priority'));
 
       // Test Status enum (literal with custom values)
-      final statusEnum = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .firstWhere((e) => e.name3 == 'Status');
+      final statusEnum = library.enums.firstWhere((e) => e.name == 'Status');
 
       final statusResult =
           EnumProcessor.processEnum(validationContext, statusEnum);
@@ -88,10 +81,8 @@ void main() {
       final validationContext = ValidationContext();
 
       // Test DocumentType enum (IRI without template)
-      final docTypeEnum = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .firstWhere((e) => e.name3 == 'DocumentType');
+      final docTypeEnum =
+          library.enums.firstWhere((e) => e.name == 'DocumentType');
 
       final docTypeResult =
           EnumProcessor.processEnum(validationContext, docTypeEnum);
@@ -99,10 +90,8 @@ void main() {
       expect(docTypeResult!.className.codeWithoutAlias, equals('DocumentType'));
 
       // Test CategoryType enum (IRI with simple template)
-      final categoryEnum = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .firstWhere((e) => e.name3 == 'CategoryType');
+      final categoryEnum =
+          library.enums.firstWhere((e) => e.name == 'CategoryType');
 
       final categoryResult =
           EnumProcessor.processEnum(validationContext, categoryEnum);
@@ -111,10 +100,8 @@ void main() {
           categoryResult!.className.codeWithoutAlias, equals('CategoryType'));
 
       // Test FileFormat enum (IRI with context variable)
-      final fileFormatEnum = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .firstWhere((e) => e.name3 == 'FileFormat');
+      final fileFormatEnum =
+          library.enums.firstWhere((e) => e.name == 'FileFormat');
 
       final fileFormatResult =
           EnumProcessor.processEnum(validationContext, fileFormatEnum);
@@ -123,10 +110,8 @@ void main() {
           fileFormatResult!.className.codeWithoutAlias, equals('FileFormat'));
 
       // Test ItemType enum (IRI with multiple context variables)
-      final itemTypeEnum = library.fragments
-          .expand((f) => f.enums2)
-          .map((e) => e.element)
-          .firstWhere((e) => e.name3 == 'ItemType');
+      final itemTypeEnum =
+          library.enums.firstWhere((e) => e.name == 'ItemType');
 
       final itemTypeResult =
           EnumProcessor.processEnum(validationContext, itemTypeEnum);

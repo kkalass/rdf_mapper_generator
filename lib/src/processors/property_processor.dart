@@ -1,9 +1,10 @@
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element2.dart';
-import 'package:analyzer/dart/element/type.dart';
-import 'package:analyzer/dart/element/type_system.dart';
+// import 'package:analyzer/dart/constant/value.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/type.dart';
+// import 'package:analyzer/dart/element/type_system.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
@@ -36,13 +37,12 @@ class PropertyProcessor {
   /// Returns a [PropertyInfo] if the field is annotated with `@RdfProperty`,
   /// otherwise returns `null`.
   static PropertyInfo? processField(
-      ValidationContext context, FieldElement2 field) {
-    final mapEntry = extractMapEntryAnnotation(
-        context, field.name3!, field.metadata2.annotations);
+      ValidationContext context, FieldElem field) {
+    final mapEntry =
+        extractMapEntryAnnotation(context, field.name, field.annotations);
     return processFieldAlike(context,
-        typeSystem: field.library2.typeSystem,
-        name: field.name3!,
-        annotations: field.metadata2.annotations,
+        name: field.name,
+        annotations: field.annotations,
         isFinal: field.isFinal,
         isLate: field.isLate,
         isStatic: field.isStatic,
@@ -52,10 +52,9 @@ class PropertyProcessor {
   }
 
   static PropertyInfo? processFieldAlike(ValidationContext context,
-      {required TypeSystem typeSystem,
-      required String name,
+      {required String name,
       required DartType type,
-      required Iterable<ElementAnnotation> annotations,
+      required Iterable<ElemAnnotation> annotations,
       required bool isStatic,
       required bool isFinal,
       required bool isLate,
@@ -74,9 +73,7 @@ class PropertyProcessor {
         context, name, type, collectionInfo, mapEntry, annotationObj);
 
     // Check if the type is nullable
-    final isNullable = type.isDartCoreNull ||
-        (type is InterfaceType && type.isDartCoreNull) ||
-        typeSystem.isNullable(type);
+    final isNullable = type.isNullable;
 
     return PropertyInfo(
       name: name,
@@ -96,9 +93,9 @@ class PropertyProcessor {
     DartType dartType,
   ) {
     // Check if it's a collection type
-    if (dartType is InterfaceType) {
-      final element = dartType.element3;
-      final className = element.name3;
+    if (dartType.isInterfaceType) {
+      final element = dartType.element;
+      final className = element.name;
 
       // Check for List
       if (className == 'List' && dartType.typeArguments.length == 1) {
@@ -144,7 +141,7 @@ class PropertyProcessor {
   }
 
   static DartObject? _getRdfPropertyAnnotation(
-      Iterable<ElementAnnotation> annotations) {
+      Iterable<ElemAnnotation> annotations) {
     return getAnnotation(annotations, 'RdfProperty');
   }
 
@@ -152,7 +149,7 @@ class PropertyProcessor {
       ValidationContext context,
       String fieldName,
 
-      /// The field's Dart type (e.g. List<Foo>)
+      /// The field's Dart type (e.g. List&lt;Foo&gt;)
       DartType fieldType,
       CollectionInfo collectionInfo,
       RdfMapEntryAnnotationInfo? rdfMapEntryAnnotation,

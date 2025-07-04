@@ -1,6 +1,7 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/Elem.dart';
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/mappers/mapper_model.dart';
 import 'package:rdf_mapper_generator/src/mappers/mapper_model_builder.dart';
 import 'package:rdf_mapper_generator/src/mappers/resolved_mapper_model.dart';
@@ -22,8 +23,8 @@ class BuilderHelper {
 
   Future<String?> build(
       String sourcePath,
-      Iterable<ClassElement2> classElements,
-      Iterable<EnumElement2> enumElements,
+      Iterable<ClassElem> classElements,
+      Iterable<EnumElem> enumElements,
       AssetReader reader,
       BroaderImports broaderImports,
       {String packageName = "test"}) async {
@@ -41,12 +42,12 @@ class BuilderHelper {
   Future<FileTemplateData?> buildTemplateData(
       String sourcePath,
       String packageName,
-      Iterable<ClassElement2> classElements,
-      Iterable<EnumElement2> enumElements,
+      Iterable<ClassElem> classElements,
+      Iterable<EnumElem> enumElements,
       BroaderImports broaderImports) async {
     final context = ValidationContext();
     // Collect all resource info and element pairs (class or enum)
-    List<(MappableClassInfo, Element2?)> resourceInfosWithElements =
+    List<(MappableClassInfo, Elem?)> resourceInfosWithElements =
         collectResourceInfos(classElements, context, enumElements);
     context.throwIfErrors();
 
@@ -88,12 +89,12 @@ class BuilderHelper {
     return result;
   }
 
-  List<(MappableClassInfo, Element2?)> collectResourceInfos(
-      Iterable<ClassElement2> classElements,
+  List<(MappableClassInfo, Elem?)> collectResourceInfos(
+      Iterable<ClassElem> classElements,
       ValidationContext context,
-      Iterable<EnumElement2> enumElements) {
+      Iterable<EnumElem> enumElements) {
     // Collect all resource info and element pairs (class or enum)
-    final resourceInfosWithElements = <(MappableClassInfo, Element2?)>[];
+    final resourceInfosWithElements = <(MappableClassInfo, Elem?)>[];
 
     for (final classElement in classElements) {
       final MappableClassInfo? resourceInfo =
@@ -107,7 +108,7 @@ class BuilderHelper {
     // Process enums
     for (final enumElement in enumElements) {
       final enumInfo = EnumProcessor.processEnum(
-        context.withContext(enumElement.name3!),
+        context.withContext(enumElement.name),
         enumElement,
       );
 
@@ -119,17 +120,17 @@ class BuilderHelper {
   }
 
   static MappableClassInfo<BaseMappingAnnotationInfo<dynamic>>? processClass(
-      ValidationContext context, ClassElement2 classElement) {
+      ValidationContext context, ClassElem classElement) {
     return ResourceProcessor.processClass(
-          context.withContext(classElement.name3!),
+          context.withContext(classElement.name),
           classElement,
         ) ??
         IriProcessor.processClass(
-          context.withContext(classElement.name3!),
+          context.withContext(classElement.name),
           classElement,
         ) ??
         LiteralProcessor.processClass(
-          context.withContext(classElement.name3!),
+          context.withContext(classElement.name),
           classElement,
         );
   }

@@ -1,6 +1,7 @@
-import 'package:analyzer/dart/element/element2.dart';
-import 'package:analyzer/dart/element/type.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
@@ -849,7 +850,7 @@ final class RdfMapValueAnnotationInfo extends AnnotationInfo {
 
 final class RdfMapEntryAnnotationInfo extends AnnotationInfo {
   final Code itemType;
-  final ClassElement2 itemClassElement;
+  final ClassElem itemClassElement;
   final DartType itemClassType;
 
   const RdfMapEntryAnnotationInfo(

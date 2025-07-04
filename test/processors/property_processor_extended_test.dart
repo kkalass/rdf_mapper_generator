@@ -1,4 +1,5 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:rdf_vocabularies/schema.dart';
 import 'package:rdf_vocabularies/xsd.dart';
@@ -7,10 +8,10 @@ import 'package:test/test.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import '../test_helper.dart';
 
-processField(FieldElement2 field) =>
+processField(FieldElem field) =>
     PropertyProcessor.processField(ValidationContext(), field);
 void main() {
-  late LibraryElement2 libraryElement;
+  late LibraryElem libraryElement;
 
   setUpAll(() async {
     (libraryElement, _) =
@@ -19,12 +20,12 @@ void main() {
 
   test('should process complex default value', () {
     // Arrange
-    final classElement = libraryElement.getClass2('ComplexDefaultValueTest');
+    final classElement = libraryElement.getClass('ComplexDefaultValueTest');
     if (classElement == null) {
       fail('Class ComplexDefaultValueTest not found in test models');
     }
 
-    final field = classElement.getField2('complexValue');
+    final field = classElement.getField('complexValue');
     if (field == null) {
       fail('Field "complexValue" not found in ComplexDefaultValueTest');
     }
@@ -47,13 +48,13 @@ void main() {
 
   test('should process late properties', () {
     // Arrange
-    final classElement = libraryElement.getClass2('LatePropertyTest');
+    final classElement = libraryElement.getClass('LatePropertyTest');
     if (classElement == null) {
       fail('Class LatePropertyTest not found in test models');
     }
 
-    final nameField = classElement.getField2('name');
-    final descriptionField = classElement.getField2('description');
+    final nameField = classElement.getField('name');
+    final descriptionField = classElement.getField('description');
 
     if (nameField == null) {
       fail('Field "name" not found in LatePropertyTest');
@@ -83,13 +84,13 @@ void main() {
 
   test('should process mutable properties with getters/setters', () {
     // Arrange
-    final classElement = libraryElement.getClass2('MutablePropertyTest');
+    final classElement = libraryElement.getClass('MutablePropertyTest');
     if (classElement == null) {
       fail('Class MutablePropertyTest not found in test models');
     }
 
-    final nameField = classElement.getField2('name');
-    final descriptionField = classElement.getField2('description');
+    final nameField = classElement.getField('name');
+    final descriptionField = classElement.getField('description');
 
     if (nameField == null) {
       fail('Field "name" not found in MutablePropertyTest');
@@ -120,13 +121,13 @@ void main() {
 
   test('should process final properties', () {
     // Arrange
-    final classElement = libraryElement.getClass2('FinalPropertyTest');
+    final classElement = libraryElement.getClass('FinalPropertyTest');
     if (classElement == null) {
       fail('Class FinalPropertyTest not found in test models');
     }
 
-    final nameField = classElement.getField2('name');
-    final descriptionField = classElement.getField2('description');
+    final nameField = classElement.getField('name');
+    final descriptionField = classElement.getField('description');
 
     if (nameField == null) {
       fail('Field "name" not found in FinalPropertyTest');
@@ -156,12 +157,12 @@ void main() {
 
   test('should process literal with language tag', () {
     // Arrange
-    final classElement = libraryElement.getClass2('LanguageTagTest');
+    final classElement = libraryElement.getClass('LanguageTagTest');
     if (classElement == null) {
       fail('Class LanguageTagTest not found in test models');
     }
 
-    final field = classElement.getField2('description');
+    final field = classElement.getField('description');
     if (field == null) {
       fail('Field "description" not found in LanguageTagTest');
     }
@@ -182,12 +183,12 @@ void main() {
 
   test('should process literal with datatype', () {
     // Arrange
-    final classElement = libraryElement.getClass2('DatatypeTest');
+    final classElement = libraryElement.getClass('DatatypeTest');
     if (classElement == null) {
       fail('Class DatatypeTest not found in test models');
     }
 
-    final field = classElement.getField2('date');
+    final field = classElement.getField('date');
     if (field == null) {
       fail('Field "date" not found in DatatypeTest');
     }

@@ -1,7 +1,8 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:test/test.dart';
 
@@ -9,11 +10,11 @@ import 'test_helper.dart' as test_helper;
 
 void main() {
   group('BuilderHelper', () {
-    late LibraryElement2 globalResourceLibrary;
-    late LibraryElement2 localResourceLibrary;
-    late LibraryElement2 iriLibrary;
-    late LibraryElement2 literalLibrary;
-    late LibraryElement2 propertyLibrary;
+    late LibraryElem globalResourceLibrary;
+    late LibraryElem localResourceLibrary;
+    late LibraryElem iriLibrary;
+    late LibraryElem literalLibrary;
+    late LibraryElem propertyLibrary;
     late AssetReader assetReader;
 
     setUpAll(() async {
@@ -45,7 +46,7 @@ void main() {
       test('should generate mapper for Book class', () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('Book')!],
+            [globalResourceLibrary.getClass('Book')!],
             [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -63,7 +64,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+            [globalResourceLibrary.getClass('ClassWithEmptyIriStrategy')!],
             [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -84,7 +85,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithIriTemplateStrategy')!],
+            [globalResourceLibrary.getClass('ClassWithIriTemplateStrategy')!],
             [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -109,7 +110,7 @@ void main() {
             'global_resource_processor_test_models.dart',
             [
               globalResourceLibrary
-                  .getClass2('ClassWithIriTemplateAndContextVariableStrategy')!
+                  .getClass('ClassWithIriTemplateAndContextVariableStrategy')!
             ],
             [], // No enums
             assetReader,
@@ -124,8 +125,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [
-              globalResourceLibrary
-                  .getClass2('ClassWithIriNamedMapperStrategy')!
+              globalResourceLibrary.getClass('ClassWithIriNamedMapperStrategy')!
             ],
             [], // No enums
             assetReader,
@@ -138,7 +138,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithIriMapperStrategy')!],
+            [globalResourceLibrary.getClass('ClassWithIriMapperStrategy')!],
             [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -152,7 +152,7 @@ void main() {
             'global_resource_processor_test_models.dart',
             [
               globalResourceLibrary
-                  .getClass2('ClassWithIriMapperInstanceStrategy')!
+                  .getClass('ClassWithIriMapperInstanceStrategy')!
             ],
             [], // No enums
             assetReader,
@@ -168,7 +168,7 @@ void main() {
             'global_resource_processor_test_models.dart',
             [
               globalResourceLibrary
-                  .getClass2('ClassWithMapperNamedMapperStrategy')!
+                  .getClass('ClassWithMapperNamedMapperStrategy')!
             ],
             [], // No enums
             assetReader,
@@ -182,7 +182,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('ClassWithMapperStrategy')!],
+            [globalResourceLibrary.getClass('ClassWithMapperStrategy')!],
             [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -195,8 +195,7 @@ void main() {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
             [
-              globalResourceLibrary
-                  .getClass2('ClassWithMapperInstanceStrategy')!
+              globalResourceLibrary.getClass('ClassWithMapperInstanceStrategy')!
             ],
             [], // No enums
             assetReader,
@@ -209,7 +208,7 @@ void main() {
       test('should return null for non-annotated class', () async {
         final result = await BuilderHelper().build(
             'global_resource_processor_test_models.dart',
-            [globalResourceLibrary.getClass2('NotAnnotated')!],
+            [globalResourceLibrary.getClass('NotAnnotated')!],
             [], // No enums
             assetReader,
             BroaderImports.create(globalResourceLibrary));
@@ -221,7 +220,7 @@ void main() {
       test('should generate mapper for Book class', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('Book')!],
+            [localResourceLibrary.getClass('Book')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -233,7 +232,7 @@ void main() {
       test('should generate mapper for ClassNoRegisterGlobally', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassNoRegisterGlobally')!],
+            [localResourceLibrary.getClass('ClassNoRegisterGlobally')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -248,7 +247,7 @@ void main() {
       test('should generate mapper for ClassWithNoRdfType', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithNoRdfType')!],
+            [localResourceLibrary.getClass('ClassWithNoRdfType')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -259,7 +258,7 @@ void main() {
       test('should generate mapper for ClassWithPositionalProperty', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithPositionalProperty')!],
+            [localResourceLibrary.getClass('ClassWithPositionalProperty')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -270,7 +269,7 @@ void main() {
       test('should generate mapper for ClassWithNonFinalProperty', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithNonFinalProperty')!],
+            [localResourceLibrary.getClass('ClassWithNonFinalProperty')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -284,7 +283,7 @@ void main() {
             'local_resource_processor_test_models.dart',
             [
               localResourceLibrary
-                  .getClass2('ClassWithNonFinalPropertyWithDefault')!
+                  .getClass('ClassWithNonFinalPropertyWithDefault')!
             ],
             [], // No enums
             assetReader,
@@ -300,7 +299,7 @@ void main() {
             'local_resource_processor_test_models.dart',
             [
               localResourceLibrary
-                  .getClass2('ClassWithNonFinalOptionalProperty')!
+                  .getClass('ClassWithNonFinalOptionalProperty')!
             ],
             [], // No enums
             assetReader,
@@ -314,7 +313,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithLateNonFinalProperty')!],
+            [localResourceLibrary.getClass('ClassWithLateNonFinalProperty')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -325,7 +324,7 @@ void main() {
       test('should generate mapper for ClassWithLateFinalProperty', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithLateFinalProperty')!],
+            [localResourceLibrary.getClass('ClassWithLateFinalProperty')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -339,7 +338,7 @@ void main() {
             'local_resource_processor_test_models.dart',
             [
               localResourceLibrary
-                  .getClass2('ClassWithMixedFinalAndLateFinalProperty')!
+                  .getClass('ClassWithMixedFinalAndLateFinalProperty')!
             ],
             [], // No enums
             assetReader,
@@ -355,7 +354,7 @@ void main() {
             'local_resource_processor_test_models.dart',
             [
               localResourceLibrary
-                  .getClass2('ClassWithMapperNamedMapperStrategy')!
+                  .getClass('ClassWithMapperNamedMapperStrategy')!
             ],
             [], // No enums
             assetReader,
@@ -368,7 +367,7 @@ void main() {
       test('should NOT generate mapper for ClassWithMapperStrategy', () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [localResourceLibrary.getClass2('ClassWithMapperStrategy')!],
+            [localResourceLibrary.getClass('ClassWithMapperStrategy')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -380,9 +379,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'local_resource_processor_test_models.dart',
-            [
-              localResourceLibrary.getClass2('ClassWithMapperInstanceStrategy')!
-            ],
+            [localResourceLibrary.getClass('ClassWithMapperInstanceStrategy')!],
             [], // No enums
             assetReader,
             BroaderImports.create(localResourceLibrary));
@@ -396,7 +393,7 @@ void main() {
       test('should generate mapper for IriWithOnePart', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithOnePart')!],
+            [iriLibrary.getClass('IriWithOnePart')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -410,7 +407,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithOnePartExplicitlyGlobal')!],
+            [iriLibrary.getClass('IriWithOnePartExplicitlyGlobal')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -421,7 +418,7 @@ void main() {
       test('should generate mapper for IriWithOnePartNamed', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithOnePartNamed')!],
+            [iriLibrary.getClass('IriWithOnePartNamed')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -432,7 +429,7 @@ void main() {
       test('should generate mapper for IriWithTwoParts', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithTwoParts')!],
+            [iriLibrary.getClass('IriWithTwoParts')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -443,7 +440,7 @@ void main() {
       test('should generate mapper for IriWithBaseUriAndTwoParts', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithBaseUriAndTwoParts')!],
+            [iriLibrary.getClass('IriWithBaseUriAndTwoParts')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -454,7 +451,7 @@ void main() {
       test('should generate mapper for IriWithBaseUri', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithBaseUri')!],
+            [iriLibrary.getClass('IriWithBaseUri')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -465,7 +462,7 @@ void main() {
       test('should generate mapper for IriWithBaseUriNoGlobal', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithBaseUriNoGlobal')!],
+            [iriLibrary.getClass('IriWithBaseUriNoGlobal')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -476,7 +473,7 @@ void main() {
       test('should generate mapper for IriWithNonConstructorFields', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithNonConstructorFields')!],
+            [iriLibrary.getClass('IriWithNonConstructorFields')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -491,7 +488,7 @@ void main() {
             'iri_processor_test_models.dart',
             [
               iriLibrary
-                  .getClass2('IriWithNonConstructorFieldsAndBaseUriNonGlobal')!
+                  .getClass('IriWithNonConstructorFieldsAndBaseUriNonGlobal')!
             ],
             [], // No enums
             assetReader,
@@ -506,7 +503,7 @@ void main() {
       test('should generate mapper for IriWithMixedFields', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithMixedFields')!],
+            [iriLibrary.getClass('IriWithMixedFields')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -517,7 +514,7 @@ void main() {
       test('should NOT generate mapper for IriWithNamedMapper', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithNamedMapper')!],
+            [iriLibrary.getClass('IriWithNamedMapper')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -528,7 +525,7 @@ void main() {
       test('should NOT generate mapper for IriWithMapper', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithMapper')!],
+            [iriLibrary.getClass('IriWithMapper')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -539,7 +536,7 @@ void main() {
       test('should NOT generate mapper for IriWithMapperInstance', () async {
         final result = await BuilderHelper().build(
             'iri_processor_test_models.dart',
-            [iriLibrary.getClass2('IriWithMapperInstance')!],
+            [iriLibrary.getClass('IriWithMapperInstance')!],
             [], // No enums
             assetReader,
             BroaderImports.create(iriLibrary));
@@ -552,7 +549,7 @@ void main() {
       test('should generate mapper for LiteralString', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralString')!],
+            [literalLibrary.getClass('LiteralString')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -565,7 +562,7 @@ void main() {
       test('should generate mapper for Rating', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('Rating')!],
+            [literalLibrary.getClass('Rating')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -576,7 +573,7 @@ void main() {
       test('should generate mapper for LocalizedText', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LocalizedText')!],
+            [literalLibrary.getClass('LocalizedText')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -587,7 +584,7 @@ void main() {
       test('should generate mapper for LiteralDouble', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralDouble')!],
+            [literalLibrary.getClass('LiteralDouble')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -598,7 +595,7 @@ void main() {
       test('should generate mapper for LiteralInteger', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralInteger')!],
+            [literalLibrary.getClass('LiteralInteger')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -610,7 +607,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('Temperature')!],
+            [literalLibrary.getClass('Temperature')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -623,7 +620,7 @@ void main() {
       test('should generate mapper for CustomLocalizedText', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('CustomLocalizedText')!],
+            [literalLibrary.getClass('CustomLocalizedText')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -636,7 +633,7 @@ void main() {
       test('should generate mapper for DoubleAsMilliunit', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('DoubleAsMilliunit')!],
+            [literalLibrary.getClass('DoubleAsMilliunit')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -650,7 +647,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralWithNonConstructorValue')!],
+            [literalLibrary.getClass('LiteralWithNonConstructorValue')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -664,7 +661,7 @@ void main() {
             'literal_processor_test_models.dart',
             [
               literalLibrary
-                  .getClass2('LocalizedTextWithNonConstructorLanguage')!
+                  .getClass('LocalizedTextWithNonConstructorLanguage')!
             ],
             [], // No enums
             assetReader,
@@ -678,7 +675,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralLateFinalLocalizedText')!],
+            [literalLibrary.getClass('LiteralLateFinalLocalizedText')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -689,7 +686,7 @@ void main() {
       test('should NOT generate mapper for LiteralWithNamedMapper', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralWithNamedMapper')!],
+            [literalLibrary.getClass('LiteralWithNamedMapper')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -700,7 +697,7 @@ void main() {
       test('should NOT generate mapper for LiteralWithMapper', () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralWithMapper')!],
+            [literalLibrary.getClass('LiteralWithMapper')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -712,7 +709,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'literal_processor_test_models.dart',
-            [literalLibrary.getClass2('LiteralWithMapperInstance')!],
+            [literalLibrary.getClass('LiteralWithMapperInstance')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));
@@ -728,7 +725,7 @@ void main() {
       // Test empty IRI strategy (simple implementation)
       final emptyIriResult = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
-          [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+          [globalResourceLibrary.getClass('ClassWithEmptyIriStrategy')!],
           [], // No enums
           assetReader,
           BroaderImports.create(globalResourceLibrary));
@@ -736,7 +733,7 @@ void main() {
       // Test template IRI strategy (complex implementation)
       final templateIriResult = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
-          [globalResourceLibrary.getClass2('ClassWithIriTemplateStrategy')!],
+          [globalResourceLibrary.getClass('ClassWithIriTemplateStrategy')!],
           [], // No enums
           assetReader,
           BroaderImports.create(globalResourceLibrary));
@@ -758,7 +755,7 @@ void main() {
         () async {
       final result = await BuilderHelper().build(
           'global_resource_processor_test_models.dart',
-          [globalResourceLibrary.getClass2('ClassWithEmptyIriStrategy')!],
+          [globalResourceLibrary.getClass('ClassWithEmptyIriStrategy')!],
           [], // No enums
           assetReader,
           BroaderImports.create(globalResourceLibrary));
@@ -794,7 +791,7 @@ void main() {
           () async {
         final result = await BuilderHelper().build(
             'property_processor_test_models.dart',
-            [propertyLibrary.getClass2('IriMappingNamedMapperTest')!],
+            [propertyLibrary.getClass('IriMappingNamedMapperTest')!],
             [], // No enums
             assetReader,
             BroaderImports.create(literalLibrary));

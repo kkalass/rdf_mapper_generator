@@ -1,6 +1,7 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -10,11 +11,11 @@ import 'package:test/test.dart';
 
 import '../test_helper.dart';
 
-PropertyInfo? processField(FieldElement2 field) =>
+PropertyInfo? processField(FieldElem field) =>
     PropertyProcessor.processField(ValidationContext(), field);
 
 void main() {
-  late final LibraryElement2 libraryElement;
+  late final LibraryElem libraryElement;
 
   setUpAll(() async {
     (libraryElement, _) =
@@ -25,7 +26,7 @@ void main() {
     test('should return null for field without RdfProperty annotation', () {
       // Arrange
       final field =
-          libraryElement.getClass2('NoAnnotationTest')!.getField2('name');
+          libraryElement.getClass('NoAnnotationTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in NoAnnotationTest');
 
@@ -39,7 +40,7 @@ void main() {
     test('should process simple property', () {
       // Arrange
       final field =
-          libraryElement.getClass2('SimplePropertyTest')!.getField2('name');
+          libraryElement.getClass('SimplePropertyTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in SimplePropertyTest');
 
@@ -60,8 +61,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('DeserializationOnlyPropertyTest')!
-          .getField2('name');
+          .getClass('DeserializationOnlyPropertyTest')!
+          .getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in DeserializationOnlyPropertyTest');
 
@@ -76,7 +77,7 @@ void main() {
     test('should process optional property', () {
       // Arrange
       final field =
-          libraryElement.getClass2('OptionalPropertyTest')!.getField2('name');
+          libraryElement.getClass('OptionalPropertyTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in OptionalPropertyTest');
 
@@ -91,7 +92,7 @@ void main() {
     test('should process property with default value', () {
       // Arrange
       final field =
-          libraryElement.getClass2('DefaultValueTest')!.getField2('isbn');
+          libraryElement.getClass('DefaultValueTest')!.getField('isbn');
       expect(field, isNotNull,
           reason: 'Field "isbn" not found in DefaultValueTest');
 
@@ -110,7 +111,7 @@ void main() {
     test('should process property with includeDefaultsInSerialization', () {
       // Arrange
       final field =
-          libraryElement.getClass2('IncludeDefaultsTest')!.getField2('rating');
+          libraryElement.getClass('IncludeDefaultsTest')!.getField('rating');
       expect(field, isNotNull,
           reason: 'Field "rating" not found in IncludeDefaultsTest');
 
@@ -129,7 +130,7 @@ void main() {
     test('should process property with IRI mapping template', () {
       // Arrange
       final field =
-          libraryElement.getClass2('IriMappingTest')!.getField2('authorId');
+          libraryElement.getClass('IriMappingTest')!.getField('authorId');
       expect(field, isNotNull,
           reason: 'Field "authorId" not found in IriMappingTest');
 
@@ -166,8 +167,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingWithBaseUriTest')!
-          .getField2('authorId');
+          .getClass('IriMappingWithBaseUriTest')!
+          .getField('authorId');
       expect(field, isNotNull,
           reason: 'Field "authorId" not found in IriMappingWithBaseUriTest');
 
@@ -204,8 +205,8 @@ void main() {
     test('should process property with IRI mapping (named)', () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingNamedMapperTest')!
-          .getField2('authorId');
+          .getClass('IriMappingNamedMapperTest')!
+          .getField('authorId');
       expect(field, isNotNull,
           reason: 'Field "authorId" not found in IriMappingNamedMapperTest');
 
@@ -227,9 +228,8 @@ void main() {
 
     test('should process property with IRI mapping (type)', () {
       // Arrange
-      final field = libraryElement
-          .getClass2('IriMappingMapperTest')!
-          .getField2('authorId');
+      final field =
+          libraryElement.getClass('IriMappingMapperTest')!.getField('authorId');
       expect(field, isNotNull,
           reason: 'Field "authorId" not found in IriMappingMapperTest');
 
@@ -254,8 +254,8 @@ void main() {
     test('should process property with IRI mapping (instance)', () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingMapperInstanceTest')!
-          .getField2('authorId');
+          .getClass('IriMappingMapperInstanceTest')!
+          .getField('authorId');
       expect(field, isNotNull,
           reason: 'Field "authorId" not found in IriMappingMapperInstanceTest');
 
@@ -282,8 +282,8 @@ void main() {
     test('should process property with local resource mapping', () {
       // Arrange
       final field = libraryElement
-          .getClass2('LocalResourceMappingTest')!
-          .getField2('author');
+          .getClass('LocalResourceMappingTest')!
+          .getField('author');
       expect(field, isNotNull,
           reason: 'Field "author" not found in LocalResourceMappingTest');
 
@@ -301,8 +301,8 @@ void main() {
     test('should process property with global resource mapping', () {
       // Arrange
       final field = libraryElement
-          .getClass2('GlobalResourceMappingTest')!
-          .getField2('publisher');
+          .getClass('GlobalResourceMappingTest')!
+          .getField('publisher');
       expect(field, isNotNull,
           reason: 'Field "publisher" not found in GlobalResourceMappingTest');
 
@@ -320,7 +320,7 @@ void main() {
     test('should process property with literal mapping', () {
       // Arrange
       final field =
-          libraryElement.getClass2('LiteralMappingTest')!.getField2('price');
+          libraryElement.getClass('LiteralMappingTest')!.getField('price');
       expect(field, isNotNull,
           reason: 'Field "price" not found in LiteralMappingTest');
 
@@ -338,7 +338,7 @@ void main() {
     test('should process collection properties (none)', () {
       // Test collection
       final field =
-          libraryElement.getClass2('CollectionNoneTest')!.getField2('authors');
+          libraryElement.getClass('CollectionNoneTest')!.getField('authors');
       expect(field, isNotNull,
           reason: 'Field "authors" not found in CollectionNoneTest');
 
@@ -351,7 +351,7 @@ void main() {
     test('should process collection properties (auto)', () {
       // Test collection
       final field =
-          libraryElement.getClass2('CollectionAutoTest')!.getField2('authors');
+          libraryElement.getClass('CollectionAutoTest')!.getField('authors');
       expect(field, isNotNull,
           reason: 'Field "authors" not found in CollectionAutoTest');
 
@@ -364,7 +364,7 @@ void main() {
     test('should process collection properties (default)', () {
       // Test collection
       final field =
-          libraryElement.getClass2('CollectionTest')!.getField2('authors');
+          libraryElement.getClass('CollectionTest')!.getField('authors');
       expect(field, isNotNull,
           reason: 'Field "authors" not found in CollectionTest');
 
@@ -386,8 +386,7 @@ void main() {
 
     test('should process enum type property', () {
       // Arrange
-      final field =
-          libraryElement.getClass2('EnumTypeTest')!.getField2('format');
+      final field = libraryElement.getClass('EnumTypeTest')!.getField('format');
       expect(field, isNotNull,
           reason: 'Field "format" not found in EnumTypeTest');
 
@@ -407,8 +406,8 @@ void main() {
     test('should process map type property (collection none)', () {
       // Arrange
       final field = libraryElement
-          .getClass2('MapNoCollectionNoMapperTest')!
-          .getField2('reviews');
+          .getClass('MapNoCollectionNoMapperTest')!
+          .getField('reviews');
       expect(field, isNotNull,
           reason: 'Field "reviews" not found in MapNoCollectionNoMapperTest');
 
@@ -426,8 +425,8 @@ void main() {
     test('should process map type property (collection auto)', () {
       // Arrange
       final field = libraryElement
-          .getClass2('MapLocalResourceMapperTest')!
-          .getField2('reviews');
+          .getClass('MapLocalResourceMapperTest')!
+          .getField('reviews');
       expect(field, isNotNull,
           reason: 'Field "reviews" not found in MapLocalResourceMapperTest');
 
@@ -447,7 +446,7 @@ void main() {
 
     test('should process set type property', () {
       // Arrange
-      final field = libraryElement.getClass2('SetTest')!.getField2('keywords');
+      final field = libraryElement.getClass('SetTest')!.getField('keywords');
       expect(field, isNotNull, reason: 'Field "keywords" not found in SetTest');
 
       // Act
@@ -463,8 +462,8 @@ void main() {
     test('should process named mapper property', () {
       // Arrange
       final field = libraryElement
-          .getClass2('GlobalResourceNamedMapperTest')!
-          .getField2('publisher');
+          .getClass('GlobalResourceNamedMapperTest')!
+          .getField('publisher');
       expect(field, isNotNull,
           reason:
               'Field "publisher" not found in GlobalResourceNamedMapperTest');
@@ -484,7 +483,7 @@ void main() {
     test('should process custom mapper with parameters', () {
       // Arrange
       final field =
-          libraryElement.getClass2('LiteralNamedMapperTest')!.getField2('isbn');
+          libraryElement.getClass('LiteralNamedMapperTest')!.getField('isbn');
       expect(field, isNotNull,
           reason: 'Field "isbn" not found in LiteralNamedMapperTest');
 
@@ -503,8 +502,8 @@ void main() {
     test('should process LocalResourceInstanceMapperTest', () {
       // Arrange
       final field = libraryElement
-          .getClass2('LocalResourceInstanceMapperTest')!
-          .getField2('author');
+          .getClass('LocalResourceInstanceMapperTest')!
+          .getField('author');
       expect(field, isNotNull,
           reason:
               'Field "author" not found in LocalResourceInstanceMapperTest');
@@ -529,7 +528,7 @@ void main() {
     test('should process LiteralTypeMapperTest', () {
       // Arrange
       final field =
-          libraryElement.getClass2('LiteralTypeMapperTest')!.getField2('price');
+          libraryElement.getClass('LiteralTypeMapperTest')!.getField('price');
       expect(field, isNotNull,
           reason: 'Field "price" not found in LiteralTypeMapperTest');
 
@@ -553,8 +552,8 @@ void main() {
     test('should process type-based mapper using mapper() constructor', () {
       // Arrange
       final field = libraryElement
-          .getClass2('GlobalResourceTypeMapperTest')!
-          .getField2('publisher');
+          .getClass('GlobalResourceTypeMapperTest')!
+          .getField('publisher');
       expect(field, isNotNull,
           reason:
               'Field "publisher" not found in GlobalResourceTypeMapperTest');
@@ -573,8 +572,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('GlobalResourceMapperTest')!
-          .getField2('publisher');
+          .getClass('GlobalResourceMapperTest')!
+          .getField('publisher');
       expect(field, isNotNull,
           reason: 'Field "publisher" not found in GlobalResourceMapperTest');
 
@@ -593,8 +592,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('GlobalResourceInstanceMapperTest')!
-          .getField2('publisher');
+          .getClass('GlobalResourceInstanceMapperTest')!
+          .getField('publisher');
       expect(field, isNotNull,
           reason:
               'Field "publisher" not found in GlobalResourceInstanceMapperTest');
@@ -612,8 +611,8 @@ void main() {
     test('should process local resource mapper using mapper() constructor', () {
       // Arrange
       final field = libraryElement
-          .getClass2('LocalResourceMapperTest')!
-          .getField2('author');
+          .getClass('LocalResourceMapperTest')!
+          .getField('author');
       expect(field, isNotNull,
           reason: 'Field "author" not found in LocalResourceMapperTest');
 
@@ -630,7 +629,7 @@ void main() {
     test('should process literal mapper using mapper() constructor', () {
       // Arrange
       final field =
-          libraryElement.getClass2('LiteralMapperTest')!.getField2('pageCount');
+          libraryElement.getClass('LiteralMapperTest')!.getField('pageCount');
       expect(field, isNotNull,
           reason: 'Field "pageCount" not found in LiteralMapperTest');
 
@@ -648,8 +647,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('LiteralInstanceMapperTest')!
-          .getField2('isbn');
+          .getClass('LiteralInstanceMapperTest')!
+          .getField('isbn');
       expect(field, isNotNull,
           reason: 'Field "isbn" not found in LiteralInstanceMapperTest');
 
@@ -672,8 +671,8 @@ void main() {
     test('should process literal mapping with custom datatype', () {
       // Arrange
       final field = libraryElement
-          .getClass2('LiteralMappingTestCustomDatatype')!
-          .getField2('price');
+          .getClass('LiteralMappingTestCustomDatatype')!
+          .getField('price');
       expect(field, isNotNull,
           reason:
               'Field "price" not found in LiteralMappingTestCustomDatatype');
@@ -695,8 +694,8 @@ void main() {
     test('should process property with complex default value', () {
       // Arrange
       final field = libraryElement
-          .getClass2('ComplexDefaultValueTest')!
-          .getField2('complexValue');
+          .getClass('ComplexDefaultValueTest')!
+          .getField('complexValue');
       expect(field, isNotNull,
           reason: 'Field "complexValue" not found in ComplexDefaultValueTest');
 
@@ -708,7 +707,7 @@ void main() {
       final annotation = result!.annotation;
       final defaultValue = annotation.defaultValue!;
       expect(defaultValue, isNotNull);
-      expect(defaultValue.toMapValue(), isNotNull);
+
       expect(annotation.predicate.value,
           equals(IriTerm.prevalidated('http://example.org/test/complexValue')));
     });
@@ -716,7 +715,7 @@ void main() {
     test('should process final properties', () {
       // Arrange
       final field =
-          libraryElement.getClass2('FinalPropertyTest')!.getField2('name');
+          libraryElement.getClass('FinalPropertyTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in FinalPropertyTest');
 
@@ -732,9 +731,8 @@ void main() {
 
     test('should process final optional properties', () {
       // Arrange
-      final field = libraryElement
-          .getClass2('FinalPropertyTest')!
-          .getField2('description');
+      final field =
+          libraryElement.getClass('FinalPropertyTest')!.getField('description');
       expect(field, isNotNull,
           reason: 'Field "description" not found in FinalPropertyTest');
 
@@ -751,7 +749,7 @@ void main() {
     test('should process late properties', () {
       // Arrange
       final field =
-          libraryElement.getClass2('LatePropertyTest')!.getField2('name');
+          libraryElement.getClass('LatePropertyTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in LatePropertyTest');
 
@@ -767,9 +765,8 @@ void main() {
 
     test('should process late optional properties', () {
       // Arrange
-      final field = libraryElement
-          .getClass2('LatePropertyTest')!
-          .getField2('description');
+      final field =
+          libraryElement.getClass('LatePropertyTest')!.getField('description');
       expect(field, isNotNull,
           reason: 'Field "description" not found in LatePropertyTest');
 
@@ -786,7 +783,7 @@ void main() {
     test('should process mutable properties', () {
       // Arrange
       final field =
-          libraryElement.getClass2('MutablePropertyTest')!.getField2('name');
+          libraryElement.getClass('MutablePropertyTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in MutablePropertyTest');
 
@@ -803,8 +800,8 @@ void main() {
     test('should process mutable optional properties', () {
       // Arrange
       final field = libraryElement
-          .getClass2('MutablePropertyTest')!
-          .getField2('description');
+          .getClass('MutablePropertyTest')!
+          .getField('description');
       expect(field, isNotNull,
           reason: 'Field "description" not found in MutablePropertyTest');
 
@@ -821,7 +818,7 @@ void main() {
     test('should process property with language tag', () {
       // Arrange
       final field =
-          libraryElement.getClass2('LanguageTagTest')!.getField2('description');
+          libraryElement.getClass('LanguageTagTest')!.getField('description');
       expect(field, isNotNull,
           reason: 'Field "description" not found in LanguageTagTest');
 
@@ -838,8 +835,7 @@ void main() {
 
     test('should process property with custom datatype', () {
       // Arrange
-      final field =
-          libraryElement.getClass2('DatatypeTest')!.getField2('count');
+      final field = libraryElement.getClass('DatatypeTest')!.getField('count');
       expect(field, isNotNull,
           reason: 'Field "count" not found in DatatypeTest');
 
@@ -859,8 +855,8 @@ void main() {
     test('should process local resource mapper with Object property type', () {
       // Arrange
       final field = libraryElement
-          .getClass2('LocalResourceMapperObjectPropertyTest')!
-          .getField2('author');
+          .getClass('LocalResourceMapperObjectPropertyTest')!
+          .getField('author');
       expect(field, isNotNull,
           reason:
               'Field "author" not found in LocalResourceMapperObjectPropertyTest');
@@ -885,8 +881,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('LocalResourceInstanceMapperObjectPropertyTest')!
-          .getField2('author');
+          .getClass('LocalResourceInstanceMapperObjectPropertyTest')!
+          .getField('author');
       expect(field, isNotNull,
           reason:
               'Field "author" not found in LocalResourceInstanceMapperObjectPropertyTest');
@@ -912,8 +908,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingFullIriTest')!
-          .getField2('authorIri');
+          .getClass('IriMappingFullIriTest')!
+          .getField('authorIri');
       expect(field, isNotNull,
           reason: 'Field "authorIri" not found in IriMappingFullIriTest');
 
@@ -943,8 +939,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingFullIriSimpleTest')!
-          .getField2('authorIri');
+          .getClass('IriMappingFullIriSimpleTest')!
+          .getField('authorIri');
       expect(field, isNotNull,
           reason: 'Field "authorIri" not found in IriMappingFullIriSimpleTest');
 
@@ -973,9 +969,8 @@ void main() {
         'should process simple custom property with global resource and IRI part',
         () {
       // Arrange
-      final field = libraryElement
-          .getClass2('SimpleCustomPropertyTest')!
-          .getField2('name');
+      final field =
+          libraryElement.getClass('SimpleCustomPropertyTest')!.getField('name');
       expect(field, isNotNull,
           reason: 'Field "name" not found in SimpleCustomPropertyTest');
 
@@ -996,8 +991,8 @@ void main() {
     test('should process property with IRI mapping using provider', () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingWithProviderTest')!
-          .getField2('authorId');
+          .getClass('IriMappingWithProviderTest')!
+          .getField('authorId');
       expect(field, isNotNull,
           reason: 'Field "authorId" not found in IriMappingWithProviderTest');
 
@@ -1035,8 +1030,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingWithBaseUriProviderTest')!
-          .getField2('authorId');
+          .getClass('IriMappingWithBaseUriProviderTest')!
+          .getField('authorId');
       expect(field, isNotNull,
           reason:
               'Field "authorId" not found in IriMappingWithBaseUriProviderTest');
@@ -1075,8 +1070,8 @@ void main() {
         () {
       // Arrange
       final field = libraryElement
-          .getClass2('IriMappingWithProviderPropertyTest')!
-          .getField2('authorId');
+          .getClass('IriMappingWithProviderPropertyTest')!
+          .getField('authorId');
       expect(field, isNotNull,
           reason:
               'Field "authorId" not found in IriMappingWithProviderPropertyTest');

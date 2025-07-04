@@ -1,5 +1,6 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
@@ -12,7 +13,7 @@ import '../test_helper.dart';
 
 void main() {
   group('LocalResourceProcessor', () {
-    late LibraryElement2 libraryElement;
+    late LibraryElem libraryElement;
 
     setUpAll(() async {
       (libraryElement, _) =
@@ -23,7 +24,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassNoRegisterGlobally')!);
+          libraryElement.getClass('ClassNoRegisterGlobally')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -40,7 +41,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMapperNamedMapperStrategy')!);
+          libraryElement.getClass('ClassWithMapperNamedMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -62,7 +63,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMapperStrategy')!);
+          libraryElement.getClass('ClassWithMapperStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -85,7 +86,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMapperInstanceStrategy')!);
+          libraryElement.getClass('ClassWithMapperInstanceStrategy')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -109,7 +110,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('Book')!);
+          validationContext, libraryElement.getClass('Book')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -125,7 +126,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('Book')!);
+          validationContext, libraryElement.getClass('Book')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -147,7 +148,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('Book')!);
+          validationContext, libraryElement.getClass('Book')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -168,7 +169,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithPositionalProperty')!);
+          libraryElement.getClass('ClassWithPositionalProperty')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -189,7 +190,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(
-          validationContext, libraryElement.getClass2('ClassWithNoRdfType')!);
+          validationContext, libraryElement.getClass('ClassWithNoRdfType')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -211,7 +212,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithNonFinalProperty')!);
+          libraryElement.getClass('ClassWithNonFinalProperty')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -233,7 +234,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithNonFinalPropertyWithDefault')!);
+          libraryElement.getClass('ClassWithNonFinalPropertyWithDefault')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -256,7 +257,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithNonFinalOptionalProperty')!);
+          libraryElement.getClass('ClassWithNonFinalOptionalProperty')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -278,7 +279,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithLateNonFinalProperty')!);
+          libraryElement.getClass('ClassWithLateNonFinalProperty')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -301,7 +302,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithLateFinalProperty')!);
+          libraryElement.getClass('ClassWithLateFinalProperty')!);
       validationContext.throwIfErrors();
 
       // Assert
@@ -324,7 +325,7 @@ void main() {
       // Act
       final validationContext = ValidationContext();
       final result = ResourceProcessor.processClass(validationContext,
-          libraryElement.getClass2('ClassWithMixedFinalAndLateFinalProperty')!);
+          libraryElement.getClass('ClassWithMixedFinalAndLateFinalProperty')!);
       validationContext.throwIfErrors();
 
       // Assert

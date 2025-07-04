@@ -1,4 +1,6 @@
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 
 /// Helper class for resolving public library imports by inner (src) file names.
 
@@ -9,14 +11,12 @@ class BroaderImports {
 
   /// Gets the library associated with the provided export name.
   ///
-  /// Returns the [LibraryElement2] for the given export [name],
+  /// Returns the [LibraryElem] for the given export [name],
   /// or null if no library was found with that name.
   String? operator [](String name) => _libsBySrcLibNames[name];
 
-  static BroaderImports create(LibraryElement2 libraryElement) {
-    final importedLibraries = libraryElement.fragments
-        .expand((frag) => frag.importedLibraries2)
-        .toList();
+  static BroaderImports create(LibraryElem libraryElement) {
+    final importedLibraries = libraryElement.importedLibraries;
     var entries = importedLibraries
         .expand((lib) => _exportedLibraryMappings(lib, lib.identifier));
     var broaderImports = Map.fromEntries(entries);
@@ -25,16 +25,11 @@ class BroaderImports {
   }
 
   static Iterable<MapEntry<String, String>> _exportedLibraryMappings(
-      LibraryElement2 lib, String broaderImportName) {
-    return lib.fragments
-        .expand((frag) => frag.libraryExports2)
-        .expand((exp) => [
-              MapEntry<String, String>(
-                  (exp.exportedLibrary2?.identifier)!, broaderImportName),
-              if (exp.exportedLibrary2 != null)
-                ..._exportedLibraryMappings(
-                    exp.exportedLibrary2!, broaderImportName)
-            ]);
+      LibraryElem lib, String broaderImportName) {
+    return lib.exportedLibraries.expand((exp) => [
+          MapEntry<String, String>(exp.identifier, broaderImportName),
+          ..._exportedLibraryMappings(exp, broaderImportName)
+        ]);
   }
 
   Map<String, dynamic> toMap() {

@@ -1,8 +1,9 @@
 import 'dart:math';
 
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/constant/value.dart';
+// import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
@@ -15,8 +16,8 @@ import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 /// This processor analyzes IRI templates used in @RdfGlobalResource annotations
 /// to extract variables, validate patterns, and categorize variables by their source.
 class IriStrategyProcessor {
-  static IriStrategyInfo? processIriStrategy(ValidationContext context,
-      DartObject iriValue, ClassElement2 classElement) {
+  static IriStrategyInfo? processIriStrategy(
+      ValidationContext context, DartObject iriValue, ClassElem classElement) {
     // Check if we have an iri field (for the standard constructor)
     final templateFieldValue = getField(iriValue, 'template')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
@@ -35,7 +36,7 @@ class IriStrategyProcessor {
 
   static (String?, IriTemplateInfo?, List<IriPartInfo>)
       processIriPartsAndTemplate(ValidationContext context,
-          ClassElement2 classElement, String? template, MapperRefInfo? mapper) {
+          ClassElem classElement, String? template, MapperRefInfo? mapper) {
     final iriParts = findIriPartFields(classElement);
     if (mapper == null && (template == null || template.isEmpty)) {
       if (iriParts.length != 1) {
@@ -167,20 +168,20 @@ class IriStrategyProcessor {
     );
   }
 
-  static List<IriPartInfo> findIriPartFields(ClassElement2 classElement) {
+  static List<IriPartInfo> findIriPartFields(ClassElem classElement) {
     final result = <IriPartInfo>[];
 
-    for (final field in classElement.fields2) {
+    for (final field in classElement.fields) {
       if (field.isStatic || field.isSynthetic) continue;
 
       // Check for @RdfIriPart annotation
       final annotation =
-          extractIriPartAnnotation(field.name3!, field.metadata2.annotations);
+          extractIriPartAnnotation(field.name, field.annotations);
       if (annotation == null) continue;
 
       result.add(IriPartInfo(
         name: annotation.name,
-        dartPropertyName: field.name3!,
+        dartPropertyName: field.name,
         type: typeToCode(field.type),
         pos: annotation.pos,
       ));
@@ -189,7 +190,6 @@ class IriStrategyProcessor {
     return result;
   }
 
-  
   /// Validates an IRI template for correctness and common issues.
   ///
   /// Checks for:

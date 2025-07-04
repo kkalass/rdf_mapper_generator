@@ -1,9 +1,10 @@
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/element2.dart';
-import 'package:analyzer/dart/element/type.dart';
-import 'package:analyzer/dart/element/type_system.dart';
+// import 'package:analyzer/dart/constant/value.dart';
+// import 'package:analyzer/dart/element/element2.dart';
+// import 'package:analyzer/dart/element/type.dart';
+// import 'package:analyzer/dart/element/type_system.dart';
 import 'package:logging/logging.dart';
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
@@ -45,7 +46,7 @@ class IriTermInfo {
 }
 
 DartObject? getAnnotation(
-    Iterable<ElementAnnotation> annotations, String annotationName) {
+    Iterable<ElemAnnotation> annotations, String annotationName) {
   try {
     // Get metadata from the class element
     ;
@@ -53,7 +54,7 @@ DartObject? getAnnotation(
       try {
         final annotation = elementAnnotation.computeConstantValue();
         if (annotation != null) {
-          final name = annotation.type?.element3?.name3;
+          final name = annotation.type?.element.name;
           if (name == annotationName) {
             return annotation;
           }
@@ -72,7 +73,7 @@ DartObject? getAnnotation(
 }
 
 IriPartAnnotationInfo? extractIriPartAnnotation(
-    String fieldName, Iterable<ElementAnnotation> annotations) {
+    String fieldName, Iterable<ElemAnnotation> annotations) {
   // Check for @RdfIriPart annotation
   final iriPartAnnotation = getAnnotation(annotations, 'RdfIriPart');
   if (iriPartAnnotation == null) {
@@ -87,7 +88,7 @@ IriPartAnnotationInfo? extractIriPartAnnotation(
 }
 
 RdfMapEntryAnnotationInfo? extractMapEntryAnnotation(ValidationContext context,
-    String fieldName, Iterable<ElementAnnotation> annotations) {
+    String fieldName, Iterable<ElemAnnotation> annotations) {
   // Check for @RdfMapEntry annotation
   final mapEntryAnnotation = getAnnotation(annotations, 'RdfMapEntry');
   if (mapEntryAnnotation == null) {
@@ -102,9 +103,9 @@ RdfMapEntryAnnotationInfo? extractMapEntryAnnotation(ValidationContext context,
   }
   final itemType = typeToCode(itemClassType);
   final itemClassTypeElement =
-      itemClassType is InterfaceType ? itemClassType.element3 : null;
-  final ClassElement2? itemClassElement =
-      itemClassTypeElement is ClassElement2 ? itemClassTypeElement : null;
+      itemClassType.isInterfaceType ? itemClassType.element : null;
+  final ClassElem? itemClassElement =
+      itemClassTypeElement is ClassElem ? itemClassTypeElement : null;
   if (itemClassElement == null) {
     context.addError(
         'RdfMapEntry annotation on field $fieldName must specify a class for itemClass');
@@ -118,13 +119,13 @@ RdfMapEntryAnnotationInfo? extractMapEntryAnnotation(ValidationContext context,
 }
 
 RdfMapKeyAnnotationInfo? extractMapKeyAnnotation(
-    Iterable<ElementAnnotation> annotations) {
+    Iterable<ElemAnnotation> annotations) {
   final mapKeyAnnotation = getAnnotation(annotations, 'RdfMapKey');
   return mapKeyAnnotation == null ? null : RdfMapKeyAnnotationInfo();
 }
 
 RdfMapValueAnnotationInfo? extractMapValueAnnotation(
-    Iterable<ElementAnnotation> annotations) {
+    Iterable<ElemAnnotation> annotations) {
   final mapValueAnnotation = getAnnotation(annotations, 'RdfMapValue');
   return mapValueAnnotation == null ? null : RdfMapValueAnnotationInfo();
 }
@@ -179,7 +180,7 @@ E getEnumFieldValue<E extends Enum>(
 
   // Extract enum constant name - toStringValue() returns null for enums,
   // so we need to access the variable element's name
-  final collectionValue = collectionField?.variable2?.name3;
+  final collectionValue = collectionField?.variable?.name;
 
   final collection = collectionValue == null
       ? defaultValue
@@ -238,7 +239,7 @@ Map<String, String> _getIriPartNameByPropertyName(
               pv.dartPropertyName: pv.name
           };
 
-List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
+List<ConstructorInfo> extractConstructors(ClassElem classElement,
     List<FieldInfo> fields, IriTemplateInfo? iriTemplateInfo) {
   final iriPartNameByPropertyName =
       _getIriPartNameByPropertyName(iriTemplateInfo);
@@ -247,23 +248,23 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
   try {
     final fieldsByName = {for (final field in fields) field.name: field};
 
-    for (final constructor in classElement.constructors2) {
+    for (final constructor in classElement.constructors) {
       final parameters = <ParameterInfo>[];
 
       for (final parameter in constructor.formalParameters) {
         // Find the corresponding field with @RdfProperty annotation, if it exists
-        final fieldInfo = fieldsByName[parameter.name3!];
+        final fieldInfo = fieldsByName[parameter.name];
 
         parameters.add(ParameterInfo(
-          name: parameter.name3!,
+          name: parameter.name,
           type: typeToCode(parameter.type),
           isRequired: parameter.isRequired,
           isNamed: parameter.isNamed,
           isPositional: parameter.isPositional,
           isOptional: parameter.isOptional,
           propertyInfo: fieldInfo?.propertyInfo,
-          isIriPart: iriPartNameByPropertyName.containsKey(parameter.name3!),
-          iriPartName: iriPartNameByPropertyName[parameter.name3!],
+          isIriPart: iriPartNameByPropertyName.containsKey(parameter.name),
+          iriPartName: iriPartNameByPropertyName[parameter.name],
           isRdfLanguageTag: fieldInfo?.isRdfLanguageTag ?? false,
           isRdfValue: fieldInfo?.isRdfValue ?? false,
         ));
@@ -285,20 +286,17 @@ List<ConstructorInfo> extractConstructors(ClassElement2 classElement,
 }
 
 List<FieldInfo> extractFields(
-    ValidationContext context, ClassElement2 classElement) {
-  final typeSystem = classElement.library2.typeSystem;
-  final gettersByName = {for (var g in classElement.getters2) g.name3!: g};
-  final settersByName = {for (var g in classElement.setters2) g.name3!: g};
-  final gettersOrSettersNames = {
+    ValidationContext context, ClassElem classElement) {
+  final gettersByName = {for (var g in classElement.getters) g.name: g};
+  final settersByName = {for (var g in classElement.setters) g.name: g};
+  final gettersOrSettersNames = <String>{
     ...gettersByName.keys,
     ...settersByName.keys,
   };
-  final fieldNames = classElement.fields2
-      .where((f) => !f.isStatic)
-      .map((f) => f.name3!)
-      .toSet();
+  final fieldNames =
+      classElement.fields.where((f) => !f.isStatic).map((f) => f.name).toSet();
 
-  _log.finest('Processing fields for class: ${classElement.name3}');
+  _log.finest('Processing fields for class: ${classElement.name}');
   final virtualFields = gettersOrSettersNames
       .where((name) => !fieldNames.contains(name))
       .map((name) {
@@ -313,15 +311,14 @@ List<FieldInfo> extractFields(
     // If only getter exists, we treat it as a field
     return fieldToFieldInfo(
       context,
-      typeSystem: typeSystem,
       name: name,
       type: (getter?.type ?? setter?.type)!,
       isFinal: false,
       isLate: false,
       isSynthetic: false,
       annotations: [
-        ...(getter?.metadata2.annotations ?? const <ElementAnnotation>[]),
-        ...(setter?.metadata2.annotations ?? const <ElementAnnotation>[])
+        ...(getter?.annotations ?? const <ElemAnnotation>[]),
+        ...(setter?.annotations ?? const <ElemAnnotation>[])
       ],
       isStatic: getter == null
           ? setter!.isStatic
@@ -330,23 +327,22 @@ List<FieldInfo> extractFields(
               : getter.isStatic && setter.isStatic),
     );
   }).nonNulls;
-  final fields = classElement.fields2.where((f) => !f.isStatic).map((f) {
-    final getter = gettersByName[f.name3!];
-    final setter = settersByName[f.name3!];
+  final fields = classElement.fields.where((f) => !f.isStatic).map((f) {
+    final getter = gettersByName[f.name];
+    final setter = settersByName[f.name];
 
     return fieldToFieldInfo(context,
-        typeSystem: typeSystem,
-        name: f.name3!,
+        name: f.name,
         type: f.type,
         isFinal: f.isFinal,
         isLate: f.isLate,
         isSynthetic: f.isSynthetic,
         annotations: [
-          ...f.metadata2.annotations,
+          ...f.annotations,
           // Sometimes getters/setters are detected as fields, but strangely they have no metadata
           // so we add metadata from getter/setter if exists
-          ...(getter?.metadata2.annotations ?? const <ElementAnnotation>[]),
-          ...(setter?.metadata2.annotations ?? const <ElementAnnotation>[])
+          ...(getter?.annotations ?? const <ElemAnnotation>[]),
+          ...(setter?.annotations ?? const <ElemAnnotation>[])
         ],
         isStatic: f.isStatic);
   });
@@ -357,10 +353,9 @@ List<FieldInfo> extractFields(
 }
 
 FieldInfo fieldToFieldInfo(ValidationContext context,
-    {required TypeSystem typeSystem,
-    required String name,
+    {required String name,
     required DartType type,
-    required Iterable<ElementAnnotation> annotations,
+    required Iterable<ElemAnnotation> annotations,
     required bool isStatic,
     required bool isFinal,
     required bool isLate,
@@ -372,7 +367,6 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
   final propertyInfo = PropertyProcessor.processFieldAlike(
     context,
     type: type,
-    typeSystem: typeSystem,
     name: name,
     annotations: annotations,
     isStatic: isStatic,
@@ -381,9 +375,7 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
     isSynthetic: isSynthetic,
     mapEntry: mapEntry,
   );
-  final isNullable = type.isDartCoreNull ||
-      (type is InterfaceType && type.isDartCoreNull) ||
-      typeSystem.isNullable(type);
+  final isNullable = type.isNullable;
 
   _log.finest('Annotations for field $name: $annotations');
   final isRdfValue = getAnnotation(annotations, 'RdfValue') != null;
@@ -414,7 +406,7 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
 
 ProvidesAnnotationInfo? extractProvidesAnnotation(
   String name,
-  Iterable<ElementAnnotation> annotations,
+  Iterable<ElemAnnotation> annotations,
 ) {
   final providesAnnotation = getAnnotation(annotations, 'RdfProvides');
   if (providesAnnotation == null) {
@@ -429,13 +421,13 @@ ProvidesAnnotationInfo? extractProvidesAnnotation(
 
 /// Extracts enum constants and their custom @RdfEnumValue annotations.
 List<EnumValueInfo> extractEnumValues(
-    ValidationContext context, EnumElement2 enumElement) {
+    ValidationContext context, EnumElem enumElement) {
   final enumValues = <EnumValueInfo>[];
 
-  for (final constant in enumElement.constants2) {
-    final constantName = constant.name3!;
+  for (final constant in enumElement.constants) {
+    final constantName = constant.name;
     final enumValueAnnotation =
-        getAnnotation(constant.metadata2.annotations, 'RdfEnumValue');
+        getAnnotation(constant.annotations, 'RdfEnumValue');
 
     String serializedValue;
     if (enumValueAnnotation != null) {
@@ -484,12 +476,16 @@ class RdfTypeAnnotationInfo {
 /// Analyzes a Dart type to determine if it has RDF annotations and whether
 /// a mapper should be inferred for it.
 RdfTypeAnnotationInfo? analyzeTypeForRdfAnnotation(DartType type) {
-  if (type is! InterfaceType) {
+  if (type.isNotInterfaceType) {
     return null;
   }
 
-  final element = type.element3;
-  final annotations = element.metadata2.annotations;
+  final element = type.element;
+  if (element is! AnnotatedElem) {
+    // Not an annotated element, skip
+    return null;
+  }
+  final annotations = (element as AnnotatedElem).annotations;
 
   // Check for RDF annotations
   final rdfAnnotations = [
@@ -505,12 +501,11 @@ RdfTypeAnnotationInfo? analyzeTypeForRdfAnnotation(DartType type) {
       final registerGlobally = isRegisterGlobally(annotation);
 
       // Generate mapper class name and import path
-      final className = element.name3;
+      final className = element.name;
       final mapperClassName = '${className}Mapper';
 
       // Determine import path based on the source library
-      final sourceLibrary = element.library2;
-      final sourceLibraryUri = sourceLibrary.identifier;
+      final sourceLibraryUri = element.libraryIdentifier!;
 
       String mapperImportPath;
       if (sourceLibraryUri.endsWith('.dart')) {

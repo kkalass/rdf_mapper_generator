@@ -1,6 +1,7 @@
-import 'package:analyzer/dart/constant/value.dart';
-import 'package:analyzer/dart/element/type.dart';
+// import 'package:analyzer/dart/constant/value.dart';
+// import 'package:analyzer/dart/element/type.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
+import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
