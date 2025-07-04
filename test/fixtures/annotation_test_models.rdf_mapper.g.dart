@@ -81,7 +81,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title =
-        reader.optional(
+        reader.optional<String>(
           SchemaBook.name,
           iriTermDeserializer: BookWithMapperTitleMapper(
             idProvider: () =>

@@ -35,7 +35,7 @@ class SimplePropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaBook.name);
+    final String name = reader.require<String>(SchemaBook.name);
 
     return SimplePropertyTest(name: name);
   }
@@ -75,7 +75,7 @@ class SimpleCustomPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(
+    final String name = reader.require<String>(
       const IriTerm.prevalidated('http://example.org/types/Book/name'),
     );
 
@@ -125,7 +125,7 @@ class DeserializationOnlyPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaBook.name);
+    final String name = reader.require<String>(SchemaBook.name);
 
     return DeserializationOnlyPropertyTest(name: name);
   }
@@ -161,7 +161,7 @@ class OptionalPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String? name = reader.optional(SchemaBook.name);
+    final String? name = reader.optional<String?>(SchemaBook.name);
 
     return OptionalPropertyTest(name: name);
   }
@@ -202,7 +202,8 @@ class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.optional(SchemaBook.isbn) ?? 'default-isbn';
+    final String isbn =
+        reader.optional<String>(SchemaBook.isbn) ?? 'default-isbn';
 
     return DefaultValueTest(isbn: isbn);
   }
@@ -249,7 +250,7 @@ class IncludeDefaultsTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final int rating = reader.optional(SchemaBook.numberOfPages) ?? 5;
+    final int rating = reader.optional<int>(SchemaBook.numberOfPages) ?? 5;
 
     return IncludeDefaultsTest(rating: rating);
   }
@@ -326,7 +327,7 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -420,7 +421,7 @@ class IriMappingWithBaseUriTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -470,7 +471,7 @@ class IriMappingFullIriTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorIri = reader.require(
+    final String authorIri = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIriMapper,
     );
@@ -520,7 +521,7 @@ class IriMappingFullIriSimpleTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorIri = reader.require(
+    final String authorIri = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIriMapper,
     );
@@ -607,7 +608,7 @@ class IriMappingWithProviderTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: IriMappingWithProviderTestAuthorIdMapper(
         categoryProvider: () =>
@@ -697,7 +698,7 @@ class IriMappingWithBaseUriProviderTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: IriMappingWithBaseUriProviderTestAuthorIdMapper(
         baseUriProvider: () =>
@@ -789,8 +790,8 @@ class IriMappingWithProviderPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String genre = reader.require(SchemaBook.genre);
-    final String authorId = reader.require(
+    final String genre = reader.require<String>(SchemaBook.genre);
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
         genreProvider: () =>
@@ -896,9 +897,9 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String genre = reader.require(SchemaBook.genre);
-    final String version = reader.require(SchemaBook.version);
-    final String authorId = reader.require(
+    final String genre = reader.require<String>(SchemaBook.genre);
+    final String version = reader.require<String>(SchemaBook.version);
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer:
           IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
@@ -966,7 +967,7 @@ class IriMappingNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -1016,7 +1017,7 @@ class IriMappingMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -1066,7 +1067,7 @@ class IriMappingMapperInstanceTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String authorId = reader.require(
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -1116,7 +1117,7 @@ class LocalResourceMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(
+    final Object author = reader.require<Object>(
       SchemaBook.author,
       localResourceDeserializer: _authorMapper,
     );
@@ -1166,7 +1167,7 @@ class GlobalResourceMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(
+    final Object publisher = reader.require<Object>(
       SchemaBook.publisher,
       globalResourceDeserializer: _publisherMapper,
     );
@@ -1216,7 +1217,7 @@ class LiteralMappingTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final double price = reader.require(
+    final double price = reader.require<double>(
       const IriTerm.prevalidated('http://example.org/book/price'),
       literalTermDeserializer: _priceMapper,
     );
@@ -1266,7 +1267,7 @@ class LiteralMappingTestCustomDatatypeMapper
   ) {
     final reader = context.reader(subject);
 
-    final double price = reader.require(
+    final double price = reader.require<double>(
       const IriTerm.prevalidated('http://example.org/book/price'),
       literalTermDeserializer: _priceMapper,
     );
@@ -1317,7 +1318,7 @@ class CollectionNoneTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader.require(
+    final List<String> authors = reader.require<List<String>>(
       SchemaBook.author,
       literalTermDeserializer: _authorsMapper,
     );
@@ -1485,7 +1486,9 @@ class MapNoCollectionNoMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Map<String, String> reviews = reader.require(SchemaBook.reviews);
+    final Map<String, String> reviews = reader.require<Map<String, String>>(
+      SchemaBook.reviews,
+    );
 
     return MapNoCollectionNoMapperTest(reviews: reviews);
   }
@@ -1613,7 +1616,9 @@ class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
   ) {
     final reader = context.reader(subject);
 
-    final BookFormatType format = reader.require(SchemaBook.bookFormat);
+    final BookFormatType format = reader.require<BookFormatType>(
+      SchemaBook.bookFormat,
+    );
 
     return EnumTypeTest(format: format);
   }
@@ -1658,7 +1663,7 @@ class ComplexDefaultValueTestMapper
     final reader = context.reader(subject);
 
     final Map<String, dynamic> complexValue =
-        reader.optional(
+        reader.optional<Map<String, dynamic>>(
           const IriTerm.prevalidated('http://example.org/test/complexValue'),
           literalTermDeserializer: _complexValueMapper,
         ) ??
@@ -1708,8 +1713,10 @@ class FinalPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaBook.name);
-    final String? description = reader.optional(SchemaBook.description);
+    final String name = reader.require<String>(SchemaBook.name);
+    final String? description = reader.optional<String?>(
+      SchemaBook.description,
+    );
 
     return FinalPropertyTest(name: name, description: description);
   }
@@ -1751,8 +1758,10 @@ class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaBook.name);
-    final String? description = reader.optional(SchemaBook.description);
+    final String name = reader.require<String>(SchemaBook.name);
+    final String? description = reader.optional<String?>(
+      SchemaBook.description,
+    );
 
     final retval = LatePropertyTest();
     retval.name = name;
@@ -1798,8 +1807,10 @@ class MutablePropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaBook.name);
-    final String? description = reader.optional(SchemaBook.description);
+    final String name = reader.require<String>(SchemaBook.name);
+    final String? description = reader.optional<String?>(
+      SchemaBook.description,
+    );
 
     return MutablePropertyTest(name: name, description: description);
   }
@@ -1846,7 +1857,7 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
   ) {
     final reader = context.reader(subject);
 
-    final String description = reader.require(
+    final String description = reader.require<String>(
       SchemaBook.description,
       literalTermDeserializer: _descriptionMapper,
     );
@@ -1902,11 +1913,11 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
   ) {
     final reader = context.reader(subject);
 
-    final int count = reader.require(
+    final int count = reader.require<int>(
       SchemaBook.description,
       literalTermDeserializer: _countMapper,
     );
-    final String date = reader.require(
+    final String date = reader.require<String>(
       SchemaBook.dateCreated,
       literalTermDeserializer: _dateMapper,
     );
@@ -1961,7 +1972,7 @@ class GlobalResourceNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(
+    final Object publisher = reader.require<Object>(
       SchemaBook.publisher,
       globalResourceDeserializer: _publisherMapper,
     );
@@ -2011,7 +2022,7 @@ class LiteralNamedMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(
+    final String isbn = reader.require<String>(
       SchemaBook.isbn,
       literalTermDeserializer: _isbnMapper,
     );
@@ -2061,7 +2072,7 @@ class LiteralTypeMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final double price = reader.require(
+    final double price = reader.require<double>(
       SchemaBook.bookFormat,
       literalTermDeserializer: _priceMapper,
     );
@@ -2112,7 +2123,7 @@ class GlobalResourceTypeMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Publisher publisher = reader.require(
+    final Publisher publisher = reader.require<Publisher>(
       SchemaBook.publisher,
       globalResourceDeserializer: _publisherMapper,
     );
@@ -2163,7 +2174,7 @@ class GlobalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(
+    final Object publisher = reader.require<Object>(
       SchemaBook.publisher,
       globalResourceDeserializer: _publisherMapper,
     );
@@ -2214,7 +2225,7 @@ class GlobalResourceInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object publisher = reader.require(
+    final Object publisher = reader.require<Object>(
       SchemaBook.publisher,
       globalResourceDeserializer: _publisherMapper,
     );
@@ -2265,7 +2276,7 @@ class LocalResourceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Author author = reader.require(
+    final Author author = reader.require<Author>(
       SchemaBook.author,
       localResourceDeserializer: _authorMapper,
     );
@@ -2316,7 +2327,7 @@ class LocalResourceMapperObjectPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(
+    final Object author = reader.require<Object>(
       SchemaBook.author,
       localResourceDeserializer: _authorMapper,
     );
@@ -2367,7 +2378,7 @@ class LocalResourceInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Author author = reader.require(
+    final Author author = reader.require<Author>(
       SchemaBook.author,
       localResourceDeserializer: _authorMapper,
     );
@@ -2419,7 +2430,7 @@ class LocalResourceInstanceMapperObjectPropertyTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Object author = reader.require(
+    final Object author = reader.require<Object>(
       SchemaBook.author,
       localResourceDeserializer: _authorMapper,
     );
@@ -2469,7 +2480,7 @@ class LiteralMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final int pageCount = reader.require(
+    final int pageCount = reader.require<int>(
       SchemaBook.numberOfPages,
       literalTermDeserializer: _pageCountMapper,
     );
@@ -2519,7 +2530,7 @@ class LiteralInstanceMapperTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(
+    final String isbn = reader.require<String>(
       SchemaBook.isbn,
       literalTermDeserializer: _isbnMapper,
     );

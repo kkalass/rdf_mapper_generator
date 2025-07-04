@@ -81,8 +81,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
     };
 
     final isbn = iriParts['isbn']!;
-    final String title = reader.require(SchemaBook.name);
-    final String authorId = reader.require(
+    final String title = reader.require<String>(SchemaBook.name);
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -169,8 +169,8 @@ class ClassWithNoRdfTypeMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
-    final int? age = reader.optional(SchemaPerson.foafAge);
+    final String name = reader.require<String>(SchemaPerson.name);
+    final int? age = reader.optional<int?>(SchemaPerson.foafAge);
     final iri = subject.iri;
 
     final retval = ClassWithNoRdfType(name, age: age);
@@ -585,9 +585,9 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
 
     final (id, _, version) = _iriMapper.fromRdfTerm(subject, context);
 
-    final String givenName = reader.require(SchemaPerson.givenName);
-    final String surname = reader.require(SchemaPerson.foafSurname);
-    final int? age = reader.optional(SchemaPerson.foafAge);
+    final String givenName = reader.require<String>(SchemaPerson.givenName);
+    final String surname = reader.require<String>(SchemaPerson.foafSurname);
+    final int? age = reader.optional<int?>(SchemaPerson.foafAge);
 
     final retval = ClassWithIriNamedMapperStrategy2PartsWithProperties();
     retval.id = id;
@@ -682,7 +682,7 @@ class ClassWithIriMapperInstanceStrategyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     return ClassWithIriMapperInstanceStrategy(name: name);
   }

@@ -69,9 +69,9 @@ class BookMapper implements LocalResourceMapper<Book> {
   Book fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final String isbn = reader.require(SchemaBook.isbn);
-    final String title = reader.require(SchemaBook.name);
-    final String authorId = reader.require(
+    final String isbn = reader.require<String>(SchemaBook.isbn);
+    final String title = reader.require<String>(SchemaBook.name);
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
@@ -119,7 +119,7 @@ class ClassNoRegisterGloballyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     return ClassNoRegisterGlobally(name: name);
   }
@@ -158,8 +158,8 @@ class ClassWithNoRdfTypeMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
-    final int age = reader.require(SchemaPerson.foafAge);
+    final String name = reader.require<String>(SchemaPerson.name);
+    final int age = reader.require<int>(SchemaPerson.foafAge);
 
     return ClassWithNoRdfType(name, age: age);
   }
@@ -199,7 +199,7 @@ class ClassWithPositionalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     return ClassWithPositionalProperty(name);
   }
@@ -238,7 +238,7 @@ class ClassWithNonFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     return ClassWithNonFinalProperty(name: name);
   }
@@ -277,7 +277,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     final retval = ClassWithNonFinalPropertyWithDefault();
     retval.name = name;
@@ -318,7 +318,7 @@ class ClassWithNonFinalOptionalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String? name = reader.optional(SchemaPerson.name);
+    final String? name = reader.optional<String?>(SchemaPerson.name);
 
     final retval = ClassWithNonFinalOptionalProperty();
     retval.name = name;
@@ -362,7 +362,7 @@ class ClassWithLateNonFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     final retval = ClassWithLateNonFinalProperty();
     retval.name = name;
@@ -403,7 +403,7 @@ class ClassWithLateFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
+    final String name = reader.require<String>(SchemaPerson.name);
 
     final retval = ClassWithLateFinalProperty();
     retval.name = name;
@@ -444,8 +444,8 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper
   ) {
     final reader = context.reader(subject);
 
-    final String name = reader.require(SchemaPerson.name);
-    final int age = reader.require(SchemaPerson.foafAge);
+    final String name = reader.require<String>(SchemaPerson.name);
+    final int age = reader.require<int>(SchemaPerson.foafAge);
 
     final retval = ClassWithMixedFinalAndLateFinalProperty(name: name);
     retval.age = age;

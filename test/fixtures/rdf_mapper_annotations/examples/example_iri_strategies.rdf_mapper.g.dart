@@ -112,7 +112,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
     };
 
     final id = iriParts['id']!;
-    final String title = reader.require(SchemaBook.name);
+    final String title = reader.require<String>(SchemaBook.name);
 
     return SimpleBook(id, title);
   }
@@ -154,7 +154,7 @@ class PersonMapper implements GlobalResourceMapper<Person> {
     final reader = context.reader(subject);
 
     final iri = subject.iri;
-    final String givenName = reader.require(SchemaPerson.givenName);
+    final String givenName = reader.require<String>(SchemaPerson.givenName);
 
     return Person(iri, givenName);
   }
@@ -195,9 +195,9 @@ class ChapterMapper implements GlobalResourceMapper<Chapter> {
 
     final (_, _) = _iriMapper.fromRdfTerm(subject, context);
 
-    final String bookId = reader.require(SchemaChapter.isPartOf);
-    final int chapterNumber = reader.require(SchemaChapter.position);
-    final String title = reader.require(SchemaChapter.name);
+    final String bookId = reader.require<String>(SchemaChapter.isPartOf);
+    final int chapterNumber = reader.require<int>(SchemaChapter.position);
+    final String title = reader.require<String>(SchemaChapter.name);
 
     return Chapter(bookId, chapterNumber, title);
   }

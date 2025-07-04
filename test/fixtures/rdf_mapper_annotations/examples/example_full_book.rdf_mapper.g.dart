@@ -82,15 +82,17 @@ class BookMapper implements GlobalResourceMapper<Book> {
     };
 
     final id = iriParts['id']!;
-    final String title = reader.require(SchemaBook.name);
-    final String authorId = reader.require(
+    final String title = reader.require<String>(SchemaBook.name);
+    final String authorId = reader.require<String>(
       SchemaBook.author,
       iriTermDeserializer: _authorIdMapper,
     );
-    final DateTime published = reader.require(SchemaBook.datePublished);
-    final ISBN isbn = reader.require(SchemaBook.isbn);
-    final Rating rating = reader.require(SchemaBook.aggregateRating);
-    final BookFormat format = reader.require(SchemaBook.bookFormat);
+    final DateTime published = reader.require<DateTime>(
+      SchemaBook.datePublished,
+    );
+    final ISBN isbn = reader.require<ISBN>(SchemaBook.isbn);
+    final Rating rating = reader.require<Rating>(SchemaBook.aggregateRating);
+    final BookFormat format = reader.require<BookFormat>(SchemaBook.bookFormat);
     final Iterable<Chapter> chapters = reader.getValues<Chapter>(
       SchemaBook.hasPart,
     );
@@ -156,8 +158,8 @@ class ChapterMapper implements LocalResourceMapper<Chapter> {
   ) {
     final reader = context.reader(subject);
 
-    final String title = reader.require(SchemaChapter.name);
-    final int number = reader.require(SchemaChapter.position);
+    final String title = reader.require<String>(SchemaChapter.name);
+    final int number = reader.require<int>(SchemaChapter.position);
 
     return Chapter(title, number);
   }

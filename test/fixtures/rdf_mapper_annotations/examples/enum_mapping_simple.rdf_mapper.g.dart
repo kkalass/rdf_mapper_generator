@@ -49,13 +49,17 @@ class BookMapper implements GlobalResourceMapper<Book> {
     };
 
     final sku = iriParts['sku']!;
-    final BookFormat format = reader.require(MyBookVocab.bookFormat);
-    final ItemCondition condition = reader.require(MyBookVocab.itemCondition);
-    final Priority priority = reader.require(
+    final BookFormat format = reader.require<BookFormat>(
+      MyBookVocab.bookFormat,
+    );
+    final ItemCondition condition = reader.require<ItemCondition>(
+      MyBookVocab.itemCondition,
+    );
+    final Priority priority = reader.require<Priority>(
       MyBookVocab.priority,
       literalTermDeserializer: _priorityMapper,
     );
-    final ProductStatus status = reader.require(
+    final ProductStatus status = reader.require<ProductStatus>(
       MyBookVocab.status,
       literalTermDeserializer: _statusMapper,
     );

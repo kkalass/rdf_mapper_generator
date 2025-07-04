@@ -48,7 +48,7 @@ class ChildMapper implements GlobalResourceMapper<Child> {
     };
 
     final id = iriParts['id']!;
-    final String name = reader.require(ExampleVocab.childName);
+    final String name = reader.require<String>(ExampleVocab.childName);
 
     final retval = Child();
     retval.id = id;
@@ -151,7 +151,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     };
 
     final id = iriParts['id']!;
-    final Child child = reader.require(
+    final Child child = reader.require<Child>(
       ExampleVocab.child,
       globalResourceDeserializer: ChildMapper(
         baseUriProvider: _baseUriProvider,
@@ -159,7 +159,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
             throw Exception('Must not call provider for deserialization'),
       ),
     );
-    final String siblingId = reader.require(
+    final String siblingId = reader.require<String>(
       ExampleVocab.sibling,
       iriTermDeserializer: ParentSiblingIdMapper(
         baseUriProvider: _baseUriProvider,

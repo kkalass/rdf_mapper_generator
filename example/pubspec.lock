@@ -380,11 +380,10 @@ packages:
   rdf_mapper_generator:
     dependency: "direct dev"
     description:
-      name: rdf_mapper_generator
-      sha256: "803231cc3156202b86cd8c06c5f79adb69326b3d4ecb85d369cbe749ca97d59a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
+      path: ".."
+      relative: true
+    source: path
+    version: "0.2.3-dev"
   rdf_vocabularies:
     dependency: "direct main"
     description:

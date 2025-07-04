@@ -85,11 +85,13 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
   ) {
     final reader = context.reader(subject);
 
-    final String clientId = reader.require(
+    final String clientId = reader.require<String>(
       SolidTaskVectorClockEntry.clientId,
       iriTermDeserializer: _clientIdMapper,
     );
-    final int clockValue = reader.require(SolidTaskVectorClockEntry.clockValue);
+    final int clockValue = reader.require<int>(
+      SolidTaskVectorClockEntry.clockValue,
+    );
 
     return VectorClockEntry(clientId, clockValue);
   }
@@ -198,13 +200,13 @@ class ItemMapper implements GlobalResourceMapper<Item> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final String text = reader.require(SolidTaskTask.text);
-    final String lastModifiedBy = reader.require(
+    final String text = reader.require<String>(SolidTaskTask.text);
+    final String lastModifiedBy = reader.require<String>(
       Dcterms.creator,
       iriTermDeserializer: _lastModifiedByMapper,
     );
     final id = iriParts['id']!;
-    final DateTime createdAt = reader.require(Dcterms.created);
+    final DateTime createdAt = reader.require<DateTime>(Dcterms.created);
     final Map<String, int> vectorClock = reader
         .collect<VectorClockEntry, Map<String, int>>(
           SolidTaskTask.vectorClock,
@@ -215,7 +217,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
                 throw Exception('Must not call provider for deserialization'),
           ),
         );
-    final bool isDeleted = reader.require(SolidTaskTask.isDeleted);
+    final bool isDeleted = reader.require<bool>(SolidTaskTask.isDeleted);
 
     final retval = Item(text: text, lastModifiedBy: lastModifiedBy);
     retval.id = id;

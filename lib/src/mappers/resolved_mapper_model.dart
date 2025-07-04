@@ -1326,9 +1326,13 @@ Code _getReaderCall(PropertyResolvedModel propertyInfo,
       ]),
 
     // Case 3: not to be treated as a collection, but required value
-    PropertyResolvedModel(isFieldNullable: false, hasDefaultValue: false) =>
+    PropertyResolvedModel(
+      isFieldNullable: false,
+      hasDefaultValue: false,
+      dartType: final dartType
+    ) =>
       Code.combine([
-        Code.literal('reader.require'),
+        codeGeneric1(Code.literal('reader.require'), dartType),
         Code.paramsList([
           predicate,
           ...extraNamedParameters,
@@ -1338,10 +1342,11 @@ Code _getReaderCall(PropertyResolvedModel propertyInfo,
     // Default Case: Any other scenario (not a collection, or collectionType is none, or just a single value and not required)
     PropertyResolvedModel(
       hasDefaultValue: final hasDefaultValue,
-      defaultValue: final defaultValue
+      defaultValue: final defaultValue,
+      dartType: final dartType
     ) =>
       Code.combine([
-        Code.literal('reader.optional'),
+        codeGeneric1(Code.literal('reader.optional'), dartType),
         Code.paramsList([
           predicate,
           ...extraNamedParameters,

@@ -46,7 +46,7 @@ class TestGlobalResourceMapper
     };
 
     final id = iriParts['id']!;
-    final String title = reader.require(SchemaBook.name);
+    final String title = reader.require<String>(SchemaBook.name);
 
     return TestGlobalResource(id: id, title: title);
   }
@@ -91,7 +91,7 @@ class TestLocalResourceMapper
   ) {
     final reader = context.reader(subject);
 
-    final String title = reader.require(SchemaBook.name);
+    final String title = reader.require<String>(SchemaBook.name);
 
     return TestLocalResource(title: title);
   }
@@ -179,15 +179,17 @@ class InferenceTestContainerMapper
   ) {
     final reader = context.reader(subject);
 
-    final TestGlobalResource? globalResource = reader.optional(
-      SchemaBook.author,
-      globalResourceDeserializer: _globalResourceMapper,
-    );
-    final TestLocalResource? localResource = reader.optional(
-      SchemaBook.publisher,
-      localResourceDeserializer: _localResourceMapper,
-    );
-    final TestIri? iri = reader.optional(
+    final TestGlobalResource? globalResource = reader
+        .optional<TestGlobalResource?>(
+          SchemaBook.author,
+          globalResourceDeserializer: _globalResourceMapper,
+        );
+    final TestLocalResource? localResource = reader
+        .optional<TestLocalResource?>(
+          SchemaBook.publisher,
+          localResourceDeserializer: _localResourceMapper,
+        );
+    final TestIri? iri = reader.optional<TestIri?>(
       SchemaBook.identifier,
       iriTermDeserializer: _iriMapper,
     );
