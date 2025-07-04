@@ -5,7 +5,7 @@
 class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{#requiresIriParsing}}
   static final RegExp _regex = RegExp(
-    '{{{regexPattern}}}',
+    r'{{{regexPattern}}}',
   );
   {{/requiresIriParsing}}
 

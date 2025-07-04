@@ -129,7 +129,7 @@ class DocumentTypeMapper implements IriTermMapper<DocumentType> {
 /// and RDF IRI terms for enum type CategoryType.
 class CategoryTypeMapper implements IriTermMapper<CategoryType> {
   static final RegExp _regex = RegExp(
-    '^https://example\.org/types/(?<value>[^/]*)\$',
+    r'^https://example\.org/types/(?<value>[^/]*)$',
   );
 
   /// Constructor
@@ -182,7 +182,7 @@ class CategoryTypeMapper implements IriTermMapper<CategoryType> {
 /// and RDF IRI terms for enum type FileFormat.
 class FileFormatMapper implements IriTermMapper<FileFormat> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/formats/(?<value>[^/]*)\$',
+    r'^(?<baseUri>.*)/formats/(?<value>[^/]*)$',
   );
 
   final String Function() _baseUriProvider;
@@ -239,7 +239,7 @@ class FileFormatMapper implements IriTermMapper<FileFormat> {
 /// and RDF IRI terms for enum type ItemType.
 class ItemTypeMapper implements IriTermMapper<ItemType> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/types/(?<category>[^/]*)/(?<value>[^/]*)\$',
+    r'^(?<baseUri>.*)/types/(?<category>[^/]*)/(?<value>[^/]*)$',
   );
 
   final String Function() _baseUriProvider;

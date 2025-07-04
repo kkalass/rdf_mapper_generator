@@ -273,7 +273,7 @@ class IncludeDefaultsTestMapper
 /// and RDF terms for iri terms of type String.
 class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+    r'^http://example\.org/authors/(?<authorId>[^/]*)$',
   );
 
   /// Constructor
@@ -357,7 +357,7 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
 /// and RDF terms for iri terms of type String.
 class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/authors/(?<authorId>[^/]*)\$',
+    r'^(?<baseUri>.*)/authors/(?<authorId>[^/]*)$',
   );
 
   final String Function() _baseUriProvider;
@@ -552,7 +552,7 @@ class IriMappingFullIriSimpleTestMapper
 class IriMappingWithProviderTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/(?<category>[^/]*)/(?<authorId>[^/]*)\$',
+    r'^http://example\.org/(?<category>[^/]*)/(?<authorId>[^/]*)$',
   );
 
   final String Function() _categoryProvider;
@@ -643,7 +643,7 @@ class IriMappingWithProviderTestMapper
 /// and RDF terms for iri terms of type String.
 class IriMappingWithBaseUriProviderTestAuthorIdMapper
     implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp('^(?<baseUri>.*)/(?<authorId>[^/]*)\$');
+  static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/(?<authorId>[^/]*)$');
 
   final String Function() _baseUriProvider;
 
@@ -734,7 +734,7 @@ class IriMappingWithBaseUriProviderTestMapper
 class IriMappingWithProviderPropertyTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/(?<genre>[^/]*)/(?<authorId>[^/]*)\$',
+    r'^http://example\.org/(?<genre>[^/]*)/(?<authorId>[^/]*)$',
   );
 
   final String Function() _genreProvider;
@@ -828,7 +828,7 @@ class IriMappingWithProviderPropertyTestMapper
 class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/(?<genre>[^/]*)/(?<version>[^/]*)/(?<authorId>[^/]*)\$',
+    r'^(?<baseUri>.*)/(?<genre>[^/]*)/(?<version>[^/]*)/(?<authorId>[^/]*)$',
   );
 
   final String Function() _baseUriProvider;

@@ -85,7 +85,7 @@ class IriModelBuilderSupport {
       variables:
           iriTemplateInfo.variableNames.map(buildVariableNameData).toSet(),
       regexPattern:
-          '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\\\$',
+          '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\$',
       interpolatedTemplate: buildInterpolatedTemplate(iriTemplateInfo),
     );
   }
@@ -187,7 +187,7 @@ class IriModelBuilderSupport {
     final propertyVariables =
         IriModelBuilderSupport.buildPropertyVariables(templateInfo, fields);
     final regexPattern =
-        '^${buildRegexPattern(templateInfo.template, templateInfo.variableNames)}\\\$';
+        '^${buildRegexPattern(templateInfo.template, templateInfo.variableNames)}\$';
     final interpolatedTemplate =
         IriModelBuilderSupport.buildInterpolatedTemplate(templateInfo);
     final contextVariables = templateInfo.contextVariableNames.map((variable) {

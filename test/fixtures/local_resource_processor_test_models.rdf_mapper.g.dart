@@ -19,7 +19,7 @@ import 'package:rdf_vocabularies/schema.dart';
 /// and RDF terms for iri terms of type String.
 class BookAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+    r'^http://example\.org/authors/(?<authorId>[^/]*)$',
   );
 
   /// Constructor

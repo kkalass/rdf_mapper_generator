@@ -18,7 +18,7 @@ import 'iri_processor_test_models.dart';
 /// and RDF terms for iri terms of type IriWithOnePart.
 class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
+    r'^http://example\.org/books/(?<isbn>[^/]*)$',
   );
 
   /// Constructor
@@ -56,7 +56,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
 class IriWithOnePartExplicitlyGlobalMapper
     implements IriTermMapper<IriWithOnePartExplicitlyGlobal> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
+    r'^http://example\.org/books/(?<isbn>[^/]*)$',
   );
 
   /// Constructor
@@ -96,7 +96,7 @@ class IriWithOnePartExplicitlyGlobalMapper
 /// and RDF terms for iri terms of type IriWithOnePartNamed.
 class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
+    r'^http://example\.org/books/(?<isbn>[^/]*)$',
   );
 
   /// Constructor
@@ -136,7 +136,7 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
 /// and RDF terms for iri terms of type IriWithTwoParts.
 class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/(?<type>[^/]*)/(?<value>[^/]*)\$',
+    r'^http://example\.org/(?<type>[^/]*)/(?<value>[^/]*)$',
   );
 
   /// Constructor
@@ -176,7 +176,7 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
 class IriWithBaseUriAndTwoPartsMapper
     implements IriTermMapper<IriWithBaseUriAndTwoParts> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/(?<type>[^/]*)/(?<value>[^/]*)\$',
+    r'^(?<baseUri>.*)/(?<type>[^/]*)/(?<value>[^/]*)$',
   );
 
   final String Function() _baseUriProvider;
@@ -222,7 +222,7 @@ class IriWithBaseUriAndTwoPartsMapper
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type IriWithBaseUri.
 class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
-  static final RegExp _regex = RegExp('^(?<baseUri>.*)/books/(?<isbn>[^/]*)\$');
+  static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/books/(?<isbn>[^/]*)$');
 
   final String Function() _baseUriProvider;
 
@@ -262,7 +262,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 /// and RDF terms for iri terms of type IriWithBaseUriNoGlobal.
 class IriWithBaseUriNoGlobalMapper
     implements IriTermMapper<IriWithBaseUriNoGlobal> {
-  static final RegExp _regex = RegExp('^(?<baseUri>.*)/books/(?<isbn>[^/]*)\$');
+  static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/books/(?<isbn>[^/]*)$');
 
   final String Function() _baseUriProvider;
 
@@ -307,7 +307,7 @@ class IriWithBaseUriNoGlobalMapper
 class IriWithNonConstructorFieldsMapper
     implements IriTermMapper<IriWithNonConstructorFields> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/items/(?<id>[^/]*)\$',
+    r'^http://example\.org/items/(?<id>[^/]*)$',
   );
 
   /// Constructor
@@ -349,7 +349,7 @@ class IriWithNonConstructorFieldsMapper
 /// and RDF terms for iri terms of type IriWithNonConstructorFieldsAndBaseUriNonGlobal.
 class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     implements IriTermMapper<IriWithNonConstructorFieldsAndBaseUriNonGlobal> {
-  static final RegExp _regex = RegExp('^(?<myBaseUri>.*)/items/(?<id>[^/]*)\$');
+  static final RegExp _regex = RegExp(r'^(?<myBaseUri>.*)/items/(?<id>[^/]*)$');
 
   final String Function() _myBaseUriProvider;
 
@@ -395,7 +395,7 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
 /// and RDF terms for iri terms of type IriWithMixedFields.
 class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/products/(?<brand>[^/]*)/(?<category>[^/]*)/(?<id>[^/]*)\$',
+    r'^http://example\.org/products/(?<brand>[^/]*)/(?<category>[^/]*)/(?<id>[^/]*)$',
   );
 
   /// Constructor

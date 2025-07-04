@@ -19,7 +19,7 @@ import 'package:rdf_vocabularies/schema.dart';
 /// and RDF terms for iri terms of type String.
 class BookWithMapperTitleMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^https://example\.org/books/(?<id>[^/]*)/(?<title>[^/]*)\$',
+    r'^https://example\.org/books/(?<id>[^/]*)/(?<title>[^/]*)$',
   );
 
   final String Function() _idProvider;
@@ -161,7 +161,7 @@ class BookWithMapperInstanceMapper
 /// and RDF triples for resources of type BookWithTemplate.
 class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
   static final RegExp _regex = RegExp(
-    '^https://example\.org/books/(?<id>[^/]*)\$',
+    r'^https://example\.org/books/(?<id>[^/]*)$',
   );
 
   /// Constructor

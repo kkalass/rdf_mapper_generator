@@ -18,7 +18,7 @@ import 'package:rdf_vocabularies/schema.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type StandardIsbn.
 class StandardIsbnMapper implements IriTermMapper<StandardIsbn> {
-  static final RegExp _regex = RegExp('^urn:isbn:(?<value>[^/]*)\$');
+  static final RegExp _regex = RegExp(r'^urn:isbn:(?<value>[^/]*)$');
 
   /// Constructor
   const StandardIsbnMapper();
@@ -53,7 +53,7 @@ class StandardIsbnMapper implements IriTermMapper<StandardIsbn> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type AbsoluteUri.
 class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
-  static final RegExp _regex = RegExp('^(?<uri>.*)\$');
+  static final RegExp _regex = RegExp(r'^(?<uri>.*)$');
 
   /// Constructor
   const AbsoluteUriMapper();
@@ -89,7 +89,7 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
 /// and RDF triples for resources of type SimpleBook.
 class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
   static final RegExp _regex = RegExp(
-    '^https://library\.example\.org/books/(?<id>[^/]*)\.ttl\$',
+    r'^https://library\.example\.org/books/(?<id>[^/]*)\.ttl$',
   );
 
   /// Constructor

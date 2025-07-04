@@ -7,7 +7,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{#iriStrategy}}
   {{#hasTemplate}}
   {{#requiresIriParsing}}
-  static final RegExp _regex = RegExp('{{template.regexPattern}}');
+  static final RegExp _regex = RegExp(r'{{template.regexPattern}}');
   {{/requiresIriParsing}}
   {{/hasTemplate}}
   {{/iriStrategy}}

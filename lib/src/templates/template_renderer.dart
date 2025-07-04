@@ -198,8 +198,18 @@ class TemplateRenderer {
 
   /// Recursively traverses the data structure and resolves Code instances
   void _traverseAndResolveCode(dynamic data, Map<String, String> knownImports,
-      Map<String, String> usedImports, Map<String, String> broaderImports) {
+      Map<String, String> usedImports, Map<String, String> broaderImports,
+      [Set<Object>? visited]) {
+    visited ??= <Object>{};
+    
+    // Prevent infinite recursion with circular references
+    if (data is Object && visited.contains(data)) {
+      return;
+    }
+    
     if (data is Map<String, dynamic>) {
+      visited.add(data);
+      
       // Check if this is a Code instance
       if (data.containsKey(Code.typeProperty) &&
           data[Code.typeProperty] == Code.typeMarker) {
@@ -230,10 +240,14 @@ class TemplateRenderer {
         } else {
           // Recursively process the value
           _traverseAndResolveCode(
-              value, knownImports, usedImports, broaderImports);
+              value, knownImports, usedImports, broaderImports, visited);
         }
       }
+      
+      visited.remove(data);
     } else if (data is List) {
+      visited.add(data);
+      
       // Process all items in the list, checking for Code instances
       for (int i = 0; i < data.length; i++) {
         final item = data[i];
@@ -253,28 +267,49 @@ class TemplateRenderer {
         } else {
           // Recursively process the item
           _traverseAndResolveCode(
-              item, knownImports, usedImports, broaderImports);
+              item, knownImports, usedImports, broaderImports, visited);
         }
       }
+      
+      visited.remove(data);
     }
     // For primitive types (String, int, bool, etc.), do nothing
   }
 
   /// Creates a deep copy of a map structure
-  Map<String, dynamic> _deepCopyMap(Map<String, dynamic> original) {
+  Map<String, dynamic> _deepCopyMap(Map<String, dynamic> original,
+      [Set<Object>? visited]) {
+    visited ??= <Object>{};
+    
+    if (visited.contains(original)) {
+      // Return a new empty map to break the cycle
+      return <String, dynamic>{};
+    }
+    
+    visited.add(original);
     final copy = <String, dynamic>{};
     for (final entry in original.entries) {
-      copy[entry.key] = _deepCopyValue(entry.value);
+      copy[entry.key] = _deepCopyValue(entry.value, visited);
     }
+    visited.remove(original);
     return copy;
   }
 
   /// Creates a deep copy of any value (recursive helper for _deepCopyMap)
-  dynamic _deepCopyValue(dynamic value) {
+  dynamic _deepCopyValue(dynamic value, [Set<Object>? visited]) {
+    visited ??= <Object>{};
+    
     if (value is Map<String, dynamic>) {
-      return _deepCopyMap(value);
+      return _deepCopyMap(value, visited);
     } else if (value is List) {
-      return value.map(_deepCopyValue).toList();
+      if (visited.contains(value)) {
+        // Return a new empty list to break the cycle
+        return <dynamic>[];
+      }
+      visited.add(value);
+      final result = value.map((item) => _deepCopyValue(item, visited)).toList();
+      visited.remove(value);
+      return result;
     } else {
       // Primitive types can be copied directly
       return value;

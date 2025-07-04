@@ -4,7 +4,7 @@
 /// and RDF terms for iri terms of type {{className}}.
 class {{mapperClassName}} implements {{mapperInterfaceName}} {
 
-  static final RegExp _regex = RegExp('{{regexPattern}}');
+  static final RegExp _regex = RegExp(r'{{regexPattern}}');
 
   {{#mapperFields}}
   {{#value.isLate}}late {{/value.isLate}}{{#value.isFinal}}final{{/value.isFinal}} {{value.type}} {{value.name}};

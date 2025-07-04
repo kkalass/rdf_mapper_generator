@@ -20,7 +20,7 @@ import 'package:rdf_vocabularies/schema.dart';
 class TestGlobalResourceMapper
     implements GlobalResourceMapper<TestGlobalResource> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/global/(?<id>[^/]*)\$',
+    r'^http://example\.org/global/(?<id>[^/]*)$',
   );
 
   /// Constructor
@@ -115,7 +115,7 @@ class TestLocalResourceMapper
 /// and RDF terms for iri terms of type TestIri.
 class TestIriMapper implements IriTermMapper<TestIri> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/items/(?<id>[^/]*)\$',
+    r'^http://example\.org/items/(?<id>[^/]*)$',
   );
 
   /// Constructor

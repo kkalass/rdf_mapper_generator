@@ -18,7 +18,7 @@ import 'enum_mapping_simple.dart';
 /// and RDF triples for resources of type Book.
 class BookMapper implements GlobalResourceMapper<Book> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<sku>[^/]*)\$',
+    r'^http://example\.org/books/(?<sku>[^/]*)$',
   );
 
   final LiteralTermMapper<Priority> _priorityMapper;
@@ -203,7 +203,7 @@ class ProductStatusMapper implements LiteralTermMapper<ProductStatus> {
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF IRI terms for enum type ItemCondition.
 class ItemConditionMapper implements IriTermMapper<ItemCondition> {
-  static final RegExp _regex = RegExp('^http://schema\.org/(?<value>[^/]*)\$');
+  static final RegExp _regex = RegExp(r'^http://schema\.org/(?<value>[^/]*)$');
 
   /// Constructor
   const ItemConditionMapper();
@@ -255,7 +255,7 @@ class ItemConditionMapper implements IriTermMapper<ItemCondition> {
 /// and RDF IRI terms for enum type OrderStatus.
 class OrderStatusMapper implements IriTermMapper<OrderStatus> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/vocab/order-status/(?<value>[^/]*)\$',
+    r'^http://example\.org/vocab/order-status/(?<value>[^/]*)$',
   );
 
   /// Constructor
@@ -345,7 +345,7 @@ class CurrencyCodeMapper implements LiteralTermMapper<CurrencyCode> {
 /// and RDF IRI terms for enum type BusinessEntityType.
 class BusinessEntityTypeMapper implements IriTermMapper<BusinessEntityType> {
   static final RegExp _regex = RegExp(
-    '^http://purl\.org/goodrelations/v1#(?<value>[^/]*)\$',
+    r'^http://purl\.org/goodrelations/v1#(?<value>[^/]*)$',
   );
 
   /// Constructor
@@ -404,7 +404,7 @@ class BusinessEntityTypeMapper implements IriTermMapper<BusinessEntityType> {
 /// and RDF IRI terms for enum type UserRating.
 class UserRatingMapper implements IriTermMapper<UserRating> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/rating-system/(?<value>[^/]*)\$',
+    r'^http://example\.org/rating-system/(?<value>[^/]*)$',
   );
 
   /// Constructor
@@ -461,7 +461,7 @@ class UserRatingMapper implements IriTermMapper<UserRating> {
 /// and RDF IRI terms for enum type ProductCategory.
 class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
   static final RegExp _regex = RegExp(
-    '^(?<baseVocab>.*)/categories/(?<value>[^/]*)\$',
+    r'^(?<baseVocab>.*)/categories/(?<value>[^/]*)$',
   );
 
   final String Function() _baseVocabProvider;
@@ -522,7 +522,7 @@ class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
 /// and RDF IRI terms for enum type ShippingMethod.
 class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
   static final RegExp _regex = RegExp(
-    '^(?<apiBase>.*)/(?<version>[^/]*)/shipping-methods/(?<value>[^/]*)\$',
+    r'^(?<apiBase>.*)/(?<version>[^/]*)/shipping-methods/(?<value>[^/]*)$',
   );
 
   final String Function() _apiBaseProvider;
@@ -586,7 +586,7 @@ class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
 /// and RDF IRI terms for enum type EmployeeRole.
 class EmployeeRoleMapper implements IriTermMapper<EmployeeRole> {
   static final RegExp _regex = RegExp(
-    '^(?<orgNamespace>.*)/departments/(?<department>[^/]*)/roles/(?<value>[^/]*)\$',
+    r'^(?<orgNamespace>.*)/departments/(?<department>[^/]*)/roles/(?<value>[^/]*)$',
   );
 
   final String Function() _departmentProvider;

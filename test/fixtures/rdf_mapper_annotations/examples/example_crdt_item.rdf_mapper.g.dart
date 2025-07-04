@@ -19,7 +19,7 @@ import 'package:rdf_vocabularies/dcterms.dart';
 /// and RDF terms for iri terms of type String.
 class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl\$',
+    r'^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl$',
   );
 
   final String Function() _storageRootProvider;
@@ -126,7 +126,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
 /// and RDF terms for iri terms of type String.
 class ItemLastModifiedByMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$',
+    r'^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl$',
   );
 
   final String Function() _storageRootProvider;
@@ -168,7 +168,7 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
 /// and RDF triples for resources of type Item.
 class ItemMapper implements GlobalResourceMapper<Item> {
   static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl\$',
+    r'^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl$',
   );
 
   late final IriTermMapper<String> _lastModifiedByMapper;

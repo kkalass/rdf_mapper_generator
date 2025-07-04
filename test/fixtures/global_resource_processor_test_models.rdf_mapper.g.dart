@@ -19,7 +19,7 @@ import 'package:rdf_vocabularies/schema.dart';
 /// and RDF terms for iri terms of type String.
 class BookAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+    r'^http://example\.org/authors/(?<authorId>[^/]*)$',
   );
 
   /// Constructor
@@ -54,7 +54,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 /// and RDF triples for resources of type Book.
 class BookMapper implements GlobalResourceMapper<Book> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
+    r'^http://example\.org/books/(?<isbn>[^/]*)$',
   );
 
   final IriTermMapper<String> _authorIdMapper;
@@ -237,7 +237,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 class ClassWithIriTemplateStrategyMapper
     implements GlobalResourceMapper<ClassWithIriTemplateStrategy> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/persons/(?<id>[^/]*)\$',
+    r'^http://example\.org/persons/(?<id>[^/]*)$',
   );
 
   /// Constructor
@@ -289,7 +289,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
     implements
         GlobalResourceMapper<ClassWithIriTemplateAndContextVariableStrategy> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/persons/(?<thisId>[^/]*)\$',
+    r'^(?<baseUri>.*)/persons/(?<thisId>[^/]*)$',
   );
 
   final String Function() _baseUriProvider;
@@ -345,7 +345,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 class ClassWithOtherBaseUriNonGlobalMapper
     implements GlobalResourceMapper<ClassWithOtherBaseUriNonGlobal> {
   static final RegExp _regex = RegExp(
-    '^(?<otherBaseUri>.*)/persons/(?<thisId>[^/]*)\$',
+    r'^(?<otherBaseUri>.*)/persons/(?<thisId>[^/]*)$',
   );
 
   final String Function() _otherBaseUriProvider;
