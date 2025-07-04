@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2025-01-17
+
+### Added
+
+- Professional homepage at doc/index.html with modern design and feature highlights
+- `ignore_for_file: unused_field` directive to generated files to suppress analyzer warnings
+
+### Changed
+
+- Major rewrite and modernization of README.md with clearer feature descriptions
+- Improved documentation accuracy and removed overstated claims
+- Enhanced onboarding experience with better "Try It" section
+- Restructured documentation to be more compelling and professional for new users
+
 ## [0.2.1] - 2025-07-04
 
 ### Fixed
