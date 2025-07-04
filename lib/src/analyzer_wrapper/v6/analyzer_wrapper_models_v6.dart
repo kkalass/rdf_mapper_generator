@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'analyzer_v6.dart' as v6;
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
@@ -176,9 +178,10 @@ class LibraryElemV6 extends ElemV6 implements LibraryElem {
   Iterable<String> get exportDefinedNames =>
       libraryElement.exportNamespace.definedNames.keys;
 
-  Iterable<LibraryImport> get libraryImports => libraryElement.libraryImports
-      .map((libImport) => LibraryImportV6(libImport))
-      .toList(growable: false);
+  Iterable<LibraryImport> get libraryImports =>
+      libraryElement.definingCompilationUnit.libraryImports
+          .map((libImport) => LibraryImportV6(libImport))
+          .toList(growable: false);
 
   Iterable<LibraryElem> get importedLibraries =>
       libraryElement.importedLibraries.map((lib) => LibraryElemV6(lib));
@@ -219,7 +222,7 @@ abstract class ElemV6 implements Elem {
   Uri? get libraryUri => element.library?.source.uri;
 
   Iterable<LibraryImport> get libraryImports =>
-      (element.library?.libraryImports ?? [])
+      (element.library?.definingCompilationUnit.libraryImports ?? [])
           .map((libImport) => LibraryImportV6(libImport));
 
   ElemV6(this.element);
@@ -441,7 +444,7 @@ Code _toCode(v6.DartObject? value) {
     // Handle variables (e.g., const variables)
     final variable = value.variable!;
     final variableName = variable.name;
-    final enclosingElement = variable.enclosingElement;
+    final enclosingElement = variable.enclosingElement3;
     if (enclosingElement is v6.ClassElement &&
         variableName.isNotEmpty &&
         variable.isStatic) {

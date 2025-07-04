@@ -14,6 +14,7 @@ export 'package:analyzer/dart/element/element.dart'
         LibraryElement,
         FieldElement,
         ElementAnnotation,
+        LibraryExportElement,
         LibraryImportElement,
         ConstructorElement,
         ParameterElement,
