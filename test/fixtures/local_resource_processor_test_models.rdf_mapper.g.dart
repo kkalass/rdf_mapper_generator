@@ -18,8 +18,9 @@ import 'package:rdf_vocabularies/schema.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
 class BookAuthorIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex =
-      RegExp('^http://example\.org/authors/(?<authorId>[^/]*)\$');
+  static final RegExp _regex = RegExp(
+    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
+  );
 
   /// Constructor
   const BookAuthorIdMapper();
@@ -31,7 +32,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? ''
+        name: match?.namedGroup(name) ?? '',
     };
     return iriParts['authorId']!;
   }
@@ -55,9 +56,9 @@ class BookMapper implements LocalResourceMapper<Book> {
   final IriTermMapper<String> _authorIdMapper;
 
   /// Constructor
-  const BookMapper(
-      {IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper()})
-      : _authorIdMapper = authorIdMapper;
+  const BookMapper({
+    IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper(),
+  }) : _authorIdMapper = authorIdMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -68,8 +69,10 @@ class BookMapper implements LocalResourceMapper<Book> {
 
     final String isbn = reader.require(SchemaBook.isbn);
     final String title = reader.require(SchemaBook.name);
-    final String authorId =
-        reader.require(SchemaBook.author, iriTermDeserializer: _authorIdMapper);
+    final String authorId = reader.require(
+      SchemaBook.author,
+      iriTermDeserializer: _authorIdMapper,
+    );
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
@@ -86,8 +89,11 @@ class BookMapper implements LocalResourceMapper<Book> {
         .resourceBuilder(subject)
         .addValue(SchemaBook.isbn, resource.isbn)
         .addValue(SchemaBook.name, resource.title)
-        .addValue(SchemaBook.author, resource.authorId,
-            iriTermSerializer: _authorIdMapper)
+        .addValue(
+          SchemaBook.author,
+          resource.authorId,
+          iriTermSerializer: _authorIdMapper,
+        )
         .build();
   }
 }
@@ -106,7 +112,9 @@ class ClassNoRegisterGloballyMapper
 
   @override
   ClassNoRegisterGlobally fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -143,7 +151,9 @@ class ClassWithNoRdfTypeMapper
 
   @override
   ClassWithNoRdfType fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -182,7 +192,9 @@ class ClassWithPositionalPropertyMapper
 
   @override
   ClassWithPositionalProperty fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -219,7 +231,9 @@ class ClassWithNonFinalPropertyMapper
 
   @override
   ClassWithNonFinalProperty fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -256,7 +270,9 @@ class ClassWithNonFinalPropertyWithDefaultMapper
 
   @override
   ClassWithNonFinalPropertyWithDefault fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -295,7 +311,9 @@ class ClassWithNonFinalOptionalPropertyMapper
 
   @override
   ClassWithNonFinalOptionalProperty fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String? name = reader.optional(SchemaPerson.name);
@@ -315,8 +333,10 @@ class ClassWithNonFinalOptionalPropertyMapper
 
     return context
         .resourceBuilder(subject)
-        .when(resource.name != null,
-            (b) => b.addValue(SchemaPerson.name, resource.name))
+        .when(
+          resource.name != null,
+          (b) => b.addValue(SchemaPerson.name, resource.name),
+        )
         .build();
   }
 }
@@ -335,7 +355,9 @@ class ClassWithLateNonFinalPropertyMapper
 
   @override
   ClassWithLateNonFinalProperty fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -374,7 +396,9 @@ class ClassWithLateFinalPropertyMapper
 
   @override
   ClassWithLateFinalProperty fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -413,7 +437,9 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper
 
   @override
   ClassWithMixedFinalAndLateFinalProperty fromRdfResource(
-      BlankNodeTerm subject, DeserializationContext context) {
+    BlankNodeTerm subject,
+    DeserializationContext context,
+  ) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
