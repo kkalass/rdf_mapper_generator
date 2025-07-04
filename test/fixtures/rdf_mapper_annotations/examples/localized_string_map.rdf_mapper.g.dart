@@ -20,10 +20,10 @@ class BookMapper implements LocalResourceMapper<Book> {
   final LiteralTermMapper<MapEntry<String, String>> _translationsMapper;
 
   /// Constructor
-  const BookMapper(
-      {LiteralTermMapper<MapEntry<String, String>> translationsMapper =
-          const LocalizedEntryMapper()})
-      : _translationsMapper = translationsMapper;
+  const BookMapper({
+    LiteralTermMapper<MapEntry<String, String>> translationsMapper =
+        const LocalizedEntryMapper(),
+  }) : _translationsMapper = translationsMapper;
 
   @override
   IriTerm? get typeIri => null;
@@ -33,8 +33,9 @@ class BookMapper implements LocalResourceMapper<Book> {
     final reader = context.reader(subject);
 
     final Map<String, String> translations = reader.getMap<String, String>(
-        const IriTerm.prevalidated('http://example.org/book/title'),
-        literalTermDeserializer: _translationsMapper);
+      const IriTerm.prevalidated('http://example.org/book/title'),
+      literalTermDeserializer: _translationsMapper,
+    );
 
     return Book(translations: translations);
   }
@@ -50,9 +51,10 @@ class BookMapper implements LocalResourceMapper<Book> {
     return context
         .resourceBuilder(subject)
         .addMap<String, String>(
-            const IriTerm.prevalidated('http://example.org/book/title'),
-            resource.translations,
-            literalTermSerializer: _translationsMapper)
+          const IriTerm.prevalidated('http://example.org/book/title'),
+          resource.translations,
+          literalTermSerializer: _translationsMapper,
+        )
         .build();
   }
 }

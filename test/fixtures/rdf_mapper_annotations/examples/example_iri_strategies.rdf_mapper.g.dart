@@ -30,7 +30,7 @@ class StandardIsbnMapper implements IriTermMapper<StandardIsbn> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? ''
+        name: match?.namedGroup(name) ?? '',
     };
     final value = iriParts['value']!;
 
@@ -65,7 +65,7 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? ''
+        name: match?.namedGroup(name) ?? '',
     };
     final uri = iriParts['uri']!;
 
@@ -88,8 +88,9 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type SimpleBook.
 class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
-  static final RegExp _regex =
-      RegExp('^https://library\.example\.org/books/(?<id>[^/]*)\.ttl\$');
+  static final RegExp _regex = RegExp(
+    '^https://library\.example\.org/books/(?<id>[^/]*)\.ttl\$',
+  );
 
   /// Constructor
   const SimpleBookMapper();
@@ -176,21 +177,12 @@ class PersonMapper implements GlobalResourceMapper<Person> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Chapter.
 class ChapterMapper implements GlobalResourceMapper<Chapter> {
-  final IriTermMapper<
-      (
-        String bookId,
-        int chapterNumber,
-      )> _iriMapper;
+  final IriTermMapper<(String bookId, int chapterNumber)> _iriMapper;
 
   /// Constructor
-  const ChapterMapper(
-      {required IriTermMapper<
-              (
-                String bookId,
-                int chapterNumber,
-              )>
-          chapterIdMapper})
-      : _iriMapper = chapterIdMapper;
+  const ChapterMapper({
+    required IriTermMapper<(String bookId, int chapterNumber)> chapterIdMapper,
+  }) : _iriMapper = chapterIdMapper;
 
   @override
   IriTerm? get typeIri => SchemaChapter.classIri;
@@ -199,10 +191,7 @@ class ChapterMapper implements GlobalResourceMapper<Chapter> {
   Chapter fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final (
-      _,
-      _,
-    ) = _iriMapper.fromRdfTerm(subject, context);
+    final (_, _) = _iriMapper.fromRdfTerm(subject, context);
 
     final String bookId = reader.require(SchemaChapter.isPartOf);
     final int chapterNumber = reader.require(SchemaChapter.position);
