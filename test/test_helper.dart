@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:build/build.dart';
 import 'package:logging/logging.dart';
 // import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 // import 'package:analyzer/dart/analysis/results.dart';
@@ -9,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_service.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_service_factory.dart';
+import 'package:build_test/build_test.dart';
 
 final AnalyzerWrapperService _analyzerWrapperService =
     AnalyzerWrapperServiceFactory
@@ -53,4 +55,10 @@ Future<(LibraryElem library, String path)> analyzeTestFile(
 
   // Get class elements
   return (libraryElem, testFilePath);
+}
+
+Future<AssetReader> createTestAssetReader() async {
+  final readerWriter = TestReaderWriter();
+  await readerWriter.testing.loadIsolateSources();
+  return readerWriter;
 }

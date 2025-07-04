@@ -1,5 +1,7 @@
 // Actually working with analyzer v7.4.0
 //
+// ignore_for_file: deprecated_member_use
+
 export 'package:analyzer/dart/constant/value.dart' show DartObject;
 export 'package:analyzer/dart/analysis/utilities.dart' show parseString;
 export 'package:analyzer/dart/analysis/analysis_context_collection.dart'

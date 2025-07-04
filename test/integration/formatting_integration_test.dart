@@ -1,7 +1,8 @@
-import 'package:test/test.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 import 'package:rdf_mapper_generator/src/utils/dart_formatter.dart';
-import 'package:build_test/build_test.dart';
+import 'package:test/test.dart';
+
+import '../test_helper.dart';
 
 void main() {
   group('Template Formatting Integration', () {
@@ -50,9 +51,9 @@ class TestClass {
         'hasNamedCustomMappers': false,
       };
 
-      final reader = await PackageAssetReader.currentIsolate();
+      final assetReader = await createTestAssetReader();
       final result =
-          await renderer.renderInitFileTemplate(templateData, reader);
+          await renderer.renderInitFileTemplate(templateData, assetReader);
 
       // Verify the result is properly formatted
       expect(result, isNotEmpty);

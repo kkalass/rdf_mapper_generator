@@ -1,6 +1,5 @@
 // import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
-import 'package:build_test/build_test.dart';
 import 'package:rdf_mapper_generator/builder_helper.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
@@ -18,7 +17,7 @@ void main() {
     late AssetReader assetReader;
 
     setUpAll(() async {
-      assetReader = await PackageAssetReader.currentIsolate();
+      assetReader = await test_helper.createTestAssetReader();
 
       // Initialize test environments for all test files
       final globalResult = await test_helper

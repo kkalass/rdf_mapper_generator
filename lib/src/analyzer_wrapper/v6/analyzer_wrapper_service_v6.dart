@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'analyzer_v6.dart' as v6;
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
