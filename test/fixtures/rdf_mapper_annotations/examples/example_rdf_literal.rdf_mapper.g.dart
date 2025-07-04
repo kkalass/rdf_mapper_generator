@@ -4,7 +4,9 @@
 // Source: test/fixtures/rdf_mapper_annotations/examples/example_rdf_literal.dart
 
 // ignore_for_file: unused_import, unnecessary_cast, prefer_const_constructors
+// ignore_for_file: unnecessary_brace_in_string_interps, prefer_conditional_assignment
 // ignore_for_file: lines_longer_than_80_chars, avoid_redundant_argument_values
+// ignore_for_file: unused_field
 
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
