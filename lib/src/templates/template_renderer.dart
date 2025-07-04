@@ -201,15 +201,15 @@ class TemplateRenderer {
       Map<String, String> usedImports, Map<String, String> broaderImports,
       [Set<Object>? visited]) {
     visited ??= <Object>{};
-    
+
     // Prevent infinite recursion with circular references
     if (data is Object && visited.contains(data)) {
       return;
     }
-    
+
     if (data is Map<String, dynamic>) {
       visited.add(data);
-      
+
       // Check if this is a Code instance
       if (data.containsKey(Code.typeProperty) &&
           data[Code.typeProperty] == Code.typeMarker) {
@@ -243,11 +243,11 @@ class TemplateRenderer {
               value, knownImports, usedImports, broaderImports, visited);
         }
       }
-      
+
       visited.remove(data);
     } else if (data is List) {
       visited.add(data);
-      
+
       // Process all items in the list, checking for Code instances
       for (int i = 0; i < data.length; i++) {
         final item = data[i];
@@ -270,7 +270,7 @@ class TemplateRenderer {
               item, knownImports, usedImports, broaderImports, visited);
         }
       }
-      
+
       visited.remove(data);
     }
     // For primitive types (String, int, bool, etc.), do nothing
@@ -280,12 +280,12 @@ class TemplateRenderer {
   Map<String, dynamic> _deepCopyMap(Map<String, dynamic> original,
       [Set<Object>? visited]) {
     visited ??= <Object>{};
-    
+
     if (visited.contains(original)) {
       // Return a new empty map to break the cycle
       return <String, dynamic>{};
     }
-    
+
     visited.add(original);
     final copy = <String, dynamic>{};
     for (final entry in original.entries) {
@@ -298,7 +298,7 @@ class TemplateRenderer {
   /// Creates a deep copy of any value (recursive helper for _deepCopyMap)
   dynamic _deepCopyValue(dynamic value, [Set<Object>? visited]) {
     visited ??= <Object>{};
-    
+
     if (value is Map<String, dynamic>) {
       return _deepCopyMap(value, visited);
     } else if (value is List) {
@@ -307,7 +307,8 @@ class TemplateRenderer {
         return <dynamic>[];
       }
       visited.add(value);
-      final result = value.map((item) => _deepCopyValue(item, visited)).toList();
+      final result =
+          value.map((item) => _deepCopyValue(item, visited)).toList();
       visited.remove(value);
       return result;
     } else {
