@@ -31,17 +31,14 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button" title="Toggle brightness">
-    <label for="theme">
-      <input type="checkbox" id="theme" value="light-theme">
-      <span id="dark-theme-button" class="material-symbols-outlined">
-        dark_mode
-      </span>
-      <span id="light-theme-button" class="material-symbols-outlined">
-        light_mode
-      </span>
-    </label>
-  </div>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
 </header>
 <main>
 <div
@@ -143,12 +140,12 @@ This builder runs after the cache builder and generates the final source files.
     <h5><span class="package-name">rdf_mapper_generator</span> <span class="package-kind">package</span></h5>
     <ol>
       <li class="section-title">Libraries</li>
-      <li><a href="../builder_helper">builder_helper</a></li>
-      <li><a href="../cache_builder">cache_builder</a></li>
-      <li><a href="../init_file_builder">init_file_builder</a></li>
-      <li><a href="../init_file_builder_helper">init_file_builder_helper</a></li>
-      <li><a href="../rdf_mapper_generator">rdf_mapper_generator</a></li>
-      <li><a href="../source_builder">source_builder</a></li>
+      <li><a href="../builder_helper/">builder_helper</a></li>
+      <li><a href="../cache_builder/">cache_builder</a></li>
+      <li><a href="../init_file_builder/">init_file_builder</a></li>
+      <li><a href="../init_file_builder_helper/">init_file_builder_helper</a></li>
+      <li><a href="../rdf_mapper_generator/">rdf_mapper_generator</a></li>
+      <li><a href="../source_builder/">source_builder</a></li>
 </ol>
 
   </div>
@@ -159,7 +156,7 @@ This builder runs after the cache builder and generates the final source files.
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.2.0
+      0.2.1
   </span>
   
 </footer>
