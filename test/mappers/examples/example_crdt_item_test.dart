@@ -480,7 +480,7 @@ void main() {
 
         final (subject, triples) =
             itemMapper0.toRdfResource(originalItem, serContext);
-        print('Serialized triples: ${triples.join(',\n')}');
+
         final graph = RdfGraph.fromTriples(triples);
         final context = DeserializationContextImpl(
           graph: graph,
