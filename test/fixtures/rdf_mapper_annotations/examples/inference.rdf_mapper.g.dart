@@ -10,7 +10,7 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
-import 'inference_test.dart';
+import 'inference.dart';
 import 'package:rdf_vocabularies/schema.dart';
 
 /// Generated mapper for [TestGlobalResource] global resources.

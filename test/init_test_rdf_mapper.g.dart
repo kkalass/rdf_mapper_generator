@@ -38,8 +38,8 @@ import 'fixtures/rdf_mapper_annotations/examples/example_rdf_literal.dart'
     as erl;
 import 'fixtures/rdf_mapper_annotations/examples/example_rdf_literal.rdf_mapper.g.dart'
     as erlrmg;
-import 'fixtures/rdf_mapper_annotations/examples/inference_test.dart' as it;
-import 'fixtures/rdf_mapper_annotations/examples/inference_test.rdf_mapper.g.dart'
+import 'fixtures/rdf_mapper_annotations/examples/inference.dart' as it;
+import 'fixtures/rdf_mapper_annotations/examples/inference.rdf_mapper.g.dart'
     as itrmg;
 import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.dart'
     as lsm;

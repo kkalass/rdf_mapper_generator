@@ -1,8 +1,8 @@
 import 'package:test/test.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_vocabularies/schema.dart';
-import '../../fixtures/rdf_mapper_annotations/examples/inference_test.dart';
-import '../../fixtures/rdf_mapper_annotations/examples/inference_test.rdf_mapper.g.dart';
+import '../../fixtures/rdf_mapper_annotations/examples/inference.dart';
+import '../../fixtures/rdf_mapper_annotations/examples/inference.rdf_mapper.g.dart';
 
 void main() {
   group('Smart Inference Tests', () {
