@@ -87,12 +87,12 @@ final book = Book(
   published: DateTime(1937, 9, 21),
 );
 
-final (subject, triples) = mapper.toRdfResource(book);
-print('Book IRI: ${subject.iri}');
+final turtle = mapper.encodeObject(book);
+print('Book IRI: ${turtle}');
 // Output: Book IRI: https://example.org/books/978-0-544-00341-5
 
 // Convert RDF back to Dart object
-final deserializedBook = mapper.fromRdfResource<Book>(subject, context);
+final deserializedBook = mapper.decodeObject<Book>(turtle);
 print('Title: ${deserializedBook.title}');
 // Output: Title: The Hobbit
 ```
