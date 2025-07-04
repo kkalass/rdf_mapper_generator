@@ -18,7 +18,7 @@ enum Status {
   @RdfEnumValue('completed')
   completed,
 
-  canceled // Uses default name
+  canceled, // Uses default name
 }
 
 /// Test enum with @RdfIri annotation
@@ -31,7 +31,7 @@ enum DocumentType {
   html,
 
   @RdfEnumValue('https://www.iana.org/assignments/media-types/application/pdf')
-  pdf
+  pdf,
 }
 
 /// Test enum with @RdfIri annotation and template
@@ -41,7 +41,7 @@ enum CategoryType {
 
   music,
 
-  electronics // Uses default name
+  electronics, // Uses default name
 }
 
 /// Test enum with @RdfIri annotation using baseUri context variable
@@ -53,7 +53,7 @@ enum FileFormat {
   @RdfEnumValue('binary')
   binary,
 
-  xml // Uses default name
+  xml, // Uses default name
 }
 
 /// Test enum with @RdfIri annotation using multiple context variables
@@ -65,5 +65,5 @@ enum ItemType {
   @RdfEnumValue('magazine')
   magazine,
 
-  newspaper // Uses default name
+  newspaper, // Uses default name
 }

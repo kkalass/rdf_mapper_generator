@@ -7,9 +7,7 @@ import 'package:rdf_vocabularies/xsd.dart';
 class LiteralString {
   @RdfValue()
   final String foo;
-  LiteralString({
-    required this.foo,
-  });
+  LiteralString({required this.foo});
 }
 
 @RdfLiteral()
@@ -32,28 +30,21 @@ class LocalizedText {
   @RdfLanguageTag()
   final String language;
 
-  LocalizedText(
-    this.text,
-    this.language,
-  );
+  LocalizedText(this.text, this.language);
 }
 
 @RdfLiteral(Xsd.double)
 class LiteralDouble {
   @RdfValue()
   final double foo;
-  LiteralDouble({
-    required this.foo,
-  });
+  LiteralDouble({required this.foo});
 }
 
 @RdfLiteral(Xsd.integer)
 class LiteralInteger {
   @RdfValue()
   final int value;
-  LiteralInteger({
-    required this.value,
-  });
+  LiteralInteger({required this.value});
 }
 
 @RdfLiteral.custom(
@@ -134,8 +125,10 @@ class TestLiteralMapper implements LiteralTermMapper<LiteralWithMapper> {
 
   @override
   LiteralWithMapper fromRdfTerm(
-      LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     return LiteralWithMapper(term.value);
   }
 
@@ -151,14 +144,18 @@ class TestLiteralMapper2
 
   @override
   LiteralWithMapperInstance fromRdfTerm(
-      LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     return LiteralWithMapperInstance(term.value);
   }
 
   @override
   LiteralTerm toRdfTerm(
-      LiteralWithMapperInstance value, SerializationContext context) {
+    LiteralWithMapperInstance value,
+    SerializationContext context,
+  ) {
     return LiteralTerm(value.value);
   }
 }

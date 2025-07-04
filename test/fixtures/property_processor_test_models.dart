@@ -28,8 +28,10 @@ class SimplePropertyTest {
   SimplePropertyTest({required this.name});
 }
 
-@RdfGlobalResource(IriTerm.prevalidated('http://example.org/types/Book'),
-    IriStrategy('http://example.org/books/{name}'))
+@RdfGlobalResource(
+  IriTerm.prevalidated('http://example.org/types/Book'),
+  IriStrategy('http://example.org/books/{name}'),
+)
 class SimpleCustomPropertyTest {
   @RdfProperty(IriTerm.prevalidated('http://example.org/types/Book/name'))
   @RdfIriPart()
@@ -55,7 +57,9 @@ class OptionalPropertyTest {
 }
 
 @RdfGlobalResource(
-    SchemaBook.classIri, IriStrategy('http://example.org/books/singleton'))
+  SchemaBook.classIri,
+  IriStrategy('http://example.org/books/singleton'),
+)
 class DefaultValueTest {
   @RdfProperty(SchemaBook.isbn, defaultValue: 'default-isbn')
   final String isbn;
@@ -99,10 +103,7 @@ class IriMappingWithBaseUriTest {
 
 @RdfLocalResource()
 class IriMappingFullIriTest {
-  @RdfProperty(
-    SchemaBook.author,
-    iri: IriMapping('{+authorIri}'),
-  )
+  @RdfProperty(SchemaBook.author, iri: IriMapping('{+authorIri}'))
   final String authorIri;
 
   IriMappingFullIriTest({required this.authorIri});
@@ -110,10 +111,7 @@ class IriMappingFullIriTest {
 
 @RdfLocalResource()
 class IriMappingFullIriSimpleTest {
-  @RdfProperty(
-    SchemaBook.author,
-    iri: IriMapping(),
-  )
+  @RdfProperty(SchemaBook.author, iri: IriMapping())
   final String authorIri;
 
   IriMappingFullIriSimpleTest({required this.authorIri});
@@ -138,10 +136,7 @@ class IriMappingWithBaseUriProviderTest {
   @RdfProvides()
   String get baseUri => 'http://foo.example.org';
 
-  @RdfProperty(
-    SchemaBook.author,
-    iri: IriMapping('{+baseUri}/{authorId}'),
-  )
+  @RdfProperty(SchemaBook.author, iri: IriMapping('{+baseUri}/{authorId}'))
   final String authorId;
 
   IriMappingWithBaseUriProviderTest({required this.authorId});
@@ -159,8 +154,10 @@ class IriMappingWithProviderPropertyTest {
   )
   final String authorId;
 
-  IriMappingWithProviderPropertyTest(
-      {required this.authorId, required this.genre});
+  IriMappingWithProviderPropertyTest({
+    required this.authorId,
+    required this.genre,
+  });
 }
 
 @RdfLocalResource()
@@ -179,16 +176,16 @@ class IriMappingWithProvidersAndBaseUriPropertyTest {
   )
   final String authorId;
 
-  IriMappingWithProvidersAndBaseUriPropertyTest(
-      {required this.authorId, required this.genre, required this.version});
+  IriMappingWithProvidersAndBaseUriPropertyTest({
+    required this.authorId,
+    required this.genre,
+    required this.version,
+  });
 }
 
 @RdfLocalResource()
 class IriMappingNamedMapperTest {
-  @RdfProperty(
-    SchemaBook.author,
-    iri: IriMapping.namedMapper('iriMapper'),
-  )
+  @RdfProperty(SchemaBook.author, iri: IriMapping.namedMapper('iriMapper'))
   final String authorId;
 
   IriMappingNamedMapperTest({required this.authorId});
@@ -196,10 +193,7 @@ class IriMappingNamedMapperTest {
 
 @RdfLocalResource()
 class IriMappingMapperTest {
-  @RdfProperty(
-    SchemaBook.author,
-    iri: IriMapping.mapper(IriMapperImpl),
-  )
+  @RdfProperty(SchemaBook.author, iri: IriMapping.mapper(IriMapperImpl))
   final String authorId;
 
   IriMappingMapperTest({required this.authorId});
@@ -230,7 +224,8 @@ class IriMapperImpl implements IriTermMapper<String> {
     }
 
     throw ArgumentError(
-        'Invalid IRI format: $iriValue. Expected format: ${prefix}{authorId}');
+      'Invalid IRI format: $iriValue. Expected format: ${prefix}{authorId}',
+    );
   }
 
   @override
@@ -276,8 +271,10 @@ class LiteralMappingTest {
 
 @RdfLocalResource()
 class LiteralMappingTestCustomDatatype {
-  @RdfProperty(IriTerm.prevalidated('http://example.org/book/price'),
-      literal: LiteralMapping.mapperInstance(DoubleMapper(Xsd.double)))
+  @RdfProperty(
+    IriTerm.prevalidated('http://example.org/book/price'),
+    literal: LiteralMapping.mapperInstance(DoubleMapper(Xsd.double)),
+  )
   final double price;
 
   LiteralMappingTestCustomDatatype({required this.price});
@@ -285,10 +282,11 @@ class LiteralMappingTestCustomDatatype {
 
 @RdfLocalResource()
 class CollectionNoneTest {
-  @RdfProperty(SchemaBook.author,
-      collection: RdfCollectionType.none,
-      literal:
-          LiteralMapping.mapperInstance(const JsonLiteralStringListMapper()))
+  @RdfProperty(
+    SchemaBook.author,
+    collection: RdfCollectionType.none,
+    literal: LiteralMapping.mapperInstance(const JsonLiteralStringListMapper()),
+  )
   final List<String> authors;
 
   CollectionNoneTest({required this.authors});
@@ -298,8 +296,11 @@ class JsonLiteralStringListMapper implements LiteralTermMapper<List<String>> {
   const JsonLiteralStringListMapper();
 
   @override
-  List<String> fromRdfTerm(LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+  List<String> fromRdfTerm(
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     // Assuming the literal value is a JSON string
     return (json.decode(term.value) as List<dynamic>)
         .whereType<String>()
@@ -340,10 +341,7 @@ class CollectionIterableTest {
 
 @RdfLocalResource()
 class MapNoCollectionNoMapperTest {
-  @RdfProperty(
-    SchemaBook.reviews,
-    collection: RdfCollectionType.none,
-  )
+  @RdfProperty(SchemaBook.reviews, collection: RdfCollectionType.none)
   final Map<String, String> reviews;
 
   MapNoCollectionNoMapperTest({required this.reviews});
@@ -397,15 +395,19 @@ class JsonLiteralMapMapper implements LiteralTermMapper<Map<String, dynamic>> {
 
   @override
   Map<String, dynamic> fromRdfTerm(
-      LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     // Assuming the literal value is a JSON string
     return json.decode(term.value);
   }
 
   @override
   LiteralTerm toRdfTerm(
-      Map<String, dynamic> value, SerializationContext context) {
+    Map<String, dynamic> value,
+    SerializationContext context,
+  ) {
     // Convert the value to a JSON string
     final jsonString = json.encode(value);
     return LiteralTerm(jsonString);
@@ -546,8 +548,10 @@ class GlobalPublisherMapperImpl implements GlobalResourceMapper<Publisher> {
 
   @override
   (IriTerm, List<Triple>) toRdfResource(
-      Publisher publisher, SerializationContext context,
-      {RdfSubject? parentSubject}) {
+    Publisher publisher,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
     return context
         .resourceBuilder(IriTerm(publisher.iri))
         .addValue(SchemaPerson.name, LiteralTerm(publisher.name))
@@ -574,8 +578,10 @@ class LocalResourceAuthorMapperImpl implements LocalResourceMapper<Author> {
 
   @override
   (BlankNodeTerm, List<Triple>) toRdfResource(
-      Author author, SerializationContext context,
-      {RdfSubject? parentSubject}) {
+    Author author,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
     final builder = context.resourceBuilder(BlankNodeTerm());
     return builder
         .addValue(SchemaPerson.name, LiteralTerm(author.name))
@@ -591,15 +597,19 @@ class LiteralDoubleMapperImpl implements LiteralTermMapper<double> {
   const LiteralDoubleMapperImpl();
 
   @override
-  double fromRdfTerm(LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+  double fromRdfTerm(
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     // Parse double value from literal term
     final value = term.value;
     final parsed = double.tryParse(value);
 
     if (parsed == null) {
       throw FormatException(
-          'Cannot parse "$value" as double from literal term: $term');
+        'Cannot parse "$value" as double from literal term: $term',
+      );
     }
 
     return parsed;
@@ -629,8 +639,9 @@ class GlobalResourceMapperTest {
 class GlobalResourceInstanceMapperTest {
   @RdfProperty(
     SchemaBook.publisher,
-    globalResource:
-        GlobalResourceMapping.mapperInstance(GlobalPublisherMapperImpl()),
+    globalResource: GlobalResourceMapping.mapperInstance(
+      GlobalPublisherMapperImpl(),
+    ),
   )
   final Object publisher;
 
@@ -666,8 +677,9 @@ class LocalResourceMapperObjectPropertyTest {
 class LocalResourceInstanceMapperTest {
   @RdfProperty(
     SchemaBook.author,
-    localResource:
-        LocalResourceMapping.mapperInstance(LocalResourceAuthorMapperImpl()),
+    localResource: LocalResourceMapping.mapperInstance(
+      LocalResourceAuthorMapperImpl(),
+    ),
   )
   final Author author;
 
@@ -678,8 +690,9 @@ class LocalResourceInstanceMapperTest {
 class LocalResourceInstanceMapperObjectPropertyTest {
   @RdfProperty(
     SchemaBook.author,
-    localResource:
-        LocalResourceMapping.mapperInstance(LocalResourceAuthorMapperImpl()),
+    localResource: LocalResourceMapping.mapperInstance(
+      LocalResourceAuthorMapperImpl(),
+    ),
   )
   final Object author;
 
@@ -715,8 +728,11 @@ class LiteralStringMapperImpl implements LiteralTermMapper<String> {
   const LiteralStringMapperImpl();
 
   @override
-  String fromRdfTerm(LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+  String fromRdfTerm(
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     return term.value;
   }
 

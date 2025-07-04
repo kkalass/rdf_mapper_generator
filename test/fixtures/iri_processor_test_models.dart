@@ -7,9 +7,7 @@ class IriWithOnePart {
   @RdfIriPart()
   final String isbn;
 
-  IriWithOnePart({
-    required this.isbn,
-  });
+  IriWithOnePart({required this.isbn});
 }
 
 @RdfIri('http://example.org/books/{isbn}', true)
@@ -17,9 +15,7 @@ class IriWithOnePartExplicitlyGlobal {
   @RdfIriPart()
   final String isbn;
 
-  IriWithOnePartExplicitlyGlobal({
-    required this.isbn,
-  });
+  IriWithOnePartExplicitlyGlobal({required this.isbn});
 }
 
 @RdfIri('http://example.org/books/{isbn}')
@@ -27,9 +23,7 @@ class IriWithOnePartNamed {
   @RdfIriPart('isbn')
   final String value;
 
-  IriWithOnePartNamed({
-    required this.value,
-  });
+  IriWithOnePartNamed({required this.value});
 }
 
 @RdfIri('http://example.org/{type}/{value}')
@@ -38,10 +32,7 @@ class IriWithTwoParts {
   final String value;
   @RdfIriPart()
   final String type;
-  IriWithTwoParts({
-    required this.value,
-    required this.type,
-  });
+  IriWithTwoParts({required this.value, required this.type});
 }
 
 @RdfIri('{+baseUri}/{type}/{value}')
@@ -50,28 +41,21 @@ class IriWithBaseUriAndTwoParts {
   final String value;
   @RdfIriPart('type')
   final String otherPart;
-  IriWithBaseUriAndTwoParts({
-    required this.value,
-    required this.otherPart,
-  });
+  IriWithBaseUriAndTwoParts({required this.value, required this.otherPart});
 }
 
 @RdfIri('{+baseUri}/books/{isbn}')
 class IriWithBaseUri {
   @RdfIriPart()
   final String isbn;
-  IriWithBaseUri({
-    required this.isbn,
-  });
+  IriWithBaseUri({required this.isbn});
 }
 
 @RdfIri('{+baseUri}/books/{isbn}', false)
 class IriWithBaseUriNoGlobal {
   @RdfIriPart()
   final String isbn;
-  IriWithBaseUriNoGlobal({
-    required this.isbn,
-  });
+  IriWithBaseUriNoGlobal({required this.isbn});
 }
 
 @RdfIri.namedMapper('testIriMapper')
@@ -114,7 +98,9 @@ class TestIriMapper2 implements IriTermMapper<IriWithMapperInstance> {
 
   @override
   IriWithMapperInstance fromRdfTerm(
-      IriTerm term, DeserializationContext context) {
+    IriTerm term,
+    DeserializationContext context,
+  ) {
     return IriWithMapperInstance(term.iri);
   }
 

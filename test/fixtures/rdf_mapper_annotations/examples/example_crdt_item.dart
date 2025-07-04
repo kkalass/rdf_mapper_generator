@@ -29,8 +29,9 @@ class Item {
 
   @RdfProperty(
     Dcterms.creator,
-    iri:
-        IriMapping('{+storageRoot}/solidtask/appinstance/{lastModifiedBy}.ttl'),
+    iri: IriMapping(
+      '{+storageRoot}/solidtask/appinstance/{lastModifiedBy}.ttl',
+    ),
   )
   late String lastModifiedBy;
 
@@ -46,7 +47,8 @@ class Item {
 @RdfGlobalResource(
   SolidTaskVectorClockEntry.classIri,
   IriStrategy(
-      '{+storageRoot}/solidtask/task/{taskId}/vectorclock/{clientId}.ttl'),
+    '{+storageRoot}/solidtask/task/{taskId}/vectorclock/{clientId}.ttl',
+  ),
   registerGlobally: false,
 )
 class VectorClockEntry {

@@ -17,19 +17,18 @@ import 'provides.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Child.
 class ChildMapper implements GlobalResourceMapper<Child> {
-  static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/(?<parentId>[^/]*)/child/(?<id>[^/]*)\.ttl\$',
-  );
+  static final RegExp _regex =
+      RegExp('^(?<baseUri>.*)/(?<parentId>[^/]*)/child/(?<id>[^/]*)\.ttl\$');
 
   final String Function() _baseUriProvider;
   final String Function() _parentIdProvider;
 
   /// Constructor
-  const ChildMapper({
-    required String Function() baseUriProvider,
-    required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
+  const ChildMapper(
+      {required String Function() baseUriProvider,
+      required String Function() parentIdProvider})
+      : _baseUriProvider = baseUriProvider,
+        _parentIdProvider = parentIdProvider;
 
   @override
   IriTerm? get typeIri => ExampleVocab.Child;
@@ -83,18 +82,17 @@ class ChildMapper implements GlobalResourceMapper<Child> {
 /// and RDF terms for iri terms of type String.
 class ParentSiblingIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/(?<parentId>[^/]*)/sibling/(?<siblingId>[^/]*)\.ttl\$',
-  );
+      '^(?<baseUri>.*)/(?<parentId>[^/]*)/sibling/(?<siblingId>[^/]*)\.ttl\$');
 
   final String Function() _baseUriProvider;
   final String Function() _parentIdProvider;
 
   /// Constructor
-  const ParentSiblingIdMapper({
-    required String Function() baseUriProvider,
-    required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
+  const ParentSiblingIdMapper(
+      {required String Function() baseUriProvider,
+      required String Function() parentIdProvider})
+      : _baseUriProvider = baseUriProvider,
+        _parentIdProvider = parentIdProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -103,7 +101,7 @@ class ParentSiblingIdMapper implements IriTermMapper<String> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     return iriParts['siblingId']!;
   }
@@ -132,7 +130,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
 
   /// Constructor
   const ParentMapper({required String Function() baseUriProvider})
-    : _baseUriProvider = baseUriProvider;
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriTerm? get typeIri => ExampleVocab.Parent;
@@ -149,22 +147,16 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     };
 
     final id = iriParts['id']!;
-    final Child child = reader.require(
-      ExampleVocab.child,
-      globalResourceDeserializer: ChildMapper(
-        baseUriProvider: _baseUriProvider,
-        parentIdProvider: () =>
-            throw Exception('Must not call provider for deserialization'),
-      ),
-    );
-    final String siblingId = reader.require(
-      ExampleVocab.sibling,
-      iriTermDeserializer: ParentSiblingIdMapper(
-        baseUriProvider: _baseUriProvider,
-        parentIdProvider: () =>
-            throw Exception('Must not call provider for deserialization'),
-      ),
-    );
+    final Child child = reader.require(ExampleVocab.child,
+        globalResourceDeserializer: ChildMapper(
+            baseUriProvider: _baseUriProvider,
+            parentIdProvider: () =>
+                throw Exception('Must not call provider for deserialization')));
+    final String siblingId = reader.require(ExampleVocab.sibling,
+        iriTermDeserializer: ParentSiblingIdMapper(
+            baseUriProvider: _baseUriProvider,
+            parentIdProvider: () =>
+                throw Exception('Must not call provider for deserialization')));
 
     final retval = Parent();
     retval.id = id;
@@ -183,22 +175,14 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          ExampleVocab.child,
-          resource.child,
-          resourceSerializer: ChildMapper(
-            baseUriProvider: _baseUriProvider,
-            parentIdProvider: () => resource.id,
-          ),
-        )
-        .addValue(
-          ExampleVocab.sibling,
-          resource.siblingId,
-          iriTermSerializer: ParentSiblingIdMapper(
-            baseUriProvider: _baseUriProvider,
-            parentIdProvider: () => resource.id,
-          ),
-        )
+        .addValue(ExampleVocab.child, resource.child,
+            resourceSerializer: ChildMapper(
+                baseUriProvider: _baseUriProvider,
+                parentIdProvider: () => resource.id))
+        .addValue(ExampleVocab.sibling, resource.siblingId,
+            iriTermSerializer: ParentSiblingIdMapper(
+                baseUriProvider: _baseUriProvider,
+                parentIdProvider: () => resource.id))
         .build();
   }
 

@@ -9,7 +9,9 @@ import 'package:rdf_vocabularies/schema.dart';
 // --- Annotated Model Classes ---
 
 @RdfGlobalResource(
-    SchemaBook.classIri, IriStrategy('http://example.org/book/{id}'))
+  SchemaBook.classIri,
+  IriStrategy('http://example.org/book/{id}'),
+)
 class Book {
   @RdfIriPart('id')
   final String id;
@@ -17,8 +19,10 @@ class Book {
   @RdfProperty(SchemaBook.name)
   final String title;
 
-  @RdfProperty(SchemaBook.author,
-      iri: IriMapping('http://example.org/author/{authorId}'))
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('http://example.org/author/{authorId}'),
+  )
   final String authorId;
 
   @RdfProperty(SchemaBook.datePublished)
@@ -202,8 +206,11 @@ class GeneratedRatingMapper implements LiteralTermMapper<Rating> {
   }
 
   @override
-  Rating fromRdfTerm(LiteralTerm term, DeserializationContext context,
-      {bool bypassDatatypeCheck = false}) {
+  Rating fromRdfTerm(
+    LiteralTerm term,
+    DeserializationContext context, {
+    bool bypassDatatypeCheck = false,
+  }) {
     return Rating(context.fromLiteralTerm<int>(term));
   }
 }

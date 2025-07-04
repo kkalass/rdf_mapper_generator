@@ -15,15 +15,13 @@ class Book {
   @RdfProperty(SchemaBook.name)
   final String title;
 
-  @RdfProperty(SchemaBook.author,
-      iri: IriMapping('http://example.org/authors/{authorId}'))
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('http://example.org/authors/{authorId}'),
+  )
   final String authorId;
 
-  Book({
-    required this.isbn,
-    required this.title,
-    required this.authorId,
-  });
+  Book({required this.isbn, required this.title, required this.authorId});
 }
 
 @RdfGlobalResource(SchemaPerson.classIri, IriStrategy())
@@ -48,8 +46,11 @@ class ClassWithNoRdfType {
   ClassWithNoRdfType(this.name, {this.age});
 }
 
-@RdfGlobalResource(SchemaPerson.classIri, IriStrategy(),
-    registerGlobally: false)
+@RdfGlobalResource(
+  SchemaPerson.classIri,
+  IriStrategy(),
+  registerGlobally: false,
+)
 class ClassWithEmptyIriStrategyNoRegisterGlobally {
   @RdfIriPart()
   final String iri;
@@ -58,7 +59,9 @@ class ClassWithEmptyIriStrategyNoRegisterGlobally {
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy('http://example.org/persons/{id}'))
+  SchemaPerson.classIri,
+  IriStrategy('http://example.org/persons/{id}'),
+)
 class ClassWithIriTemplateStrategy {
   @RdfIriPart()
   final String id;
@@ -67,7 +70,9 @@ class ClassWithIriTemplateStrategy {
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy('{+baseUri}/persons/{thisId}'))
+  SchemaPerson.classIri,
+  IriStrategy('{+baseUri}/persons/{thisId}'),
+)
 class ClassWithIriTemplateAndContextVariableStrategy {
   @RdfIriPart('thisId')
   final String id;
@@ -76,8 +81,10 @@ class ClassWithIriTemplateAndContextVariableStrategy {
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy('{+otherBaseUri}/persons/{thisId}'),
-    registerGlobally: false)
+  SchemaPerson.classIri,
+  IriStrategy('{+otherBaseUri}/persons/{thisId}'),
+  registerGlobally: false,
+)
 class ClassWithOtherBaseUriNonGlobal {
   @RdfIriPart('thisId')
   final String id;
@@ -89,8 +96,10 @@ class ClassWithOtherBaseUriNonGlobal {
 class ClassWithIriNamedMapperStrategy {}
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper1Part'),
-    registerGlobally: false)
+  SchemaPerson.classIri,
+  IriStrategy.namedMapper('testMapper1Part'),
+  registerGlobally: false,
+)
 class ClassWithIriNamedMapperStrategy1Part {
   @RdfIriPart()
   final String id;
@@ -99,33 +108,43 @@ class ClassWithIriNamedMapperStrategy1Part {
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper2Parts'),
-    registerGlobally: false)
+  SchemaPerson.classIri,
+  IriStrategy.namedMapper('testMapper2Parts'),
+  registerGlobally: false,
+)
 class ClassWithIriNamedMapperStrategy2Parts {
   @RdfIriPart.position(1)
   final String id;
   @RdfIriPart.position(2)
   final int version;
 
-  ClassWithIriNamedMapperStrategy2Parts(
-      {required this.id, required this.version});
+  ClassWithIriNamedMapperStrategy2Parts({
+    required this.id,
+    required this.version,
+  });
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper2PartsSwapped'),
-    registerGlobally: false)
+  SchemaPerson.classIri,
+  IriStrategy.namedMapper('testMapper2PartsSwapped'),
+  registerGlobally: false,
+)
 class ClassWithIriNamedMapperStrategy2PartsSwapped {
   @RdfIriPart.position(2)
   final String id;
   @RdfIriPart.position(1)
   final int version;
 
-  ClassWithIriNamedMapperStrategy2PartsSwapped(
-      {required this.id, required this.version});
+  ClassWithIriNamedMapperStrategy2PartsSwapped({
+    required this.id,
+    required this.version,
+  });
 }
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.namedMapper('testMapper3'))
+  SchemaPerson.classIri,
+  IriStrategy.namedMapper('testMapper3'),
+)
 class ClassWithIriNamedMapperStrategy2PartsWithProperties {
   @RdfIriPart.position(1)
   late final String id;
@@ -148,7 +167,9 @@ class ClassWithIriNamedMapperStrategy2PartsWithProperties {
 class ClassWithIriMapperStrategy {}
 
 @RdfGlobalResource(
-    SchemaPerson.classIri, IriStrategy.mapperInstance(TestIriMapper2()))
+  SchemaPerson.classIri,
+  IriStrategy.mapperInstance(TestIriMapper2()),
+)
 class ClassWithIriMapperInstanceStrategy {
   @RdfProperty(SchemaPerson.name)
   final String name;
@@ -175,11 +196,15 @@ class TestGlobalResourceMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(value, SerializationContext context,
-      {RdfSubject? parentSubject}) {
+  (IriTerm, List<Triple>) toRdfResource(
+    value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
     return context
         .resourceBuilder(
-            IriTerm('http://example.org/instance/ClassWithMapperStrategy'))
+          IriTerm('http://example.org/instance/ClassWithMapperStrategy'),
+        )
         .build();
   }
 
@@ -198,19 +223,23 @@ class TestGlobalResourceMapper2
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(value, SerializationContext context,
-      {RdfSubject? parentSubject}) {
+  (IriTerm, List<Triple>) toRdfResource(
+    value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
     return context
-        .resourceBuilder(IriTerm(
-          'http://example.org/instance/ClassWithMapperInstanceStrategy',
-        ))
+        .resourceBuilder(
+          IriTerm(
+            'http://example.org/instance/ClassWithMapperInstanceStrategy',
+          ),
+        )
         .build();
   }
 
   @override
-  IriTerm? get typeIri => IriTerm(
-        'http://example.org/g/ClassWithMapperInstanceStrategy',
-      );
+  IriTerm? get typeIri =>
+      IriTerm('http://example.org/g/ClassWithMapperInstanceStrategy');
 }
 
 class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
@@ -218,9 +247,12 @@ class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
 
   @override
   ClassWithIriMapperStrategy fromRdfTerm(
-      IriTerm term, DeserializationContext context) {
+    IriTerm term,
+    DeserializationContext context,
+  ) {
     throw UnimplementedError(
-        'fromRdfTerm cannot be implemented for TestIriMapper');
+      'fromRdfTerm cannot be implemented for TestIriMapper',
+    );
   }
 
   @override
@@ -237,7 +269,8 @@ class TestIriMapper2
   @override
   fromRdfTerm(IriTerm term, DeserializationContext context) {
     throw UnimplementedError(
-        'fromRdfTerm cannot be implemented for TestIriMapper2');
+      'fromRdfTerm cannot be implemented for TestIriMapper2',
+    );
   }
 
   @override

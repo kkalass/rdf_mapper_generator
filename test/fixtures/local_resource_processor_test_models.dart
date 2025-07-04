@@ -3,9 +3,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies/schema.dart';
 
-@RdfLocalResource(
-  SchemaBook.classIri,
-)
+@RdfLocalResource(SchemaBook.classIri)
 class Book {
   @RdfProperty(SchemaBook.isbn)
   final String isbn;
@@ -13,15 +11,13 @@ class Book {
   @RdfProperty(SchemaBook.name)
   final String title;
 
-  @RdfProperty(SchemaBook.author,
-      iri: IriMapping('http://example.org/authors/{authorId}'))
+  @RdfProperty(
+    SchemaBook.author,
+    iri: IriMapping('http://example.org/authors/{authorId}'),
+  )
   final String authorId;
 
-  Book({
-    required this.isbn,
-    required this.title,
-    required this.authorId,
-  });
+  Book({required this.isbn, required this.title, required this.authorId});
 }
 
 @RdfLocalResource(SchemaPerson.classIri, false)
@@ -112,8 +108,10 @@ class TestLocalResourceMapper
 
   @override
   (BlankNodeTerm, List<Triple>) toRdfResource(
-      value, SerializationContext context,
-      {RdfSubject? parentSubject}) {
+    value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
     throw UnimplementedError();
   }
 
@@ -133,13 +131,14 @@ class TestLocalResourceMapper2
 
   @override
   (BlankNodeTerm, List<Triple>) toRdfResource(
-      value, SerializationContext context,
-      {RdfSubject? parentSubject}) {
+    value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
     throw UnimplementedError();
   }
 
   @override
-  IriTerm? get typeIri => IriTerm(
-        'http://example.org/l/ClassWithMapperInstanceStrategy',
-      );
+  IriTerm? get typeIri =>
+      IriTerm('http://example.org/l/ClassWithMapperInstanceStrategy');
 }

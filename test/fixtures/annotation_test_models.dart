@@ -25,7 +25,8 @@ class TestMapper implements IriTermMapper<(String id,)> {
 @RdfGlobalResource(
   SchemaBook.classIri,
   IriStrategy.mapperInstance(
-      const TestMapper(prefix: 'https://example.org/books')),
+    const TestMapper(prefix: 'https://example.org/books'),
+  ),
   registerGlobally: true,
 )
 class BookWithMapper {
@@ -42,17 +43,15 @@ class BookWithMapper {
   )
   final String title;
 
-  BookWithMapper({
-    required this.id,
-    required this.title,
-  });
+  BookWithMapper({required this.id, required this.title});
 }
 
 // A test class with mapper instance
 @RdfGlobalResource(
   SchemaBook.classIri,
   IriStrategy.mapperInstance(
-      const TestMapper(prefix: 'https://example.org/books')),
+    const TestMapper(prefix: 'https://example.org/books'),
+  ),
   registerGlobally: false,
 )
 class BookWithMapperInstance {

@@ -18,11 +18,7 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 /// - BookFormat.paperback → "paperback"
 /// - BookFormat.ebook → "ebook"
 @RdfLiteral()
-enum BookFormat {
-  hardcover,
-  paperback,
-  ebook,
-}
+enum BookFormat { hardcover, paperback, ebook }
 
 /// Enum with custom literal values using @RdfEnumValue annotations.
 ///
@@ -244,8 +240,10 @@ class Book {
   final ItemCondition condition;
 
   // Override with custom literal mapper for this property
-  @RdfProperty(MyBookVocab.priority,
-      literal: LiteralMapping.namedMapper('customPriorityMapper'))
+  @RdfProperty(
+    MyBookVocab.priority,
+    literal: LiteralMapping.namedMapper('customPriorityMapper'),
+  )
   final Priority priority;
 
   // Apply language tag to enum literal for this property
@@ -264,10 +262,12 @@ class Book {
 class MyBookVocab {
   static const String namespace = 'http://example.org/vocab/';
   static const IriTerm classIri = IriTerm.prevalidated('${namespace}Book');
-  static const IriTerm bookFormat =
-      IriTerm.prevalidated('${namespace}bookFormat');
-  static const IriTerm itemCondition =
-      IriTerm.prevalidated('${namespace}itemCondition');
+  static const IriTerm bookFormat = IriTerm.prevalidated(
+    '${namespace}bookFormat',
+  );
+  static const IriTerm itemCondition = IriTerm.prevalidated(
+    '${namespace}itemCondition',
+  );
   static const IriTerm priority = IriTerm.prevalidated('${namespace}priority');
   static const IriTerm status = IriTerm.prevalidated('${namespace}status');
 }

@@ -18,9 +18,8 @@ import 'package:rdf_vocabularies/schema.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
 class BookAuthorIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/authors/(?<authorId>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/authors/(?<authorId>[^/]*)\$');
 
   /// Constructor
   const BookAuthorIdMapper();
@@ -32,7 +31,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     return iriParts['authorId']!;
   }
@@ -53,16 +52,15 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Book.
 class BookMapper implements GlobalResourceMapper<Book> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/books/(?<isbn>[^/]*)\$');
 
   final IriTermMapper<String> _authorIdMapper;
 
   /// Constructor
-  const BookMapper({
-    IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper(),
-  }) : _authorIdMapper = authorIdMapper;
+  const BookMapper(
+      {IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper()})
+      : _authorIdMapper = authorIdMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -80,10 +78,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
 
     final isbn = iriParts['isbn']!;
     final String title = reader.require(SchemaBook.name);
-    final String authorId = reader.require(
-      SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
-    );
+    final String authorId =
+        reader.require(SchemaBook.author, iriTermDeserializer: _authorIdMapper);
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
@@ -99,11 +95,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.name, resource.title)
-        .addValue(
-          SchemaBook.author,
-          resource.authorId,
-          iriTermSerializer: _authorIdMapper,
-        )
+        .addValue(SchemaBook.author, resource.authorId,
+            iriTermSerializer: _authorIdMapper)
         .build();
   }
 
@@ -128,9 +121,7 @@ class ClassWithEmptyIriStrategyMapper
 
   @override
   ClassWithEmptyIriStrategy fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final iri = subject.iri;
 
     return ClassWithEmptyIriStrategy(iri: iri);
@@ -162,9 +153,7 @@ class ClassWithNoRdfTypeMapper
 
   @override
   ClassWithNoRdfType fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
@@ -187,10 +176,8 @@ class ClassWithNoRdfTypeMapper
     return context
         .resourceBuilder(subject)
         .addValue(SchemaPerson.name, resource.name)
-        .when(
-          resource.age != null,
-          (b) => b.addValue(SchemaPerson.foafAge, resource.age),
-        )
+        .when(resource.age != null,
+            (b) => b.addValue(SchemaPerson.foafAge, resource.age))
         .build();
   }
 }
@@ -210,9 +197,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 
   @override
   ClassWithEmptyIriStrategyNoRegisterGlobally fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final iri = subject.iri;
 
     return ClassWithEmptyIriStrategyNoRegisterGlobally(iri: iri);
@@ -236,9 +221,8 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 /// and RDF triples for resources of type ClassWithIriTemplateStrategy.
 class ClassWithIriTemplateStrategyMapper
     implements GlobalResourceMapper<ClassWithIriTemplateStrategy> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/persons/(?<id>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/persons/(?<id>[^/]*)\$');
 
   /// Constructor
   const ClassWithIriTemplateStrategyMapper();
@@ -248,9 +232,7 @@ class ClassWithIriTemplateStrategyMapper
 
   @override
   ClassWithIriTemplateStrategy fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final RegExpMatch? match = _regex.firstMatch(subject.iri);
 
     final iriParts = {
@@ -288,25 +270,22 @@ class ClassWithIriTemplateStrategyMapper
 class ClassWithIriTemplateAndContextVariableStrategyMapper
     implements
         GlobalResourceMapper<ClassWithIriTemplateAndContextVariableStrategy> {
-  static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/persons/(?<thisId>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^(?<baseUri>.*)/persons/(?<thisId>[^/]*)\$');
 
   final String Function() _baseUriProvider;
 
   /// Constructor
-  const ClassWithIriTemplateAndContextVariableStrategyMapper({
-    required String Function() baseUriProvider,
-  }) : _baseUriProvider = baseUriProvider;
+  const ClassWithIriTemplateAndContextVariableStrategyMapper(
+      {required String Function() baseUriProvider})
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriTemplateAndContextVariableStrategy fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final RegExpMatch? match = _regex.firstMatch(subject.iri);
 
     final iriParts = {
@@ -344,25 +323,22 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 /// and RDF triples for resources of type ClassWithOtherBaseUriNonGlobal.
 class ClassWithOtherBaseUriNonGlobalMapper
     implements GlobalResourceMapper<ClassWithOtherBaseUriNonGlobal> {
-  static final RegExp _regex = RegExp(
-    '^(?<otherBaseUri>.*)/persons/(?<thisId>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^(?<otherBaseUri>.*)/persons/(?<thisId>[^/]*)\$');
 
   final String Function() _otherBaseUriProvider;
 
   /// Constructor
-  const ClassWithOtherBaseUriNonGlobalMapper({
-    required String Function() otherBaseUriProvider,
-  }) : _otherBaseUriProvider = otherBaseUriProvider;
+  const ClassWithOtherBaseUriNonGlobalMapper(
+      {required String Function() otherBaseUriProvider})
+      : _otherBaseUriProvider = otherBaseUriProvider;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithOtherBaseUriNonGlobal fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final RegExpMatch? match = _regex.firstMatch(subject.iri);
 
     final iriParts = {
@@ -403,18 +379,16 @@ class ClassWithIriNamedMapperStrategyMapper
   final IriTermMapper<ClassWithIriNamedMapperStrategy> _iriMapper;
 
   /// Constructor
-  const ClassWithIriNamedMapperStrategyMapper({
-    required IriTermMapper<ClassWithIriNamedMapperStrategy> testMapper,
-  }) : _iriMapper = testMapper;
+  const ClassWithIriNamedMapperStrategyMapper(
+      {required IriTermMapper<ClassWithIriNamedMapperStrategy> testMapper})
+      : _iriMapper = testMapper;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     return ClassWithIriNamedMapperStrategy();
   }
 
@@ -439,18 +413,16 @@ class ClassWithIriNamedMapperStrategy1PartMapper
   final IriTermMapper<(String id,)> _iriMapper;
 
   /// Constructor
-  const ClassWithIriNamedMapperStrategy1PartMapper({
-    required IriTermMapper<(String id,)> testMapper1Part,
-  }) : _iriMapper = testMapper1Part;
+  const ClassWithIriNamedMapperStrategy1PartMapper(
+      {required IriTermMapper<(String id,)> testMapper1Part})
+      : _iriMapper = testMapper1Part;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy1Part fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     return ClassWithIriNamedMapperStrategy1Part(id: id);
@@ -474,22 +446,32 @@ class ClassWithIriNamedMapperStrategy1PartMapper
 /// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2Parts.
 class ClassWithIriNamedMapperStrategy2PartsMapper
     implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy2Parts> {
-  final IriTermMapper<(String id, int version)> _iriMapper;
+  final IriTermMapper<
+      (
+        String id,
+        int version,
+      )> _iriMapper;
 
   /// Constructor
-  const ClassWithIriNamedMapperStrategy2PartsMapper({
-    required IriTermMapper<(String id, int version)> testMapper2Parts,
-  }) : _iriMapper = testMapper2Parts;
+  const ClassWithIriNamedMapperStrategy2PartsMapper(
+      {required IriTermMapper<
+              (
+                String id,
+                int version,
+              )>
+          testMapper2Parts})
+      : _iriMapper = testMapper2Parts;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy2Parts fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
-    final (id, version) = _iriMapper.fromRdfTerm(subject, context);
+      IriTerm subject, DeserializationContext context) {
+    final (
+      id,
+      version,
+    ) = _iriMapper.fromRdfTerm(subject, context);
 
     return ClassWithIriNamedMapperStrategy2Parts(id: id, version: version);
   }
@@ -516,27 +498,35 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
 class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
     implements
         GlobalResourceMapper<ClassWithIriNamedMapperStrategy2PartsSwapped> {
-  final IriTermMapper<(int version, String id)> _iriMapper;
+  final IriTermMapper<
+      (
+        int version,
+        String id,
+      )> _iriMapper;
 
   /// Constructor
-  const ClassWithIriNamedMapperStrategy2PartsSwappedMapper({
-    required IriTermMapper<(int version, String id)> testMapper2PartsSwapped,
-  }) : _iriMapper = testMapper2PartsSwapped;
+  const ClassWithIriNamedMapperStrategy2PartsSwappedMapper(
+      {required IriTermMapper<
+              (
+                int version,
+                String id,
+              )>
+          testMapper2PartsSwapped})
+      : _iriMapper = testMapper2PartsSwapped;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy2PartsSwapped fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
-    final (version, id) = _iriMapper.fromRdfTerm(subject, context);
+      IriTerm subject, DeserializationContext context) {
+    final (
+      version,
+      id,
+    ) = _iriMapper.fromRdfTerm(subject, context);
 
     return ClassWithIriNamedMapperStrategy2PartsSwapped(
-      id: id,
-      version: version,
-    );
+        id: id, version: version);
   }
 
   @override
@@ -561,27 +551,38 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
 class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
     implements
         GlobalResourceMapper<
-          ClassWithIriNamedMapperStrategy2PartsWithProperties
-        > {
-  final IriTermMapper<(String id, String surname, int version)> _iriMapper;
+            ClassWithIriNamedMapperStrategy2PartsWithProperties> {
+  final IriTermMapper<
+      (
+        String id,
+        String surname,
+        int version,
+      )> _iriMapper;
 
   /// Constructor
-  const ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper({
-    required IriTermMapper<(String id, String surname, int version)>
-    testMapper3,
-  }) : _iriMapper = testMapper3;
+  const ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
+      {required IriTermMapper<
+              (
+                String id,
+                String surname,
+                int version,
+              )>
+          testMapper3})
+      : _iriMapper = testMapper3;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriNamedMapperStrategy2PartsWithProperties fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final (id, _, version) = _iriMapper.fromRdfTerm(subject, context);
+    final (
+      id,
+      _,
+      version,
+    ) = _iriMapper.fromRdfTerm(subject, context);
 
     final String givenName = reader.require(SchemaPerson.givenName);
     final String surname = reader.require(SchemaPerson.foafSurname);
@@ -612,10 +613,8 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
         .resourceBuilder(subject)
         .addValue(SchemaPerson.givenName, resource.givenName)
         .addValue(SchemaPerson.foafSurname, resource.surname)
-        .when(
-          resource.age != null,
-          (b) => b.addValue(SchemaPerson.foafAge, resource.age),
-        )
+        .when(resource.age != null,
+            (b) => b.addValue(SchemaPerson.foafAge, resource.age))
         .build();
   }
 }
@@ -629,18 +628,17 @@ class ClassWithIriMapperStrategyMapper
   final IriTermMapper<ClassWithIriMapperStrategy> _iriMapper;
 
   /// Constructor
-  const ClassWithIriMapperStrategyMapper({
-    IriTermMapper<ClassWithIriMapperStrategy> iriMapper = const TestIriMapper(),
-  }) : _iriMapper = iriMapper;
+  const ClassWithIriMapperStrategyMapper(
+      {IriTermMapper<ClassWithIriMapperStrategy> iriMapper =
+          const TestIriMapper()})
+      : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriMapperStrategy fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     return ClassWithIriMapperStrategy();
   }
 
@@ -665,19 +663,17 @@ class ClassWithIriMapperInstanceStrategyMapper
   final IriTermMapper<ClassWithIriMapperInstanceStrategy> _iriMapper;
 
   /// Constructor
-  const ClassWithIriMapperInstanceStrategyMapper({
-    IriTermMapper<ClassWithIriMapperInstanceStrategy> iriMapper =
-        const TestIriMapper2(),
-  }) : _iriMapper = iriMapper;
+  const ClassWithIriMapperInstanceStrategyMapper(
+      {IriTermMapper<ClassWithIriMapperInstanceStrategy> iriMapper =
+          const TestIriMapper2()})
+      : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;
 
   @override
   ClassWithIriMapperInstanceStrategy fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
     final String name = reader.require(SchemaPerson.name);
