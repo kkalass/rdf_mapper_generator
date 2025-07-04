@@ -90,7 +90,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final DateTime published = reader.require(SchemaBook.datePublished);
     final ISBN isbn = reader.require(SchemaBook.isbn);
     final Rating rating = reader.require(SchemaBook.aggregateRating);
-    final BookFormat format = reader.require(SchemaBook.bookFormat);
+    final BookFormat? format = reader.optional(SchemaBook.bookFormat);
     final Iterable<Chapter> chapters = reader.getValues<Chapter>(
       SchemaBook.hasPart,
     );
@@ -126,7 +126,10 @@ class BookMapper implements GlobalResourceMapper<Book> {
         .addValue(SchemaBook.datePublished, resource.published)
         .addValue(SchemaBook.isbn, resource.isbn)
         .addValue(SchemaBook.aggregateRating, resource.rating)
-        .addValue(SchemaBook.bookFormat, resource.format)
+        .when(
+          resource.format != null,
+          (b) => b.addValue(SchemaBook.bookFormat, resource.format),
+        )
         .addValues<Chapter>(SchemaBook.hasPart, resource.chapters)
         .build();
   }

@@ -37,7 +37,7 @@ class Book {
 
   // And even an enum can be used here, serialized as IRI in this case.
   @RdfProperty(SchemaBook.bookFormat)
-  final BookFormat format;
+  final BookFormat? format;
 
   // Iterable type is automatically detected, Chapter is also automatically detected.
   @RdfProperty(SchemaBook.hasPart)
