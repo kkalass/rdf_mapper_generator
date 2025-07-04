@@ -26,7 +26,8 @@ class BroaderImports {
 
   static Iterable<MapEntry<String, String>> _exportedLibraryMappings(
       LibraryElem lib, String broaderImportName) {
-    return _exportedLibraryMappingsWithVisited(lib, broaderImportName, <String>{});
+    return _exportedLibraryMappingsWithVisited(
+        lib, broaderImportName, <String>{});
   }
 
   static Iterable<MapEntry<String, String>> _exportedLibraryMappingsWithVisited(
@@ -35,13 +36,14 @@ class BroaderImports {
     if (visited.contains(lib.identifier)) {
       return const <MapEntry<String, String>>[];
     }
-    
+
     // Create a new set that includes the current library to track this path
     final newVisited = Set<String>.from(visited)..add(lib.identifier);
-    
+
     return lib.exportedLibraries.expand((exp) => [
           MapEntry<String, String>(exp.identifier, broaderImportName),
-          ..._exportedLibraryMappingsWithVisited(exp, broaderImportName, newVisited)
+          ..._exportedLibraryMappingsWithVisited(
+              exp, broaderImportName, newVisited)
         ]);
   }
 
