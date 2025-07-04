@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="rdf_mapper_generator API docs, for the Dart programming language.">
+  <title>rdf_mapper_generator - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://kkalass.github.io/rdf_mapper_generator/">rdf_mapper_generator package</a></li>
+  </ol>
+  <div class="self-name">rdf_mapper_generator</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="rdf-mapper-generator-for-dart">RDF Mapper Generator for Dart</h1>
+<p><a href="https://pub.dev/packages/rdf_mapper_generator"><img src="https://img.shields.io/pub/v/rdf_mapper_generator.svg" alt="pub package"></a>
+<a href="https://github.com/kkalass/rdf_mapper_generator/actions"><img src="https://github.com/kkalass/rdf_mapper_generator/actions/workflows/ci.yml/badge.svg" alt="build"></a>
+<a href="https://codecov.io/gh/kkalass/rdf_mapper_generator"><img src="https://codecov.io/gh/kkalass/rdf_mapper_generator/branch/main/graph/badge.svg" alt="codecov"></a>
+<a href="https://github.com/kkalass/rdf_mapper_generator/blob/main/LICENSE"><img src="https://img.shields.io/github/license/kkalass/rdf_mapper_generator.svg" alt="license"></a></p>
+<p>A code generation tool for creating type-safe, boilerplate-free RDF mappers in Dart. Automatically converts between Dart objects and RDF (Resource Description Framework) data by processing annotations from rdf_mapper_annotations. Supports global and local resources, IRI templates, custom type mappings, collections, and complex object graphs while maintaining high performance and type safety.</p>
+<h2 id="overview">Overview</h2>
+<p><a href="https://kkalass.github.io/rdf_mapper_generator/">🌐 <strong>Official Homepage</strong></a></p>
+<p><code>rdf_mapper_generator</code> provides the builder that takes classes annotated with the annotations from <code>rdf_mapper_annotations</code> and generates Mappers for use with <code>rdf_mapper</code> project.</p>
+<h2 id="part-of-a-family-of-projects">Part of a Family of Projects</h2>
+<p>This library is part of a comprehensive ecosystem for working with RDF in Dart:</p>
+<ul>
+<li><a href="https://github.com/kkalass/rdf_core">rdf_core</a> - Core graph classes and serialization (Turtle, JSON-LD, N-Triples)</li>
+<li><a href="https://github.com/kkalass/rdf_mapper">rdf_mapper</a> - Base mapping system between Dart objects and RDF</li>
+<li><a href="https://github.com/kkalass/rdf_mapper_generator">rdf_mapper_generator</a> - Code generator for this annotation library</li>
+<li><a href="https://github.com/kkalass/rdf_vocabularies">rdf_vocabularies</a> - Constants for common RDF vocabularies (Schema.org, FOAF, etc.)</li>
+<li><a href="https://github.com/kkalass/rdf_xml">rdf_xml</a> - RDF/XML format support</li>
+<li><a href="https://github.com/kkalass/rdf_vocabulary_to_dart">rdf_vocabulary_to_dart</a> - Generate constants for custom vocabularies</li>
+</ul>
+<h2 id="-roadmap--next-steps">🛣️ Roadmap / Next Steps</h2>
+<ul>
+<li>Implement many more tests.</li>
+<li>Improve validation and error behaviour, make sure that wrongly used annotations will be answered with helpful messages instead of cryptic error behaviour</li>
+<li>Cleanup Codebase, get rid of all FIXME and TODO comments</li>
+</ul>
+<h2 id="-contributing">🤝 Contributing</h2>
+<p>Contributions, bug reports, and feature requests are welcome!</p>
+<ul>
+<li>Fork the repo and submit a PR</li>
+<li>See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines</li>
+<li>Join the discussion in <a href="https://github.com/kkalass/rdf_mapper_generator/issues">GitHub Issues</a></li>
+</ul>
+<h2 id="-ai-policy">🤖 AI Policy</h2>
+<p>This project is proudly human-led and human-controlled, with all key decisions, design, and code reviews made by people. At the same time, it stands on the shoulders of LLM giants: generative AI tools are used throughout the development process to accelerate iteration, inspire new ideas, and improve documentation quality. We believe that combining human expertise with the best of AI leads to higher-quality, more innovative open source software.</p>
+<hr>
+<p>© 2025 Klas Kalaß. Licensed under the MIT License.</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="builder_helper">
+  <span class="name"><a href="builder_helper">builder_helper</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="cache_builder">
+  <span class="name"><a href="cache_builder">cache_builder</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="init_file_builder">
+  <span class="name"><a href="init_file_builder">init_file_builder</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="init_file_builder_helper">
+  <span class="name"><a href="init_file_builder_helper">init_file_builder_helper</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="rdf_mapper_generator">
+  <span class="name"><a href="rdf_mapper_generator">rdf_mapper_generator</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="source_builder">
+  <span class="name"><a href="source_builder">source_builder</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://kkalass.github.io/rdf_mapper_generator/">rdf_mapper_generator package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">rdf_mapper_generator</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="builder_helper">builder_helper</a></li>
+      <li><a href="cache_builder">cache_builder</a></li>
+      <li><a href="init_file_builder">init_file_builder</a></li>
+      <li><a href="init_file_builder_helper">init_file_builder_helper</a></li>
+      <li><a href="rdf_mapper_generator">rdf_mapper_generator</a></li>
+      <li><a href="source_builder">source_builder</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    rdf_mapper_generator
+      0.2.0
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
