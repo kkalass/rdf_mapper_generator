@@ -19,9 +19,8 @@ import 'package:rdf_vocabularies/rdf.dart' as rdf;
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type String.
 class BookAuthorIdMapper implements IriTermMapper<String> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/author/(?<authorId>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/author/(?<authorId>[^/]*)\$');
 
   /// Constructor
   const BookAuthorIdMapper();
@@ -33,7 +32,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     return iriParts['authorId']!;
   }
@@ -54,16 +53,15 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Book.
 class BookMapper implements GlobalResourceMapper<Book> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/book/(?<id>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/book/(?<id>[^/]*)\$');
 
   final IriTermMapper<String> _authorIdMapper;
 
   /// Constructor
-  const BookMapper({
-    IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper(),
-  }) : _authorIdMapper = authorIdMapper;
+  const BookMapper(
+      {IriTermMapper<String> authorIdMapper = const BookAuthorIdMapper()})
+      : _authorIdMapper = authorIdMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;
@@ -81,26 +79,22 @@ class BookMapper implements GlobalResourceMapper<Book> {
 
     final id = iriParts['id']!;
     final String title = reader.require(SchemaBook.name);
-    final String authorId = reader.require(
-      SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
-    );
+    final String authorId =
+        reader.require(SchemaBook.author, iriTermDeserializer: _authorIdMapper);
     final DateTime published = reader.require(SchemaBook.datePublished);
     final ISBN isbn = reader.require(SchemaBook.isbn);
     final Rating rating = reader.require(SchemaBook.aggregateRating);
-    final Iterable<Chapter> chapters = reader.getValues<Chapter>(
-      SchemaBook.hasPart,
-    );
+    final Iterable<Chapter> chapters =
+        reader.getValues<Chapter>(SchemaBook.hasPart);
 
     return Book(
-      id: id,
-      title: title,
-      authorId: authorId,
-      published: published,
-      isbn: isbn,
-      rating: rating,
-      chapters: chapters,
-    );
+        id: id,
+        title: title,
+        authorId: authorId,
+        published: published,
+        isbn: isbn,
+        rating: rating,
+        chapters: chapters);
   }
 
   @override
@@ -114,11 +108,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
     return context
         .resourceBuilder(subject)
         .addValue(SchemaBook.name, resource.title)
-        .addValue(
-          SchemaBook.author,
-          resource.authorId,
-          iriTermSerializer: _authorIdMapper,
-        )
+        .addValue(SchemaBook.author, resource.authorId,
+            iriTermSerializer: _authorIdMapper)
         .addValue(SchemaBook.datePublished, resource.published)
         .addValue(SchemaBook.isbn, resource.isbn)
         .addValue(SchemaBook.aggregateRating, resource.rating)
@@ -146,9 +137,7 @@ class ChapterMapper implements LocalResourceMapper<Chapter> {
 
   @override
   Chapter fromRdfResource(
-    BlankNodeTerm subject,
-    DeserializationContext context,
-  ) {
+      BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
     final String title = reader.require(SchemaChapter.name);
@@ -190,7 +179,7 @@ class ISBNMapper implements IriTermMapper<ISBN> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final value = iriParts['value']!;
 
@@ -216,15 +205,10 @@ class RatingMapper implements LiteralTermMapper<Rating> {
   const RatingMapper();
 
   @override
-  Rating fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
-    final int stars = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck: bypassDatatypeCheck,
-    );
+  Rating fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    final int stars =
+        context.fromLiteralTerm(term, bypassDatatypeCheck: bypassDatatypeCheck);
 
     return Rating(stars);
   }

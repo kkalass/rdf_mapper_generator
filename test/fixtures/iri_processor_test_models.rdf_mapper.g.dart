@@ -17,9 +17,8 @@ import 'iri_processor_test_models.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type IriWithOnePart.
 class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/books/(?<isbn>[^/]*)\$');
 
   /// Constructor
   const IriWithOnePartMapper();
@@ -31,7 +30,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final isbn = iriParts['isbn']!;
 
@@ -55,24 +54,21 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
 /// and RDF terms for iri terms of type IriWithOnePartExplicitlyGlobal.
 class IriWithOnePartExplicitlyGlobalMapper
     implements IriTermMapper<IriWithOnePartExplicitlyGlobal> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/books/(?<isbn>[^/]*)\$');
 
   /// Constructor
   const IriWithOnePartExplicitlyGlobalMapper();
 
   @override
   IriWithOnePartExplicitlyGlobal fromRdfTerm(
-    IriTerm term,
-    DeserializationContext context,
-  ) {
+      IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final isbn = iriParts['isbn']!;
 
@@ -95,24 +91,21 @@ class IriWithOnePartExplicitlyGlobalMapper
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type IriWithOnePartNamed.
 class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/books/(?<isbn>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/books/(?<isbn>[^/]*)\$');
 
   /// Constructor
   const IriWithOnePartNamedMapper();
 
   @override
   IriWithOnePartNamed fromRdfTerm(
-    IriTerm term,
-    DeserializationContext context,
-  ) {
+      IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final value = iriParts['isbn']!;
 
@@ -135,9 +128,8 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type IriWithTwoParts.
 class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/(?<type>[^/]*)/(?<value>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/(?<type>[^/]*)/(?<value>[^/]*)\$');
 
   /// Constructor
   const IriWithTwoPartsMapper();
@@ -149,7 +141,7 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final value = iriParts['value']!;
     final type = iriParts['type']!;
@@ -175,28 +167,25 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
 /// and RDF terms for iri terms of type IriWithBaseUriAndTwoParts.
 class IriWithBaseUriAndTwoPartsMapper
     implements IriTermMapper<IriWithBaseUriAndTwoParts> {
-  static final RegExp _regex = RegExp(
-    '^(?<baseUri>.*)/(?<type>[^/]*)/(?<value>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^(?<baseUri>.*)/(?<type>[^/]*)/(?<value>[^/]*)\$');
 
   final String Function() _baseUriProvider;
 
   /// Constructor
-  const IriWithBaseUriAndTwoPartsMapper({
-    required String Function() baseUriProvider,
-  }) : _baseUriProvider = baseUriProvider;
+  const IriWithBaseUriAndTwoPartsMapper(
+      {required String Function() baseUriProvider})
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriWithBaseUriAndTwoParts fromRdfTerm(
-    IriTerm term,
-    DeserializationContext context,
-  ) {
+      IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final value = iriParts['value']!;
     final otherPart = iriParts['type']!;
@@ -228,7 +217,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 
   /// Constructor
   const IriWithBaseUriMapper({required String Function() baseUriProvider})
-    : _baseUriProvider = baseUriProvider;
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriWithBaseUri fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -237,7 +226,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final isbn = iriParts['isbn']!;
 
@@ -267,21 +256,19 @@ class IriWithBaseUriNoGlobalMapper
   final String Function() _baseUriProvider;
 
   /// Constructor
-  const IriWithBaseUriNoGlobalMapper({
-    required String Function() baseUriProvider,
-  }) : _baseUriProvider = baseUriProvider;
+  const IriWithBaseUriNoGlobalMapper(
+      {required String Function() baseUriProvider})
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriWithBaseUriNoGlobal fromRdfTerm(
-    IriTerm term,
-    DeserializationContext context,
-  ) {
+      IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final isbn = iriParts['isbn']!;
 
@@ -306,24 +293,21 @@ class IriWithBaseUriNoGlobalMapper
 /// and RDF terms for iri terms of type IriWithNonConstructorFields.
 class IriWithNonConstructorFieldsMapper
     implements IriTermMapper<IriWithNonConstructorFields> {
-  static final RegExp _regex = RegExp(
-    '^http://example\.org/items/(?<id>[^/]*)\$',
-  );
+  static final RegExp _regex =
+      RegExp('^http://example\.org/items/(?<id>[^/]*)\$');
 
   /// Constructor
   const IriWithNonConstructorFieldsMapper();
 
   @override
   IriWithNonConstructorFields fromRdfTerm(
-    IriTerm term,
-    DeserializationContext context,
-  ) {
+      IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final id = iriParts['id']!;
 
@@ -354,21 +338,19 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
   final String Function() _myBaseUriProvider;
 
   /// Constructor
-  const IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper({
-    required String Function() myBaseUriProvider,
-  }) : _myBaseUriProvider = myBaseUriProvider;
+  const IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper(
+      {required String Function() myBaseUriProvider})
+      : _myBaseUriProvider = myBaseUriProvider;
 
   @override
   IriWithNonConstructorFieldsAndBaseUriNonGlobal fromRdfTerm(
-    IriTerm term,
-    DeserializationContext context,
-  ) {
+      IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final id = iriParts['id']!;
 
@@ -395,8 +377,7 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
 /// and RDF terms for iri terms of type IriWithMixedFields.
 class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
   static final RegExp _regex = RegExp(
-    '^http://example\.org/products/(?<brand>[^/]*)/(?<category>[^/]*)/(?<id>[^/]*)\$',
-  );
+      '^http://example\.org/products/(?<brand>[^/]*)/(?<category>[^/]*)/(?<id>[^/]*)\$');
 
   /// Constructor
   const IriWithMixedFieldsMapper();
@@ -408,7 +389,7 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     final brand = iriParts['brand']!;
     final id = iriParts['id']!;
@@ -429,7 +410,6 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
     final productCategory = iriTermValue.productCategory;
     final id = iriTermValue.id;
     return IriTerm(
-      'http://example.org/products/${brand}/${productCategory}/${id}',
-    );
+        'http://example.org/products/${brand}/${productCategory}/${id}');
   }
 }

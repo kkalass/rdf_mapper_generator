@@ -22,15 +22,10 @@ class LiteralStringMapper implements LiteralTermMapper<LiteralString> {
   const LiteralStringMapper();
 
   @override
-  LiteralString fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
-    final String foo = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck: bypassDatatypeCheck,
-    );
+  LiteralString fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    final String foo =
+        context.fromLiteralTerm(term, bypassDatatypeCheck: bypassDatatypeCheck);
 
     return LiteralString(foo: foo);
   }
@@ -53,15 +48,10 @@ class RatingMapper implements LiteralTermMapper<Rating> {
   const RatingMapper();
 
   @override
-  Rating fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
-    final int stars = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck: bypassDatatypeCheck,
-    );
+  Rating fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    final int stars =
+        context.fromLiteralTerm(term, bypassDatatypeCheck: bypassDatatypeCheck);
 
     return Rating(stars);
   }
@@ -84,25 +74,19 @@ class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
   const LocalizedTextMapper();
 
   @override
-  LocalizedText fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+  LocalizedText fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     if (!bypassDatatypeCheck && term.datatype != rdf.Rdf.langString) {
       throw DeserializerDatatypeMismatchException(
-        'Failed to parse LocalizedText: ${term.value}. ',
-        actual: term.datatype,
-        expected: rdf.Rdf.langString,
-        targetType: LocalizedText,
-        mapperRuntimeType: this.runtimeType,
-      );
+          'Failed to parse LocalizedText: ${term.value}. ',
+          actual: term.datatype,
+          expected: rdf.Rdf.langString,
+          targetType: LocalizedText,
+          mapperRuntimeType: this.runtimeType);
     }
-    final String text = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck:
-          true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
-    );
+    final String text = context.fromLiteralTerm(term,
+        bypassDatatypeCheck:
+            true /*we handle the actual final datatype ourselves, just delegate for convenience*/);
     final String language = term.language!;
 
     return LocalizedText(text, language);
@@ -115,9 +99,7 @@ class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
     RdfSubject? parentSubject,
   }) {
     return LiteralTerm.withLanguage(
-      context.toLiteralTerm(value.text).value,
-      value.language,
-    );
+        context.toLiteralTerm(value.text).value, value.language);
   }
 }
 
@@ -129,25 +111,19 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
   const LiteralDoubleMapper();
 
   @override
-  LiteralDouble fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+  LiteralDouble fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     if (!bypassDatatypeCheck && term.datatype != Xsd.double) {
       throw DeserializerDatatypeMismatchException(
-        'Failed to parse LiteralDouble: ${term.value}. ',
-        actual: term.datatype,
-        expected: Xsd.double,
-        targetType: LiteralDouble,
-        mapperRuntimeType: this.runtimeType,
-      );
+          'Failed to parse LiteralDouble: ${term.value}. ',
+          actual: term.datatype,
+          expected: Xsd.double,
+          targetType: LiteralDouble,
+          mapperRuntimeType: this.runtimeType);
     }
-    final double foo = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck:
-          true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
-    );
+    final double foo = context.fromLiteralTerm(term,
+        bypassDatatypeCheck:
+            true /*we handle the actual final datatype ourselves, just delegate for convenience*/);
 
     return LiteralDouble(foo: foo);
   }
@@ -158,10 +134,8 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    return LiteralTerm(
-      context.toLiteralTerm(value.foo).value,
-      datatype: Xsd.double,
-    );
+    return LiteralTerm(context.toLiteralTerm(value.foo).value,
+        datatype: Xsd.double);
   }
 }
 
@@ -173,25 +147,19 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
   const LiteralIntegerMapper();
 
   @override
-  LiteralInteger fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+  LiteralInteger fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     if (!bypassDatatypeCheck && term.datatype != Xsd.integer) {
       throw DeserializerDatatypeMismatchException(
-        'Failed to parse LiteralInteger: ${term.value}. ',
-        actual: term.datatype,
-        expected: Xsd.integer,
-        targetType: LiteralInteger,
-        mapperRuntimeType: this.runtimeType,
-      );
+          'Failed to parse LiteralInteger: ${term.value}. ',
+          actual: term.datatype,
+          expected: Xsd.integer,
+          targetType: LiteralInteger,
+          mapperRuntimeType: this.runtimeType);
     }
-    final int value = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck:
-          true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
-    );
+    final int value = context.fromLiteralTerm(term,
+        bypassDatatypeCheck:
+            true /*we handle the actual final datatype ourselves, just delegate for convenience*/);
 
     return LiteralInteger(value: value);
   }
@@ -202,10 +170,8 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    return LiteralTerm(
-      context.toLiteralTerm(value.value).value,
-      datatype: Xsd.integer,
-    );
+    return LiteralTerm(context.toLiteralTerm(value.value).value,
+        datatype: Xsd.integer);
   }
 }
 
@@ -217,11 +183,8 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
   const TemperatureMapper();
 
   @override
-  Temperature fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+  Temperature fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     return Temperature.parse(term);
   }
 
@@ -245,10 +208,8 @@ class CustomLocalizedTextMapper
 
   @override
   CustomLocalizedText fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     return CustomLocalizedText.fromRdf(term);
   }
 
@@ -271,10 +232,8 @@ class DoubleAsMilliunitMapper implements LiteralTermMapper<DoubleAsMilliunit> {
 
   @override
   DoubleAsMilliunit fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     return DoubleAsMilliunit.fromMilliunit(term);
   }
 
@@ -298,14 +257,10 @@ class LiteralWithNonConstructorValueMapper
 
   @override
   LiteralWithNonConstructorValue fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
-    final String value = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck: bypassDatatypeCheck,
-    );
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    final String value =
+        context.fromLiteralTerm(term, bypassDatatypeCheck: bypassDatatypeCheck);
 
     final retval = LiteralWithNonConstructorValue();
     retval.value = value;
@@ -332,24 +287,19 @@ class LocalizedTextWithNonConstructorLanguageMapper
 
   @override
   LocalizedTextWithNonConstructorLanguage fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     if (!bypassDatatypeCheck && term.datatype != rdf.Rdf.langString) {
       throw DeserializerDatatypeMismatchException(
-        'Failed to parse LocalizedTextWithNonConstructorLanguage: ${term.value}. ',
-        actual: term.datatype,
-        expected: rdf.Rdf.langString,
-        targetType: LocalizedTextWithNonConstructorLanguage,
-        mapperRuntimeType: this.runtimeType,
-      );
+          'Failed to parse LocalizedTextWithNonConstructorLanguage: ${term.value}. ',
+          actual: term.datatype,
+          expected: rdf.Rdf.langString,
+          targetType: LocalizedTextWithNonConstructorLanguage,
+          mapperRuntimeType: this.runtimeType);
     }
-    final String text = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck:
-          true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
-    );
+    final String text = context.fromLiteralTerm(term,
+        bypassDatatypeCheck:
+            true /*we handle the actual final datatype ourselves, just delegate for convenience*/);
     final String language = term.language!;
 
     final retval = LocalizedTextWithNonConstructorLanguage(text);
@@ -364,9 +314,7 @@ class LocalizedTextWithNonConstructorLanguageMapper
     RdfSubject? parentSubject,
   }) {
     return LiteralTerm.withLanguage(
-      context.toLiteralTerm(value.text).value,
-      value.language,
-    );
+        context.toLiteralTerm(value.text).value, value.language);
   }
 }
 
@@ -380,24 +328,19 @@ class LiteralLateFinalLocalizedTextMapper
 
   @override
   LiteralLateFinalLocalizedText fromRdfTerm(
-    LiteralTerm term,
-    DeserializationContext context, {
-    bool bypassDatatypeCheck = false,
-  }) {
+      LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
     if (!bypassDatatypeCheck && term.datatype != rdf.Rdf.langString) {
       throw DeserializerDatatypeMismatchException(
-        'Failed to parse LiteralLateFinalLocalizedText: ${term.value}. ',
-        actual: term.datatype,
-        expected: rdf.Rdf.langString,
-        targetType: LiteralLateFinalLocalizedText,
-        mapperRuntimeType: this.runtimeType,
-      );
+          'Failed to parse LiteralLateFinalLocalizedText: ${term.value}. ',
+          actual: term.datatype,
+          expected: rdf.Rdf.langString,
+          targetType: LiteralLateFinalLocalizedText,
+          mapperRuntimeType: this.runtimeType);
     }
-    final String baseValue = context.fromLiteralTerm(
-      term,
-      bypassDatatypeCheck:
-          true /*we handle the actual final datatype ourselves, just delegate for convenience*/,
-    );
+    final String baseValue = context.fromLiteralTerm(term,
+        bypassDatatypeCheck:
+            true /*we handle the actual final datatype ourselves, just delegate for convenience*/);
     final String language = term.language!;
 
     final retval = LiteralLateFinalLocalizedText();
@@ -413,8 +356,6 @@ class LiteralLateFinalLocalizedTextMapper
     RdfSubject? parentSubject,
   }) {
     return LiteralTerm.withLanguage(
-      context.toLiteralTerm(value.baseValue).value,
-      value.language,
-    );
+        context.toLiteralTerm(value.baseValue).value, value.language);
   }
 }

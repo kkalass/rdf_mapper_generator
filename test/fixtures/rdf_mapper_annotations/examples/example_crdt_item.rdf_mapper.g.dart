@@ -19,15 +19,14 @@ import 'package:rdf_vocabularies/dcterms.dart';
 /// and RDF terms for iri terms of type String.
 class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl\$',
-  );
+      '^(?<storageRoot>.*)/solidtask/appinstance/(?<clientId>[^/]*)\.ttl\$');
 
   final String Function() _storageRootProvider;
 
   /// Constructor
-  const VectorClockEntryClientIdMapper({
-    required String Function() storageRootProvider,
-  }) : _storageRootProvider = storageRootProvider;
+  const VectorClockEntryClientIdMapper(
+      {required String Function() storageRootProvider})
+      : _storageRootProvider = storageRootProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -36,7 +35,7 @@ class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     return iriParts['clientId']!;
   }
@@ -63,14 +62,13 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
   final String Function() _taskIdProvider;
 
   /// Constructor
-  VectorClockEntryMapper({
-    required String Function() storageRootProvider,
-    required String Function() taskIdProvider,
-  }) : _storageRootProvider = storageRootProvider,
-       _taskIdProvider = taskIdProvider {
+  VectorClockEntryMapper(
+      {required String Function() storageRootProvider,
+      required String Function() taskIdProvider})
+      : _storageRootProvider = storageRootProvider,
+        _taskIdProvider = taskIdProvider {
     _clientIdMapper = VectorClockEntryClientIdMapper(
-      storageRootProvider: storageRootProvider,
-    );
+        storageRootProvider: storageRootProvider);
   }
 
   @override
@@ -78,15 +76,11 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
 
   @override
   VectorClockEntry fromRdfResource(
-    IriTerm subject,
-    DeserializationContext context,
-  ) {
+      IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final String clientId = reader.require(
-      SolidTaskVectorClockEntry.clientId,
-      iriTermDeserializer: _clientIdMapper,
-    );
+    final String clientId = reader.require(SolidTaskVectorClockEntry.clientId,
+        iriTermDeserializer: _clientIdMapper);
     final int clockValue = reader.require(SolidTaskVectorClockEntry.clockValue);
 
     return VectorClockEntry(clientId, clockValue);
@@ -102,11 +96,8 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SolidTaskVectorClockEntry.clientId,
-          resource.clientId,
-          iriTermSerializer: _clientIdMapper,
-        )
+        .addValue(SolidTaskVectorClockEntry.clientId, resource.clientId,
+            iriTermSerializer: _clientIdMapper)
         .addValue(SolidTaskVectorClockEntry.clockValue, resource.clockValue)
         .build();
   }
@@ -126,15 +117,14 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
 /// and RDF terms for iri terms of type String.
 class ItemLastModifiedByMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$',
-  );
+      '^(?<storageRoot>.*)/solidtask/appinstance/(?<lastModifiedBy>[^/]*)\.ttl\$');
 
   final String Function() _storageRootProvider;
 
   /// Constructor
-  const ItemLastModifiedByMapper({
-    required String Function() storageRootProvider,
-  }) : _storageRootProvider = storageRootProvider;
+  const ItemLastModifiedByMapper(
+      {required String Function() storageRootProvider})
+      : _storageRootProvider = storageRootProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -143,7 +133,7 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
-        name: match?.namedGroup(name) ?? '',
+        name: match?.namedGroup(name) ?? ''
     };
     return iriParts['lastModifiedBy']!;
   }
@@ -157,8 +147,7 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
     final lastModifiedBy = iriTermValue.toString();
     final storageRoot = _storageRootProvider();
     return IriTerm(
-      '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl',
-    );
+        '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl');
   }
 }
 
@@ -167,19 +156,17 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type Item.
 class ItemMapper implements GlobalResourceMapper<Item> {
-  static final RegExp _regex = RegExp(
-    '^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl\$',
-  );
+  static final RegExp _regex =
+      RegExp('^(?<storageRoot>.*)/solidtask/task/(?<id>[^/]*)\.ttl\$');
 
   late final IriTermMapper<String> _lastModifiedByMapper;
   final String Function() _storageRootProvider;
 
   /// Constructor
   ItemMapper({required String Function() storageRootProvider})
-    : _storageRootProvider = storageRootProvider {
-    _lastModifiedByMapper = ItemLastModifiedByMapper(
-      storageRootProvider: storageRootProvider,
-    );
+      : _storageRootProvider = storageRootProvider {
+    _lastModifiedByMapper =
+        ItemLastModifiedByMapper(storageRootProvider: storageRootProvider);
   }
 
   @override
@@ -197,22 +184,17 @@ class ItemMapper implements GlobalResourceMapper<Item> {
     };
 
     final String text = reader.require(SolidTaskTask.text);
-    final String lastModifiedBy = reader.require(
-      Dcterms.creator,
-      iriTermDeserializer: _lastModifiedByMapper,
-    );
+    final String lastModifiedBy = reader.require(Dcterms.creator,
+        iriTermDeserializer: _lastModifiedByMapper);
     final id = iriParts['id']!;
     final DateTime createdAt = reader.require(Dcterms.created);
-    final Map<String, int> vectorClock = reader
-        .collect<VectorClockEntry, Map<String, int>>(
-          SolidTaskTask.vectorClock,
-          (it) => {for (var vc in it) vc.clientId: vc.clockValue},
-          globalResourceDeserializer: VectorClockEntryMapper(
+    final Map<String, int> vectorClock = reader.collect<VectorClockEntry,
+            Map<String, int>>(SolidTaskTask.vectorClock,
+        (it) => {for (var vc in it) vc.clientId: vc.clockValue},
+        globalResourceDeserializer: VectorClockEntryMapper(
             storageRootProvider: _storageRootProvider,
             taskIdProvider: () =>
-                throw Exception('Must not call provider for deserialization'),
-          ),
-        );
+                throw Exception('Must not call provider for deserialization')));
     final bool isDeleted = reader.require(SolidTaskTask.isDeleted);
 
     final retval = Item(text: text, lastModifiedBy: lastModifiedBy);
@@ -236,21 +218,15 @@ class ItemMapper implements GlobalResourceMapper<Item> {
         .addValue(SolidTaskTask.text, resource.text)
         .addValue(Dcterms.created, resource.createdAt)
         .addValues<VectorClockEntry>(
-          SolidTaskTask.vectorClock,
-          resource.vectorClock.entries.map(
-            (e) => VectorClockEntry(e.key, e.value),
-          ),
-          resourceSerializer: VectorClockEntryMapper(
-            storageRootProvider: _storageRootProvider,
-            taskIdProvider: () => resource.id,
-          ),
-        )
+            SolidTaskTask.vectorClock,
+            resource.vectorClock.entries
+                .map((e) => VectorClockEntry(e.key, e.value)),
+            resourceSerializer: VectorClockEntryMapper(
+                storageRootProvider: _storageRootProvider,
+                taskIdProvider: () => resource.id))
         .addValue(SolidTaskTask.isDeleted, resource.isDeleted)
-        .addValue(
-          Dcterms.creator,
-          resource.lastModifiedBy,
-          iriTermSerializer: _lastModifiedByMapper,
-        )
+        .addValue(Dcterms.creator, resource.lastModifiedBy,
+            iriTermSerializer: _lastModifiedByMapper)
         .build();
   }
 
