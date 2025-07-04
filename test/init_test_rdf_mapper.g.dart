@@ -428,6 +428,7 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<efb.Chapter>(efbrmg.ChapterMapper());
   registry.registerMapper<efb.ISBN>(efbrmg.ISBNMapper());
   registry.registerMapper<efb.Rating>(efbrmg.RatingMapper());
+  registry.registerMapper<efb.BookFormat>(efbrmg.BookFormatMapper());
   registry.registerMapper<eis.StandardIsbn>(eisrmg.StandardIsbnMapper());
   registry.registerMapper<eis.AbsoluteUri>(eisrmg.AbsoluteUriMapper());
   registry.registerMapper<eis.UserReference>(userReferenceMapper);

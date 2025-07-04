@@ -247,6 +247,7 @@ void main() {
           isbn: ISBN('9780261102217'),
           rating: Rating(5),
           chapters: chapters,
+          format: BookFormat.hardcover,
         );
 
         final (subject, triples) = bookMapper.toRdfResource(book, context);
@@ -416,14 +417,14 @@ void main() {
         final context = createSerializationContext();
 
         final book = Book(
-          id: 'empty-book',
-          title: 'Empty Book',
-          authorId: 'unknown',
-          published: DateTime(2023, 1, 1),
-          isbn: ISBN('9780000000000'),
-          rating: Rating(1),
-          chapters: [],
-        );
+            id: 'empty-book',
+            title: 'Empty Book',
+            authorId: 'unknown',
+            published: DateTime(2023, 1, 1),
+            isbn: ISBN('9780000000000'),
+            rating: Rating(1),
+            chapters: [],
+            format: BookFormat.paperback);
 
         final (subject, triples) = bookMapper.toRdfResource(book, context);
 
@@ -446,6 +447,7 @@ void main() {
           published: DateTime.utc(2023, 6, 15),
           isbn: ISBN('9781234567890'),
           rating: Rating(4),
+          format: BookFormat.ebook,
           chapters: [
             Chapter('Chapter One', 1),
             Chapter('Chapter Two', 2),
@@ -502,6 +504,7 @@ void main() {
           published: DateTime(2023, 12, 31, 23, 59, 59),
           isbn: ISBN('978-0-123-45678-9'),
           rating: Rating(3),
+          format: BookFormat.graphicNovel,
           chapters: [
             Chapter('Chapter with Unicode: 日本語', 1),
             Chapter('Chapter with Emoji: 📚', 2),
