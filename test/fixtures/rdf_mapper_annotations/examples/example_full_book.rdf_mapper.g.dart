@@ -90,6 +90,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final DateTime published = reader.require(SchemaBook.datePublished);
     final ISBN isbn = reader.require(SchemaBook.isbn);
     final Rating rating = reader.require(SchemaBook.aggregateRating);
+    final BookFormat format = reader.require(SchemaBook.bookFormat);
     final Iterable<Chapter> chapters = reader.getValues<Chapter>(
       SchemaBook.hasPart,
     );
@@ -101,6 +102,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
       published: published,
       isbn: isbn,
       rating: rating,
+      format: format,
       chapters: chapters,
     );
   }
@@ -124,6 +126,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
         .addValue(SchemaBook.datePublished, resource.published)
         .addValue(SchemaBook.isbn, resource.isbn)
         .addValue(SchemaBook.aggregateRating, resource.rating)
+        .addValue(SchemaBook.bookFormat, resource.format)
         .addValues<Chapter>(SchemaBook.hasPart, resource.chapters)
         .build();
   }
@@ -238,5 +241,60 @@ class RatingMapper implements LiteralTermMapper<Rating> {
     RdfSubject? parentSubject,
   }) {
     return context.toLiteralTerm(value.stars);
+  }
+}
+
+/// Generated mapper for [BookFormat] enum IRIs.
+///
+/// This mapper handles serialization and deserialization between enum constants
+/// and RDF IRI terms for enum type BookFormat.
+class BookFormatMapper implements IriTermMapper<BookFormat> {
+  static final RegExp _regex = RegExp(r'^https://schema\.org/(?<value>[^/]*)$');
+
+  /// Constructor
+  const BookFormatMapper();
+
+  @override
+  BookFormat fromRdfTerm(IriTerm term, DeserializationContext context) {
+    /// Parses IRI parts from a complete IRI using a template.
+    final RegExpMatch? match = _regex.firstMatch(term.iri);
+
+    if (match == null) {
+      throw DeserializationException('Unknown BookFormat IRI: ${term.iri}');
+    }
+
+    final iriParts = {
+      for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
+    };
+    final enumValue = iriParts['value']!;
+
+    return switch (enumValue) {
+      'AudiobookFormat' => BookFormat.audiobook,
+      'Hardcover' => BookFormat.hardcover,
+      'Paperback' => BookFormat.paperback,
+      'Ebook' => BookFormat.ebook,
+      'GraphicNovel' => BookFormat.graphicNovel,
+      _ => throw DeserializationException(
+        'Unknown BookFormat IRI: ${term.iri}',
+      ),
+    };
+  }
+
+  @override
+  IriTerm toRdfTerm(
+    BookFormat value,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) => switch (value) {
+    BookFormat.audiobook => IriTerm(_buildIri('AudiobookFormat')),
+    BookFormat.hardcover => IriTerm(_buildIri('Hardcover')),
+    BookFormat.paperback => IriTerm(_buildIri('Paperback')),
+    BookFormat.ebook => IriTerm(_buildIri('Ebook')),
+    BookFormat.graphicNovel => IriTerm(_buildIri('GraphicNovel')),
+  };
+
+  /// Generates the complete IRI for a given enum value
+  String _buildIri(String value) {
+    return 'https://schema.org/${value}';
   }
 }
