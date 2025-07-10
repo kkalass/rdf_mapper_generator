@@ -543,7 +543,7 @@ find test/fixtures/rdf_mapper_annotations/examples -name "*.rdf_mapper.g.dart"
 
 ## 🛣️ Roadmap & Evolution
 
-### Current: v0.2.1 ✅
+### Current: v0.2.2 ✅
 - ✅ Full annotation support (global/local resources, literals, IRIs)
 - ✅ Complex IRI templates with context variables
 - ✅ Custom mapper integration (named, by type, by instance)
@@ -552,10 +552,13 @@ find test/fixtures/rdf_mapper_annotations/examples -name "*.rdf_mapper.g.dart"
 - ✅ Language tag support
 - ✅ Comprehensive test coverage
 - ✅ Null safety throughout
+- ✅ Support for lossless RDF mapping
 
 ### Next: v0.3.0 🎯
 - 🔄 Enhanced validation with helpful error messages
 - 🔄 Documentation improvements
+- 🔄 Support "proper" rdf Lists (e.g. with `rdf:first`, `rdf:rest`, `rdf:nil` )
+- 🔄 Support rdf Container (rdf:Bag / rdf:Seq etc)
 
 ### Future: v1.0.0 🌟
 - 🌟 Stable API guarantee
