@@ -257,6 +257,7 @@ class PropertyResolvedModel {
   final bool isRdfMapEntry;
   final bool isRdfMapKey;
   final bool isRdfMapValue;
+  final bool isRdfUnmappedTriples;
   final String? iriPartName;
   final String? constructorParameterName;
   final bool isNamedConstructorParameter;
@@ -290,6 +291,7 @@ class PropertyResolvedModel {
     required this.isRdfMapEntry,
     required this.isRdfMapKey,
     required this.isRdfMapValue,
+    required this.isRdfUnmappedTriples,
     required this.iriPartName,
     required this.constructorParameterName,
     required this.isNamedConstructorParameter,
@@ -317,6 +319,15 @@ class PropertyResolvedModel {
     ValidationContext context, {
     required Map<String, ProvidesResolvedModel> providesByProviderNames,
   }) {
+    if (isRdfUnmappedTriples) {
+      // Generate addUnmapped call for unmapped triples
+      return Code.combine([
+        Code.literal('.addUnmapped(resource.'),
+        Code.literal(propertyName),
+        Code.literal(')')
+      ]);
+    }
+
     if (!isRdfProperty || predicate == null) {
       return null;
     }
@@ -365,6 +376,12 @@ class PropertyResolvedModel {
   Code? _generateReaderCall({
     required Map<String, ProvidesResolvedModel> providesByProviderNames,
   }) {
+    if (isRdfUnmappedTriples) {
+      // Generate getUnmapped call for unmapped triples
+      return Code.combine(
+          [Code.literal('reader.getUnmapped<'), dartType, Code.literal('>()')]);
+    }
+
     if (!isRdfProperty || predicate == null) {
       return null;
     }
@@ -405,6 +422,7 @@ class PropertyResolvedModel {
         isRdfMapEntry: isRdfMapEntry,
         isRdfMapKey: isRdfMapKey,
         isRdfMapValue: isRdfMapValue,
+        isRdfUnmappedTriples: isRdfUnmappedTriples,
         iriPartName: iriPartName,
         name: constructorParameterName,
         isNamed: isNamedConstructorParameter,

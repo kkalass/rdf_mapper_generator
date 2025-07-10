@@ -5,6 +5,19 @@ const importDartCore = 'dart:core';
 /// This class manages code generation where types might come from different
 /// packages/libraries and need to be properly imported and aliased in the
 /// target file to avoid naming conflicts.
+///
+/// ## Propagation and Resolution
+/// Code objects are designed to be propagated as-is through the data layer
+/// (PropertyModel, PropertyResolvedModel, PropertyData, etc.) without being
+/// converted to strings until the final template rendering stage. This ensures
+/// that:
+/// 1. Import information is preserved throughout the processing pipeline
+/// 2. Aliases are correctly resolved with the final import context
+/// 3. Type references maintain their import dependencies
+///
+/// The resolution to final string representation happens only during template
+/// rendering when Code objects are converted to their string form with proper
+/// import aliases applied.
 class Code {
   static const String typeMarker = '\$Code\$';
   static const String typeProperty = '__type__';

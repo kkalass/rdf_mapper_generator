@@ -130,6 +130,15 @@ RdfMapValueAnnotationInfo? extractMapValueAnnotation(
   return mapValueAnnotation == null ? null : RdfMapValueAnnotationInfo();
 }
 
+RdfUnmappedTriplesAnnotationInfo? extractUnmappedTriplesAnnotation(
+    Iterable<ElemAnnotation> annotations) {
+  final unmappedTriplesAnnotation =
+      getAnnotation(annotations, 'RdfUnmappedTriples');
+  return unmappedTriplesAnnotation == null
+      ? null
+      : RdfUnmappedTriplesAnnotationInfo();
+}
+
 bool isNull(DartObject? field) {
   return field == null || field.isNull;
 }
@@ -363,6 +372,7 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
   final mapEntry = extractMapEntryAnnotation(context, name, annotations);
   final mapKey = extractMapKeyAnnotation(annotations);
   final mapValue = extractMapValueAnnotation(annotations);
+  final unmappedTriples = extractUnmappedTriplesAnnotation(annotations);
 
   final propertyInfo = PropertyProcessor.processFieldAlike(
     context,
@@ -401,7 +411,8 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
       iriPart: iriPart,
       mapEntry: mapEntry,
       mapKey: mapKey,
-      mapValue: mapValue);
+      mapValue: mapValue,
+      unmappedTriples: unmappedTriples);
 }
 
 ProvidesAnnotationInfo? extractProvidesAnnotation(

@@ -64,9 +64,22 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
     {{#value.hasReaderCall}}
+    {{^value.isRdfUnmappedTriples}}
     final {{value.dartType}} {{value.name}} = {{value.readerCall}};
+    {{/value.isRdfUnmappedTriples}}
     {{/value.hasReaderCall}}
     {{/constructorParametersOrOtherFields}}
+
+    {{#hasUnmappedTriplesFields}}
+    {{#constructorParametersOrOtherFields}}
+    {{#value.hasReaderCall}}
+    {{#value.isRdfUnmappedTriples}}
+    // Get unmapped triples as the last reader operation for lossless mapping
+    final {{value.dartType}} {{value.name}} = {{value.readerCall}};
+    {{/value.isRdfUnmappedTriples}}
+    {{/value.hasReaderCall}}
+    {{/constructorParametersOrOtherFields}}
+    {{/hasUnmappedTriplesFields}}
 
     {{#hasNonConstructorFields}}final retval = {{/hasNonConstructorFields}}{{^hasNonConstructorFields}}return {{/hasNonConstructorFields}}{{className}}(
       {{#constructorParameters}}
@@ -109,9 +122,20 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     return context.resourceBuilder(subject)
     {{#properties}}
     {{#hasBuilderCall}}
+    {{^isRdfUnmappedTriples}}
     {{builderCall}}
+    {{/isRdfUnmappedTriples}}
     {{/hasBuilderCall}}
     {{/properties}}
+    {{#hasUnmappedTriplesProperties}}
+    {{#properties}}
+    {{#hasBuilderCall}}
+    {{#isRdfUnmappedTriples}}
+    {{builderCall}}
+    {{/isRdfUnmappedTriples}}
+    {{/hasBuilderCall}}
+    {{/properties}}
+    {{/hasUnmappedTriplesProperties}}
       .build();
   }
 

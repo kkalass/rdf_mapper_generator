@@ -877,6 +877,20 @@ final class RdfMapEntryAnnotationInfo extends AnnotationInfo {
   }
 }
 
+final class RdfUnmappedTriplesAnnotationInfo extends AnnotationInfo {
+  static const RdfUnmappedTriplesAnnotationInfo instance =
+      RdfUnmappedTriplesAnnotationInfo._();
+
+  const RdfUnmappedTriplesAnnotationInfo._();
+
+  factory RdfUnmappedTriplesAnnotationInfo() => instance;
+
+  @override
+  String toString() {
+    return 'RdfUnmappedTriplesAnnotationInfo';
+  }
+}
+
 /// Information about a field
 class FieldInfo {
   /// The name of the field
@@ -915,6 +929,7 @@ class FieldInfo {
   final RdfMapEntryAnnotationInfo? mapEntry;
   final RdfMapKeyAnnotationInfo? mapKey;
   final RdfMapValueAnnotationInfo? mapValue;
+  final RdfUnmappedTriplesAnnotationInfo? unmappedTriples;
 
   const FieldInfo({
     required this.name,
@@ -933,6 +948,7 @@ class FieldInfo {
     this.mapEntry,
     this.mapKey,
     this.mapValue,
+    this.unmappedTriples,
   }) : typeNonNull = typeNonNull ?? type;
 
   @override
@@ -952,6 +968,7 @@ class FieldInfo {
         mapEntry,
         mapKey,
         mapValue,
+        unmappedTriples,
         iriPart,
       ]);
 
@@ -975,6 +992,7 @@ class FieldInfo {
         mapEntry == other.mapEntry &&
         mapKey == other.mapKey &&
         mapValue == other.mapValue &&
+        unmappedTriples == other.unmappedTriples &&
         iriPart == other.iriPart;
   }
 
@@ -997,6 +1015,7 @@ class FieldInfo {
         '  mapEntry: $mapEntry\n'
         '  mapKey: $mapKey\n'
         '  mapValue: $mapValue\n'
+        '  unmappedTriples: $unmappedTriples\n'
         '}';
   }
 }

@@ -53,6 +53,8 @@ import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.rdf_mapper
 import 'fixtures/rdf_mapper_annotations/examples/provides.dart' as provides;
 import 'fixtures/rdf_mapper_annotations/examples/provides.rdf_mapper.g.dart'
     as prmg;
+import 'fixtures/unmapped_triples_test_models.dart' as uttm;
+import 'fixtures/unmapped_triples_test_models.rdf_mapper.g.dart' as uttmrmg;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
 ///
@@ -446,6 +448,12 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<lsm.Book>(lsmrmg.BookMapper());
   registry.registerMapper<provides.Parent>(
     prmg.ParentMapper(baseUriProvider: baseUriProvider),
+  );
+  registry.registerMapper<uttm.BookWithUnmappedTriples>(
+    uttmrmg.BookWithUnmappedTriplesMapper(),
+  );
+  registry.registerMapper<uttm.BookWithInvalidUnmappedTriplesType>(
+    uttmrmg.BookWithInvalidUnmappedTriplesTypeMapper(),
   );
 
   return rdfMapper;

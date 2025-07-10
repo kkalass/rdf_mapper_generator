@@ -40,13 +40,17 @@ class ResourceModelBuilderSupport {
       resourceInfo.annotations,
     );
 
-    final invalidParameters = mappedClassModel.properties
-        .where((p) => p.isNeedsToBeSet && !(p.isIriPart || p.isRdfProperty));
+    final invalidParameters = mappedClassModel.properties.where((p) =>
+        p.isNeedsToBeSet &&
+        !(p.isIriPart || p.isRdfProperty || p.isRdfUnmappedTriples));
     if (invalidParameters.isNotEmpty) {
       // FIXME: p.isNeedsToBeSet is true even though the property actually has only getter and no setter
       // If this is fixed, we can go back to error
       context.addWarning(
-        'Resource class constructor must only have @IriPart or @RdfProperty parameters which need to be set, but found: ${invalidParameters.map((p) => p.propertyName).join(', ')} for ${resourceInfo.className.code}.',
+        'Resource class "${resourceInfo.className.code}" has invalid constructor parameters\n'
+        '  • Constructor parameters must be annotated with @RdfIriPart, @RdfProperty, or @RdfUnmappedTriples\n'
+        '  • Invalid parameters: ${invalidParameters.map((p) => p.propertyName).join(', ')}\n'
+        '  • Consider adding appropriate annotations or making these parameters optional',
       );
     }
 

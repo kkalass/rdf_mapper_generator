@@ -155,6 +155,15 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
+    final allProperties = [
+      ...propertiesToDeserializeAsConstructorParameters,
+      ...propertiesToDeserializeAsFields
+    ];
+    final hasUnmappedTriplesFields =
+        allProperties.any((p) => p.isRdfUnmappedTriples);
+    final hasUnmappedTriplesProperties =
+        propertiesToSerialize.any((p) => p.isRdfUnmappedTriples);
+
     return {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
@@ -170,11 +179,11 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
               .toList()),
       'nonConstructorFields': toMustacheList(
           propertiesToDeserializeAsFields.map((p) => p.toMap()).toList()),
-      'constructorParametersOrOtherFields': toMustacheList([
-        ...propertiesToDeserializeAsConstructorParameters,
-        ...propertiesToDeserializeAsFields
-      ].map((p) => p.toMap()).toList()),
+      'constructorParametersOrOtherFields':
+          toMustacheList(allProperties.map((p) => p.toMap()).toList()),
       'hasNonConstructorFields': propertiesToDeserializeAsFields.isNotEmpty,
+      'hasUnmappedTriplesFields': hasUnmappedTriplesFields,
+      'hasUnmappedTriplesProperties': hasUnmappedTriplesProperties,
       'properties': propertiesToSerialize.map((p) => p.toMap()).toList(),
       'mapperConstructor': mapperConstructor.toMap(),
       'mapperFields':
@@ -771,6 +780,7 @@ class PropertyData {
   final bool isRdfMapEntry;
   final bool isRdfMapKey;
   final bool isRdfMapValue;
+  final bool isRdfUnmappedTriples;
 
   final String? iriPartName;
   final String? name; // constructorParameterName
@@ -789,6 +799,7 @@ class PropertyData {
     required this.isRdfMapEntry,
     required this.isRdfMapKey,
     required this.isRdfMapValue,
+    required this.isRdfUnmappedTriples,
     required this.isIriPart,
     required this.isRdfValue,
     required this.isRdfLanguageTag,
@@ -810,6 +821,7 @@ class PropertyData {
         'isIriPart': isIriPart && !isRdfProperty,
         'isRdfValue': isRdfValue,
         'isRdfLanguageTag': isRdfLanguageTag,
+        'isRdfUnmappedTriples': isRdfUnmappedTriples,
         'iriPartName': iriPartName,
         'name': (name ?? '').isNotEmpty ? name : propertyName,
         'isNamed': isNamed,

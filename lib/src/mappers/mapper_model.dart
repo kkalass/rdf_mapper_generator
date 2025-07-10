@@ -244,6 +244,7 @@ class PropertyModel {
   final bool isRdfMapEntry;
   final bool isRdfMapKey;
   final bool isRdfMapValue;
+  final bool isRdfUnmappedTriples;
   final bool isIriPart;
   final String? iriPartName;
   final bool isProvides;
@@ -321,6 +322,7 @@ class PropertyModel {
     required this.isRdfMapEntry,
     required this.isRdfMapKey,
     required this.isRdfMapValue,
+    required this.isRdfUnmappedTriples,
   });
 
   PropertyResolvedModel resolve(
@@ -334,6 +336,7 @@ class PropertyModel {
       isRdfMapEntry: isRdfMapEntry,
       isRdfMapKey: isRdfMapKey,
       isRdfMapValue: isRdfMapValue,
+      isRdfUnmappedTriples: isRdfUnmappedTriples,
       include: include,
       predicate: predicate,
       defaultValue: defaultValue,
@@ -484,6 +487,10 @@ class ResolveStep1Context {
 
   void addWarning(String message) {
     _validationContext.addWarning(message);
+  }
+
+  void addFine(String message) {
+    _validationContext.addFine(message);
   }
 
   ResolvedMapperModel? getResolvedMapperModel(MapperRef id) {
@@ -1139,7 +1146,7 @@ class MapperDependency extends DependencyModel {
         final resolvedMapperModel = context.getResolvedMapperModel(mapperRef);
         _log.fine('resolvedMapperModel: $resolvedMapperModel');
         if (resolvedMapperModel == null) {
-          context.addWarning(
+          context.addFine(
               'Mapper dependency $mapperRef for $referenceName is not resolved - this is OK for references to user provided mappers. Will assume a no-args constructor');
           return [forSimpleDependency(fieldName, parameterName, implRef)];
         }

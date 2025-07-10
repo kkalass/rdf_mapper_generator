@@ -396,10 +396,9 @@ packages:
   rdf_mapper_annotations:
     dependency: "direct main"
     description:
-      name: rdf_mapper_annotations
-      sha256: b72f9802f7eb358b05e860ec95d294e63c421bf81eb5bb415dbb45ae45f49d0b
-      url: "https://pub.dev"
-    source: hosted
+      path: "../rdf_mapper_annotations"
+      relative: true
+    source: path
     version: "0.2.3"
   rdf_vocabularies:
     dependency: "direct main"

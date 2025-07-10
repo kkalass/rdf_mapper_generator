@@ -1,3 +1,5 @@
+import 'package:build/build.dart';
+
 /// Exception thrown when validation fails.
 class ValidationException implements Exception {
   final List<String> errors;
@@ -32,6 +34,7 @@ class ValidationException implements Exception {
 class ValidationContext {
   final List<String> _errors = [];
   final List<String> _warnings = [];
+  final List<String> _fine = [];
   final String? _context;
   final List<ValidationContext> _children = [];
   ValidationContext([this._context]);
@@ -44,6 +47,10 @@ class ValidationContext {
   /// Adds a validation warning.
   void addWarning(String message) {
     _warnings.add(_formatMessage(message));
+  }
+
+  void addFine(String message) {
+    _fine.add(_formatMessage(message));
   }
 
   /// Creates a new validation context with additional context information.
@@ -76,6 +83,18 @@ class ValidationContext {
         warnings: warnings,
       );
     }
+    if (hasWarnings) {
+      for (final warning in warnings) {
+        // print("!!!" + warning);
+        log.warning(warning);
+      }
+    }
+    if (hasFine) {
+      for (final f in fine) {
+        // print("Fine: " + f);
+        log.fine(f);
+      }
+    }
   }
 
   /// Returns true if there are no errors.
@@ -84,6 +103,8 @@ class ValidationContext {
   /// Returns true if there are any warnings.
   bool get hasWarnings =>
       _warnings.isNotEmpty || _children.any((c) => c.hasWarnings);
+
+  bool get hasFine => _fine.isNotEmpty || _children.any((c) => c.hasFine);
 
   /// Returns all error messages.
   List<String> get errors => List.unmodifiable([
@@ -95,6 +116,11 @@ class ValidationContext {
   List<String> get warnings => List.unmodifiable([
         ..._warnings,
         ..._children.expand((c) => c.warnings),
+      ]);
+
+  List<String> get fine => List.unmodifiable([
+        ..._fine,
+        ..._children.expand((c) => c.fine),
       ]);
 
   String _formatMessage(String message) {

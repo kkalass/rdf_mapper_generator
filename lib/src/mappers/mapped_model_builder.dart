@@ -13,6 +13,9 @@ import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import '../processors/models/mapper_info.dart';
 import 'mapper_model.dart';
 
+final _rdfGraphType = Code.type('RdfGraph',
+    importUri: 'package:rdf_core/src/graph/rdf_graph.dart');
+
 class MappedClassModelBuilder {
   static MappedClassModel buildMappedClassModel(
       ValidationContext context,
@@ -21,6 +24,9 @@ class MappedClassModelBuilder {
       List<ConstructorInfo> constructors,
       List<FieldInfo> fields,
       List<AnnotationInfo> annotations) {
+    // Validate @RdfUnmappedTriples annotation usage
+    _validateUnmappedTriplesFields(context, fields);
+
     final constructor = constructors.firstOrNull;
     final properties = _buildPropertyData(context, mappedClass, fields,
         constructor?.parameters ?? const [], mapperImportUri);
@@ -108,6 +114,7 @@ class MappedClassModelBuilder {
         isRdfMapEntry: f?.mapEntry != null,
         isRdfMapKey: f?.mapKey != null,
         isRdfMapValue: f?.mapValue != null,
+        isRdfUnmappedTriples: f?.unmappedTriples != null,
         isIriPart: f?.iriPart != null,
         iriPartName: f?.iriPart?.name,
         isProvides: f?.provides != null,
@@ -337,5 +344,32 @@ class MappedClassModelBuilder {
       propertyName,
       IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper),
     );
+  }
+
+  static void _validateUnmappedTriplesFields(
+      ValidationContext context, List<FieldInfo> fields) {
+    final unmappedFields =
+        fields.where((f) => f.unmappedTriples != null).toList();
+
+    if (unmappedFields.isEmpty) return;
+
+    // Check for multiple fields with @RdfUnmappedTriples annotation
+    if (unmappedFields.length > 1) {
+      context.addError(
+          'Only one field per class may be annotated with @RdfUnmappedTriples. '
+          'Found fields: ${unmappedFields.map((f) => f.name).join(', ')}');
+    }
+
+    // Validate the type of each field with @RdfUnmappedTriples annotation
+    for (final field in unmappedFields) {
+      final fieldType = field.type;
+
+      if (fieldType != _rdfGraphType) {
+        context.addWarning(
+            '@RdfUnmappedTriples field "${field.name}" uses non-standard type "${fieldType.codeWithoutAlias}"\n'
+            '  • Ensure UnmappedTriplesMapper<${fieldType.codeWithoutAlias}> is registered in your RdfMapper registry\n'
+            '  • ${_rdfGraphType.codeWithoutAlias} has a default mapper and is recommended for most use cases');
+      }
+    }
   }
 }
