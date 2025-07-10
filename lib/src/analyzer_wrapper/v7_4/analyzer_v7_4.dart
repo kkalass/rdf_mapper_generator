@@ -1,6 +1,6 @@
 // Actually working with analyzer v7.4.0
 //
-/*
+
 export 'package:analyzer/dart/constant/value.dart' show DartObject;
 export 'package:analyzer/dart/analysis/utilities.dart' show parseString;
 export 'package:analyzer/dart/analysis/analysis_context_collection.dart'
@@ -23,7 +23,6 @@ export 'package:analyzer/dart/element/element2.dart'
         SetterElement,
         VariableElement2;
 export 'package:analyzer/dart/element/type.dart' show DartType, InterfaceType;
-*/
 
 // Dummy types for compatibility with analyzer v7.4.0 wrapper,
 // this will not run though.
@@ -46,8 +45,9 @@ typedef ResolvedUnitResult = dynamic;
 typedef ParseResult = dynamic;
 typedef LibraryElem = dynamic;
 typedef InterfaceType = dynamic;
+typedef ParseStringResult = dynamic;
 
-parseString({required String content, required String path}) {
+ParseStringResult parseString({required String content, required String path}) {
   throw UnimplementedError(
       'parseString is not implemented in this analyzer version');
 }
