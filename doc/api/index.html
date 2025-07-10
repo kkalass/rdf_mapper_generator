@@ -57,6 +57,7 @@
 <li><strong>⚡ Optimized Generation</strong>: Generated code with no runtime overhead</li>
 <li><strong>🎯 Schema.org Support</strong>: Works with vocabularies from rdf_vocabularies</li>
 <li><strong>🔧 Flexible Mapping</strong>: Custom mappers, IRI templates, and complex relationships</li>
+<li><strong>🔄 Lossless Mapping</strong>: Preserve unmapped triples with <code>@RdfUnmappedTriples</code> for round-trip data integrity</li>
 <li><strong>🏗️ Build System Integration</strong>: Seamless integration with build_runner</li>
 </ul>
 <p><a href="https://kkalass.github.io/rdf_mapper_generator/">🌐 <strong>Official Documentation</strong></a></p>
@@ -116,13 +117,16 @@ final book = Book(
 );
 
 final turtle = mapper.encodeObject(book);
-print('Book IRI: ${turtle}');
-// Output: Book IRI: https://example.org/books/978-0-544-00341-5
+print('Book as RDF: ${turtle}');
 
 // Convert RDF back to Dart object
 final deserializedBook = mapper.decodeObject&lt;Book&gt;(turtle);
 print('Title: ${deserializedBook.title}');
 // Output: Title: The Hobbit
+
+// For lossless round-trip preservation, use the lossless API:
+final (bookFromRdf, remainder) = mapper.decodeObjectLossless&lt;Book&gt;(complexRdfData);
+final roundTripData = mapper.encodeObjectLossless((bookFromRdf, remainder));
 </code></pre>
 <p><strong>That's it!</strong> No manual mapping code, no runtime reflection, just pure generated performance.</p>
 <h2 id="-what-makes-this-useful">🎯 What Makes This Useful?</h2>
@@ -312,6 +316,11 @@ final String description;
 <td>Nullable types with smart handling</td>
 </tr>
 <tr>
+<td>✅ Lossless Mapping</td>
+<td>✓</td>
+<td><code>@RdfUnmappedTriples()</code> for round-trip preservation</td>
+</tr>
+<tr>
 <td>✅ Named Mappers</td>
 <td>✓</td>
 <td><code>LiteralMapping.namedMapper('myMapper')</code></td>
@@ -416,7 +425,151 @@ class Measurement {
   final String coordinates;
 }
 </code></pre>
-<h2 id="-advanced-configuration">� Advanced Configuration</h2>
+<h2 id="-lossless-round-trip-mapping">🔄 Lossless Round-Trip Mapping</h2>
+<p>RDF Mapper Generator supports <strong>lossless round-trip mapping</strong> where you can preserve all RDF data, even triples that aren't mapped to explicit properties. This is crucial for data pipelines, ETL operations, and scenarios where you cannot afford to lose any RDF information.</p>
+<h3 id="basic-lossless-mapping">Basic Lossless Mapping</h3>
+<pre class="language-dart"><code class="language-dart">@RdfGlobalResource(
+  SchemaBook.classIri,
+  IriStrategy('https://example.org/books/{isbn}'),
+)
+class Book {
+  @RdfIriPart()
+  final String isbn;
+
+  @RdfProperty(SchemaBook.name)
+  final String title;
+
+  @RdfProperty(SchemaBook.author)
+  final String author;
+
+  // Capture all unmapped triples
+  @RdfUnmappedTriples()
+  final RdfGraph unmappedTriples;
+
+  Book({
+    required this.isbn,
+    required this.title,
+    required this.author,
+    required this.unmappedTriples,
+  });
+}
+</code></pre>
+<h3 id="understanding-lossless-mapping">Understanding Lossless Mapping</h3>
+<p>Lossless mapping provides two complementary mechanisms:</p>
+<ol>
+<li><strong>@RdfUnmappedTriples annotation</strong>: Captures unmapped triples for a specific resource</li>
+<li><strong>decodeObjectLossless method</strong>: Returns both the mapped object and all remaining document triples</li>
+</ol>
+<h3 id="concrete-example">Concrete Example</h3>
+<p>Consider this RDF data:</p>
+<pre class="language-turtle"><code class="language-turtle">@prefix schema: &lt;https://schema.org/&gt; .
+@prefix ex: &lt;https://example.org/&gt; .
+
+ex:book123 a schema:Book ;
+  schema:name "The Dart Guide" ;
+  schema:author "Jane Developer" ;
+  schema:isbn "978-0123456789" ;
+  schema:publisher "Tech Press" ;          # Not mapped to Book class
+  schema:datePublished "2023-01-01" ;      # Not mapped to Book class
+  ex:internalId "B123" ;                   # Custom property not mapped
+  ex:lastModified "2023-12-01T10:00:00Z" . # Custom property not mapped
+
+ex:event123 a schema:Event ;              # Unrelated resource
+  schema:name "Book Launch" ;
+  schema:startDate "2023-01-15" .
+</code></pre>
+<p><strong>Standard decoding</strong> (<code>decodeObject</code>):</p>
+<pre class="language-dart"><code class="language-dart">// With strict mode (default) - throws exception due to unmapped triples
+try {
+  final book = mapper.decodeObject&lt;Book&gt;(rdfData);
+} catch (IncompleteDeserializationException e) {
+  // Exception thrown because of unmapped triples
+}
+
+// With lenient mode - discards unmapped data
+final book = mapper.decodeObject&lt;Book&gt;(rdfData, 
+    completenessMode: CompletenessMode.lenient);
+// book.isbn = "978-0123456789"
+// book.title = "The Dart Guide"  
+// book.author = "Jane Developer"
+// book.unmappedTriples contains:
+//   - ex:book123 schema:publisher "Tech Press"
+//   - ex:book123 schema:datePublished "2023-01-01"  
+//   - ex:book123 ex:internalId "B123"
+//   - ex:book123 ex:lastModified "2023-12-01T10:00:00Z"
+// Note: Event triples are discarded (not about this book)
+</code></pre>
+<p><strong>Lossless decoding</strong> (<code>decodeObjectLossless</code>):</p>
+<pre class="language-dart"><code class="language-dart">final (book, remainder) = mapper.decodeObjectLossless&lt;Book&gt;(rdfData);
+// book.isbn = "978-0123456789"
+// book.title = "The Dart Guide"
+// book.author = "Jane Developer"
+// book.unmappedTriples contains triples about the book that weren't mapped
+// remainder contains ALL other triples from the document:
+//   - ex:event123 a schema:Event
+//   - ex:event123 schema:name "Book Launch"
+//   - ex:event123 schema:startDate "2023-01-15"
+</code></pre>
+<h3 id="perfect-round-trip-preservation">Perfect Round-Trip Preservation</h3>
+<pre class="language-dart"><code class="language-dart">// Load RDF data losslessly - returns (object, remainder)
+final (originalBook, remainder) = mapper.decodeObjectLossless&lt;Book&gt;(originalRdfData);
+
+// Modify only the mapped properties
+final updatedBook = originalBook.copyWith(
+  author: 'Jane Developer, PhD',
+);
+
+// Encode back to RDF with remainder - preserves complete document
+final updatedRdfData = mapper.encodeObjectLossless((updatedBook, remainder));
+// updatedRdfData contains both the updated book AND all unrelated triples
+</code></pre>
+<h3 id="use-cases">Use Cases</h3>
+<p><strong>Data Pipeline Operations</strong>:</p>
+<pre class="language-dart"><code class="language-dart">// Load from one RDF source with lossless decoding
+final productRdfData = await loadProductsFromWarehouse();
+final (products, remainder) = mapper.decodeObjectsLossless&lt;Product&gt;(productRdfData);
+
+// Process only the mapped fields
+final processedProducts = products.map((p) =&gt; 
+  p.copyWith(price: applyDiscount(p.price))).toList();
+
+// Save to another RDF store - no data loss
+final updatedRdfData = mapper.encodeObjectsLossless((processedProducts, remainder));
+await saveProductsToStore(updatedRdfData);
+</code></pre>
+<p><strong>ETL with Unknown Schemas</strong>:</p>
+<pre class="language-dart"><code class="language-dart">// When source RDF contains more properties than your model knows about
+final (enrichedData, remainder) = mapper.decodeObjectLossless&lt;BasicProduct&gt;(sourceRdf);
+// Process known properties, preserve unknown ones
+final processed = enrichedData.copyWith(category: deriveCategory(enrichedData.name));
+// Output contains both processed AND original unknown properties
+final outputRdf = mapper.encodeObjectLossless((processed, remainder));
+</code></pre>
+<h3 id="validation-and-requirements">Validation and Requirements</h3>
+<ul>
+<li><strong>Type Safety</strong>: <code>@RdfUnmappedTriples</code> fields must be of a type that has a registered <code>UnmappedTriplesMapper</code> (e.g., <code>RdfGraph</code> by default)</li>
+<li><strong>Uniqueness</strong>: Only one <code>@RdfUnmappedTriples</code> field per class</li>
+<li><strong>Serialization</strong>: Unmapped triples are automatically included during encoding</li>
+</ul>
+<pre class="language-dart"><code class="language-dart">// ❌ Invalid - no UnmappedTriplesMapper registered for List&lt;String&gt;
+@RdfUnmappedTriples()
+final List&lt;String&gt; unmapped; // Error: No UnmappedTriplesMapper for List&lt;String&gt;
+
+// ❌ Invalid - multiple fields  
+@RdfUnmappedTriples()
+final RdfGraph unmapped1;
+@RdfUnmappedTriples()
+final RdfGraph unmapped2; // Error: Only one @RdfUnmappedTriples field allowed
+
+// ✅ Valid - RdfGraph has a built-in UnmappedTriplesMapper
+@RdfUnmappedTriples()
+final RdfGraph unmappedTriples;
+
+// ✅ Valid - custom type with registered UnmappedTriplesMapper
+@RdfUnmappedTriples()
+final MyCustomGraph customGraph;
+</code></pre>
+<h2 id="-advanced-configuration">🛠️ Advanced Configuration</h2>
 <h3 id="build-configuration-buildyaml">Build Configuration (<code>build.yaml</code>)</h3>
 <pre class="language-yaml"><code class="language-yaml">targets:
   $default:
@@ -474,7 +627,7 @@ find test/fixtures/rdf_mapper_annotations/examples -name "*.rdf_mapper.g.dart"
 # - test/fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.rdf_mapper.g.dart
 </code></pre>
 <h2 id="-roadmap--evolution">🛣️ Roadmap &amp; Evolution</h2>
-<h3 id="current-v021-">Current: v0.2.1 ✅</h3>
+<h3 id="current-v022-">Current: v0.2.2 ✅</h3>
 <ul>
 <li>✅ Full annotation support (global/local resources, literals, IRIs)</li>
 <li>✅ Complex IRI templates with context variables</li>
@@ -484,11 +637,14 @@ find test/fixtures/rdf_mapper_annotations/examples -name "*.rdf_mapper.g.dart"
 <li>✅ Language tag support</li>
 <li>✅ Comprehensive test coverage</li>
 <li>✅ Null safety throughout</li>
+<li>✅ Support for lossless RDF mapping</li>
 </ul>
 <h3 id="next-v030-">Next: v0.3.0 🎯</h3>
 <ul>
 <li>🔄 Enhanced validation with helpful error messages</li>
 <li>🔄 Documentation improvements</li>
+<li>🔄 Support "proper" rdf Lists (e.g. with <code>rdf:first</code>, <code>rdf:rest</code>, <code>rdf:nil</code> )</li>
+<li>🔄 Support rdf Container (rdf:Bag / rdf:Seq etc)</li>
 </ul>
 <h3 id="future-v100-">Future: v1.0.0 🌟</h3>
 <ul>
@@ -629,7 +785,7 @@ dart test
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.2.3
+      0.2.4
   </span>
   
 </footer>
