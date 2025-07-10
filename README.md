@@ -89,7 +89,6 @@ final book = Book(
 
 final turtle = mapper.encodeObject(book);
 print('Book IRI: ${turtle}');
-// Output: Book IRI: https://example.org/books/978-0-544-00341-5
 
 // Convert RDF back to Dart object
 final deserializedBook = mapper.decodeObject<Book>(turtle);
