@@ -26,11 +26,10 @@ dependencies:
   logging: '>=1.2.0'
   mustache_template: '>=2.0.0'
   rdf_core: ^0.9.3
-  rdf_mapper_annotations: 
-    path: ../rdf_mapper_annotations
+  rdf_mapper_annotations: ^0.2.4
   rdf_vocabularies: ^0.3.0
   path: '>=1.9.0'
-  rdf_mapper: ^0.8.7
+  rdf_mapper: ^0.8.8
   glob: '>=2.0.0'
   uuid: '>=3.0.0'
 
