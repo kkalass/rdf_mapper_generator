@@ -16,6 +16,7 @@ A code generator for creating **type-safe, annotation-driven RDF mappers** in Da
 - **⚡ Optimized Generation**: Generated code with no runtime overhead
 - **🎯 Schema.org Support**: Works with vocabularies from rdf_vocabularies
 - **🔧 Flexible Mapping**: Custom mappers, IRI templates, and complex relationships
+- **🔄 Lossless Mapping**: Preserve unmapped triples with `@RdfUnmappedTriples` for round-trip data integrity
 - **🏗️ Build System Integration**: Seamless integration with build_runner
 
 [🌐 **Official Documentation**](https://kkalass.github.io/rdf_mapper_generator/)
@@ -88,12 +89,16 @@ final book = Book(
 );
 
 final turtle = mapper.encodeObject(book);
-print('Book IRI: ${turtle}');
+print('Book as RDF: ${turtle}');
 
 // Convert RDF back to Dart object
 final deserializedBook = mapper.decodeObject<Book>(turtle);
 print('Title: ${deserializedBook.title}');
 // Output: Title: The Hobbit
+
+// For lossless round-trip preservation, use the lossless API:
+final (bookFromRdf, remainder) = mapper.decodeObjectLossless<Book>(complexRdfData);
+final roundTripData = mapper.encodeObjectLossless((bookFromRdf, remainder));
 ```
 
 **That's it!** No manual mapping code, no runtime reflection, just pure generated performance.
@@ -211,6 +216,7 @@ Part of a complete **RDF ecosystem for Dart**:
 | ✅ Custom Datatypes | ✓ | `LiteralMapping(datatype: XSD.dateTime)` |
 | ✅ Default Values | ✓ | `@RdfProperty(predicate, defaultValue: 'default')` |
 | ✅ Optional Properties | ✓ | Nullable types with smart handling |
+| ✅ Lossless Mapping | ✓ | `@RdfUnmappedTriples()` for round-trip preservation |
 | ✅ Named Mappers | ✓ | `LiteralMapping.namedMapper('myMapper')` |
 | ✅ Mapper Instances | ✓ | `LiteralMapping.mapperInstance(MyMapper())` |
 | ✅ Provider Functions | ✓ | Dynamic context through provider functions |
@@ -304,8 +310,174 @@ class Measurement {
 }
 ```
 
+## 🔄 Lossless Round-Trip Mapping
 
-## � Advanced Configuration
+RDF Mapper Generator supports **lossless round-trip mapping** where you can preserve all RDF data, even triples that aren't mapped to explicit properties. This is crucial for data pipelines, ETL operations, and scenarios where you cannot afford to lose any RDF information.
+
+### Basic Lossless Mapping
+
+```dart
+@RdfGlobalResource(
+  SchemaBook.classIri,
+  IriStrategy('https://example.org/books/{isbn}'),
+)
+class Book {
+  @RdfIriPart()
+  final String isbn;
+
+  @RdfProperty(SchemaBook.name)
+  final String title;
+
+  @RdfProperty(SchemaBook.author)
+  final String author;
+
+  // Capture all unmapped triples
+  @RdfUnmappedTriples()
+  final RdfGraph unmappedTriples;
+
+  Book({
+    required this.isbn,
+    required this.title,
+    required this.author,
+    required this.unmappedTriples,
+  });
+}
+```
+
+### Understanding Lossless Mapping
+
+Lossless mapping provides two complementary mechanisms:
+
+1. **@RdfUnmappedTriples annotation**: Captures unmapped triples for a specific resource
+2. **decodeObjectLossless method**: Returns both the mapped object and all remaining document triples
+
+### Concrete Example
+
+Consider this RDF data:
+```turtle
+@prefix schema: <https://schema.org/> .
+@prefix ex: <https://example.org/> .
+
+ex:book123 a schema:Book ;
+  schema:name "The Dart Guide" ;
+  schema:author "Jane Developer" ;
+  schema:isbn "978-0123456789" ;
+  schema:publisher "Tech Press" ;          # Not mapped to Book class
+  schema:datePublished "2023-01-01" ;      # Not mapped to Book class
+  ex:internalId "B123" ;                   # Custom property not mapped
+  ex:lastModified "2023-12-01T10:00:00Z" . # Custom property not mapped
+
+ex:event123 a schema:Event ;              # Unrelated resource
+  schema:name "Book Launch" ;
+  schema:startDate "2023-01-15" .
+```
+
+**Standard decoding** (`decodeObject`):
+```dart
+// With strict mode (default) - throws exception due to unmapped triples
+try {
+  final book = mapper.decodeObject<Book>(rdfData);
+} catch (IncompleteDeserializationException e) {
+  // Exception thrown because of unmapped triples
+}
+
+// With lenient mode - discards unmapped data
+final book = mapper.decodeObject<Book>(rdfData, 
+    completenessMode: CompletenessMode.lenient);
+// book.isbn = "978-0123456789"
+// book.title = "The Dart Guide"  
+// book.author = "Jane Developer"
+// book.unmappedTriples contains:
+//   - ex:book123 schema:publisher "Tech Press"
+//   - ex:book123 schema:datePublished "2023-01-01"  
+//   - ex:book123 ex:internalId "B123"
+//   - ex:book123 ex:lastModified "2023-12-01T10:00:00Z"
+// Note: Event triples are discarded (not about this book)
+```
+
+**Lossless decoding** (`decodeObjectLossless`):
+```dart
+final (book, remainder) = mapper.decodeObjectLossless<Book>(rdfData);
+// book.isbn = "978-0123456789"
+// book.title = "The Dart Guide"
+// book.author = "Jane Developer"
+// book.unmappedTriples contains triples about the book that weren't mapped
+// remainder contains ALL other triples from the document:
+//   - ex:event123 a schema:Event
+//   - ex:event123 schema:name "Book Launch"
+//   - ex:event123 schema:startDate "2023-01-15"
+```
+
+### Perfect Round-Trip Preservation
+
+```dart
+// Load RDF data losslessly - returns (object, remainder)
+final (originalBook, remainder) = mapper.decodeObjectLossless<Book>(originalRdfData);
+
+// Modify only the mapped properties
+final updatedBook = originalBook.copyWith(
+  author: 'Jane Developer, PhD',
+);
+
+// Encode back to RDF with remainder - preserves complete document
+final updatedRdfData = mapper.encodeObjectLossless((updatedBook, remainder));
+// updatedRdfData contains both the updated book AND all unrelated triples
+```
+
+### Use Cases
+
+**Data Pipeline Operations**:
+```dart
+// Load from one RDF source with lossless decoding
+final productRdfData = await loadProductsFromWarehouse();
+final (products, remainder) = mapper.decodeObjectsLossless<Product>(productRdfData);
+
+// Process only the mapped fields
+final processedProducts = products.map((p) => 
+  p.copyWith(price: applyDiscount(p.price))).toList();
+
+// Save to another RDF store - no data loss
+final updatedRdfData = mapper.encodeObjectsLossless((processedProducts, remainder));
+await saveProductsToStore(updatedRdfData);
+```
+
+**ETL with Unknown Schemas**:
+```dart
+// When source RDF contains more properties than your model knows about
+final (enrichedData, remainder) = mapper.decodeObjectLossless<BasicProduct>(sourceRdf);
+// Process known properties, preserve unknown ones
+final processed = enrichedData.copyWith(category: deriveCategory(enrichedData.name));
+// Output contains both processed AND original unknown properties
+final outputRdf = mapper.encodeObjectLossless((processed, remainder));
+```
+
+### Validation and Requirements
+
+- **Type Safety**: `@RdfUnmappedTriples` fields must be of a type that has a registered `UnmappedTriplesMapper` (e.g., `RdfGraph` by default)
+- **Uniqueness**: Only one `@RdfUnmappedTriples` field per class
+- **Serialization**: Unmapped triples are automatically included during encoding
+
+```dart
+// ❌ Invalid - no UnmappedTriplesMapper registered for List<String>
+@RdfUnmappedTriples()
+final List<String> unmapped; // Error: No UnmappedTriplesMapper for List<String>
+
+// ❌ Invalid - multiple fields  
+@RdfUnmappedTriples()
+final RdfGraph unmapped1;
+@RdfUnmappedTriples()
+final RdfGraph unmapped2; // Error: Only one @RdfUnmappedTriples field allowed
+
+// ✅ Valid - RdfGraph has a built-in UnmappedTriplesMapper
+@RdfUnmappedTriples()
+final RdfGraph unmappedTriples;
+
+// ✅ Valid - custom type with registered UnmappedTriplesMapper
+@RdfUnmappedTriples()
+final MyCustomGraph customGraph;
+```
+
+## 🛠️ Advanced Configuration
 
 ### Build Configuration (`build.yaml`)
 ```yaml

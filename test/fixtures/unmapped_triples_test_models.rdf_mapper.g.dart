@@ -83,6 +83,74 @@ class BookWithUnmappedTriplesMapper
   }
 }
 
+/// Generated mapper for [BookWithUnmappedTriplesLateFields] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type BookWithUnmappedTriplesLateFields.
+class BookWithUnmappedTriplesLateFieldsMapper
+    implements GlobalResourceMapper<BookWithUnmappedTriplesLateFields> {
+  static final RegExp _regex = RegExp(
+    r'^https://example\.org/books/(?<id>[^/]*)$',
+  );
+
+  /// Constructor
+  const BookWithUnmappedTriplesLateFieldsMapper();
+
+  @override
+  IriTerm? get typeIri => SchemaBook.classIri;
+
+  @override
+  BookWithUnmappedTriplesLateFields fromRdfResource(
+    IriTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
+
+    final id = iriParts['id']!;
+    final String title = reader.require(SchemaBook.name);
+    final String author = reader.require(SchemaBook.author);
+
+    // Get unmapped triples as the last reader operation for lossless mapping
+    final RdfGraph unmappedTriples = reader.getUnmapped<RdfGraph>();
+
+    final retval = BookWithUnmappedTriplesLateFields();
+    retval.id = id;
+    retval.title = title;
+    retval.author = author;
+    retval.unmappedTriples = unmappedTriples;
+    return retval;
+  }
+
+  @override
+  (IriTerm, List<Triple>) toRdfResource(
+    BookWithUnmappedTriplesLateFields resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = IriTerm(_buildIri(resource));
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(SchemaBook.name, resource.title)
+        .addValue(SchemaBook.author, resource.author)
+        .addUnmapped(resource.unmappedTriples)
+        .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(BookWithUnmappedTriplesLateFields resource) {
+    final id = resource.id;
+    return 'https://example.org/books/${id}';
+  }
+}
+
 /// Generated mapper for [BookWithInvalidUnmappedTriplesType] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects

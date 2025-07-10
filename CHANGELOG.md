@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2025-07-10
+
+### Added
+
+- **Lossless Mapping Support**: Added complete support for `@RdfUnmappedTriples` annotation to enable lossless round-trip RDF mapping
+  - Fields annotated with `@RdfUnmappedTriples` capture all triples not explicitly mapped to other class properties
+  - Generated code includes `reader.getUnmapped<T>()` calls for deserialization and `builder.addUnmapped(field)` calls for serialization
+  - Supports custom types with registered `UnmappedTriplesMapper<T>` implementations
+  - `RdfGraph` type has built-in support and is recommended for most use cases
+- **Enhanced Validation**: Added comprehensive validation for `@RdfUnmappedTriples` usage
+  - Error when multiple fields per class are annotated with `@RdfUnmappedTriples`
+  - Warning when non-`RdfGraph` types are used with clear guidance about custom mapper registration
+- **Improved Developer Experience**: Enhanced warning and error message formatting
+  - Professional, structured warning messages with bullet points for better readability
+  - Clear, actionable guidance for resolving validation issues
+  - Improved build-time feedback for annotation usage problems
+
+### Fixed
+
+- Fixed logging configuration for proper warning display during build_runner execution
+- Ensured `getUnmapped()` calls are always executed last during deserialization for correct lossless mapping behavior
+
 ## [0.2.3] - 2025-07-04
 
 ### Fixed

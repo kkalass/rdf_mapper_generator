@@ -452,6 +452,9 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<uttm.BookWithUnmappedTriples>(
     uttmrmg.BookWithUnmappedTriplesMapper(),
   );
+  registry.registerMapper<uttm.BookWithUnmappedTriplesLateFields>(
+    uttmrmg.BookWithUnmappedTriplesLateFieldsMapper(),
+  );
   registry.registerMapper<uttm.BookWithInvalidUnmappedTriplesType>(
     uttmrmg.BookWithInvalidUnmappedTriplesTypeMapper(),
   );

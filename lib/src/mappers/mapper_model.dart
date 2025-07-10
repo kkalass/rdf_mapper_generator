@@ -595,8 +595,8 @@ class ResourceMapperModel extends GeneratedMapperModel {
     return ResourceResolvedMapperModel(
       id: id,
       mappedClass: mappedClass,
-      mappedClassModel: mappedClassModel.resolve(
-          context, (p) => p.isRdfProperty || p.isIriPart),
+      mappedClassModel: mappedClassModel.resolve(context,
+          (p) => p.isRdfProperty || p.isIriPart || p.isRdfUnmappedTriples),
       implementationClass: implementationClass,
       registerGlobally: registerGlobally,
       typeIri: typeIri,

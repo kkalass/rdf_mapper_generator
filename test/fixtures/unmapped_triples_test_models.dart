@@ -29,6 +29,25 @@ class BookWithUnmappedTriples {
   });
 }
 
+@RdfGlobalResource(
+  SchemaBook.classIri,
+  IriStrategy('https://example.org/books/{id}'),
+)
+class BookWithUnmappedTriplesLateFields {
+  @RdfIriPart()
+  late final String id;
+
+  @RdfProperty(SchemaBook.name)
+  late final String title;
+
+  @RdfProperty(SchemaBook.author)
+  late final String author;
+
+  /// Field to capture all unmapped triples for lossless round-trip mapping
+  @RdfUnmappedTriples()
+  late final RdfGraph unmappedTriples;
+}
+
 /*
 // FIXME: we need to find a way to test classes that should lead to validation
 // errors, but currently they make the entire build fail. Maybe we can just 
