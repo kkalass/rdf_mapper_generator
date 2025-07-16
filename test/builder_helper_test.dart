@@ -771,7 +771,7 @@ void main() {
           contains('return grptm.ClassWithEmptyIriStrategy(iri: iri);'));
 
       // Verify toRdfResource method uses direct IRI access
-      expect(result, contains('(IriTerm, List<Triple>) toRdfResource('));
+      expect(result, contains('(IriTerm, Iterable<Triple>) toRdfResource('));
       expect(result, contains('grptm.ClassWithEmptyIriStrategy resource,'));
       expect(result, contains('final subject = IriTerm(resource.iri);'));
       expect(

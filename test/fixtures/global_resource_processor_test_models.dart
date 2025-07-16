@@ -196,7 +196,7 @@ class TestGlobalResourceMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     value,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -223,7 +223,7 @@ class TestGlobalResourceMapper2
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     value,
     SerializationContext context, {
     RdfSubject? parentSubject,

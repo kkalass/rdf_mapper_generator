@@ -33,7 +33,7 @@ void main() {
     final context = DeserializationContextImpl(
         graph: graph, registry: registry ?? mapper.registry);
     // Test deserialization
-    return context.deserialize(term, null, null, null, null);
+    return context.deserialize(term);
   }
 
   setUp(() {

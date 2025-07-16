@@ -85,7 +85,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final String title = reader.require(SchemaBook.name);
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
     final DateTime published = reader.require(SchemaBook.datePublished);
     final ISBN isbn = reader.require(SchemaBook.isbn);
@@ -108,7 +108,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Book resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -121,7 +121,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .addValue(SchemaBook.datePublished, resource.published)
         .addValue(SchemaBook.isbn, resource.isbn)
@@ -166,7 +166,7 @@ class ChapterMapper implements LocalResourceMapper<Chapter> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     Chapter resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -221,6 +221,8 @@ class ISBNMapper implements IriTermMapper<ISBN> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type Rating.
 class RatingMapper implements LiteralTermMapper<Rating> {
+  final IriTerm? datatype = null;
+
   const RatingMapper();
 
   @override

@@ -53,11 +53,11 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final ItemCondition condition = reader.require(MyBookVocab.itemCondition);
     final Priority priority = reader.require(
       MyBookVocab.priority,
-      literalTermDeserializer: _priorityMapper,
+      deserializer: _priorityMapper,
     );
     final ProductStatus status = reader.require(
       MyBookVocab.status,
-      literalTermDeserializer: _statusMapper,
+      deserializer: _statusMapper,
     );
 
     return Book(
@@ -70,7 +70,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Book resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -84,12 +84,12 @@ class BookMapper implements GlobalResourceMapper<Book> {
         .addValue(
           MyBookVocab.priority,
           resource.priority,
-          literalTermSerializer: _priorityMapper,
+          serializer: _priorityMapper,
         )
         .addValue(
           MyBookVocab.status,
           resource.status,
-          literalTermSerializer: _statusMapper,
+          serializer: _statusMapper,
         )
         .build();
   }
@@ -106,6 +106,8 @@ class BookMapper implements GlobalResourceMapper<Book> {
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type BookFormat.
 class BookFormatMapper implements LiteralTermMapper<BookFormat> {
+  final IriTerm? datatype = null;
+
   const BookFormatMapper();
 
   @override
@@ -139,6 +141,8 @@ class BookFormatMapper implements LiteralTermMapper<BookFormat> {
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type Priority.
 class PriorityMapper implements LiteralTermMapper<Priority> {
+  final IriTerm? datatype = null;
+
   const PriorityMapper();
 
   @override
@@ -172,6 +176,8 @@ class PriorityMapper implements LiteralTermMapper<Priority> {
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type ProductStatus.
 class ProductStatusMapper implements LiteralTermMapper<ProductStatus> {
+  final IriTerm? datatype = null;
+
   const ProductStatusMapper();
 
   @override
@@ -311,6 +317,8 @@ class OrderStatusMapper implements IriTermMapper<OrderStatus> {
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type CurrencyCode.
 class CurrencyCodeMapper implements LiteralTermMapper<CurrencyCode> {
+  final IriTerm? datatype = null;
+
   const CurrencyCodeMapper();
 
   @override

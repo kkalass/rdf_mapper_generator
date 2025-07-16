@@ -61,7 +61,7 @@ class BookWithUnmappedTriplesMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     BookWithUnmappedTriples resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -129,7 +129,7 @@ class BookWithUnmappedTriplesLateFieldsMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     BookWithUnmappedTriplesLateFields resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -195,7 +195,7 @@ class BookWithInvalidUnmappedTriplesTypeMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     BookWithInvalidUnmappedTriplesType resource,
     SerializationContext context, {
     RdfSubject? parentSubject,

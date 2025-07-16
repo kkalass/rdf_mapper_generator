@@ -95,7 +95,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   }
 
   @override
-  ({{termClass}}, List<Triple>) toRdfResource(
+  ({{termClass}}, Iterable<Triple>) toRdfResource(
     {{className}} resource,
     SerializationContext context, {
     RdfSubject? parentSubject,

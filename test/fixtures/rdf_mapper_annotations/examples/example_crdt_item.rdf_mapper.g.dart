@@ -87,7 +87,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
 
     final String clientId = reader.require(
       SolidTaskVectorClockEntry.clientId,
-      iriTermDeserializer: _clientIdMapper,
+      deserializer: _clientIdMapper,
     );
     final int clockValue = reader.require(SolidTaskVectorClockEntry.clockValue);
 
@@ -95,7 +95,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     VectorClockEntry resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -107,7 +107,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
         .addValue(
           SolidTaskVectorClockEntry.clientId,
           resource.clientId,
-          iriTermSerializer: _clientIdMapper,
+          serializer: _clientIdMapper,
         )
         .addValue(SolidTaskVectorClockEntry.clockValue, resource.clockValue)
         .build();
@@ -201,7 +201,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
     final String text = reader.require(SolidTaskTask.text);
     final String lastModifiedBy = reader.require(
       Dcterms.creator,
-      iriTermDeserializer: _lastModifiedByMapper,
+      deserializer: _lastModifiedByMapper,
     );
     final id = iriParts['id']!;
     final DateTime createdAt = reader.require(Dcterms.created);
@@ -209,7 +209,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
         .collect<VectorClockEntry, Map<String, int>>(
           SolidTaskTask.vectorClock,
           (it) => {for (var vc in it) vc.clientId: vc.clockValue},
-          globalResourceDeserializer: VectorClockEntryMapper(
+          deserializer: VectorClockEntryMapper(
             storageRootProvider: _storageRootProvider,
             taskIdProvider: () =>
                 throw Exception('Must not call provider for deserialization'),
@@ -226,7 +226,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Item resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -242,7 +242,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
           resource.vectorClock.entries.map(
             (e) => VectorClockEntry(e.key, e.value),
           ),
-          resourceSerializer: VectorClockEntryMapper(
+          serializer: VectorClockEntryMapper(
             storageRootProvider: _storageRootProvider,
             taskIdProvider: () => resource.id,
           ),
@@ -251,7 +251,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
         .addValue(
           Dcterms.creator,
           resource.lastModifiedBy,
-          iriTermSerializer: _lastModifiedByMapper,
+          serializer: _lastModifiedByMapper,
         )
         .build();
   }

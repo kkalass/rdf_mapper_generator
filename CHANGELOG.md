@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **BREAKING**: Updated `toRdfResource` return type from `(RdfSubject, List<Triple>)` to `(RdfSubject, Iterable<Triple>)` for improved performance and flexibility
+- **BREAKING**: Standardized custom mapper parameter names in generated code:
+  - `iriTermDeserializer`/`iriTermSerializer` → `deserializer`/`serializer`
+  - `literalTermDeserializer`/`literalTermSerializer` → `deserializer`/`serializer` 
+  - `globalResourceDeserializer`/`resourceSerializer` → `deserializer`/`serializer`
+  - `localResourceDeserializer`/`resourceSerializer` → `deserializer`/`serializer`
+- **BREAKING**: Updated `@RdfLiteral.custom` method signatures to use `LiteralContent` instead of `LiteralTerm`:
+  - `toLiteralTermMethod` and `fromLiteralTermMethod` now work with `LiteralContent` objects
+  - Methods are automatically wrapped with proper datatype handling in generated code
+- Added `datatype` field to generated `LiteralTermMapper` and `IriTermMapper` implementations for better type safety
+
+### Fixed
+
+- Improved datatype handling in custom literal mappers with explicit datatype support
+- Enhanced method call generation for custom literal conversion methods
+
 ## [0.2.4] - 2025-07-10
 
 ### Added

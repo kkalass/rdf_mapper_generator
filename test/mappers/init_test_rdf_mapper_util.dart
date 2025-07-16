@@ -39,7 +39,7 @@ class NamedTestGlobalResourceMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
       grptm.ClassWithMapperNamedMapperStrategy value,
       SerializationContext context,
       {RdfSubject? parentSubject}) {
@@ -65,7 +65,7 @@ class NamedTestLocalResourceMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
       lrptm.ClassWithMapperNamedMapperStrategy value,
       SerializationContext context,
       {RdfSubject? parentSubject}) {
@@ -96,6 +96,7 @@ class NamedTestIriMapper implements IriTermMapper<iptm.IriWithNamedMapper> {
 
 class NamedTestLiteralMapper
     implements LiteralTermMapper<lptm.LiteralWithNamedMapper> {
+  final IriTerm? datatype = null;
   const NamedTestLiteralMapper();
 
   @override
@@ -171,7 +172,7 @@ class TestMapEntryMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
       MapEntry<String, String> entry, SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context
@@ -187,6 +188,7 @@ class TestMapEntryMapper
 
 /// Test literal mapper for String values (custom mapper)
 class TestCustomMapper implements LiteralTermMapper<String> {
+  final IriTerm? datatype = null;
   const TestCustomMapper();
 
   @override
@@ -211,7 +213,7 @@ class TestGlobalMapper implements GlobalResourceMapper<Object> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
       Object value, SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context
@@ -226,6 +228,7 @@ class TestGlobalMapper implements GlobalResourceMapper<Object> {
 
 /// Test literal mapper for double values (price mapper)
 class TestLiteralPriceMapper implements LiteralTermMapper<double> {
+  final IriTerm? datatype = null;
   const TestLiteralPriceMapper();
 
   @override
@@ -250,7 +253,7 @@ class TestLocalMapper implements LocalResourceMapper<Object> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
       Object value, SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context.resourceBuilder(BlankNodeTerm()).build();
@@ -270,7 +273,7 @@ class TestNamedMapper implements GlobalResourceMapper<Object> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
       Object value, SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context
@@ -306,6 +309,7 @@ class TestChapterIdMapper implements IriTermMapper<(String, int)> {
 
 /// Test literal mapper for Priority enum values
 class TestCustomPriorityMapper implements LiteralTermMapper<ems.Priority> {
+  final IriTerm? datatype = null;
   const TestCustomPriorityMapper();
 
   @override

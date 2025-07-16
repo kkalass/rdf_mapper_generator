@@ -57,10 +57,10 @@ class Temperature {
   Temperature(this.celsius);
 
   // Instance method for serialization
-  LiteralTerm formatCelsius() => LiteralTerm('$celsius°C');
+  LiteralContent formatCelsius() => LiteralContent('$celsius°C');
 
   // Static method for deserialization
-  static Temperature parse(LiteralTerm term) =>
+  static Temperature parse(LiteralContent term) =>
       Temperature(double.parse(term.value.replaceAll('°C', '')));
 }
 
@@ -74,16 +74,17 @@ class CustomLocalizedText {
   CustomLocalizedText(this.text, this.language);
 
   // Instance method for serialization
-  LiteralTerm toRdf() => LiteralTerm.withLanguage(text, language);
+  LiteralContent toRdf() => LiteralContent.withLanguage(text, language);
 
   // Static method for deserialization
-  static CustomLocalizedText fromRdf(LiteralTerm term) =>
+  static CustomLocalizedText fromRdf(LiteralContent term) =>
       CustomLocalizedText(term.value, term.language ?? 'en');
 }
 
 @RdfLiteral.custom(
   toLiteralTermMethod: 'toMilliunit',
   fromLiteralTermMethod: 'fromMilliunit',
+  datatype: Xsd.int,
 )
 class DoubleAsMilliunit {
   final double value;
@@ -91,11 +92,11 @@ class DoubleAsMilliunit {
   DoubleAsMilliunit(this.value);
 
   // Instance method for serialization
-  LiteralTerm toMilliunit() =>
-      LiteralTerm((value * 1000).round().toString(), datatype: Xsd.int);
+  LiteralContent toMilliunit() =>
+      LiteralContent((value * 1000).round().toString());
 
   // Static method for deserialization
-  static DoubleAsMilliunit fromMilliunit(LiteralTerm term) =>
+  static DoubleAsMilliunit fromMilliunit(LiteralContent term) =>
       DoubleAsMilliunit(int.parse(term.value) / 1000.0);
 }
 
@@ -121,6 +122,7 @@ class LiteralWithMapperInstance {
 }
 
 class TestLiteralMapper implements LiteralTermMapper<LiteralWithMapper> {
+  final IriTerm? datatype = null;
   const TestLiteralMapper();
 
   @override
@@ -140,6 +142,7 @@ class TestLiteralMapper implements LiteralTermMapper<LiteralWithMapper> {
 
 class TestLiteralMapper2
     implements LiteralTermMapper<LiteralWithMapperInstance> {
+  final IriTerm? datatype = null;
   const TestLiteralMapper2();
 
   @override

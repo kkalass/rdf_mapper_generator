@@ -41,7 +41,7 @@ class SimplePropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     SimplePropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -83,7 +83,7 @@ class SimpleCustomPropertyTestMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     SimpleCustomPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -131,7 +131,7 @@ class DeserializationOnlyPropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     DeserializationOnlyPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -167,7 +167,7 @@ class OptionalPropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     OptionalPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -208,7 +208,7 @@ class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     DefaultValueTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -255,7 +255,7 @@ class IncludeDefaultsTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IncludeDefaultsTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -328,14 +328,14 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return IriMappingTest(authorId: authorId);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -347,7 +347,7 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -422,14 +422,14 @@ class IriMappingWithBaseUriTestMapper
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return IriMappingWithBaseUriTest(authorId: authorId);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingWithBaseUriTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -441,7 +441,7 @@ class IriMappingWithBaseUriTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -472,14 +472,14 @@ class IriMappingFullIriTestMapper
 
     final String authorIri = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIriMapper,
+      deserializer: _authorIriMapper,
     );
 
     return IriMappingFullIriTest(authorIri: authorIri);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingFullIriTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -491,7 +491,7 @@ class IriMappingFullIriTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorIri,
-          iriTermSerializer: _authorIriMapper,
+          serializer: _authorIriMapper,
         )
         .build();
   }
@@ -522,14 +522,14 @@ class IriMappingFullIriSimpleTestMapper
 
     final String authorIri = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIriMapper,
+      deserializer: _authorIriMapper,
     );
 
     return IriMappingFullIriSimpleTest(authorIri: authorIri);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingFullIriSimpleTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -541,7 +541,7 @@ class IriMappingFullIriSimpleTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorIri,
-          iriTermSerializer: _authorIriMapper,
+          serializer: _authorIriMapper,
         )
         .build();
   }
@@ -609,7 +609,7 @@ class IriMappingWithProviderTestMapper
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: IriMappingWithProviderTestAuthorIdMapper(
+      deserializer: IriMappingWithProviderTestAuthorIdMapper(
         categoryProvider: () =>
             throw Exception('Must not call provider for deserialization'),
       ),
@@ -619,7 +619,7 @@ class IriMappingWithProviderTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingWithProviderTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -631,7 +631,7 @@ class IriMappingWithProviderTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: IriMappingWithProviderTestAuthorIdMapper(
+          serializer: IriMappingWithProviderTestAuthorIdMapper(
             categoryProvider: () => resource.category,
           ),
         )
@@ -699,7 +699,7 @@ class IriMappingWithBaseUriProviderTestMapper
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: IriMappingWithBaseUriProviderTestAuthorIdMapper(
+      deserializer: IriMappingWithBaseUriProviderTestAuthorIdMapper(
         baseUriProvider: () =>
             throw Exception('Must not call provider for deserialization'),
       ),
@@ -709,7 +709,7 @@ class IriMappingWithBaseUriProviderTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingWithBaseUriProviderTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -721,7 +721,7 @@ class IriMappingWithBaseUriProviderTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: IriMappingWithBaseUriProviderTestAuthorIdMapper(
+          serializer: IriMappingWithBaseUriProviderTestAuthorIdMapper(
             baseUriProvider: () => resource.baseUri,
           ),
         )
@@ -792,7 +792,7 @@ class IriMappingWithProviderPropertyTestMapper
     final String genre = reader.require(SchemaBook.genre);
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
+      deserializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
         genreProvider: () =>
             throw Exception('Must not call provider for deserialization'),
       ),
@@ -802,7 +802,7 @@ class IriMappingWithProviderPropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingWithProviderPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -815,7 +815,7 @@ class IriMappingWithProviderPropertyTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
+          serializer: IriMappingWithProviderPropertyTestAuthorIdMapper(
             genreProvider: () => resource.genre,
           ),
         )
@@ -900,14 +900,13 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
     final String version = reader.require(SchemaBook.version);
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer:
-          IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
-            baseUriProvider: _baseUriProvider,
-            genreProvider: () =>
-                throw Exception('Must not call provider for deserialization'),
-            versionProvider: () =>
-                throw Exception('Must not call provider for deserialization'),
-          ),
+      deserializer: IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
+        baseUriProvider: _baseUriProvider,
+        genreProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+        versionProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+      ),
     );
 
     return IriMappingWithProvidersAndBaseUriPropertyTest(
@@ -918,7 +917,7 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingWithProvidersAndBaseUriPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -932,7 +931,7 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer:
+          serializer:
               IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper(
                 baseUriProvider: _baseUriProvider,
                 genreProvider: () => resource.genre,
@@ -968,14 +967,14 @@ class IriMappingNamedMapperTestMapper
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return IriMappingNamedMapperTest(authorId: authorId);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingNamedMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -987,7 +986,7 @@ class IriMappingNamedMapperTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -1018,14 +1017,14 @@ class IriMappingMapperTestMapper
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return IriMappingMapperTest(authorId: authorId);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1037,7 +1036,7 @@ class IriMappingMapperTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -1068,14 +1067,14 @@ class IriMappingMapperInstanceTestMapper
 
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return IriMappingMapperInstanceTest(authorId: authorId);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     IriMappingMapperInstanceTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1087,7 +1086,7 @@ class IriMappingMapperInstanceTestMapper
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -1118,14 +1117,14 @@ class LocalResourceMappingTestMapper
 
     final Object author = reader.require(
       SchemaBook.author,
-      localResourceDeserializer: _authorMapper,
+      deserializer: _authorMapper,
     );
 
     return LocalResourceMappingTest(author: author);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LocalResourceMappingTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1134,11 +1133,7 @@ class LocalResourceMappingTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.author,
-          resource.author,
-          resourceSerializer: _authorMapper,
-        )
+        .addValue(SchemaBook.author, resource.author, serializer: _authorMapper)
         .build();
   }
 }
@@ -1168,14 +1163,14 @@ class GlobalResourceMappingTestMapper
 
     final Object publisher = reader.require(
       SchemaBook.publisher,
-      globalResourceDeserializer: _publisherMapper,
+      deserializer: _publisherMapper,
     );
 
     return GlobalResourceMappingTest(publisher: publisher);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     GlobalResourceMappingTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1187,7 +1182,7 @@ class GlobalResourceMappingTestMapper
         .addValue(
           SchemaBook.publisher,
           resource.publisher,
-          resourceSerializer: _publisherMapper,
+          serializer: _publisherMapper,
         )
         .build();
   }
@@ -1218,14 +1213,14 @@ class LiteralMappingTestMapper
 
     final double price = reader.require(
       const IriTerm.prevalidated('http://example.org/book/price'),
-      literalTermDeserializer: _priceMapper,
+      deserializer: _priceMapper,
     );
 
     return LiteralMappingTest(price: price);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LiteralMappingTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1237,7 +1232,7 @@ class LiteralMappingTestMapper
         .addValue(
           const IriTerm.prevalidated('http://example.org/book/price'),
           resource.price,
-          literalTermSerializer: _priceMapper,
+          serializer: _priceMapper,
         )
         .build();
   }
@@ -1268,14 +1263,14 @@ class LiteralMappingTestCustomDatatypeMapper
 
     final double price = reader.require(
       const IriTerm.prevalidated('http://example.org/book/price'),
-      literalTermDeserializer: _priceMapper,
+      deserializer: _priceMapper,
     );
 
     return LiteralMappingTestCustomDatatype(price: price);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LiteralMappingTestCustomDatatype resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1287,7 +1282,7 @@ class LiteralMappingTestCustomDatatypeMapper
         .addValue(
           const IriTerm.prevalidated('http://example.org/book/price'),
           resource.price,
-          literalTermSerializer: _priceMapper,
+          serializer: _priceMapper,
         )
         .build();
   }
@@ -1319,14 +1314,14 @@ class CollectionNoneTestMapper
 
     final List<String> authors = reader.require(
       SchemaBook.author,
-      literalTermDeserializer: _authorsMapper,
+      deserializer: _authorsMapper,
     );
 
     return CollectionNoneTest(authors: authors);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     CollectionNoneTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1338,7 +1333,7 @@ class CollectionNoneTestMapper
         .addValue(
           SchemaBook.author,
           resource.authors,
-          literalTermSerializer: _authorsMapper,
+          serializer: _authorsMapper,
         )
         .build();
   }
@@ -1371,7 +1366,7 @@ class CollectionAutoTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     CollectionAutoTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1411,7 +1406,7 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     CollectionTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1452,7 +1447,7 @@ class CollectionIterableTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     CollectionIterableTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1491,7 +1486,7 @@ class MapNoCollectionNoMapperTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     MapNoCollectionNoMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1530,14 +1525,14 @@ class MapLocalResourceMapperTestMapper
 
     final Map<String, String> reviews = reader.getMap<String, String>(
       SchemaBook.reviews,
-      localResourceDeserializer: _reviewsMapper,
+      deserializer: _reviewsMapper,
     );
 
     return MapLocalResourceMapperTest(reviews: reviews);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     MapLocalResourceMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1549,7 +1544,7 @@ class MapLocalResourceMapperTestMapper
         .addMap<String, String>(
           SchemaBook.reviews,
           resource.reviews,
-          resourceSerializer: _reviewsMapper,
+          serializer: _reviewsMapper,
         )
         .build();
   }
@@ -1581,7 +1576,7 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     SetTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1619,7 +1614,7 @@ class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     EnumTypeTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1660,7 +1655,7 @@ class ComplexDefaultValueTestMapper
     final Map<String, dynamic> complexValue =
         reader.optional(
           const IriTerm.prevalidated('http://example.org/test/complexValue'),
-          literalTermDeserializer: _complexValueMapper,
+          deserializer: _complexValueMapper,
         ) ??
         {'id': '1', 'name': 'Test'};
 
@@ -1668,7 +1663,7 @@ class ComplexDefaultValueTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ComplexDefaultValueTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1682,7 +1677,7 @@ class ComplexDefaultValueTestMapper
           (b) => b.addValue(
             const IriTerm.prevalidated('http://example.org/test/complexValue'),
             resource.complexValue,
-            literalTermSerializer: _complexValueMapper,
+            serializer: _complexValueMapper,
           ),
         )
         .build();
@@ -1715,7 +1710,7 @@ class FinalPropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     FinalPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1761,7 +1756,7 @@ class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LatePropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1805,7 +1800,7 @@ class MutablePropertyTestMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     MutablePropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1848,14 +1843,14 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
 
     final String description = reader.require(
       SchemaBook.description,
-      literalTermDeserializer: _descriptionMapper,
+      deserializer: _descriptionMapper,
     );
 
     return LanguageTagTest(description: description);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LanguageTagTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1867,7 +1862,7 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
         .addValue(
           SchemaBook.description,
           resource.description,
-          literalTermSerializer: _descriptionMapper,
+          serializer: _descriptionMapper,
         )
         .build();
   }
@@ -1904,18 +1899,18 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
 
     final int count = reader.require(
       SchemaBook.description,
-      literalTermDeserializer: _countMapper,
+      deserializer: _countMapper,
     );
     final String date = reader.require(
       SchemaBook.dateCreated,
-      literalTermDeserializer: _dateMapper,
+      deserializer: _dateMapper,
     );
 
     return DatatypeTest(count: count, date: date);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     DatatypeTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1927,12 +1922,12 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
         .addValue(
           SchemaBook.description,
           resource.count,
-          literalTermSerializer: _countMapper,
+          serializer: _countMapper,
         )
         .addValue(
           SchemaBook.dateCreated,
           resource.date,
-          literalTermSerializer: _dateMapper,
+          serializer: _dateMapper,
         )
         .build();
   }
@@ -1963,14 +1958,14 @@ class GlobalResourceNamedMapperTestMapper
 
     final Object publisher = reader.require(
       SchemaBook.publisher,
-      globalResourceDeserializer: _publisherMapper,
+      deserializer: _publisherMapper,
     );
 
     return GlobalResourceNamedMapperTest(publisher: publisher);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     GlobalResourceNamedMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -1982,7 +1977,7 @@ class GlobalResourceNamedMapperTestMapper
         .addValue(
           SchemaBook.publisher,
           resource.publisher,
-          resourceSerializer: _publisherMapper,
+          serializer: _publisherMapper,
         )
         .build();
   }
@@ -2013,14 +2008,14 @@ class LiteralNamedMapperTestMapper
 
     final String isbn = reader.require(
       SchemaBook.isbn,
-      literalTermDeserializer: _isbnMapper,
+      deserializer: _isbnMapper,
     );
 
     return LiteralNamedMapperTest(isbn: isbn);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LiteralNamedMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2029,11 +2024,7 @@ class LiteralNamedMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.isbn,
-          resource.isbn,
-          literalTermSerializer: _isbnMapper,
-        )
+        .addValue(SchemaBook.isbn, resource.isbn, serializer: _isbnMapper)
         .build();
   }
 }
@@ -2063,14 +2054,14 @@ class LiteralTypeMapperTestMapper
 
     final double price = reader.require(
       SchemaBook.bookFormat,
-      literalTermDeserializer: _priceMapper,
+      deserializer: _priceMapper,
     );
 
     return LiteralTypeMapperTest(price: price);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LiteralTypeMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2082,7 +2073,7 @@ class LiteralTypeMapperTestMapper
         .addValue(
           SchemaBook.bookFormat,
           resource.price,
-          literalTermSerializer: _priceMapper,
+          serializer: _priceMapper,
         )
         .build();
   }
@@ -2114,14 +2105,14 @@ class GlobalResourceTypeMapperTestMapper
 
     final Publisher publisher = reader.require(
       SchemaBook.publisher,
-      globalResourceDeserializer: _publisherMapper,
+      deserializer: _publisherMapper,
     );
 
     return GlobalResourceTypeMapperTest(publisher: publisher);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     GlobalResourceTypeMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2133,7 +2124,7 @@ class GlobalResourceTypeMapperTestMapper
         .addValue(
           SchemaBook.publisher,
           resource.publisher,
-          resourceSerializer: _publisherMapper,
+          serializer: _publisherMapper,
         )
         .build();
   }
@@ -2165,14 +2156,14 @@ class GlobalResourceMapperTestMapper
 
     final Object publisher = reader.require(
       SchemaBook.publisher,
-      globalResourceDeserializer: _publisherMapper,
+      deserializer: _publisherMapper,
     );
 
     return GlobalResourceMapperTest(publisher: publisher);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     GlobalResourceMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2184,7 +2175,7 @@ class GlobalResourceMapperTestMapper
         .addValue(
           SchemaBook.publisher,
           resource.publisher,
-          resourceSerializer: _publisherMapper,
+          serializer: _publisherMapper,
         )
         .build();
   }
@@ -2216,14 +2207,14 @@ class GlobalResourceInstanceMapperTestMapper
 
     final Object publisher = reader.require(
       SchemaBook.publisher,
-      globalResourceDeserializer: _publisherMapper,
+      deserializer: _publisherMapper,
     );
 
     return GlobalResourceInstanceMapperTest(publisher: publisher);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     GlobalResourceInstanceMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2235,7 +2226,7 @@ class GlobalResourceInstanceMapperTestMapper
         .addValue(
           SchemaBook.publisher,
           resource.publisher,
-          resourceSerializer: _publisherMapper,
+          serializer: _publisherMapper,
         )
         .build();
   }
@@ -2267,14 +2258,14 @@ class LocalResourceMapperTestMapper
 
     final Author author = reader.require(
       SchemaBook.author,
-      localResourceDeserializer: _authorMapper,
+      deserializer: _authorMapper,
     );
 
     return LocalResourceMapperTest(author: author);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LocalResourceMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2283,11 +2274,7 @@ class LocalResourceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.author,
-          resource.author,
-          resourceSerializer: _authorMapper,
-        )
+        .addValue(SchemaBook.author, resource.author, serializer: _authorMapper)
         .build();
   }
 }
@@ -2318,14 +2305,14 @@ class LocalResourceMapperObjectPropertyTestMapper
 
     final Object author = reader.require(
       SchemaBook.author,
-      localResourceDeserializer: _authorMapper,
+      deserializer: _authorMapper,
     );
 
     return LocalResourceMapperObjectPropertyTest(author: author);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LocalResourceMapperObjectPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2334,11 +2321,7 @@ class LocalResourceMapperObjectPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.author,
-          resource.author,
-          resourceSerializer: _authorMapper,
-        )
+        .addValue(SchemaBook.author, resource.author, serializer: _authorMapper)
         .build();
   }
 }
@@ -2369,14 +2352,14 @@ class LocalResourceInstanceMapperTestMapper
 
     final Author author = reader.require(
       SchemaBook.author,
-      localResourceDeserializer: _authorMapper,
+      deserializer: _authorMapper,
     );
 
     return LocalResourceInstanceMapperTest(author: author);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LocalResourceInstanceMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2385,11 +2368,7 @@ class LocalResourceInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.author,
-          resource.author,
-          resourceSerializer: _authorMapper,
-        )
+        .addValue(SchemaBook.author, resource.author, serializer: _authorMapper)
         .build();
   }
 }
@@ -2421,14 +2400,14 @@ class LocalResourceInstanceMapperObjectPropertyTestMapper
 
     final Object author = reader.require(
       SchemaBook.author,
-      localResourceDeserializer: _authorMapper,
+      deserializer: _authorMapper,
     );
 
     return LocalResourceInstanceMapperObjectPropertyTest(author: author);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LocalResourceInstanceMapperObjectPropertyTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2437,11 +2416,7 @@ class LocalResourceInstanceMapperObjectPropertyTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.author,
-          resource.author,
-          resourceSerializer: _authorMapper,
-        )
+        .addValue(SchemaBook.author, resource.author, serializer: _authorMapper)
         .build();
   }
 }
@@ -2471,14 +2446,14 @@ class LiteralMapperTestMapper
 
     final int pageCount = reader.require(
       SchemaBook.numberOfPages,
-      literalTermDeserializer: _pageCountMapper,
+      deserializer: _pageCountMapper,
     );
 
     return LiteralMapperTest(pageCount: pageCount);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LiteralMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2490,7 +2465,7 @@ class LiteralMapperTestMapper
         .addValue(
           SchemaBook.numberOfPages,
           resource.pageCount,
-          literalTermSerializer: _pageCountMapper,
+          serializer: _pageCountMapper,
         )
         .build();
   }
@@ -2521,14 +2496,14 @@ class LiteralInstanceMapperTestMapper
 
     final String isbn = reader.require(
       SchemaBook.isbn,
-      literalTermDeserializer: _isbnMapper,
+      deserializer: _isbnMapper,
     );
 
     return LiteralInstanceMapperTest(isbn: isbn);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     LiteralInstanceMapperTest resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -2537,11 +2512,7 @@ class LiteralInstanceMapperTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          SchemaBook.isbn,
-          resource.isbn,
-          literalTermSerializer: _isbnMapper,
-        )
+        .addValue(SchemaBook.isbn, resource.isbn, serializer: _isbnMapper)
         .build();
   }
 }
@@ -2551,6 +2522,8 @@ class LiteralInstanceMapperTestMapper
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type BookFormatType.
 class BookFormatTypeMapper implements LiteralTermMapper<BookFormatType> {
+  final IriTerm? datatype = null;
+
   const BookFormatTypeMapper();
 
   @override

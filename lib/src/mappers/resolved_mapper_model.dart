@@ -796,13 +796,32 @@ class LiteralClassResolvedMapperModel extends LiteralResolvedMapperModel {
         .where((p) => p.isRdfLanguageTag)
         .singleOrNull;
 
+//{{className}}.{{fromLiteralTermMethod}}(LiteralContent.fromLiteralTerm(term))
+    final fromLiteralTermMethodCall = fromLiteralTermMethod == null
+        ? null
+        : Code.combine([
+            mappedClass,
+            Code.literal('.'),
+            Code.literal(fromLiteralTermMethod!),
+            Code.paramsList([
+              Code.combine([
+                Code.type('LiteralContent',
+                    importUri: importRdfMapperAnnotations),
+                Code.literal('.fromLiteralTerm(term)')
+              ])
+            ]),
+          ]);
+    //value.{{toLiteralTermMethod}}().toLiteralTerm(datatype)
+    final toLiteralTermMethodCall = toLiteralTermMethod == null
+        ? null
+        : Code.literal('value.$toLiteralTermMethod().toLiteralTerm(datatype)');
     return LiteralMapperTemplateData(
         className: mappedClass,
         mapperClassName: implementationClass,
         mapperInterfaceName: interfaceClass,
         datatype: datatype,
-        fromLiteralTermMethod: fromLiteralTermMethod,
-        toLiteralTermMethod: toLiteralTermMethod,
+        fromLiteralTermMethodCall: fromLiteralTermMethodCall,
+        toLiteralTermMethodCall: toLiteralTermMethodCall,
         constructorParameters: mappedClassData.constructorParameters,
         nonConstructorFields: mappedClassData.nonConstructorRdfFields,
         registerGlobally: registerGlobally,
@@ -1158,19 +1177,19 @@ List<Code> _extractCustomDeserializerParameters(
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
-      ('iriTermDeserializer', iriMapping.resolvedMapper),
+      ('deserializer', iriMapping.resolvedMapper),
     PropertyResolvedModel(
       literalMapping: var literalMapping?,
     ) =>
-      ('literalTermDeserializer', literalMapping.resolvedMapper),
+      ('deserializer', literalMapping.resolvedMapper),
     PropertyResolvedModel(
       globalResourceMapping: var globalResourceMapping?,
     ) =>
-      ('globalResourceDeserializer', globalResourceMapping.resolvedMapper),
+      ('deserializer', globalResourceMapping.resolvedMapper),
     PropertyResolvedModel(
       localResourceMapping: var localResourceMapping?,
     ) =>
-      ('localResourceDeserializer', localResourceMapping.resolvedMapper),
+      ('deserializer', localResourceMapping.resolvedMapper),
     _ => const (null, null)
   };
   if (paramName == null) {
@@ -1201,19 +1220,19 @@ List<Code> _extractCustomSerializerParameters(
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
-      ('iriTermSerializer', iriMapping.resolvedMapper),
+      ('serializer', iriMapping.resolvedMapper),
     PropertyResolvedModel(
       literalMapping: var literalMapping?,
     ) =>
-      ('literalTermSerializer', literalMapping.resolvedMapper),
+      ('serializer', literalMapping.resolvedMapper),
     PropertyResolvedModel(
       globalResourceMapping: var globalResourceMapping?,
     ) =>
-      ('resourceSerializer', globalResourceMapping.resolvedMapper),
+      ('serializer', globalResourceMapping.resolvedMapper),
     PropertyResolvedModel(
       localResourceMapping: var localResourceMapping?,
     ) =>
-      ('resourceSerializer', localResourceMapping.resolvedMapper),
+      ('serializer', localResourceMapping.resolvedMapper),
     _ => const (null, null)
   };
 

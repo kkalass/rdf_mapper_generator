@@ -57,7 +57,7 @@ class ChildMapper implements GlobalResourceMapper<Child> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Child resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -153,7 +153,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     final id = iriParts['id']!;
     final Child child = reader.require(
       ExampleVocab.child,
-      globalResourceDeserializer: ChildMapper(
+      deserializer: ChildMapper(
         baseUriProvider: _baseUriProvider,
         parentIdProvider: () =>
             throw Exception('Must not call provider for deserialization'),
@@ -161,7 +161,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     );
     final String siblingId = reader.require(
       ExampleVocab.sibling,
-      iriTermDeserializer: ParentSiblingIdMapper(
+      deserializer: ParentSiblingIdMapper(
         baseUriProvider: _baseUriProvider,
         parentIdProvider: () =>
             throw Exception('Must not call provider for deserialization'),
@@ -176,7 +176,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Parent resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -188,7 +188,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
         .addValue(
           ExampleVocab.child,
           resource.child,
-          resourceSerializer: ChildMapper(
+          serializer: ChildMapper(
             baseUriProvider: _baseUriProvider,
             parentIdProvider: () => resource.id,
           ),
@@ -196,7 +196,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
         .addValue(
           ExampleVocab.sibling,
           resource.siblingId,
-          iriTermSerializer: ParentSiblingIdMapper(
+          serializer: ParentSiblingIdMapper(
             baseUriProvider: _baseUriProvider,
             parentIdProvider: () => resource.id,
           ),

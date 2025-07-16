@@ -83,7 +83,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
     final String title =
         reader.optional(
           SchemaBook.name,
-          iriTermDeserializer: BookWithMapperTitleMapper(
+          deserializer: BookWithMapperTitleMapper(
             idProvider: () =>
                 throw Exception('Must not call provider for deserialization'),
           ),
@@ -94,7 +94,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     BookWithMapper resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -108,7 +108,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
           (b) => b.addValue(
             SchemaBook.name,
             resource.title,
-            iriTermSerializer: BookWithMapperTitleMapper(
+            serializer: BookWithMapperTitleMapper(
               idProvider: () => resource.id,
             ),
           ),
@@ -146,7 +146,7 @@ class BookWithMapperInstanceMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     BookWithMapperInstance resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -190,7 +190,7 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     BookWithTemplate resource,
     SerializationContext context, {
     RdfSubject? parentSubject,

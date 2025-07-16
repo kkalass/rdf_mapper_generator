@@ -15,12 +15,15 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 import 'literal_processor_test_models.dart';
 import 'package:rdf_vocabularies/rdf.dart' as rdf;
 import 'package:rdf_vocabularies/xsd.dart';
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 
 /// Generated mapper for [LiteralString] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type LiteralString.
 class LiteralStringMapper implements LiteralTermMapper<LiteralString> {
+  final IriTerm? datatype = null;
+
   const LiteralStringMapper();
 
   @override
@@ -52,6 +55,8 @@ class LiteralStringMapper implements LiteralTermMapper<LiteralString> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type Rating.
 class RatingMapper implements LiteralTermMapper<Rating> {
+  final IriTerm? datatype = null;
+
   const RatingMapper();
 
   @override
@@ -83,6 +88,8 @@ class RatingMapper implements LiteralTermMapper<Rating> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type LocalizedText.
 class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
+  final IriTerm? datatype = null;
+
   const LocalizedTextMapper();
 
   @override
@@ -128,6 +135,8 @@ class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type LiteralDouble.
 class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
+  final IriTerm? datatype = Xsd.double;
+
   const LiteralDoubleMapper();
 
   @override
@@ -172,6 +181,8 @@ class LiteralDoubleMapper implements LiteralTermMapper<LiteralDouble> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type LiteralInteger.
 class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
+  final IriTerm? datatype = Xsd.integer;
+
   const LiteralIntegerMapper();
 
   @override
@@ -216,6 +227,8 @@ class LiteralIntegerMapper implements LiteralTermMapper<LiteralInteger> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type Temperature.
 class TemperatureMapper implements LiteralTermMapper<Temperature> {
+  final IriTerm? datatype = null;
+
   const TemperatureMapper();
 
   @override
@@ -224,7 +237,7 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
   }) {
-    return Temperature.parse(term);
+    return Temperature.parse(LiteralContent.fromLiteralTerm(term));
   }
 
   @override
@@ -233,7 +246,7 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    return value.formatCelsius();
+    return value.formatCelsius().toLiteralTerm(datatype);
   }
 }
 
@@ -243,6 +256,8 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
 /// and RDF terms for iri terms of type CustomLocalizedText.
 class CustomLocalizedTextMapper
     implements LiteralTermMapper<CustomLocalizedText> {
+  final IriTerm? datatype = null;
+
   const CustomLocalizedTextMapper();
 
   @override
@@ -251,7 +266,7 @@ class CustomLocalizedTextMapper
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
   }) {
-    return CustomLocalizedText.fromRdf(term);
+    return CustomLocalizedText.fromRdf(LiteralContent.fromLiteralTerm(term));
   }
 
   @override
@@ -260,7 +275,7 @@ class CustomLocalizedTextMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    return value.toRdf();
+    return value.toRdf().toLiteralTerm(datatype);
   }
 }
 
@@ -269,6 +284,8 @@ class CustomLocalizedTextMapper
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type DoubleAsMilliunit.
 class DoubleAsMilliunitMapper implements LiteralTermMapper<DoubleAsMilliunit> {
+  final IriTerm? datatype = Xsd.int;
+
   const DoubleAsMilliunitMapper();
 
   @override
@@ -277,7 +294,18 @@ class DoubleAsMilliunitMapper implements LiteralTermMapper<DoubleAsMilliunit> {
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
   }) {
-    return DoubleAsMilliunit.fromMilliunit(term);
+    if (!bypassDatatypeCheck && term.datatype != Xsd.int) {
+      throw DeserializerDatatypeMismatchException(
+        'Failed to parse DoubleAsMilliunit: ${term.value}. ',
+        actual: term.datatype,
+        expected: Xsd.int,
+        targetType: DoubleAsMilliunit,
+        mapperRuntimeType: this.runtimeType,
+      );
+    }
+    return DoubleAsMilliunit.fromMilliunit(
+      LiteralContent.fromLiteralTerm(term),
+    );
   }
 
   @override
@@ -286,7 +314,7 @@ class DoubleAsMilliunitMapper implements LiteralTermMapper<DoubleAsMilliunit> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    return value.toMilliunit();
+    return value.toMilliunit().toLiteralTerm(datatype);
   }
 }
 
@@ -296,6 +324,8 @@ class DoubleAsMilliunitMapper implements LiteralTermMapper<DoubleAsMilliunit> {
 /// and RDF terms for iri terms of type LiteralWithNonConstructorValue.
 class LiteralWithNonConstructorValueMapper
     implements LiteralTermMapper<LiteralWithNonConstructorValue> {
+  final IriTerm? datatype = null;
+
   const LiteralWithNonConstructorValueMapper();
 
   @override
@@ -330,6 +360,8 @@ class LiteralWithNonConstructorValueMapper
 /// and RDF terms for iri terms of type LocalizedTextWithNonConstructorLanguage.
 class LocalizedTextWithNonConstructorLanguageMapper
     implements LiteralTermMapper<LocalizedTextWithNonConstructorLanguage> {
+  final IriTerm? datatype = null;
+
   const LocalizedTextWithNonConstructorLanguageMapper();
 
   @override
@@ -378,6 +410,8 @@ class LocalizedTextWithNonConstructorLanguageMapper
 /// and RDF terms for iri terms of type LiteralLateFinalLocalizedText.
 class LiteralLateFinalLocalizedTextMapper
     implements LiteralTermMapper<LiteralLateFinalLocalizedText> {
+  final IriTerm? datatype = null;
+
   const LiteralLateFinalLocalizedTextMapper();
 
   @override

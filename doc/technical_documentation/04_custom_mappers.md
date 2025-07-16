@@ -74,7 +74,7 @@ abstract class ResourceMapper<T> {
   T fromRdfResource(RdfSubject subject, DeserializationContext context);
   
   /// Converts a Dart object to an RDF resource.
-  (RdfSubject, List<Triple>) toRdfResource(
+  (RdfSubject, Iterable<Triple>) toRdfResource(
     T value, 
     SerializationContext context, {
     RdfSubject? parentSubject,

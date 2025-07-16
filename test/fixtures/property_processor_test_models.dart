@@ -293,6 +293,7 @@ class CollectionNoneTest {
 }
 
 class JsonLiteralStringListMapper implements LiteralTermMapper<List<String>> {
+  final IriTerm? datatype = null;
   const JsonLiteralStringListMapper();
 
   @override
@@ -391,6 +392,7 @@ class ComplexDefaultValueTest {
 }
 
 class JsonLiteralMapMapper implements LiteralTermMapper<Map<String, dynamic>> {
+  final IriTerm? datatype = null;
   const JsonLiteralMapMapper();
 
   @override
@@ -547,7 +549,7 @@ class GlobalPublisherMapperImpl implements GlobalResourceMapper<Publisher> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Publisher publisher,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -577,7 +579,7 @@ class LocalResourceAuthorMapperImpl implements LocalResourceMapper<Author> {
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     Author author,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -594,6 +596,7 @@ class LocalResourceAuthorMapperImpl implements LocalResourceMapper<Author> {
 
 // Example implementation of LiteralTermMapper
 class LiteralDoubleMapperImpl implements LiteralTermMapper<double> {
+  final IriTerm? datatype = Xsd.double;
   const LiteralDoubleMapperImpl();
 
   @override
@@ -618,7 +621,7 @@ class LiteralDoubleMapperImpl implements LiteralTermMapper<double> {
   @override
   LiteralTerm toRdfTerm(double value, SerializationContext context) {
     // Convert double to literal term with appropriate datatype
-    return LiteralTerm(value.toString(), datatype: Xsd.double);
+    return LiteralTerm(value.toString(), datatype: datatype);
   }
 }
 
@@ -725,6 +728,7 @@ class LiteralInstanceMapperTest {
 
 // Additional mapper implementation for string literals
 class LiteralStringMapperImpl implements LiteralTermMapper<String> {
+  final IriTerm? datatype = null;
   const LiteralStringMapperImpl();
 
   @override

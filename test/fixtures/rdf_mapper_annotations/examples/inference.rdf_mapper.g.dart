@@ -52,7 +52,7 @@ class TestGlobalResourceMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     TestGlobalResource resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -97,7 +97,7 @@ class TestLocalResourceMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     TestLocalResource resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -181,15 +181,15 @@ class InferenceTestContainerMapper
 
     final TestGlobalResource? globalResource = reader.optional(
       SchemaBook.author,
-      globalResourceDeserializer: _globalResourceMapper,
+      deserializer: _globalResourceMapper,
     );
     final TestLocalResource? localResource = reader.optional(
       SchemaBook.publisher,
-      localResourceDeserializer: _localResourceMapper,
+      deserializer: _localResourceMapper,
     );
     final TestIri? iri = reader.optional(
       SchemaBook.identifier,
-      iriTermDeserializer: _iriMapper,
+      deserializer: _iriMapper,
     );
 
     return InferenceTestContainer(
@@ -200,7 +200,7 @@ class InferenceTestContainerMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     InferenceTestContainer resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -214,7 +214,7 @@ class InferenceTestContainerMapper
           (b) => b.addValue(
             SchemaBook.author,
             resource.globalResource,
-            resourceSerializer: _globalResourceMapper,
+            serializer: _globalResourceMapper,
           ),
         )
         .when(
@@ -222,7 +222,7 @@ class InferenceTestContainerMapper
           (b) => b.addValue(
             SchemaBook.publisher,
             resource.localResource,
-            resourceSerializer: _localResourceMapper,
+            serializer: _localResourceMapper,
           ),
         )
         .when(
@@ -230,7 +230,7 @@ class InferenceTestContainerMapper
           (b) => b.addValue(
             SchemaBook.identifier,
             resource.iri,
-            iriTermSerializer: _iriMapper,
+            serializer: _iriMapper,
           ),
         )
         .build();

@@ -73,14 +73,14 @@ class BookMapper implements LocalResourceMapper<Book> {
     final String title = reader.require(SchemaBook.name);
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     Book resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -94,7 +94,7 @@ class BookMapper implements LocalResourceMapper<Book> {
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -125,7 +125,7 @@ class ClassNoRegisterGloballyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassNoRegisterGlobally resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -165,7 +165,7 @@ class ClassWithNoRdfTypeMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithNoRdfType resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -205,7 +205,7 @@ class ClassWithPositionalPropertyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithPositionalProperty resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -244,7 +244,7 @@ class ClassWithNonFinalPropertyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithNonFinalProperty resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -285,7 +285,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithNonFinalPropertyWithDefault resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -326,7 +326,7 @@ class ClassWithNonFinalOptionalPropertyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithNonFinalOptionalProperty resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -370,7 +370,7 @@ class ClassWithLateNonFinalPropertyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithLateNonFinalProperty resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -411,7 +411,7 @@ class ClassWithLateFinalPropertyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithLateFinalProperty resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -453,7 +453,7 @@ class ClassWithMixedFinalAndLateFinalPropertyMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     ClassWithMixedFinalAndLateFinalProperty resource,
     SerializationContext context, {
     RdfSubject? parentSubject,

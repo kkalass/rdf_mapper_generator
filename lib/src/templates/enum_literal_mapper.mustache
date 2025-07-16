@@ -3,7 +3,8 @@
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type {{className}}.
 class {{mapperClassName}} implements {{mapperInterfaceName}} {
-
+  final IriTerm? datatype = {{#hasDatatype}}{{datatype}}{{/hasDatatype}}{{^hasDatatype}}null{{/hasDatatype}};
+  
   const {{mapperClassName}}();
 
   @override

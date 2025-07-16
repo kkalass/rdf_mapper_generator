@@ -4,6 +4,8 @@ import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'code.dart';
 
 const importRdfMapper = 'package:rdf_mapper/rdf_mapper.dart';
+const importRdfMapperAnnotations =
+    'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 
 const importRdfCore = 'package:rdf_core/rdf_core.dart';
 const importRdfVocab = 'package:rdf_vocabularies/rdf.dart';

@@ -118,7 +118,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     SimpleBook resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -160,7 +160,7 @@ class PersonMapper implements GlobalResourceMapper<Person> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Person resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -203,7 +203,7 @@ class ChapterMapper implements GlobalResourceMapper<Chapter> {
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Chapter resource,
     SerializationContext context, {
     RdfSubject? parentSubject,

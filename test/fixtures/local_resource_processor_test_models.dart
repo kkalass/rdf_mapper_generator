@@ -107,7 +107,7 @@ class TestLocalResourceMapper
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     value,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -130,7 +130,7 @@ class TestLocalResourceMapper2
   }
 
   @override
-  (BlankNodeTerm, List<Triple>) toRdfResource(
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
     value,
     SerializationContext context, {
     RdfSubject? parentSubject,

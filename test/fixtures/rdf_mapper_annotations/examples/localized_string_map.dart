@@ -15,6 +15,7 @@ class Book {
 
 class LocalizedEntryMapper
     implements LiteralTermMapper<MapEntry<String, String>> {
+  final IriTerm? datatype = null;
   const LocalizedEntryMapper();
 
   @override

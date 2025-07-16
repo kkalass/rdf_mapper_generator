@@ -344,8 +344,8 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
   final bool registerGlobally;
 
   final Code? datatype;
-  final String? toLiteralTermMethod;
-  final String? fromLiteralTermMethod;
+  final Code? toLiteralTermMethodCall;
+  final Code? fromLiteralTermMethodCall;
   final PropertyData? rdfValue;
   final PropertyData? rdfLanguageTag;
 
@@ -356,8 +356,8 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
     required super.mapperConstructor,
     required super.mapperFields,
     required this.datatype,
-    required this.toLiteralTermMethod,
-    required this.fromLiteralTermMethod,
+    required this.toLiteralTermMethodCall,
+    required this.fromLiteralTermMethodCall,
     required this.rdfValue,
     required this.rdfLanguageTag,
     required List<PropertyData> constructorParameters,
@@ -377,11 +377,11 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
       'mapperClassName': mapperClassName.toMap(),
       'mapperInterfaceName': mapperInterfaceName.toMap(),
       'datatype': datatype?.toMap(),
-      'toLiteralTermMethod': toLiteralTermMethod,
-      'fromLiteralTermMethod': fromLiteralTermMethod,
+      'toLiteralTermMethodCall': toLiteralTermMethodCall?.toMap(),
+      'fromLiteralTermMethodCall': fromLiteralTermMethodCall?.toMap(),
       'hasDatatype': datatype != null,
       'hasMethods':
-          toLiteralTermMethod != null && fromLiteralTermMethod != null,
+          toLiteralTermMethodCall != null && fromLiteralTermMethodCall != null,
       'constructorParameters':
           toMustacheList(constructorParameters.map((p) => p.toMap()).toList()),
       'nonConstructorFields':

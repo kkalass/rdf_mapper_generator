@@ -14,12 +14,15 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 // Other imports
 import 'example_rdf_literal.dart';
 import 'package:rdf_vocabularies/rdf.dart' as rdf;
+import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 
 /// Generated mapper for [EnhancedRating] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type EnhancedRating.
 class EnhancedRatingMapper implements LiteralTermMapper<EnhancedRating> {
+  final IriTerm? datatype = null;
+
   const EnhancedRatingMapper();
 
   @override
@@ -51,6 +54,10 @@ class EnhancedRatingMapper implements LiteralTermMapper<EnhancedRating> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type Temperature.
 class TemperatureMapper implements LiteralTermMapper<Temperature> {
+  final IriTerm? datatype = const IriTerm.prevalidated(
+    'http://example.org/temperature',
+  );
+
   const TemperatureMapper();
 
   @override
@@ -59,7 +66,18 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
     DeserializationContext context, {
     bool bypassDatatypeCheck = false,
   }) {
-    return Temperature.parse(term);
+    if (!bypassDatatypeCheck &&
+        term.datatype !=
+            const IriTerm.prevalidated('http://example.org/temperature')) {
+      throw DeserializerDatatypeMismatchException(
+        'Failed to parse Temperature: ${term.value}. ',
+        actual: term.datatype,
+        expected: const IriTerm.prevalidated('http://example.org/temperature'),
+        targetType: Temperature,
+        mapperRuntimeType: this.runtimeType,
+      );
+    }
+    return Temperature.parse(LiteralContent.fromLiteralTerm(term));
   }
 
   @override
@@ -68,7 +86,7 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    return value.formatCelsius();
+    return value.formatCelsius().toLiteralTerm(datatype);
   }
 }
 
@@ -77,6 +95,8 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type LocalizedText.
 class LocalizedTextMapper implements LiteralTermMapper<LocalizedText> {
+  final IriTerm? datatype = null;
+
   const LocalizedTextMapper();
 
   @override

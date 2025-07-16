@@ -84,14 +84,14 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final String title = reader.require(SchemaBook.name);
     final String authorId = reader.require(
       SchemaBook.author,
-      iriTermDeserializer: _authorIdMapper,
+      deserializer: _authorIdMapper,
     );
 
     return Book(isbn: isbn, title: title, authorId: authorId);
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     Book resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -104,7 +104,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
         .addValue(
           SchemaBook.author,
           resource.authorId,
-          iriTermSerializer: _authorIdMapper,
+          serializer: _authorIdMapper,
         )
         .build();
   }
@@ -139,7 +139,7 @@ class ClassWithEmptyIriStrategyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithEmptyIriStrategy resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -179,7 +179,7 @@ class ClassWithNoRdfTypeMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithNoRdfType resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -221,7 +221,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithEmptyIriStrategyNoRegisterGlobally resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -266,7 +266,7 @@ class ClassWithIriTemplateStrategyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriTemplateStrategy resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -322,7 +322,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriTemplateAndContextVariableStrategy resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -378,7 +378,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithOtherBaseUriNonGlobal resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -421,7 +421,7 @@ class ClassWithIriNamedMapperStrategyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriNamedMapperStrategy resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -459,7 +459,7 @@ class ClassWithIriNamedMapperStrategy1PartMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriNamedMapperStrategy1Part resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -497,7 +497,7 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriNamedMapperStrategy2Parts resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -542,7 +542,7 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriNamedMapperStrategy2PartsSwapped resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -599,7 +599,7 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriNamedMapperStrategy2PartsWithProperties resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -647,7 +647,7 @@ class ClassWithIriMapperStrategyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriMapperStrategy resource,
     SerializationContext context, {
     RdfSubject? parentSubject,
@@ -688,7 +688,7 @@ class ClassWithIriMapperInstanceStrategyMapper
   }
 
   @override
-  (IriTerm, List<Triple>) toRdfResource(
+  (IriTerm, Iterable<Triple>) toRdfResource(
     ClassWithIriMapperInstanceStrategy resource,
     SerializationContext context, {
     RdfSubject? parentSubject,

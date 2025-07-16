@@ -3,6 +3,7 @@
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type {{className}}.
 class {{mapperClassName}} implements {{mapperInterfaceName}} {
+  final IriTerm? datatype = {{#hasDatatype}}{{datatype}}{{/hasDatatype}}{{^hasDatatype}}null{{/hasDatatype}};
 
   const {{mapperClassName}}();
 
@@ -29,7 +30,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     }
     {{/hasDatatype}}
     {{#hasMethods}}
-    return {{className}}.{{fromLiteralTermMethod}}(term);
+    return {{fromLiteralTermMethodCall}};
     {{/hasMethods}}
     {{^hasMethods}}
     {{#constructorParametersOrOtherFields}}
@@ -56,7 +57,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     RdfSubject? parentSubject,
   }) {
     {{#hasMethods}}
-    return value.{{toLiteralTermMethod}}();
+    return {{toLiteralTermMethodCall}};
     {{/hasMethods}}
     {{^hasMethods}}
     {{#hasRdfLanguageTag}}

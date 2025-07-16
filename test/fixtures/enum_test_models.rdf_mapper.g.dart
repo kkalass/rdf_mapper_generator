@@ -19,6 +19,8 @@ import 'enum_test_models.dart';
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type Priority.
 class PriorityMapper implements LiteralTermMapper<Priority> {
+  final IriTerm? datatype = null;
+
   const PriorityMapper();
 
   @override
@@ -52,6 +54,8 @@ class PriorityMapper implements LiteralTermMapper<Priority> {
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF literal terms for enum type Status.
 class StatusMapper implements LiteralTermMapper<Status> {
+  final IriTerm? datatype = null;
+
   const StatusMapper();
 
   @override
