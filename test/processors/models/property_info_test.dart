@@ -1,5 +1,4 @@
 import 'package:rdf_core/rdf_core.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
@@ -181,7 +180,8 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
-        collection: RdfCollectionType.none,
+        collection: null,
+        itemType: null,
       );
 
       identicalInstance = RdfPropertyInfo(
@@ -193,7 +193,8 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
-        collection: RdfCollectionType.none,
+        collection: null,
+        itemType: null,
       );
 
       differentInstance = RdfPropertyInfo(
@@ -205,7 +206,8 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
-        collection: RdfCollectionType.none,
+        collection: null,
+        itemType: null,
       );
     });
 
@@ -230,7 +232,7 @@ void main() {
       expect(result, contains('RdfPropertyInfo{'));
       expect(result, contains('predicate:'));
       expect(result, contains('include: true'));
-      expect(result, contains('collection: RdfCollectionType.none'));
+      expect(result, contains('collection: null'));
     });
   });
 
@@ -253,7 +255,8 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
-        collection: RdfCollectionType.none,
+        collection: null,
+        itemType: null,
       );
 
       testInstance = PropertyInfo(

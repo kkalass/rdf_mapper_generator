@@ -1,5 +1,3 @@
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'
-    hide MapperRef;
 import 'package:rdf_mapper_generator/builder_helper.dart';
 import 'package:rdf_mapper_generator/src/mappers/iri_model_builder_support.dart';
 import 'package:rdf_mapper_generator/src/mappers/mapper_model_builder.dart';
@@ -91,15 +89,57 @@ class MappedClassModelBuilder {
         mapEntryClassModel = null;
       }
 
-      var collectionType =
-          propertyInfo?.annotation.collection ?? RdfCollectionType.none;
-      var isCollection = (collectionInfo?.isCollection ?? false) &&
-          collectionType != RdfCollectionType.none;
+//FIXME: find out how/where to ensure that customCollection.mapper is treated like the other mappers
+// and that CollectionMapping.fromRegistry really leads to normal usage from registry
+      final collectionMappingInfo = propertyInfo?.annotation.collection;
+      final collectionFactory = collectionMappingInfo?.factory;
+      final isCollection = ((collectionInfo?.isCollection ?? false) &&
+              (collectionMappingInfo?.isAuto ?? false)) ||
+          collectionFactory != null;
+      final itemType = propertyInfo?.annotation.itemType;
+
+      Code? defaultValue = propertyInfo?.annotation.defaultValue == null
+          ? null
+          : toCode(propertyInfo?.annotation.defaultValue);
+      Code? collectionMapperTypeCode;
+      if (collectionFactory != null) {
+        collectionMapperTypeCode = collectionFactory;
+      } else {
+        if (collectionInfo != null &&
+            collectionInfo.isCollection &&
+            (collectionMappingInfo?.isAuto ?? false)) {
+          if (collectionInfo.isList) {
+            collectionMapperTypeCode = Code.type('UnorderedItemsListMapper',
+                importUri: importRdfMapper);
+            defaultValue ??= Code.literal('[]');
+          } else if (collectionInfo.isSet) {
+            collectionMapperTypeCode = Code.type('UnorderedItemsSetMapper',
+                importUri: importRdfMapper);
+            defaultValue ??= Code.literal('{}');
+          } else if (collectionInfo.isMap) {
+            // currently, we have special handling for Maps that does not follow
+            // the addCollection/requireCollection/optionalCollection pattern.
+            collectionMapperTypeCode = null;
+          } else if (collectionInfo.isIterable) {
+            // Fallback to generic UnorderedItemsMapper
+            collectionMapperTypeCode =
+                Code.type('UnorderedItemsMapper', importUri: importRdfMapper);
+            defaultValue ??= Code.literal('[]');
+          }
+        } else {
+          collectionMapperTypeCode = null;
+        }
+      }
+      final collectionMapperFactoryCode = collectionMapperTypeCode != null
+          ? Code.combine([collectionMapperTypeCode, Code.literal('.new')])
+          : null;
       var collectionModel = CollectionModel(
         isCollection: isCollection,
         isMap: collectionInfo?.isMap ?? false,
         isIterable: collectionInfo?.isIterable ?? false,
-        elementTypeCode: collectionInfo?.elementTypeCode,
+        collectionMapperFactoryCode: collectionMapperFactoryCode,
+        elementTypeCode: (itemType == null ? null : typeToCode(itemType)) ??
+            collectionInfo?.elementTypeCode,
         mapValueTypeCode: collectionInfo?.valueTypeCode,
         mapKeyTypeCode: collectionInfo?.keyTypeCode,
         mapEntryClassModel: mapEntryClassModel,
@@ -121,16 +161,11 @@ class MappedClassModelBuilder {
         providesVariableName: f?.provides?.name,
         predicate: propertyInfo?.annotation.predicate.code,
         include: propertyInfo?.annotation.include ?? false,
-        defaultValue: toCode(propertyInfo?.annotation.defaultValue),
+        defaultValue: defaultValue,
         hasDefaultValue: propertyInfo?.annotation.defaultValue != null,
         includeDefaultsInSerialization:
             propertyInfo?.annotation.includeDefaultsInSerialization ?? false,
 
-        // FIXME: move to CollectionModel?
-        isCollection: collectionModel.isCollection,
-        isMap: collectionInfo?.isMap ?? false,
-        isList: collectionInfo?.isList ?? false,
-        isSet: collectionInfo?.isSet ?? false,
         constructorParameterName: c?.name,
         isNamedConstructorParameter: c?.isNamed ?? false,
         isRequired:
@@ -144,9 +179,10 @@ class MappedClassModelBuilder {
         isFieldNullable: !(f?.isRequired ?? true),
 
         collectionInfo: collectionModel,
-
-        collectionType: collectionType,
-
+        collectionMapping: collectionMappingInfo?.mapper == null
+            ? null
+            : buildCollectionMapping(collectionMappingInfo!, propertyInfo!,
+                collectionModel, dartTypeNonNull, propertyName),
         iriMapping: iri == null
             ? null
             : buildIriMapping(
@@ -189,6 +225,18 @@ class MappedClassModelBuilder {
             dartTypeNonNull,
             propertyName,
             'LocalResourceMapper'));
+  }
+
+  static CollectionMappingModel buildCollectionMapping(
+      CollectionMappingInfo collection,
+      PropertyInfo propertyInfo,
+      CollectionModel collectionModel,
+      Code dartTypeNonNull,
+      String propertyName) {
+    return CollectionMappingModel(
+        hasMapper: true,
+        dependency: createMapperDependency(collectionModel, collection.mapper!,
+            dartTypeNonNull, propertyName, 'Mapper'));
   }
 
   static GlobalResourceMappingModel buildGlobalResourceMapping(

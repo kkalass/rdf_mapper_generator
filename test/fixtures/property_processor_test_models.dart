@@ -284,8 +284,7 @@ class LiteralMappingTestCustomDatatype {
 class CollectionNoneTest {
   @RdfProperty(
     SchemaBook.author,
-    collection: RdfCollectionType.none,
-    literal: LiteralMapping.mapperInstance(const JsonLiteralStringListMapper()),
+    collection: CollectionMapping.mapper(JsonLiteralStringListMapper),
   )
   final List<String> authors;
 
@@ -294,7 +293,9 @@ class CollectionNoneTest {
 
 class JsonLiteralStringListMapper implements LiteralTermMapper<List<String>> {
   final IriTerm? datatype = null;
-  const JsonLiteralStringListMapper();
+  const JsonLiteralStringListMapper(
+      {Serializer<String>? itemSerializer,
+      Deserializer<String>? itemDeserializer});
 
   @override
   List<String> fromRdfTerm(
@@ -318,7 +319,7 @@ class JsonLiteralStringListMapper implements LiteralTermMapper<List<String>> {
 
 @RdfLocalResource()
 class CollectionAutoTest {
-  @RdfProperty(SchemaBook.author, collection: RdfCollectionType.auto)
+  @RdfProperty(SchemaBook.author)
   final List<String> authors;
 
   CollectionAutoTest({required this.authors});
@@ -326,7 +327,8 @@ class CollectionAutoTest {
 
 @RdfLocalResource()
 class CollectionTest {
-  @RdfProperty(SchemaBook.author)
+  @RdfProperty(SchemaBook.author,
+      collection: unorderedItemsList, defaultValue: [])
   final List<String> authors;
 
   CollectionTest({required this.authors});
@@ -342,7 +344,7 @@ class CollectionIterableTest {
 
 @RdfLocalResource()
 class MapNoCollectionNoMapperTest {
-  @RdfProperty(SchemaBook.reviews, collection: RdfCollectionType.none)
+  @RdfProperty(SchemaBook.reviews, collection: CollectionMapping.fromRegistry())
   final Map<String, String> reviews;
 
   MapNoCollectionNoMapperTest({required this.reviews});
@@ -383,8 +385,7 @@ class ComplexDefaultValueTest {
   @RdfProperty(
     IriTerm.prevalidated('http://example.org/test/complexValue'),
     defaultValue: const {'id': '1', 'name': 'Test'},
-    collection: RdfCollectionType.none,
-    literal: LiteralMapping.mapperInstance(const JsonLiteralMapMapper()),
+    collection: CollectionMapping.mapper(JsonLiteralMapMapper),
   )
   final Map<String, dynamic> complexValue;
 

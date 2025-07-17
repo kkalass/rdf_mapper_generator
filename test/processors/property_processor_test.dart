@@ -345,7 +345,9 @@ void main() {
       final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
-      expect(result?.annotation.collection, RdfCollectionType.none);
+      expect(result?.annotation.collection!.factory, isNull);
+      expect(result?.annotation.collection!.isAuto, isFalse);
+      expect(result?.annotation.collection!.mapper, isNotNull);
     });
 
     test('should process collection properties (auto)', () {
@@ -358,7 +360,7 @@ void main() {
       final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
-      expect(result?.annotation.collection, RdfCollectionType.auto);
+      expect(result?.annotation.collection?.isAuto, isTrue);
     });
 
     test('should process collection properties (default)', () {
@@ -371,7 +373,10 @@ void main() {
       final result = processField(field!);
       expect(result, isNotNull);
       expect(result?.annotation.collection, isNotNull);
-      expect(result?.annotation.collection, equals(RdfCollectionType.auto));
+      expect(result?.annotation.collection?.isAuto, isFalse);
+      expect(result?.annotation.collection?.factory, isNotNull);
+      expect(result?.annotation.collection?.factory?.codeWithoutAlias,
+          'UnorderedItemsListMapper');
       expect(result?.collectionInfo, isNotNull);
 
       expect(result?.collectionInfo.isList, isTrue);
@@ -418,7 +423,8 @@ void main() {
       expect(result, isNotNull);
       expect(result!.type.codeWithoutAlias, 'Map<String, String>');
       expect(result.annotation.collection, isNotNull);
-      expect(result.annotation.collection, RdfCollectionType.none);
+      expect(result.annotation.collection?.factory, isNull);
+      expect(result.annotation.collection?.isAuto, isFalse);
       expect(result.annotation.predicate.value, equals(SchemaBook.reviews));
     });
 
@@ -437,7 +443,8 @@ void main() {
       expect(result, isNotNull);
       expect(result!.type.codeWithoutAlias, 'Map<String, String>');
       expect(result.annotation.collection, isNotNull);
-      expect(result.annotation.collection, RdfCollectionType.auto);
+      expect(result.annotation.collection?.factory, isNull);
+      expect(result.annotation.collection?.isAuto, isTrue);
       expect(result.annotation.predicate.value, equals(SchemaBook.reviews));
       expect(result.annotation.localResource, isNotNull);
       expect(result.annotation.localResource!.mapper, isNotNull);
@@ -455,7 +462,8 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.type.codeWithoutAlias, 'Set<String>');
-      expect(result.annotation.collection, RdfCollectionType.auto);
+      expect(result.annotation.collection?.factory, isNull);
+      expect(result.annotation.collection?.isAuto, isTrue);
       expect(result.annotation.predicate.value, equals(SchemaBook.keywords));
     });
 

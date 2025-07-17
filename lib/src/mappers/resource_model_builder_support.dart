@@ -90,12 +90,14 @@ class ResourceModelBuilderSupport {
         if (iriStrategy?.template?.contextVariables != null)
           ...iriStrategy!.template!.contextVariables.map((cv) => cv.dependency),
         ...mappedClassModel.properties.expand((f) {
+          final collection = f.collectionMapping;
           final iri = f.iriMapping;
           final literal = f.literalMapping;
           final globalResourceMapper = f.globalResourceMapping;
           final localResourceMapper = f.localResourceMapping;
 
           return [
+            if (collection != null) collection.dependency,
             if (iri != null) iri.dependency,
             if (literal != null) literal.dependency,
             if (globalResourceMapper != null) globalResourceMapper.dependency,

@@ -3,7 +3,6 @@
 // import 'package:analyzer/dart/element/type.dart';
 // import 'package:analyzer/dart/element/type_system.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
@@ -134,6 +133,13 @@ class PropertyProcessor {
           elementType: dartType.typeArguments[0],
         );
       }
+      if (dartType.typeArguments.length == 1) {
+        return CollectionInfo(
+          type: null,
+          elementTypeCode: typeToCode(dartType.typeArguments[0]),
+          elementType: dartType.typeArguments[0],
+        );
+      }
     }
 
     // Not a recognized collection type
@@ -167,11 +173,15 @@ class PropertyProcessor {
     final localResource = _extractLocalResourceMapping(annotation);
     final literal = _extractLiteralMapping(annotation);
     final globalResource = _extractGlobalResourceMapping(annotation);
-    final collection = getEnumFieldValue(annotation, 'collection',
-        RdfCollectionType.values, RdfCollectionType.auto);
+
+    // FIXME: validate that collection.mapper.type is a subclass of Mapper<T>, and that its
+    // default constructor corresponds to the type `CollectionMapperFactory<C, T>` which is a typedef for
+    // `Mapper<C> Function({Deserializer<T>? itemDeserializer, Serializer<T>? itemSerializer})`
+    final collection = _extractCollectionMapping(annotation);
+    final itemType = getField(annotation, 'itemType')?.toTypeValue();
 
     final isCollection =
-        collectionInfo.isCollection && collection != RdfCollectionType.none;
+        collectionInfo.isCollection || collection?.mapper?.type != null;
 
     /// The dart type that is used for the serialization/deserialization
     /// of the field, e.g. Foo for List<Foo>
@@ -180,11 +190,15 @@ class PropertyProcessor {
     /// @RdfMapEntry(Baz)
     ///
     /// FIXME: we need many tests, also for Lists of IriTerm, LiteralTerm etc
-    DartType fieldMappedClassType = (isCollection
-            ? rdfMapEntryAnnotation?.itemClassType ?? collectionInfo.elementType
-            : null) ??
-        fieldType;
-    collectionInfo.elementTypeCode;
+    DartType? collectionItemType = (isCollection
+        ? itemType ??
+            rdfMapEntryAnnotation?.itemClassType ??
+            collectionInfo.elementType ??
+            // FIXME: in the docs I claimed that the fallback type was Object not fieldType - should we adjust the docs (easy) or the code (probably hard)?
+            fieldType
+        : null);
+
+    DartType fieldMappedClassType = collectionItemType ?? fieldType;
 
     // Extract IRI mapping if present
     final iri = _extractIriMapping(
@@ -196,17 +210,16 @@ class PropertyProcessor {
         fieldMappedClassType, localResource, literal, globalResource, iri);
 
     // Create and return the RdfProperty instance
-    return RdfPropertyInfo(
-      predicate,
-      include: include,
-      defaultValue: defaultValue,
-      includeDefaultsInSerialization: includeDefaultsInSerialization,
-      localResource: inferredMappings.localResource ?? localResource,
-      literal: inferredMappings.literal ?? literal,
-      globalResource: inferredMappings.globalResource ?? globalResource,
-      iri: inferredMappings.iri ?? iri,
-      collection: collection,
-    );
+    return RdfPropertyInfo(predicate,
+        include: include,
+        defaultValue: defaultValue,
+        includeDefaultsInSerialization: includeDefaultsInSerialization,
+        localResource: inferredMappings.localResource ?? localResource,
+        literal: inferredMappings.literal ?? literal,
+        globalResource: inferredMappings.globalResource ?? globalResource,
+        iri: inferredMappings.iri ?? iri,
+        collection: collection,
+        itemType: collectionItemType);
   }
 
   static IriMappingInfo? _extractIriMapping(ValidationContext context,
@@ -252,6 +265,27 @@ class PropertyProcessor {
     // Check if it's an IriMapping
     final mapper = getMapperRefInfo<IriTermMapper>(localResource!);
     return LocalResourceMappingInfo(mapper: mapper);
+  }
+
+  static CollectionMappingInfo? _extractCollectionMapping(
+      DartObject annotation) {
+    // Check for named parameter 'iri'
+    final collection = getField(annotation, 'collection');
+    if (isNull(collection)) {
+      return null;
+    }
+    final isAuto = getField(collection!, 'isAuto')?.toBoolValue() ?? false;
+    final factory = getField(collection, 'factory')?.toTypeValue();
+    Code? factoryCode;
+    if (factory != null) {
+      final className = factory.element.name;
+      factoryCode =
+          Code.type(className, importUri: factory.element.libraryIdentifier);
+    }
+    // Check if it's an IriMapping
+    final mapper = getMapperRefInfo<IriTermMapper>(collection);
+    return CollectionMappingInfo(
+        mapper: mapper, isAuto: isAuto, factory: factoryCode);
   }
 
   static GlobalResourceMappingInfo? _extractGlobalResourceMapping(

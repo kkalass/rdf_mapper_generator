@@ -1,7 +1,5 @@
 library;
 
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'
-    show RdfCollectionType;
 import 'package:rdf_mapper_generator/src/mappers/mapper_model.dart';
 import 'package:rdf_mapper_generator/src/templates/template_data.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -225,11 +223,20 @@ class LocalResourceMappingResolvedModel {
       {required this.hasMapper, required this.resolvedMapper});
 }
 
+class CollectionMappingResolvedModel {
+  final bool hasMapper;
+  final ResolvedMapperModel? resolvedMapper;
+
+  CollectionMappingResolvedModel(
+      {required this.hasMapper, required this.resolvedMapper});
+}
+
 /// Information about collection properties
 class CollectionResolvedModel {
   final bool isCollection;
   final bool isMap;
   final bool isIterable;
+  final Code? collectionMapperFactoryCode;
   final Code? elementTypeCode;
   final Code? mapKeyTypeCode;
   final Code? mapValueTypeCode;
@@ -240,6 +247,7 @@ class CollectionResolvedModel {
       {required this.isCollection,
       required this.isMap,
       required this.isIterable,
+      required this.collectionMapperFactoryCode,
       required this.elementTypeCode,
       required this.mapKeyTypeCode,
       required this.mapValueTypeCode,
@@ -267,14 +275,10 @@ class PropertyResolvedModel {
   final Code? defaultValue;
   final bool hasDefaultValue;
   final bool includeDefaultsInSerialization;
-  final bool isCollection;
-  final bool isMap;
   final Code dartType;
-  final bool isList;
-  final bool isSet;
 
   final CollectionResolvedModel collectionInfo;
-  final RdfCollectionType collectionType;
+  final CollectionMappingResolvedModel? collectionMapping;
   final IriMappingResolvedModel? iriMapping;
   final LiteralMappingResolvedModel? literalMapping;
   final GlobalResourceMappingResolvedModel? globalResourceMapping;
@@ -300,13 +304,9 @@ class PropertyResolvedModel {
     required this.defaultValue,
     required this.hasDefaultValue,
     required this.includeDefaultsInSerialization,
-    required this.isCollection,
-    required this.isMap,
     required this.dartType,
-    required this.isList,
-    required this.isSet,
     required this.collectionInfo,
-    required this.collectionType,
+    required this.collectionMapping,
     required this.iriMapping,
     required this.literalMapping,
     required this.globalResourceMapping,
@@ -1175,6 +1175,10 @@ List<Code> _extractCustomDeserializerParameters(
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
   final (paramName, resolvedMapper) = switch (propertyInfo) {
     PropertyResolvedModel(
+      collectionMapping: var collectionMapping?,
+    ) =>
+      ('deserializer', collectionMapping.resolvedMapper),
+    PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
       ('deserializer', iriMapping.resolvedMapper),
@@ -1217,6 +1221,10 @@ List<Code> _extractCustomSerializerParameters(
     PropertyResolvedModel? propertyInfo,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
   final (paramName, resolvedMapper) = switch (propertyInfo) {
+    PropertyResolvedModel(
+      collectionMapping: var collectionMapping?,
+    ) =>
+      ('serializer', collectionMapping.resolvedMapper),
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
@@ -1301,33 +1309,33 @@ Code _buildMapperSerializerCode(
 Code _getReaderCall(PropertyResolvedModel propertyInfo,
     {required Code predicate, required List<Code> extraNamedParameters}) {
   return switch (propertyInfo) {
-    // Case 1a: Property is a collection (not none), and it's specifically a Map, but it
+    // Case 1a: Property is a collection, it's specifically a Map, but it does not
+    // have a collectionMapperFactoryCode, plus it
     // shall be mapped with the help of a supplement MapEntry class.
     PropertyResolvedModel(
       collectionInfo: CollectionResolvedModel(
         isCollection: true,
         isMap: true,
+        collectionMapperFactoryCode: null,
         mapKeyTypeCode: final mapKeyType?,
         mapValueTypeCode: final mapValueType?,
         mapEntryClassModel: final mapEntryClassModel?
       ),
-      collectionType: final type
-    )
-        when type != RdfCollectionType.none =>
+    ) =>
       _generateMapEntryReaderCall(mapEntryClassModel, mapKeyType, mapValueType,
           predicate, extraNamedParameters),
 
-    // Case 1b: Property is a collection (not none), and it's specifically a Map.
+    // Case 1b: Property is a collection (not none), and it's specifically a Map,
+    // but it does not have a collectionMapperFactoryCode.
     PropertyResolvedModel(
       collectionInfo: CollectionResolvedModel(
         isCollection: true,
         isMap: true,
+        collectionMapperFactoryCode: null,
         mapKeyTypeCode: final mapKeyType?,
         mapValueTypeCode: final mapValueType?
-      ),
-      collectionType: final type
-    )
-        when type != RdfCollectionType.none =>
+      )
+    ) =>
       Code.combine([
         Code.literal('reader.'),
         Code.literal('getMap'),
@@ -1337,29 +1345,52 @@ Code _getReaderCall(PropertyResolvedModel propertyInfo,
           ...extraNamedParameters,
         ]),
       ]),
-    // Case 2: Property is a collection (not none), and it's specifically an Iterable.
+
+    // Case 2a: Property has a collectionMapperFactoryCode, but neither is it nullable nor does it have a default value, so it is requireCollection.
     PropertyResolvedModel(
+      isFieldNullable: false,
+      hasDefaultValue: false,
+      dartType: final dartType,
       collectionInfo: CollectionResolvedModel(
-        isCollection: true,
-        isIterable: true,
-        elementTypeCode: final elementType?
-      ), // Destructure elementTypeCode here
-      isList: final isList,
-      isSet: final isSet,
-      collectionType: final type
-    )
-        when type != RdfCollectionType.none =>
+        collectionMapperFactoryCode: final collectionMapperFactoryCode?,
+        elementTypeCode: final elementType
+      ),
+    ) =>
       Code.combine([
         Code.literal('reader.'),
-        codeGeneric1(Code.literal('getValues'), elementType),
+        codeGeneric2(Code.literal('requireCollection'), dartType,
+            elementType ?? Code.coreType('dynamic')),
         Code.paramsList([
           predicate,
+          collectionMapperFactoryCode,
           ...extraNamedParameters,
         ]),
-        if (isList)
-          Code.literal('.toList()')
-        else if (isSet)
-          Code.literal('.toSet()'),
+      ]),
+
+    // Case 2b: Property has a collectionMapperFactoryCode, but it is either nullable or it has a default value, so it is optionalCollection.
+    PropertyResolvedModel(
+      dartType: final dartType,
+      hasDefaultValue: final hasDefaultValue,
+      defaultValue: final defaultValue,
+      collectionInfo: CollectionResolvedModel(
+        collectionMapperFactoryCode: final collectionMapperFactoryCode?,
+        elementTypeCode: final elementType
+      ),
+    ) =>
+      Code.combine([
+        Code.literal('reader.'),
+        codeGeneric2(Code.literal('optionalCollection'), dartType,
+            elementType ?? Code.coreType('dynamic')),
+        Code.paramsList([
+          predicate,
+          collectionMapperFactoryCode,
+          ...extraNamedParameters,
+        ]),
+        if (hasDefaultValue)
+          Code.combine([
+            Code.literal(' ?? '),
+            defaultValue!,
+          ])
       ]),
 
     // Case 3: not to be treated as a collection, but required value
@@ -1487,31 +1518,31 @@ Code _generateSerializerCall(
         required Code predicate,
         required List<Code> namedParameters}) =>
     switch (propertyInfo) {
-      // Case 1a: Property is a collection (not none), and it's specifically a Map, but it
+      // Case 1a: Property is a collection, it's specifically a Map, but it does not
+      // have a collectionMapperFactoryCode, plus it
       // shall be mapped with the help of a supplement MapEntry class.
       PropertyResolvedModel(
         collectionInfo: CollectionResolvedModel(
           isCollection: true,
           isMap: true,
+          collectionMapperFactoryCode: null,
           mapEntryClassModel: final mapEntryClassModel?
         ),
-        collectionType: final type
-      )
-          when type != RdfCollectionType.none =>
+      ) =>
         _generateMapEntryBuilderCall(context, mapEntryClassModel, predicate,
             propertyName, namedParameters),
 
-      // Case 1b: Property is a collection (not none), and it's specifically a Map.
+      // Case 1b: Property is a collection (not none), and it's specifically a Map,
+      // but it does not have a collectionMapperFactoryCode.
       PropertyResolvedModel(
         collectionInfo: CollectionResolvedModel(
           isCollection: true,
           isMap: true,
+          collectionMapperFactoryCode: null,
           mapKeyTypeCode: final mapKeyType?,
           mapValueTypeCode: final mapValueType?
         ),
-        collectionType: final type
-      )
-          when type != RdfCollectionType.none =>
+      ) =>
         Code.combine([
           Code.literal('.'),
           codeGeneric2(Code.literal('addMap'), mapKeyType, mapValueType),
@@ -1522,22 +1553,22 @@ Code _generateSerializerCall(
           ]),
         ]),
 
-      // Case 2: Property is a collection (not none), and it's specifically an Iterable.
+      // Case 2:  Property has a collectionMapperFactoryCode
       PropertyResolvedModel(
+        dartType: final dartType,
         collectionInfo: CollectionResolvedModel(
-          isCollection: true,
-          isIterable: true,
-          elementTypeCode: final elementType?
+          collectionMapperFactoryCode: final collectionMapperFactoryCode?,
+          elementTypeCode: final elementType
         ), // Destructure elementTypeCode here
-        collectionType: final type
-      )
-          when type != RdfCollectionType.none =>
+      ) =>
         Code.combine([
           Code.literal('.'),
-          codeGeneric1(Code.literal('addValues'), elementType),
+          codeGeneric2(Code.literal('addCollection'), dartType,
+              elementType ?? Code.coreType('dynamic')),
           Code.paramsList([
             predicate,
             Code.literal('resource.$propertyName'),
+            collectionMapperFactoryCode,
             ...namedParameters
           ]),
         ]),

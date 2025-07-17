@@ -6,8 +6,6 @@
 library;
 
 import 'package:logging/logging.dart';
-import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart'
-    show RdfCollectionType;
 import 'package:rdf_mapper_generator/src/mappers/resolved_mapper_model.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:uuid/uuid.dart';
@@ -183,11 +181,29 @@ class LocalResourceMappingModel {
   }
 }
 
+class CollectionMappingModel {
+  final bool hasMapper;
+  final MapperDependency dependency;
+
+  CollectionMappingModel({required this.hasMapper, required this.dependency});
+
+  CollectionMappingResolvedModel resolve(
+    ResolveStep2Context context,
+  ) {
+    final resolvedMapper = context.getResolvedMapperModel(dependency.mapperRef);
+    return CollectionMappingResolvedModel(
+      hasMapper: hasMapper,
+      resolvedMapper: resolvedMapper,
+    );
+  }
+}
+
 /// Information about collection properties
 class CollectionModel {
   final bool isCollection;
   final bool isMap;
   final bool isIterable;
+  final Code? collectionMapperFactoryCode;
   final Code? elementTypeCode;
   final Code? mapKeyTypeCode;
   final Code? mapValueTypeCode;
@@ -198,6 +214,7 @@ class CollectionModel {
     required this.isCollection,
     required this.isMap,
     required this.isIterable,
+    required this.collectionMapperFactoryCode,
     required this.elementTypeCode,
     required this.mapKeyTypeCode,
     required this.mapValueTypeCode,
@@ -211,6 +228,7 @@ class CollectionModel {
       isCollection: isCollection,
       isMap: isMap,
       isIterable: isIterable,
+      collectionMapperFactoryCode: collectionMapperFactoryCode,
       elementTypeCode: elementTypeCode,
       mapKeyTypeCode: mapKeyTypeCode,
       mapValueTypeCode: mapValueTypeCode,
@@ -256,11 +274,6 @@ class PropertyModel {
   final bool hasDefaultValue;
   final bool includeDefaultsInSerialization;
 
-  final bool isCollection;
-  final bool isMap;
-  final bool isList;
-  final bool isSet;
-
   bool get isConstructor => constructorParameterName != null;
   final String? constructorParameterName;
   final bool isNamedConstructorParameter;
@@ -279,7 +292,7 @@ class PropertyModel {
       (isField && !isFieldLate && !isFieldFinal && !isFieldNullable);
 
   final CollectionModel collectionInfo;
-  final RdfCollectionType collectionType;
+  final CollectionMappingModel? collectionMapping;
   final IriMappingModel? iriMapping;
   final LiteralMappingModel? literalMapping;
   final GlobalResourceMappingModel? globalResourceMapping;
@@ -309,12 +322,8 @@ class PropertyModel {
     required this.defaultValue,
     required this.hasDefaultValue,
     required this.includeDefaultsInSerialization,
-    required this.isCollection,
-    required this.isMap,
-    required this.isList,
-    required this.isSet,
     required this.collectionInfo,
-    required this.collectionType,
+    required this.collectionMapping,
     required this.iriMapping,
     required this.literalMapping,
     required this.globalResourceMapping,
@@ -342,14 +351,10 @@ class PropertyModel {
       defaultValue: defaultValue,
       hasDefaultValue: hasDefaultValue,
       includeDefaultsInSerialization: includeDefaultsInSerialization,
-      isCollection: isCollection,
-      isMap: isMap,
       dartType: dartType,
-      isList: isList,
-      isSet: isSet,
       collectionInfo: collectionInfo.resolve(context),
-      collectionType: collectionType,
       isIriPart: isIriPart,
+      collectionMapping: collectionMapping?.resolve(context),
       iriMapping: iriMapping?.resolve(context),
       literalMapping: literalMapping?.resolve(context),
       globalResourceMapping: globalResourceMapping?.resolve(context),

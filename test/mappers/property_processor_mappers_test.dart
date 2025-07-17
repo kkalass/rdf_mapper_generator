@@ -949,7 +949,7 @@ books:singleton a schema:Book .
 @prefix ex: <http://example.org/> .
 @prefix schema: <https://schema.org/> .
 
-_:b1 schema:reviews [ a ex:MapEntry ; ex:key "review1" ; ex:value "content1" ] .
+_:b0 schema:reviews [ a ex:MapEntry ; ex:key "review1" ; ex:value "content1" ] .
 '''
               .trim()),
           reason: 'Map entries should be serialized as local resources');

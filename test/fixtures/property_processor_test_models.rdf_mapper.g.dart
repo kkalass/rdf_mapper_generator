@@ -1294,12 +1294,11 @@ class LiteralMappingTestCustomDatatypeMapper
 /// and RDF triples for resources of type CollectionNoneTest.
 class CollectionNoneTestMapper
     implements LocalResourceMapper<CollectionNoneTest> {
-  final LiteralTermMapper<List<String>> _authorsMapper;
+  final Mapper<List<String>> _authorsMapper;
 
   /// Constructor
   const CollectionNoneTestMapper({
-    LiteralTermMapper<List<String>> authorsMapper =
-        const JsonLiteralStringListMapper(),
+    Mapper<List<String>> authorsMapper = const JsonLiteralStringListMapper(),
   }) : _authorsMapper = authorsMapper;
 
   @override
@@ -1358,9 +1357,10 @@ class CollectionAutoTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader
-        .getValues<String>(SchemaBook.author)
-        .toList();
+    final List<String> authors = reader.requireCollection<List<String>, String>(
+      SchemaBook.author,
+      UnorderedItemsListMapper.new,
+    );
 
     return CollectionAutoTest(authors: authors);
   }
@@ -1375,7 +1375,11 @@ class CollectionAutoTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValues<String>(SchemaBook.author, resource.authors)
+        .addCollection<List<String>, String>(
+          SchemaBook.author,
+          resource.authors,
+          UnorderedItemsListMapper.new,
+        )
         .build();
   }
 }
@@ -1398,9 +1402,12 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authors = reader
-        .getValues<String>(SchemaBook.author)
-        .toList();
+    final List<String> authors =
+        reader.optionalCollection<List<String>, String>(
+          SchemaBook.author,
+          UnorderedItemsListMapper.new,
+        ) ??
+        [];
 
     return CollectionTest(authors: authors);
   }
@@ -1415,7 +1422,14 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValues<String>(SchemaBook.author, resource.authors)
+        .when(
+          resource.authors != [],
+          (b) => b.addCollection<List<String>, String>(
+            SchemaBook.author,
+            resource.authors,
+            UnorderedItemsListMapper.new,
+          ),
+        )
         .build();
   }
 }
@@ -1439,9 +1453,11 @@ class CollectionIterableTestMapper
   ) {
     final reader = context.reader(subject);
 
-    final Iterable<String> authors = reader.getValues<String>(
-      SchemaBook.author,
-    );
+    final Iterable<String> authors = reader
+        .requireCollection<Iterable<String>, String>(
+          SchemaBook.author,
+          UnorderedItemsMapper.new,
+        );
 
     return CollectionIterableTest(authors: authors);
   }
@@ -1456,7 +1472,11 @@ class CollectionIterableTestMapper
 
     return context
         .resourceBuilder(subject)
-        .addValues<String>(SchemaBook.author, resource.authors)
+        .addCollection<Iterable<String>, String>(
+          SchemaBook.author,
+          resource.authors,
+          UnorderedItemsMapper.new,
+        )
         .build();
   }
 }
@@ -1568,9 +1588,10 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
   ) {
     final reader = context.reader(subject);
 
-    final Set<String> keywords = reader
-        .getValues<String>(SchemaBook.keywords)
-        .toSet();
+    final Set<String> keywords = reader.requireCollection<Set<String>, String>(
+      SchemaBook.keywords,
+      UnorderedItemsSetMapper.new,
+    );
 
     return SetTest(keywords: keywords);
   }
@@ -1585,7 +1606,11 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
 
     return context
         .resourceBuilder(subject)
-        .addValues<String>(SchemaBook.keywords, resource.keywords)
+        .addCollection<Set<String>, String>(
+          SchemaBook.keywords,
+          resource.keywords,
+          UnorderedItemsSetMapper.new,
+        )
         .build();
   }
 }
@@ -1634,11 +1659,11 @@ class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
 /// and RDF triples for resources of type ComplexDefaultValueTest.
 class ComplexDefaultValueTestMapper
     implements LocalResourceMapper<ComplexDefaultValueTest> {
-  final LiteralTermMapper<Map<String, dynamic>> _complexValueMapper;
+  final Mapper<Map<String, dynamic>> _complexValueMapper;
 
   /// Constructor
   const ComplexDefaultValueTestMapper({
-    LiteralTermMapper<Map<String, dynamic>> complexValueMapper =
+    Mapper<Map<String, dynamic>> complexValueMapper =
         const JsonLiteralMapMapper(),
   }) : _complexValueMapper = complexValueMapper;
 

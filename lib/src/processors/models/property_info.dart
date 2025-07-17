@@ -29,6 +29,34 @@ class LocalResourceMappingInfo extends BaseMappingInfo {
   }
 }
 
+class CollectionMappingInfo extends BaseMappingInfo {
+  bool isAuto;
+  Code? factory;
+
+  CollectionMappingInfo(
+      {required super.mapper, required this.isAuto, required this.factory});
+
+  @override
+  int get hashCode => Object.hashAll([
+        super.hashCode,
+        isAuto,
+        factory,
+      ]);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! CollectionMappingInfo) {
+      return false;
+    }
+    return super == other && isAuto == other.isAuto && factory == other.factory;
+  }
+
+  @override
+  String toString() {
+    return 'CollectionMappingInfo{mapper: $mapper, isAuto: $isAuto, factoryConstructor: $factory}';
+  }
+}
+
 class LiteralMappingInfo extends BaseMappingInfo {
   final String? language;
 
@@ -134,7 +162,8 @@ class RdfPropertyInfo implements RdfAnnotation {
 
   final GlobalResourceMappingInfo? globalResource;
 
-  final RdfCollectionType collection;
+  final CollectionMappingInfo? collection;
+  final DartType? itemType;
 
   const RdfPropertyInfo(
     this.predicate, {
@@ -146,6 +175,7 @@ class RdfPropertyInfo implements RdfAnnotation {
     required this.literal,
     required this.globalResource,
     required this.collection,
+    required this.itemType,
   });
 
   @override
