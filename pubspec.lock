@@ -389,10 +389,10 @@ packages:
     dependency: "direct main"
     description:
       name: rdf_mapper
-      sha256: "1cc8f2a157a01d9c60907d8b75082eafd7e138cb952a52a16933c0913597a9b3"
+      sha256: "967d414da4bb334bce69ffea4b87b351cc443b2ff9b30cb0152de589f041f550"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0"
+    version: "0.9.1"
   rdf_mapper_annotations:
     dependency: "direct main"
     description:
