@@ -242,11 +242,11 @@ class CourseMapper implements GlobalResourceMapper<Course> {
   }
 }
 
-/// Generated mapper for [List<String>] global resources.
+/// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type `List<String>`.
-class BookCollectionAuthorIdsMapper implements IriTermMapper<List<String>> {
+/// and RDF terms for iri terms of type `String`.
+class BookCollectionAuthorIdsMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     r'^(?<baseUri>.*)/author/(?<authorIds>[^/]*)$',
   );
@@ -259,7 +259,7 @@ class BookCollectionAuthorIdsMapper implements IriTermMapper<List<String>> {
   }) : _baseUriProvider = baseUriProvider;
 
   @override
-  List<String> fromRdfTerm(IriTerm term, DeserializationContext context) {
+  String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
     final RegExpMatch? match = _regex.firstMatch(term.iri);
 
@@ -272,7 +272,7 @@ class BookCollectionAuthorIdsMapper implements IriTermMapper<List<String>> {
 
   @override
   IriTerm toRdfTerm(
-    List<String> iriTermValue,
+    String iriTermValue,
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
@@ -296,9 +296,9 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
   BookCollectionMapper({
     required String Function() baseUriProvider,
     LiteralTermMapper<String> keywordsMapper =
-        const LanguageOverrideMapper<List<String>>('en'),
+        const LanguageOverrideMapper<String>('en'),
     LiteralTermMapper<DateTime> publicationDatesMapper =
-        const DatatypeOverrideMapper<List<DateTime>>(
+        const DatatypeOverrideMapper<DateTime>(
           const IriTerm.prevalidated('http://www.w3.org/2001/XMLSchema#date'),
         ),
   }) : _baseUriProvider = baseUriProvider,

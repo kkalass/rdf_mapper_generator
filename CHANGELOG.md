@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed collection item mapper type generation where item mappers were incorrectly typed for the collection type instead of the individual item type (e.g., `IriTermMapper<List<String>>` now correctly generates as `IriTermMapper<String>`)
 - Fixed parameter naming inconsistency in collection mappers where custom serializer/deserializer parameters are now correctly named `itemSerializer`/`itemDeserializer` instead of `serializer`/`deserializer` when dealing with collection item mappers
 - Improved documentation formatting in generated IRI mappers by properly wrapping class names in backticks
 

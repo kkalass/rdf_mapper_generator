@@ -142,7 +142,9 @@ class MappedClassModelBuilder {
         mapKeyTypeCode: collectionInfo?.keyTypeCode,
         mapEntryClassModel: mapEntryClassModel,
       );
-
+      var itemDartTypeNonNull = collectionModel.isCollection
+          ? collectionModel.elementTypeCode ?? dartTypeNonNull
+          : dartTypeNonNull;
       return PropertyModel(
         propertyName: propertyName,
         dartType: dartType,
@@ -191,20 +193,20 @@ class MappedClassModelBuilder {
                 propertyInfo!,
                 collectionModel,
                 fields,
-                dartTypeNonNull,
+                itemDartTypeNonNull,
                 propertyName),
         literalMapping: literal == null
             ? null
             : buildLiteralMapping(literal, propertyInfo!, collectionModel,
-                dartTypeNonNull, propertyName),
+                itemDartTypeNonNull, propertyName),
         globalResourceMapping: globalResource == null
             ? null
             : buildGlobalResourceMapping(globalResource, propertyInfo!,
-                collectionModel, dartTypeNonNull, propertyName),
+                collectionModel, itemDartTypeNonNull, propertyName),
         localResourceMapping: localResource == null
             ? null
             : buildLocalResourceMapping(localResource, propertyInfo!,
-                collectionModel, dartTypeNonNull, propertyName),
+                collectionModel, itemDartTypeNonNull, propertyName),
       );
     }).toList();
   }
