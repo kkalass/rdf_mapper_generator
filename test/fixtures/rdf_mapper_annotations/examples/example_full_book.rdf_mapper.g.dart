@@ -19,7 +19,7 @@ import 'package:rdf_vocabularies/rdf.dart' as rdf;
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class BookAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/author/(?<authorId>[^/]*)$',
@@ -190,7 +190,7 @@ class ChapterMapper implements LocalResourceMapper<Chapter> {
 /// Generated mapper for [ISBN] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type ISBN.
+/// and RDF terms for iri terms of type `ISBN`.
 class ISBNMapper implements IriTermMapper<ISBN> {
   static final RegExp _regex = RegExp(r'^urn:isbn:(?<value>[^/]*)$');
 

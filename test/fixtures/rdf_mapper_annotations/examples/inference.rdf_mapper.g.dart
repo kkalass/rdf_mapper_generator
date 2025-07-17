@@ -114,7 +114,7 @@ class TestLocalResourceMapper
 /// Generated mapper for [TestIri] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type TestIri.
+/// and RDF terms for iri terms of type `TestIri`.
 class TestIriMapper implements IriTermMapper<TestIri> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/items/(?<id>[^/]*)$',

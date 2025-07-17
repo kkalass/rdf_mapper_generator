@@ -272,7 +272,7 @@ class IncludeDefaultsTestMapper
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/authors/(?<authorId>[^/]*)$',
@@ -356,7 +356,7 @@ class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     r'^(?<baseUri>.*)/authors/(?<authorId>[^/]*)$',
@@ -550,7 +550,7 @@ class IriMappingFullIriSimpleTestMapper
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class IriMappingWithProviderTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
@@ -642,7 +642,7 @@ class IriMappingWithProviderTestMapper
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class IriMappingWithBaseUriProviderTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/(?<authorId>[^/]*)$');
@@ -732,7 +732,7 @@ class IriMappingWithBaseUriProviderTestMapper
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class IriMappingWithProviderPropertyTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
@@ -826,7 +826,7 @@ class IriMappingWithProviderPropertyTestMapper
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
     implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(

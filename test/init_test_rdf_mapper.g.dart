@@ -25,6 +25,14 @@ import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart'
     as lrptmrmg;
 import 'fixtures/property_processor_test_models.dart' as pptm;
 import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
+import 'fixtures/rdf_mapper_annotations/examples/collection_examples.dart'
+    as ce;
+import 'fixtures/rdf_mapper_annotations/examples/collection_examples.rdf_mapper.g.dart'
+    as cermg;
+import 'fixtures/rdf_mapper_annotations/examples/custom_collection_type_example.dart'
+    as ccte;
+import 'fixtures/rdf_mapper_annotations/examples/custom_collection_type_example.rdf_mapper.g.dart'
+    as cctermg;
 import 'fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.dart'
     as ems;
 import 'fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.rdf_mapper.g.dart'
@@ -395,6 +403,24 @@ RdfMapper initTestRdfMapper({
     pptmrmg.LiteralInstanceMapperTestMapper(),
   );
   registry.registerMapper<pptm.BookFormatType>(pptmrmg.BookFormatTypeMapper());
+  registry.registerMapper<ce.Library>(
+    cermg.LibraryMapper(baseUriProvider: baseUriProvider),
+  );
+  registry.registerMapper<ce.Playlist>(
+    cermg.PlaylistMapper(baseUriProvider: baseUriProvider),
+  );
+  registry.registerMapper<ce.Course>(
+    cermg.CourseMapper(baseUriProvider: baseUriProvider),
+  );
+  registry.registerMapper<ce.BookCollection>(
+    cermg.BookCollectionMapper(baseUriProvider: baseUriProvider),
+  );
+  registry.registerMapper<ce.Book>(cermg.BookMapper());
+  registry.registerMapper<ce.Track>(cermg.TrackMapper());
+  registry.registerMapper<ce.Module>(cermg.ModuleMapper());
+  registry.registerMapper<ccte.Library>(
+    cctermg.LibraryMapper(baseUriProvider: baseUriProvider),
+  );
   registry.registerMapper<ems.Book>(
     emsrmg.BookMapper(customPriorityMapper: customPriorityMapper),
   );

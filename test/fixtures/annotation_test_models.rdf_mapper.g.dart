@@ -18,7 +18,7 @@ import 'package:rdf_vocabularies/schema.dart';
 /// Generated mapper for [String] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type String.
+/// and RDF terms for iri terms of type `String`.
 class BookWithMapperTitleMapper implements IriTermMapper<String> {
   static final RegExp _regex = RegExp(
     r'^https://example\.org/books/(?<id>[^/]*)/(?<title>[^/]*)$',

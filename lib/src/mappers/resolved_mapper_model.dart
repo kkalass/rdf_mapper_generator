@@ -336,10 +336,10 @@ class PropertyResolvedModel {
     }
 
     final customSerializerParameters = _extractCustomSerializerParameters(
-      constructorParameterName ?? propertyName,
-      this,
-      providesByProviderNames,
-    );
+        constructorParameterName ?? propertyName, this, providesByProviderNames,
+        name: collectionInfo.collectionMapperFactoryCode != null
+            ? 'itemSerializer'
+            : 'serializer');
 
     final serializerCall = _generateSerializerCall(
       context,
@@ -392,6 +392,9 @@ class PropertyResolvedModel {
           : propertyName,
       this,
       providesByProviderNames,
+      name: collectionInfo.collectionMapperFactoryCode != null
+          ? 'itemDeserializer'
+          : 'deserializer',
     );
 
     return _getReaderCall(this,
@@ -1172,28 +1175,29 @@ String _buildMapperFieldName(String fieldName) => '_' + fieldName + 'Mapper';
 List<Code> _extractCustomDeserializerParameters(
     String fieldName,
     PropertyResolvedModel? propertyInfo,
-    Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
+    Map<String, ProvidesResolvedModel> providesByConstructorParameterNames,
+    {String? name = 'deserializer'}) {
   final (paramName, resolvedMapper) = switch (propertyInfo) {
     PropertyResolvedModel(
       collectionMapping: var collectionMapping?,
     ) =>
-      ('deserializer', collectionMapping.resolvedMapper),
+      (name, collectionMapping.resolvedMapper),
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
-      ('deserializer', iriMapping.resolvedMapper),
+      (name, iriMapping.resolvedMapper),
     PropertyResolvedModel(
       literalMapping: var literalMapping?,
     ) =>
-      ('deserializer', literalMapping.resolvedMapper),
+      (name, literalMapping.resolvedMapper),
     PropertyResolvedModel(
       globalResourceMapping: var globalResourceMapping?,
     ) =>
-      ('deserializer', globalResourceMapping.resolvedMapper),
+      (name, globalResourceMapping.resolvedMapper),
     PropertyResolvedModel(
       localResourceMapping: var localResourceMapping?,
     ) =>
-      ('deserializer', localResourceMapping.resolvedMapper),
+      (name, localResourceMapping.resolvedMapper),
     _ => const (null, null)
   };
   if (paramName == null) {
@@ -1219,28 +1223,29 @@ List<Code> _extractCustomDeserializerParameters(
 List<Code> _extractCustomSerializerParameters(
     String fieldName,
     PropertyResolvedModel? propertyInfo,
-    Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
+    Map<String, ProvidesResolvedModel> providesByConstructorParameterNames,
+    {String? name = 'serializer'}) {
   final (paramName, resolvedMapper) = switch (propertyInfo) {
     PropertyResolvedModel(
       collectionMapping: var collectionMapping?,
     ) =>
-      ('serializer', collectionMapping.resolvedMapper),
+      (name, collectionMapping.resolvedMapper),
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
-      ('serializer', iriMapping.resolvedMapper),
+      (name, iriMapping.resolvedMapper),
     PropertyResolvedModel(
       literalMapping: var literalMapping?,
     ) =>
-      ('serializer', literalMapping.resolvedMapper),
+      (name, literalMapping.resolvedMapper),
     PropertyResolvedModel(
       globalResourceMapping: var globalResourceMapping?,
     ) =>
-      ('serializer', globalResourceMapping.resolvedMapper),
+      (name, globalResourceMapping.resolvedMapper),
     PropertyResolvedModel(
       localResourceMapping: var localResourceMapping?,
     ) =>
-      ('serializer', localResourceMapping.resolvedMapper),
+      (name, localResourceMapping.resolvedMapper),
     _ => const (null, null)
   };
 

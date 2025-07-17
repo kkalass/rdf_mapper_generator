@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-07-17
+
+### Added
+
+- Added additional test cases for collection property annotation mapper generating.
+
+### Fixed
+
+- Fixed parameter naming inconsistency in collection mappers where custom serializer/deserializer parameters are now correctly named `itemSerializer`/`itemDeserializer` instead of `serializer`/`deserializer` when dealing with collection item mappers
+- Improved documentation formatting in generated IRI mappers by properly wrapping class names in backticks
+
 ## [0.3.0] - 2025-07-17
 
 ### Changed

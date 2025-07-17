@@ -17,7 +17,7 @@ import 'iri_processor_test_models.dart';
 /// Generated mapper for [IriWithOnePart] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithOnePart.
+/// and RDF terms for iri terms of type `IriWithOnePart`.
 class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/books/(?<isbn>[^/]*)$',
@@ -54,7 +54,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
 /// Generated mapper for [IriWithOnePartExplicitlyGlobal] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithOnePartExplicitlyGlobal.
+/// and RDF terms for iri terms of type `IriWithOnePartExplicitlyGlobal`.
 class IriWithOnePartExplicitlyGlobalMapper
     implements IriTermMapper<IriWithOnePartExplicitlyGlobal> {
   static final RegExp _regex = RegExp(
@@ -95,7 +95,7 @@ class IriWithOnePartExplicitlyGlobalMapper
 /// Generated mapper for [IriWithOnePartNamed] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithOnePartNamed.
+/// and RDF terms for iri terms of type `IriWithOnePartNamed`.
 class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/books/(?<isbn>[^/]*)$',
@@ -135,7 +135,7 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
 /// Generated mapper for [IriWithTwoParts] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithTwoParts.
+/// and RDF terms for iri terms of type `IriWithTwoParts`.
 class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/(?<type>[^/]*)/(?<value>[^/]*)$',
@@ -174,7 +174,7 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
 /// Generated mapper for [IriWithBaseUriAndTwoParts] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithBaseUriAndTwoParts.
+/// and RDF terms for iri terms of type `IriWithBaseUriAndTwoParts`.
 class IriWithBaseUriAndTwoPartsMapper
     implements IriTermMapper<IriWithBaseUriAndTwoParts> {
   static final RegExp _regex = RegExp(
@@ -222,7 +222,7 @@ class IriWithBaseUriAndTwoPartsMapper
 /// Generated mapper for [IriWithBaseUri] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithBaseUri.
+/// and RDF terms for iri terms of type `IriWithBaseUri`.
 class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/books/(?<isbn>[^/]*)$');
 
@@ -261,7 +261,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 /// Generated mapper for [IriWithBaseUriNoGlobal] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithBaseUriNoGlobal.
+/// and RDF terms for iri terms of type `IriWithBaseUriNoGlobal`.
 class IriWithBaseUriNoGlobalMapper
     implements IriTermMapper<IriWithBaseUriNoGlobal> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/books/(?<isbn>[^/]*)$');
@@ -305,7 +305,7 @@ class IriWithBaseUriNoGlobalMapper
 /// Generated mapper for [IriWithNonConstructorFields] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithNonConstructorFields.
+/// and RDF terms for iri terms of type `IriWithNonConstructorFields`.
 class IriWithNonConstructorFieldsMapper
     implements IriTermMapper<IriWithNonConstructorFields> {
   static final RegExp _regex = RegExp(
@@ -348,7 +348,7 @@ class IriWithNonConstructorFieldsMapper
 /// Generated mapper for [IriWithNonConstructorFieldsAndBaseUriNonGlobal] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithNonConstructorFieldsAndBaseUriNonGlobal.
+/// and RDF terms for iri terms of type `IriWithNonConstructorFieldsAndBaseUriNonGlobal`.
 class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     implements IriTermMapper<IriWithNonConstructorFieldsAndBaseUriNonGlobal> {
   static final RegExp _regex = RegExp(r'^(?<myBaseUri>.*)/items/(?<id>[^/]*)$');
@@ -394,7 +394,7 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
 /// Generated mapper for [IriWithMixedFields] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF terms for iri terms of type IriWithMixedFields.
+/// and RDF terms for iri terms of type `IriWithMixedFields`.
 class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/products/(?<brand>[^/]*)/(?<category>[^/]*)/(?<id>[^/]*)$',
