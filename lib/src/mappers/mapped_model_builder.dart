@@ -89,8 +89,6 @@ class MappedClassModelBuilder {
         mapEntryClassModel = null;
       }
 
-//FIXME: find out how/where to ensure that customCollection.mapper is treated like the other mappers
-// and that CollectionMapping.fromRegistry really leads to normal usage from registry
       final collectionMappingInfo = propertyInfo?.annotation.collection;
       final collectionFactory = collectionMappingInfo?.factory;
       final isCollection = ((collectionInfo?.isCollection ?? false) &&
