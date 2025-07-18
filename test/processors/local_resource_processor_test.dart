@@ -34,7 +34,7 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isFalse);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process ClassWithMapperNamedMapperStrategy', () {
@@ -57,7 +57,7 @@ void main() {
       expect(annotation.mapper!.instance, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
     test('should process ClassWithMapperStrategy', () {
       // Act
@@ -80,7 +80,7 @@ void main() {
       expect(annotation.mapper!.instance, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
     test('should process ClassWithMapperInstanceStrategy', () {
       // Act
@@ -103,7 +103,7 @@ void main() {
           'TestLocalResourceMapper2');
       expect(annotation.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
 
     test('should process class with RdfGlobalResource annotation', () {
@@ -153,10 +153,10 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.fields, isNotEmpty);
+      expect(result!.properties, isNotEmpty);
 
       // Check that we have the expected fields
-      final titleField = result.fields.firstWhere(
+      final titleField = result.properties.firstWhere(
         (f) => f.name == 'title',
       );
 
@@ -179,7 +179,7 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
 
       // Check constructor has positional parameter
       final constructor = result.constructors.first;
@@ -200,7 +200,7 @@ void main() {
       expect(annotation.classIri, isNull);
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
 
       // Check constructor has positional parameter
       final constructor = result.constructors.first;
@@ -222,10 +222,10 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
 
       // Check field is not final
-      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      final nameField = result.properties.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
       expect(nameField.type, equals(stringType));
     });
@@ -245,10 +245,10 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
 
       // Check field is not final and has default value
-      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      final nameField = result.properties.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
       expect(nameField.type, equals(stringType));
     });
@@ -267,10 +267,10 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
 
       // Check field is nullable and not final
-      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      final nameField = result.properties.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
       expect(nameField.type, equals(Code.coreType('String?')));
     });
@@ -289,10 +289,10 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
 
       // Check field is late and not final
-      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      final nameField = result.properties.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isFalse);
       expect(nameField.type, equals(stringType));
       expect(nameField.isLate, isTrue);
@@ -312,10 +312,10 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
 
       // Check field is late final
-      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      final nameField = result.properties.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isTrue);
       expect(nameField.type, equals(stringType));
       expect(nameField.isLate, isTrue);
@@ -336,16 +336,16 @@ void main() {
       expect(annotation.classIri!.value, equals(SchemaPerson.classIri));
       expect(annotation.registerGlobally, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
 
       // Check name field is final
-      final nameField = result.fields.firstWhere((f) => f.name == 'name');
+      final nameField = result.properties.firstWhere((f) => f.name == 'name');
       expect(nameField.isFinal, isTrue);
       expect(nameField.type, equals(stringType));
       expect(nameField.isLate, isFalse);
 
       // Check age field is late final
-      final ageField = result.fields.firstWhere((f) => f.name == 'age');
+      final ageField = result.properties.firstWhere((f) => f.name == 'age');
       expect(ageField.isFinal, isTrue);
       expect(ageField.type, equals(Code.coreType('int')));
       expect(ageField.isLate, isTrue);

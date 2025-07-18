@@ -17,7 +17,7 @@ class IriModelBuilderSupport {
       Code? type,
       List<IriPartInfo>? iriParts,
       IriTemplateInfo? templateInfo,
-      List<FieldInfo>? fields) {
+      List<PropertyInfo>? fields) {
     final mapperRef = mapper == null || type == null
         ? null
         : mapperRefInfoToDependency(type, referenceName, mapper);
@@ -63,7 +63,7 @@ class IriModelBuilderSupport {
   }
 
   static IriTemplateModel buildTemplateData(
-      IriTemplateInfo iriTemplateInfo, List<FieldInfo> fields) {
+      IriTemplateInfo iriTemplateInfo, List<PropertyInfo> fields) {
     final isStringByFieldName = {
       for (var field in fields) field.name: stringType == field.type,
     };
@@ -91,7 +91,7 @@ class IriModelBuilderSupport {
   }
 
   static Set<VariableNameModel> buildPropertyVariables(
-      IriTemplateInfo iriTemplateInfo, List<FieldInfo> fields) {
+      IriTemplateInfo iriTemplateInfo, List<PropertyInfo> fields) {
     final isStringByFieldName = {
       for (var field in fields) field.name: stringType == field.type,
     };
@@ -151,7 +151,7 @@ class IriModelBuilderSupport {
         mapperClassName:
             _toImplementationClass(iriInfo.className, mapperImportUri),
         constructors: iriInfo.constructors,
-        fields: iriInfo.fields,
+        properties: iriInfo.properties,
         annotations: iriInfo.annotations,
         registerGlobally: annotation.registerGlobally,
         mapperImportUri: mapperImportUri,
@@ -170,7 +170,7 @@ class IriModelBuilderSupport {
       final List<IriPartInfo>? iriParts,
       required Code mapperClassName,
       List<ConstructorInfo> constructors = const [],
-      List<FieldInfo> fields = const [],
+      List<PropertyInfo> properties = const [],
       List<AnnotationInfo> annotations = const [],
       bool registerGlobally = false,
       required String mapperImportUri,
@@ -185,7 +185,7 @@ class IriModelBuilderSupport {
         .singleOrNull;
 
     final propertyVariables =
-        IriModelBuilderSupport.buildPropertyVariables(templateInfo, fields);
+        IriModelBuilderSupport.buildPropertyVariables(templateInfo, properties);
     final regexPattern =
         '^${buildRegexPattern(templateInfo.template, templateInfo.variableNames)}\$';
     final interpolatedTemplate =
@@ -206,7 +206,7 @@ class IriModelBuilderSupport {
         mappedClassName,
         mapperImportUri,
         constructors,
-        fields,
+        properties,
         context,
         mapperClassName,
         registerGlobally,
@@ -223,7 +223,7 @@ class IriModelBuilderSupport {
         mappedClassName,
         mapperImportUri,
         constructors,
-        fields,
+        properties,
         annotations,
         context,
         mapperClassName,
@@ -241,7 +241,7 @@ class IriModelBuilderSupport {
       Code mappedClassName,
       String mapperImportUri,
       List<ConstructorInfo> constructors,
-      List<FieldInfo> fields,
+      List<PropertyInfo> fields,
       ValidationContext context,
       Code mapperClassName,
       bool registerGlobally,
@@ -274,7 +274,7 @@ class IriModelBuilderSupport {
       Code mappedClassName,
       String mapperImportUri,
       List<ConstructorInfo> constructors,
-      List<FieldInfo> fields,
+      List<PropertyInfo> fields,
       List<AnnotationInfo> annotations,
       ValidationContext context,
       Code mapperClassName,

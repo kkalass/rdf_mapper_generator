@@ -1,6 +1,7 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 
+import '../fixtures/comprehensive_collection_tests.dart' as cct;
 import '../fixtures/global_resource_processor_test_models.dart' as grptm;
 import '../fixtures/local_resource_processor_test_models.dart' as lrptm;
 import '../fixtures/iri_processor_test_models.dart' as iptm;
@@ -354,6 +355,87 @@ class TestUserReferenceMapper implements IriTermMapper<eis.UserReference> {
   }
 }
 
+/// Test global resource mapper for ComplexItem
+class TestComplexItemGlobalMapper
+    implements GlobalResourceMapper<cct.ComplexItem> {
+  const TestComplexItemGlobalMapper();
+
+  @override
+  cct.ComplexItem fromRdfResource(
+      IriTerm term, DeserializationContext context) {
+    // Simple test implementation - decode from IRI
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/complex-items/([^/]+)/(\d+)$')
+        .firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid complex item IRI format: $iri');
+    }
+    return cct.ComplexItem(
+        name: match.group(1)!, id: int.parse(match.group(2)!));
+  }
+
+  @override
+  (IriTerm, Iterable<Triple>) toRdfResource(
+      cct.ComplexItem value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    final iri =
+        IriTerm('http://example.org/complex-items/${value.name}/${value.id}');
+    return context.resourceBuilder(iri).build();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm('http://example.org/ComplexItem');
+}
+
+/// Test local resource mapper for ComplexItem
+class TestComplexItemLocalMapper
+    implements LocalResourceMapper<cct.ComplexItem> {
+  const TestComplexItemLocalMapper();
+
+  @override
+  cct.ComplexItem fromRdfResource(
+      BlankNodeTerm term, DeserializationContext context) {
+    // Simple test implementation - return default values
+    return cct.ComplexItem(name: 'test-item', id: 1);
+  }
+
+  @override
+  (BlankNodeTerm, Iterable<Triple>) toRdfResource(
+      cct.ComplexItem value, SerializationContext context,
+      {RdfSubject? parentSubject}) {
+    return context.resourceBuilder(BlankNodeTerm()).build();
+  }
+
+  @override
+  IriTerm? get typeIri => IriTerm('http://example.org/ComplexItem');
+}
+
+/// Test custom collection mapper for `List<String>`
+class TestCustomCollectionMapper implements LiteralTermMapper<List<String>> {
+  const TestCustomCollectionMapper();
+
+  @override
+  IriTerm? get datatype => null;
+
+  @override
+  List<String> fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    // Parse comma-separated values
+    final value = term.value;
+    if (value.isEmpty) return [];
+    return value
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+  }
+
+  @override
+  LiteralTerm toRdfTerm(List<String> value, SerializationContext context) {
+    return LiteralTerm(value.join(','));
+  }
+}
+
 const baseUri = 'http://example.org';
 
 RdfMapper defaultInitTestRdfMapper(
@@ -390,8 +472,13 @@ RdfMapper defaultInitTestRdfMapper(
             )>?
         testMapper3,
     GlobalResourceMapper<Object>? testNamedMapper,
-    IriTermMapper<eis.UserReference>? userReferenceMapper}) {
+    IriTermMapper<eis.UserReference>? userReferenceMapper,
+    // New mapper parameters
+    GlobalResourceMapper<cct.ComplexItem>? complexItemMapperGlobal,
+    LocalResourceMapper<cct.ComplexItem>? complexItemMapperLocal,
+    LiteralTermMapper<List<String>>? customCollectionMapper}) {
   return initTestRdfMapper(
+    rdfMapper: rdfMapper,
     // Provider parameters
     apiBaseProvider: apiBaseProvider ?? (() => 'http://example.org/api'),
     baseUriProvider: baseUriProvider ?? (() => baseUri),
@@ -423,5 +510,12 @@ RdfMapper defaultInitTestRdfMapper(
     testMapper3: testMapper3 ?? const TestMapper3PartsWithProperties(),
     testNamedMapper: testNamedMapper ?? const TestNamedMapper(),
     userReferenceMapper: userReferenceMapper ?? const TestUserReferenceMapper(),
+    // New mapper parameters
+    complexItemMapperGlobal:
+        complexItemMapperGlobal ?? const TestComplexItemGlobalMapper(),
+    complexItemMapperLocal:
+        complexItemMapperLocal ?? const TestComplexItemLocalMapper(),
+    customCollectionMapper:
+        customCollectionMapper ?? const TestCustomCollectionMapper(),
   );
 }

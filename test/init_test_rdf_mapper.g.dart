@@ -11,6 +11,8 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 import 'fixtures/annotation_test_models.dart' as atm;
 import 'fixtures/annotation_test_models.rdf_mapper.g.dart' as atmrmg;
+import 'fixtures/comprehensive_collection_tests.dart' as cct;
+import 'fixtures/comprehensive_collection_tests.rdf_mapper.g.dart' as cctrmg;
 import 'fixtures/enum_test_models.dart' as etm;
 import 'fixtures/enum_test_models.rdf_mapper.g.dart' as etmrmg;
 import 'fixtures/global_resource_processor_test_models.dart' as grptm;
@@ -77,6 +79,9 @@ import 'fixtures/unmapped_triples_test_models.rdf_mapper.g.dart' as uttmrmg;
 /// * [versionProvider]
 /// named mapper parameters:
 /// * [chapterIdMapper] mapper
+/// * [complexItemMapperGlobal] mapper
+/// * [complexItemMapperLocal] mapper
+/// * [customCollectionMapper] mapper
 /// * [customPriorityMapper] mapper
 /// * [iriMapper] mapper
 /// * [mapEntryMapper] mapper
@@ -104,6 +109,9 @@ RdfMapper initTestRdfMapper({
   required String Function() versionProvider,
   // Named mapper parameters
   required IriTermMapper<(String bookId, int chapterNumber)> chapterIdMapper,
+  required GlobalResourceMapper<cct.ComplexItem> complexItemMapperGlobal,
+  required LocalResourceMapper<cct.ComplexItem> complexItemMapperLocal,
+  required Mapper<List<String>> customCollectionMapper,
   required LiteralTermMapper<ems.Priority> customPriorityMapper,
   required IriTermMapper<String> iriMapper,
   required LocalResourceMapper<MapEntry<String, String>> mapEntryMapper,
@@ -130,6 +138,52 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<atm.BookWithMapper>(atmrmg.BookWithMapperMapper());
   registry.registerMapper<atm.BookWithTemplate>(
     atmrmg.BookWithTemplateMapper(),
+  );
+  registry.registerMapper<cct.RegistryCollectionTests>(
+    cctrmg.RegistryCollectionTestsMapper(),
+  );
+  registry.registerMapper<cct.NamedMapperCollectionTests>(
+    cctrmg.NamedMapperCollectionTestsMapper(
+      customCollectionMapper: customCollectionMapper,
+    ),
+  );
+  registry.registerMapper<cct.SelfContainedMapperTests>(
+    cctrmg.SelfContainedMapperTestsMapper(),
+  );
+  registry.registerMapper<cct.InstanceManagedCollectionTests>(
+    cctrmg.InstanceManagedCollectionTestsMapper(),
+  );
+  registry.registerMapper<cct.SetAndIterableCollectionTests>(
+    cctrmg.SetAndIterableCollectionTestsMapper(),
+  );
+  registry.registerMapper<cct.ComplexItem>(cctrmg.ComplexItemMapper());
+  registry.registerMapper<cct.ItemTypeParameterTests>(
+    cctrmg.ItemTypeParameterTestsMapper(
+      complexItemMapperLocal: complexItemMapperLocal,
+    ),
+  );
+  registry.registerMapper<cct.CombinedItemMappingTests>(
+    cctrmg.CombinedItemMappingTestsMapper(
+      baseUriProvider: baseUriProvider,
+      complexItemMapperGlobal: complexItemMapperGlobal,
+    ),
+  );
+  registry.registerMapper<cct.EdgeCaseTests>(cctrmg.EdgeCaseTestsMapper());
+  registry.registerMapper<cct.PerformanceTests>(
+    cctrmg.PerformanceTestsMapper(),
+  );
+  registry.registerMapper<cct.MapCollectionTests>(
+    cctrmg.MapCollectionTestsMapper(),
+  );
+  registry.registerMapper<cct.DefaultSerializationTests>(
+    cctrmg.DefaultSerializationTestsMapper(),
+  );
+  registry.registerMapper<cct.NestedCollectionTests>(
+    cctrmg.NestedCollectionTestsMapper(),
+  );
+  registry.registerMapper<cct.MixedTypeTests>(cctrmg.MixedTypeTestsMapper());
+  registry.registerMapper<cct.ContextProviderTests>(
+    cctrmg.ContextProviderTestsMapper(),
   );
   registry.registerMapper<etm.Priority>(etmrmg.PriorityMapper());
   registry.registerMapper<etm.Status>(etmrmg.StatusMapper());

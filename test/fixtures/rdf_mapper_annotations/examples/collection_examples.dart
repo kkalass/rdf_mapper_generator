@@ -159,12 +159,12 @@ class Book {
 
 @RdfLocalResource()
 class Track {
-  @RdfProperty(SchemaCreativeWork.name)
+  @RdfProperty(SchemaMediaObject.name)
   final String title;
 
   /// Duration property - using appropriate schema term
   @RdfProperty(
-      SchemaCreativeWork.name) // Placeholder for actual duration property
+      SchemaMediaObject.duration) // Placeholder for actual duration property
   final Duration duration;
 
   Track({required this.title, required this.duration});
@@ -180,73 +180,3 @@ class Module {
 
   Module({required this.name, required this.position});
 }
-
-/// Example usage patterns (working examples)
-void demonstrateCollectionMapping() {
-  // Example 1: Default behavior - multiple triples
-  final library = Library(
-    id: 'main',
-    books: [
-      Book(title: 'Book 1', author: 'Author A'),
-      Book(title: 'Book 2', author: 'Author B'),
-    ],
-    collaborators: ['Alice', 'Bob', 'Charlie'],
-  );
-
-  // Conceptual RDF output for default collections:
-  // <library:main> vocab:books <_:book1> .
-  // <library:main> vocab:books <_:book2> .
-  // <library:main> vocab:collaborators "Alice" .
-  // <library:main> vocab:collaborators "Bob" .
-  // <library:main> vocab:collaborators "Charlie" .
-
-  // Example 2: Ordered RDF List (when using RdfListMapper)
-  final playlist = Playlist(
-    id: 'rock-classics',
-    orderedTracks: [
-      Track(
-          title: 'Bohemian Rhapsody',
-          duration: Duration(minutes: 5, seconds: 55)),
-      Track(
-          title: 'Stairway to Heaven',
-          duration: Duration(minutes: 8, seconds: 2)),
-    ],
-  );
-
-  // Conceptual RDF output with RdfListMapper:
-  // <playlist:rock-classics> vocab:orderedTracks _:list1 .
-  // _:list1 rdf:first <_:track1> .
-  // _:list1 rdf:rest _:list2 .
-  // _:list2 rdf:first <_:track2> .
-  // _:list2 rdf:rest rdf:nil .
-
-  // Demonstrate different collection mappers conceptually
-  print('Library has ${library.books.length} books');
-  print('Playlist has ${playlist.orderedTracks.length} tracks');
-}
-
-/*
-Collection Mapping Strategy Summary:
-
-1. DEFAULT COLLECTIONS (List, Set, Iterable):
-   - Creates multiple triples with same predicate
-   - Order not preserved in RDF
-   - Each item handled separately
-   - Uses UnorderedItemsListMapper, UnorderedItemsSetMapper, etc.
-
-2. STRUCTURED RDF COLLECTIONS:
-   - collection: rdfList → ordered rdf:List with rdf:first/rdf:rest/rdf:nil
-   - collection: rdfSeq → rdf:Seq with numeric properties
-   - collection: rdfBag → rdf:Bag for unordered collections
-   - collection: rdfAlt → rdf:Alt for alternative values
-
-3. CUSTOM COLLECTION HANDLING:
-   - Implement custom mapper for specific collection behavior
-   - Can treat entire collection as single value
-   - Full control over RDF representation
-
-4. ITEM MAPPING:
-   - Use iri/literal/globalResource/localResource for individual items
-   - Applies to each collection element separately
-   - Works with both default and structured collections
-*/

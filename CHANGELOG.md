@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2025-07-18
+
+### Added
+
+- Added `hasInitializer` and `isSettable` properties to field analysis for better code generation control
+- Added comprehensive collection mapping test coverage including all collection types and edge cases
+
+### Changed
+
+- Refactored internal model class names for improved clarity:
+  - `FieldInfo` → `PropertyInfo`
+  - `PropertyInfo` → `RdfPropertyInfo`
+  - `RdfPropertyInfo` → `RdfPropertyAnnotationInfo`
+- Renamed collection type detection methods for consistency:
+  - `isList` → `isCoreList`
+  - `isMap` → `isCoreMap`
+  - `isSet` → `isCoreSet`
+  - `isCollection` → `isCoreCollection`
+- Updated internal property structures to use `properties` instead of `fields` for consistency with RDF terminology
+
+### Fixed
+
+- Improved analyzer wrapper to properly detect field initializers and settability
+- Removed warning about missing constructor parameter during build_runner that happened for initialized final fields and getters without accompanying setters
+- Detection if something is a collection sometimes did not work, itemType override thus failed for custom collection types
+- important constants like rdfList, rdfSeq etc. were not documented at all
+
 ## [0.3.1] - 2025-07-17
 
 ### Added

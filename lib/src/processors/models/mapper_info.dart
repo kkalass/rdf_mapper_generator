@@ -3,7 +3,7 @@
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/rdf_property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 
@@ -19,7 +19,7 @@ sealed class MappableClassInfo<A extends BaseMappingAnnotationInfo> {
   List<ConstructorInfo> get constructors;
 
   /// List of fields in the class
-  List<FieldInfo> get fields;
+  List<PropertyInfo> get properties;
 
   /// Class-Level annotation if the entire class shall be used as a map value
   RdfMapValueAnnotationInfo? get rdfMapValue;
@@ -46,7 +46,7 @@ class IriInfo extends MappableClassInfo<RdfIriInfo> {
 
   /// List of fields in the class
   @override
-  final List<FieldInfo> fields;
+  final List<PropertyInfo> properties;
 
   /// Class-Level annotation if the entire class shall be used as a map value
   @override
@@ -59,14 +59,20 @@ class IriInfo extends MappableClassInfo<RdfIriInfo> {
     required this.className,
     required this.annotation,
     required this.constructors,
-    required this.fields,
+    required this.properties,
     this.rdfMapValue,
     this.enumValues = const [],
   });
 
   @override
-  int get hashCode => Object.hashAll(
-      [className, annotation, constructors, fields, enumValues, rdfMapValue]);
+  int get hashCode => Object.hashAll([
+        className,
+        annotation,
+        constructors,
+        properties,
+        enumValues,
+        rdfMapValue
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -76,7 +82,7 @@ class IriInfo extends MappableClassInfo<RdfIriInfo> {
     return className == other.className &&
         annotation == other.annotation &&
         constructors == other.constructors &&
-        fields == other.fields &&
+        properties == other.properties &&
         enumValues == other.enumValues &&
         rdfMapValue == other.rdfMapValue;
   }
@@ -87,7 +93,7 @@ class IriInfo extends MappableClassInfo<RdfIriInfo> {
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
-        '  fields: $fields,\n'
+        '  fields: $properties,\n'
         '  enumValues: $enumValues,\n'
         '  rdfMapValue: $rdfMapValue\n'
         '}';
@@ -110,7 +116,7 @@ class LiteralInfo extends MappableClassInfo<RdfLiteralInfo> {
 
   /// List of fields in the class
   @override
-  final List<FieldInfo> fields;
+  final List<PropertyInfo> properties;
 
   /// Class-Level annotation if the entire class shall be used as a map value
   @override
@@ -123,14 +129,20 @@ class LiteralInfo extends MappableClassInfo<RdfLiteralInfo> {
     required this.className,
     required this.annotation,
     required this.constructors,
-    required this.fields,
+    required this.properties,
     this.rdfMapValue,
     this.enumValues = const [],
   });
 
   @override
-  int get hashCode => Object.hashAll(
-      [className, annotation, constructors, fields, enumValues, rdfMapValue]);
+  int get hashCode => Object.hashAll([
+        className,
+        annotation,
+        constructors,
+        properties,
+        enumValues,
+        rdfMapValue
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -140,7 +152,7 @@ class LiteralInfo extends MappableClassInfo<RdfLiteralInfo> {
     return className == other.className &&
         annotation == other.annotation &&
         constructors == other.constructors &&
-        fields == other.fields &&
+        properties == other.properties &&
         enumValues == other.enumValues &&
         rdfMapValue == other.rdfMapValue;
   }
@@ -151,7 +163,7 @@ class LiteralInfo extends MappableClassInfo<RdfLiteralInfo> {
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
-        '  fields: $fields,\n'
+        '  fields: $properties,\n'
         '  enumValues: $enumValues,\n'
         '  rdfMapValue: $rdfMapValue,\n'
         '}';
@@ -174,7 +186,7 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
 
   /// List of fields in the class
   @override
-  final List<FieldInfo> fields;
+  final List<PropertyInfo> properties;
 
   /// Class-Level annotation if the entire class shall be used as a map value
   @override
@@ -184,7 +196,7 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
     required this.className,
     required this.annotation,
     required this.constructors,
-    required this.fields,
+    required this.properties,
     this.rdfMapValue,
   });
 
@@ -192,7 +204,7 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
 
   @override
   int get hashCode => Object.hashAll(
-      [className, annotation, constructors, fields, rdfMapValue]);
+      [className, annotation, constructors, properties, rdfMapValue]);
 
   @override
   bool operator ==(Object other) {
@@ -202,7 +214,7 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
     return className == other.className &&
         annotation == other.annotation &&
         constructors == other.constructors &&
-        fields == other.fields &&
+        properties == other.properties &&
         rdfMapValue == other.rdfMapValue;
   }
 
@@ -212,7 +224,7 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
         '  className: $className,\n'
         '  annotation: $annotation,\n'
         '  constructors: $constructors,\n'
-        '  fields: $fields,\n'
+        '  fields: $properties,\n'
         '  rdfMapValue: $rdfMapValue,\n'
         '}';
   }
@@ -720,7 +732,7 @@ class ParameterInfo {
   final bool isOptional;
 
   /// The RDF property info associated with this parameter, if it maps to a field with @RdfProperty
-  final PropertyInfo? propertyInfo;
+  final RdfPropertyInfo? propertyInfo;
 
   /// Whether this parameter is an IRI part
   final bool isIriPart;
@@ -891,15 +903,15 @@ final class RdfUnmappedTriplesAnnotationInfo extends AnnotationInfo {
   }
 }
 
-/// Information about a field
-class FieldInfo {
-  /// The name of the field
+/// Information about a property (field or getter/setter) in a class
+class PropertyInfo {
+  /// The name of the property
   final String name;
 
-  /// The type of the field as a string
+  /// The type of the property as a string
   final Code type;
 
-  /// The type of the field as a string
+  /// The type of the property as a string
   final Code typeNonNull;
 
   /// Whether this field is final
@@ -908,16 +920,22 @@ class FieldInfo {
   /// Whether this field is late-initialized
   final bool isLate;
 
+  /// Whether this field has an initializer
+  final bool hasInitializer;
+
+  /// Whether this property can be set (false for getter-only properties)
+  final bool isSettable;
+
   /// Whether this is a static field
   final bool isStatic;
 
   /// Whether this is a synthetic field
   final bool isSynthetic;
 
-  /// The IRI of the RDF property associated with this field, if any
-  final PropertyInfo? propertyInfo;
+  /// The IRI of the RDF property associated with this property, if any
+  final RdfPropertyInfo? propertyInfo;
 
-  /// Whether this field is required (non-nullable)
+  /// Whether this property is required (non-nullable)
   final bool isRequired;
 
   final bool isRdfValue;
@@ -931,12 +949,14 @@ class FieldInfo {
   final RdfMapValueAnnotationInfo? mapValue;
   final RdfUnmappedTriplesAnnotationInfo? unmappedTriples;
 
-  const FieldInfo({
+  const PropertyInfo({
     required this.name,
     required this.type,
     required Code? typeNonNull,
     required this.isFinal,
     required this.isLate,
+    required this.hasInitializer,
+    required this.isSettable,
     required this.isStatic,
     required this.isSynthetic,
     required this.isRdfValue,
@@ -958,6 +978,8 @@ class FieldInfo {
         typeNonNull,
         isFinal,
         isLate,
+        hasInitializer,
+        isSettable,
         isStatic,
         isSynthetic,
         propertyInfo,
@@ -974,7 +996,7 @@ class FieldInfo {
 
   @override
   bool operator ==(Object other) {
-    if (other is! FieldInfo) {
+    if (other is! PropertyInfo) {
       return false;
     }
     return name == other.name &&
@@ -982,6 +1004,8 @@ class FieldInfo {
         typeNonNull == other.typeNonNull &&
         isFinal == other.isFinal &&
         isLate == other.isLate &&
+        hasInitializer == other.hasInitializer &&
+        isSettable == other.isSettable &&
         isStatic == other.isStatic &&
         isSynthetic == other.isSynthetic &&
         propertyInfo == other.propertyInfo &&

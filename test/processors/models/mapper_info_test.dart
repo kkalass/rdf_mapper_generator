@@ -18,27 +18,27 @@ void main() {
         templateInfo: null,
       );
       const constructors = <ConstructorInfo>[];
-      const fields = <FieldInfo>[];
+      const fields = <PropertyInfo>[];
 
       testInstance = IriInfo(
         className: className,
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
 
       identicalInstance = IriInfo(
         className: className,
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
 
       differentInstance = IriInfo(
         className: Code.literal('DifferentClass'),
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
     });
 
@@ -87,27 +87,27 @@ void main() {
         datatype: null,
       );
       const constructors = <ConstructorInfo>[];
-      const fields = <FieldInfo>[];
+      const fields = <PropertyInfo>[];
 
       testInstance = LiteralInfo(
         className: className,
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
 
       identicalInstance = LiteralInfo(
         className: className,
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
 
       differentInstance = LiteralInfo(
         className: Code.literal('DifferentLiteral'),
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
     });
 
@@ -148,27 +148,27 @@ void main() {
         mapper: null,
       );
       const constructors = <ConstructorInfo>[];
-      const fields = <FieldInfo>[];
+      const fields = <PropertyInfo>[];
 
       testInstance = ResourceInfo(
         className: className,
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
 
       identicalInstance = ResourceInfo(
         className: className,
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
 
       differentInstance = ResourceInfo(
         className: Code.literal('DifferentResource'),
         annotation: annotation,
         constructors: constructors,
-        fields: fields,
+        properties: fields,
       );
     });
 
@@ -202,7 +202,7 @@ void main() {
         className: const Code.literal('LocalResource'),
         annotation: localAnnotation,
         constructors: const [],
-        fields: const [],
+        properties: const [],
       );
       expect(localInstance.isGlobalResource, isFalse);
     });
@@ -854,16 +854,17 @@ void main() {
   });
 
   group('FieldInfo', () {
-    late FieldInfo testInstance;
-    late FieldInfo identicalInstance;
-    late FieldInfo differentInstance;
+    late PropertyInfo testInstance;
+    late PropertyInfo identicalInstance;
+    late PropertyInfo differentInstance;
 
     setUp(() {
-      testInstance = FieldInfo(
+      testInstance = PropertyInfo(
           name: 'testField',
           type: Code.literal('String'),
           isFinal: true,
           isLate: false,
+          hasInitializer: false,
           isStatic: false,
           isSynthetic: false,
           isRdfValue: false,
@@ -872,13 +873,15 @@ void main() {
           isRequired: true,
           iriPart: null,
           provides: null,
-          typeNonNull: null);
+          typeNonNull: null,
+          isSettable: true);
 
-      identicalInstance = FieldInfo(
+      identicalInstance = PropertyInfo(
           name: 'testField',
           type: Code.literal('String'),
           isFinal: true,
           isLate: false,
+          hasInitializer: false,
           isStatic: false,
           isSynthetic: false,
           isRdfValue: false,
@@ -887,13 +890,15 @@ void main() {
           isRequired: true,
           iriPart: null,
           provides: null,
-          typeNonNull: null);
+          typeNonNull: null,
+          isSettable: true);
 
-      differentInstance = FieldInfo(
+      differentInstance = PropertyInfo(
           name: 'differentField',
           type: Code.literal('String'),
           isFinal: true,
           isLate: false,
+          hasInitializer: false,
           isStatic: false,
           isSynthetic: false,
           isRdfValue: false,
@@ -902,7 +907,8 @@ void main() {
           isRequired: true,
           iriPart: null,
           provides: null,
-          typeNonNull: null);
+          typeNonNull: null,
+          isSettable: true);
     });
 
     test('equals returns true for identical instances', () {

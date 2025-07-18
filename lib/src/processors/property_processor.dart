@@ -8,7 +8,7 @@ import 'package:rdf_mapper_generator/src/processors/iri_strategy_processor.dart'
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
 import 'package:rdf_mapper_generator/src/processors/models/exceptions.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/rdf_property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -33,9 +33,9 @@ class _InferredMappings {
 class PropertyProcessor {
   /// Processes a field element to extract RDF property information.
   ///
-  /// Returns a [PropertyInfo] if the field is annotated with `@RdfProperty`,
+  /// Returns a [RdfPropertyInfo] if the field is annotated with `@RdfProperty`,
   /// otherwise returns `null`.
-  static PropertyInfo? processField(
+  static RdfPropertyInfo? processField(
       ValidationContext context, FieldElem field) {
     final mapEntry =
         extractMapEntryAnnotation(context, field.name, field.annotations);
@@ -50,7 +50,7 @@ class PropertyProcessor {
         mapEntry: mapEntry);
   }
 
-  static PropertyInfo? processFieldAlike(ValidationContext context,
+  static RdfPropertyInfo? processFieldAlike(ValidationContext context,
       {required String name,
       required DartType type,
       required Iterable<ElemAnnotation> annotations,
@@ -74,7 +74,7 @@ class PropertyProcessor {
     // Check if the type is nullable
     final isNullable = type.isNullable;
 
-    return PropertyInfo(
+    return RdfPropertyInfo(
       name: name,
       type: typeToCode(type),
       annotation: rdfProperty,
@@ -151,7 +151,7 @@ class PropertyProcessor {
     return getAnnotation(annotations, 'RdfProperty');
   }
 
-  static RdfPropertyInfo _createRdfProperty(
+  static RdfPropertyAnnotationInfo _createRdfProperty(
       ValidationContext context,
       String fieldName,
 
@@ -178,18 +178,17 @@ class PropertyProcessor {
     // default constructor corresponds to the type `CollectionMapperFactory<C, T>` which is a typedef for
     // `Mapper<C> Function({Deserializer<T>? itemDeserializer, Serializer<T>? itemSerializer})`
     final collection = _extractCollectionMapping(annotation);
-    final itemType = getField(annotation, 'itemType')?.toTypeValue();
+    final itemTypeField = getField(annotation, 'itemType');
+    final itemType = itemTypeField?.toTypeValue();
 
     final isCollection =
-        collectionInfo.isCollection || collection?.mapper?.type != null;
+        collectionInfo.isCoreCollection || collection?.factory != null;
 
     /// The dart type that is used for the serialization/deserialization
     /// of the field, e.g. Foo for List<Foo>
     /// or MapEntry<Foo, Bar> for Map<Foo, Bar>
     /// or even Baz for Map<Foo, Bar> if property is annotated with
     /// @RdfMapEntry(Baz)
-    ///
-    /// FIXME: we need many tests, also for Lists of IriTerm, LiteralTerm etc
     DartType? collectionItemType = (isCollection
         ? itemType ??
             rdfMapEntryAnnotation?.itemClassType ??
@@ -210,7 +209,7 @@ class PropertyProcessor {
         fieldMappedClassType, localResource, literal, globalResource, iri);
 
     // Create and return the RdfProperty instance
-    return RdfPropertyInfo(predicate,
+    return RdfPropertyAnnotationInfo(predicate,
         include: include,
         defaultValue: defaultValue,
         includeDefaultsInSerialization: includeDefaultsInSerialization,

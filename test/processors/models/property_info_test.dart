@@ -1,6 +1,6 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/rdf_property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/processor_utils.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -161,9 +161,9 @@ void main() {
   });
 
   group('RdfPropertyInfo', () {
-    late RdfPropertyInfo testInstance;
-    late RdfPropertyInfo identicalInstance;
-    late RdfPropertyInfo differentInstance;
+    late RdfPropertyAnnotationInfo testInstance;
+    late RdfPropertyAnnotationInfo identicalInstance;
+    late RdfPropertyAnnotationInfo differentInstance;
 
     setUp(() {
       final predicate = IriTermInfo(
@@ -171,7 +171,7 @@ void main() {
         value: IriTerm('http://example.com/predicate'),
       );
 
-      testInstance = RdfPropertyInfo(
+      testInstance = RdfPropertyAnnotationInfo(
         predicate,
         include: true,
         defaultValue: null,
@@ -184,7 +184,7 @@ void main() {
         itemType: null,
       );
 
-      identicalInstance = RdfPropertyInfo(
+      identicalInstance = RdfPropertyAnnotationInfo(
         predicate,
         include: true,
         defaultValue: null,
@@ -197,7 +197,7 @@ void main() {
         itemType: null,
       );
 
-      differentInstance = RdfPropertyInfo(
+      differentInstance = RdfPropertyAnnotationInfo(
         predicate,
         include: false,
         defaultValue: null,
@@ -237,16 +237,16 @@ void main() {
   });
 
   group('PropertyInfo', () {
-    late PropertyInfo testInstance;
-    late PropertyInfo identicalInstance;
-    late PropertyInfo differentInstance;
+    late RdfPropertyInfo testInstance;
+    late RdfPropertyInfo identicalInstance;
+    late RdfPropertyInfo differentInstance;
 
     setUp(() {
       final predicate = IriTermInfo(
         code: Code.literal('http://example.com/predicate'),
         value: IriTerm('http://example.com/predicate'),
       );
-      final annotation = RdfPropertyInfo(
+      final annotation = RdfPropertyAnnotationInfo(
         predicate,
         include: true,
         defaultValue: null,
@@ -259,7 +259,7 @@ void main() {
         itemType: null,
       );
 
-      testInstance = PropertyInfo(
+      testInstance = RdfPropertyInfo(
         name: 'testProperty',
         type: stringType,
         annotation: annotation,
@@ -271,7 +271,7 @@ void main() {
         collectionInfo: const CollectionInfo(),
       );
 
-      identicalInstance = PropertyInfo(
+      identicalInstance = RdfPropertyInfo(
         name: 'testProperty',
         type: stringType,
         annotation: annotation,
@@ -283,7 +283,7 @@ void main() {
         collectionInfo: const CollectionInfo(),
       );
 
-      differentInstance = PropertyInfo(
+      differentInstance = RdfPropertyInfo(
         name: 'differentProperty',
         type: stringType,
         annotation: annotation,

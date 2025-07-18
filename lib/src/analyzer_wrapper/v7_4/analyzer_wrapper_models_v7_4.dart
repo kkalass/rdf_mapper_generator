@@ -68,6 +68,9 @@ class FieldElemV7 extends ElemV7 implements FieldElem {
   bool get isLate => fieldElement.isLate;
 
   @override
+  bool get hasInitializer => fieldElement.hasInitializer;
+
+  @override
   DartType get type {
     return DartTypeV7(fieldElement.type);
   }

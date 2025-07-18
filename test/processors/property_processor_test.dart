@@ -1,7 +1,7 @@
 // import 'package:analyzer/dart/element/element2.dart';
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
-import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/rdf_property_info.dart';
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 
 import '../test_helper.dart';
 
-PropertyInfo? processField(FieldElem field) =>
+RdfPropertyInfo? processField(FieldElem field) =>
     PropertyProcessor.processField(ValidationContext(), field);
 
 void main() {
@@ -378,10 +378,10 @@ void main() {
           'UnorderedItemsListMapper');
       expect(result?.collectionInfo, isNotNull);
 
-      expect(result?.collectionInfo.isList, isTrue);
-      expect(result?.collectionInfo.isMap, isFalse);
-      expect(result?.collectionInfo.isSet, isFalse);
-      expect(result?.collectionInfo.isCollection, isTrue);
+      expect(result?.collectionInfo.isCoreList, isTrue);
+      expect(result?.collectionInfo.isCoreMap, isFalse);
+      expect(result?.collectionInfo.isCoreSet, isFalse);
+      expect(result?.collectionInfo.isCoreCollection, isTrue);
       expect(result?.collectionInfo.type, equals(CollectionType.list));
       expect(result?.collectionInfo.keyTypeCode, isNull);
       expect(result?.collectionInfo.valueTypeCode, isNull);

@@ -29,16 +29,16 @@ class IriProcessor {
     if (rdfIriAnnotation == null) {
       return null; // No valid resource annotation found
     }
-    final fields = extractFields(context, classElement);
+    final properties = extractProperties(context, classElement);
     final constructors = extractConstructors(
-        classElement, fields, rdfIriAnnotation.templateInfo);
+        classElement, properties, rdfIriAnnotation.templateInfo);
     final rdfMapValue = extractMapValueAnnotation(classElement.annotations);
 
     return IriInfo(
       className: className,
       annotation: rdfIriAnnotation,
       constructors: constructors,
-      fields: fields,
+      properties: properties,
       rdfMapValue: rdfMapValue,
     );
   }
@@ -65,7 +65,7 @@ class IriProcessor {
       className: enumName,
       annotation: rdfIriAnnotation,
       constructors: [],
-      fields: [],
+      properties: [],
       enumValues: enumValues,
       rdfMapValue: extractMapValueAnnotation(enumElement.annotations),
     );

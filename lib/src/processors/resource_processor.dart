@@ -32,10 +32,10 @@ class ResourceProcessor {
       return null; // No valid resource annotation found
     }
 
-    final fields = extractFields(context, classElement);
+    final properties = extractProperties(context, classElement);
     final constructors = extractConstructors(
         classElement,
-        fields,
+        properties,
         switch (rdfResource) {
           RdfGlobalResourceInfo _ => rdfResource.iri?.templateInfo,
           RdfLocalResourceInfo _ => null,
@@ -45,7 +45,7 @@ class ResourceProcessor {
         className: className,
         annotation: rdfResource,
         constructors: constructors,
-        fields: fields,
+        properties: properties,
         rdfMapValue: rdfMapValue);
   }
 

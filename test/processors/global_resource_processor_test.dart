@@ -35,7 +35,7 @@ void main() {
       expect(annotation.iri?.template, '{+iri}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
     test('should process ClassWithEmptyIriStrategyNoRegisterGlobally', () {
       // Act
@@ -56,7 +56,7 @@ void main() {
       expect(annotation.iri?.mapper, isNull);
       expect(annotation.iri?.template, '{+iri}');
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
     test('should process ClassWithIriTemplateStrategy', () {
       // Act
@@ -82,7 +82,7 @@ void main() {
           annotation.iri?.templateInfo?.propertyVariables.map((pn) => pn.name),
           contains('id'));
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
     test('should process ClassWithIriNamedMapperStrategy', () {
       // Act
@@ -105,7 +105,7 @@ void main() {
       expect(annotation.iri!.mapper!.type, isNull);
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
     test('should process ClassWithIriMapperStrategy', () {
       // Act
@@ -129,7 +129,7 @@ void main() {
       expect(annotation.iri!.mapper!.type!.codeWithoutAlias, 'TestIriMapper');
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
     test('should process ClassWithIriMapperInstanceStrategy', () {
       // Act
@@ -156,7 +156,7 @@ void main() {
           'TestIriMapper2');
       expect(annotation.iri!.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
     test('should process ClassWithMapperNamedMapperStrategy', () {
       // Act
@@ -179,7 +179,7 @@ void main() {
       expect(annotation.mapper!.instance, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
     test('should process ClassWithMapperStrategy', () {
       // Act
@@ -203,7 +203,7 @@ void main() {
       expect(annotation.mapper!.instance, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
     test('should process ClassWithMapperInstanceStrategy', () {
       // Act
@@ -227,7 +227,7 @@ void main() {
           'TestGlobalResourceMapper2');
       expect(annotation.mapper!.instance!.hasKnownValue, isTrue);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(0));
+      expect(result.properties, hasLength(0));
     });
 
     test('should process class with RdfGlobalResource annotation', () {
@@ -290,10 +290,10 @@ void main() {
 
       // Assert
       expect(result, isNotNull);
-      expect(result!.fields, isNotEmpty);
+      expect(result!.properties, isNotEmpty);
 
       // Check that we have the expected fields
-      final titleField = result.fields.firstWhere(
+      final titleField = result.properties.firstWhere(
         (f) => f.name == 'title',
       );
 
@@ -382,7 +382,7 @@ void main() {
       expect(annotation.iri?.template, '{+iri}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(3)); // iri, name, age
+      expect(result.properties, hasLength(3)); // iri, name, age
     });
 
     test('should process ClassWithIriTemplateAndContextVariableStrategy', () {
@@ -412,7 +412,7 @@ void main() {
           annotation.iri?.templateInfo?.propertyVariables.map((pn) => pn.name),
           contains('thisId'));
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
     test('should process ClassWithIriNamedMapperStrategy1Part', () {
       // Act
@@ -436,7 +436,7 @@ void main() {
       expect(annotation.iri!.mapper!.type, isNull);
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process ClassWithIriNamedMapperStrategy2Parts', () {
@@ -461,7 +461,7 @@ void main() {
       expect(annotation.iri!.mapper!.type, isNull);
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
     });
 
     test('should process ClassWithIriNamedMapperStrategy2PartsSwapped', () {
@@ -488,7 +488,7 @@ void main() {
       expect(annotation.iri!.mapper!.type, isNull);
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
     });
     test('should process ClassWithIriNamedMapperStrategy2PartsWithProperties',
         () {
@@ -515,8 +515,8 @@ void main() {
       expect(annotation.iri!.mapper!.type, isNull);
       expect(annotation.iri!.mapper!.instance, isNull);
       expect(result.constructors, hasLength(1));
-      expect(
-          result.fields, hasLength(5)); // id, version, givenName, surname, age
+      expect(result.properties,
+          hasLength(5)); // id, version, givenName, surname, age
     });
   });
 }

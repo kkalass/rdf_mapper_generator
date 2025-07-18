@@ -36,7 +36,7 @@ class ResourceModelBuilderSupport {
       mappedClassName,
       mapperImportUri,
       resourceInfo.constructors,
-      resourceInfo.fields,
+      resourceInfo.properties,
       resourceInfo.annotations,
     );
 
@@ -44,9 +44,7 @@ class ResourceModelBuilderSupport {
         p.isNeedsToBeSet &&
         !(p.isIriPart || p.isRdfProperty || p.isRdfUnmappedTriples));
     if (invalidParameters.isNotEmpty) {
-      // FIXME: p.isNeedsToBeSet is true even though the property actually has only getter and no setter
-      // If this is fixed, we can go back to error
-      context.addWarning(
+      context.addError(
         'Resource class "${resourceInfo.className.code}" has invalid constructor parameters\n'
         '  • Constructor parameters must be annotated with @RdfIriPart, @RdfProperty, or @RdfUnmappedTriples\n'
         '  • Invalid parameters: ${invalidParameters.map((p) => p.propertyName).join(', ')}\n'
@@ -72,7 +70,7 @@ class ResourceModelBuilderSupport {
         typeIri: typeIri,
         dependencies: dependencies,
         iriStrategy: iriStrategy,
-        needsReader: resourceInfo.fields.any((p) => p.propertyInfo != null),
+        needsReader: resourceInfo.properties.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
         provides: provides);
 
@@ -131,6 +129,6 @@ class ResourceModelBuilderSupport {
         iriStrategy.iriMapperType?.type,
         iriStrategy.iriMapperType?.parts,
         iriStrategy.templateInfo,
-        resourceInfo.fields);
+        resourceInfo.properties);
   }
 }

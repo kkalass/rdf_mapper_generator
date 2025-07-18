@@ -167,7 +167,7 @@ class MapperModelBuilder {
       mappedClass,
       mapperImportUri,
       literalInfo.constructors,
-      literalInfo.fields,
+      literalInfo.properties,
       literalInfo.annotations,
     );
 

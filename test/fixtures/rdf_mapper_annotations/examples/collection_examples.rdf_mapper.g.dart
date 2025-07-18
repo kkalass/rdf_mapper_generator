@@ -429,8 +429,8 @@ class TrackMapper implements LocalResourceMapper<Track> {
   Track fromRdfResource(BlankNodeTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final String title = reader.require(SchemaCreativeWork.name);
-    final Duration duration = reader.require(SchemaCreativeWork.name);
+    final String title = reader.require(SchemaMediaObject.name);
+    final Duration duration = reader.require(SchemaMediaObject.duration);
 
     return Track(title: title, duration: duration);
   }
@@ -445,8 +445,8 @@ class TrackMapper implements LocalResourceMapper<Track> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(SchemaCreativeWork.name, resource.title)
-        .addValue(SchemaCreativeWork.name, resource.duration)
+        .addValue(SchemaMediaObject.name, resource.title)
+        .addValue(SchemaMediaObject.duration, resource.duration)
         .build();
   }
 }

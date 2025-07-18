@@ -104,7 +104,7 @@ class ImmutableListMapperRdfList<T>
   @override
   ImmutableList<T> fromRdfResource(
       RdfSubject subject, DeserializationContext context) {
-    if (subject is! BlankNodeTerm) {
+    if (subject != Rdf.nil && subject is! BlankNodeTerm) {
       throw ArgumentError('Expected BlankNodeTerm, got ${subject.runtimeType}');
     }
     final list = readRdfList(subject, context, _itemDeserializer).toList();
@@ -115,7 +115,8 @@ class ImmutableListMapperRdfList<T>
 // =============================================================================
 // MAPPING STRATEGY 2: RDF SEQUENCE (rdf:_1, rdf:_2, rdf:_3...)
 // =============================================================================
-const immutableListRdfSeq = CollectionMapping.withItemMappers(ImmutableListMapperRdfSeq);
+const immutableListRdfSeq =
+    CollectionMapping.withItemMappers(ImmutableListMapperRdfSeq);
 
 /// Maps `ImmutableList<T>` to rdf:Seq structure.
 ///

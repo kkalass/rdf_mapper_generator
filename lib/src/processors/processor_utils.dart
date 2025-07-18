@@ -249,7 +249,7 @@ Map<String, String> _getIriPartNameByPropertyName(
           };
 
 List<ConstructorInfo> extractConstructors(ClassElem classElement,
-    List<FieldInfo> fields, IriTemplateInfo? iriTemplateInfo) {
+    List<PropertyInfo> fields, IriTemplateInfo? iriTemplateInfo) {
   final iriPartNameByPropertyName =
       _getIriPartNameByPropertyName(iriTemplateInfo);
 
@@ -294,7 +294,7 @@ List<ConstructorInfo> extractConstructors(ClassElem classElement,
   return constructors;
 }
 
-List<FieldInfo> extractFields(
+List<PropertyInfo> extractProperties(
     ValidationContext context, ClassElem classElement) {
   final gettersByName = {for (var g in classElement.getters) g.name: g};
   final settersByName = {for (var g in classElement.setters) g.name: g};
@@ -316,14 +316,33 @@ List<FieldInfo> extractFields(
       return null;
     }
 
-    // FIXME: do we need postprocessing, if we have a RdfProperty annotation for example and automatically set include?
-    // If only getter exists, we treat it as a field
-    return fieldToFieldInfo(
+    // If only getter exists (no setter), this is a computed property
+    // and should NOT be treated as a field requiring constructor parameters
+    if (getter != null && setter == null) {
+      return createPropertyInfo(
+        context,
+        name: name,
+        type: getter.type,
+        isFinal: false,
+        isLate: false,
+        hasInitializer:
+            true, // Computed properties are "initialized" by their getter
+        isSettable: false, // Getter-only properties cannot be set
+        isSynthetic: false,
+        annotations: getter.annotations,
+        isStatic: getter.isStatic,
+      );
+    }
+
+    // If only setter exists or both getter and setter exist, treat as a field
+    return createPropertyInfo(
       context,
       name: name,
       type: (getter?.type ?? setter?.type)!,
       isFinal: false,
       isLate: false,
+      hasInitializer: false,
+      isSettable: true, // Properties with setters can be set
       isSynthetic: false,
       annotations: [
         ...(getter?.annotations ?? const <ElemAnnotation>[]),
@@ -340,11 +359,14 @@ List<FieldInfo> extractFields(
     final getter = gettersByName[f.name];
     final setter = settersByName[f.name];
 
-    return fieldToFieldInfo(context,
+    return createPropertyInfo(context,
         name: f.name,
         type: f.type,
         isFinal: f.isFinal,
         isLate: f.isLate,
+        hasInitializer: f.hasInitializer,
+        isSettable: !(f.isFinal &&
+            f.hasInitializer), // Fields are settable unless they're final with initializer
         isSynthetic: f.isSynthetic,
         annotations: [
           ...f.annotations,
@@ -361,13 +383,15 @@ List<FieldInfo> extractFields(
   ];
 }
 
-FieldInfo fieldToFieldInfo(ValidationContext context,
+PropertyInfo createPropertyInfo(ValidationContext context,
     {required String name,
     required DartType type,
     required Iterable<ElemAnnotation> annotations,
     required bool isStatic,
     required bool isFinal,
     required bool isLate,
+    required bool hasInitializer,
+    required bool isSettable,
     required bool isSynthetic}) {
   final mapEntry = extractMapEntryAnnotation(context, name, annotations);
   final mapKey = extractMapKeyAnnotation(annotations);
@@ -395,12 +419,14 @@ FieldInfo fieldToFieldInfo(ValidationContext context,
     annotations,
   );
   final iriPart = extractIriPartAnnotation(name, annotations);
-  return FieldInfo(
+  return PropertyInfo(
       name: name,
       type: typeToCode(type),
       typeNonNull: typeToCode(type, enforceNonNull: true),
       isFinal: isFinal,
       isLate: isLate,
+      hasInitializer: hasInitializer,
+      isSettable: isSettable,
       isStatic: isStatic,
       isSynthetic: isSynthetic,
       propertyInfo: propertyInfo,

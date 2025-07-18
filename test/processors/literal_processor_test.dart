@@ -31,7 +31,7 @@ void main() {
       expect(annotation.mapper, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].isRdfValue, isTrue);
       expect(result.constructors[0].parameters[0].isRdfLanguageTag, isFalse);
@@ -57,7 +57,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].isRdfValue, isTrue);
       expect(result.constructors[0].parameters[0].isRdfLanguageTag, isFalse);
@@ -80,7 +80,7 @@ void main() {
       expect(annotation.datatype, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
       expect(result.constructors[0].parameters, hasLength(2));
 
       // Check for RdfValue parameter
@@ -119,7 +119,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].isRdfValue, isTrue);
       expect(result.constructors[0].parameters[0].name, 'foo');
@@ -148,7 +148,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].isRdfValue, isTrue);
       expect(result.constructors[0].parameters[0].name, 'value');
@@ -172,7 +172,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, 'parse');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].name, 'celsius');
     });
@@ -195,7 +195,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, 'fromRdf');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
       expect(result.constructors[0].parameters, hasLength(2));
       expect(result.constructors[0].parameters[0].name, 'text');
       expect(result.constructors[0].parameters[1].name, 'language');
@@ -219,7 +219,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, 'fromMilliunit');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].name, 'value');
     });
@@ -245,7 +245,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].name, 'value');
     });
@@ -272,7 +272,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].name, 'value');
     });
@@ -301,7 +301,7 @@ void main() {
       expect(annotation.fromLiteralTermMethod, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
       expect(result.constructors[0].parameters, hasLength(1));
       expect(result.constructors[0].parameters[0].name, 'value');
     });

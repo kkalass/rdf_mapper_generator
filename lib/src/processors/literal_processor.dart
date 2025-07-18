@@ -27,15 +27,15 @@ class LiteralProcessor {
     if (rdfIriAnnotation == null) {
       return null; // No valid resource annotation found
     }
-    final fields = extractFields(context, classElement);
-    final constructors = extractConstructors(classElement, fields, null);
+    final properties = extractProperties(context, classElement);
+    final constructors = extractConstructors(classElement, properties, null);
     final rdfMapValue = extractMapValueAnnotation(classElement.annotations);
 
     return LiteralInfo(
       className: className,
       annotation: rdfIriAnnotation,
       constructors: constructors,
-      fields: fields,
+      properties: properties,
       rdfMapValue: rdfMapValue,
     );
   }
@@ -63,7 +63,7 @@ class LiteralProcessor {
       className: enumName,
       annotation: rdfLiteralAnnotation,
       constructors: [],
-      fields: [],
+      properties: [],
       enumValues: enumValues,
       rdfMapValue: extractMapValueAnnotation(enumElement.annotations),
     );

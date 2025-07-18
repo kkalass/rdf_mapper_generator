@@ -3,7 +3,7 @@ import 'package:rdf_mapper_generator/src/mappers/iri_model_builder_support.dart'
 import 'package:rdf_mapper_generator/src/mappers/mapper_model_builder.dart';
 import 'package:rdf_mapper_generator/src/mappers/util.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
-import 'package:rdf_mapper_generator/src/processors/models/property_info.dart';
+import 'package:rdf_mapper_generator/src/processors/models/rdf_property_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
@@ -20,13 +20,13 @@ class MappedClassModelBuilder {
       Code mappedClass,
       String mapperImportUri,
       List<ConstructorInfo> constructors,
-      List<FieldInfo> fields,
+      List<PropertyInfo> propertyInfos,
       List<AnnotationInfo> annotations) {
     // Validate @RdfUnmappedTriples annotation usage
-    _validateUnmappedTriplesFields(context, fields);
+    _validateUnmappedTriplesFields(context, propertyInfos);
 
     final constructor = constructors.firstOrNull;
-    final properties = _buildPropertyData(context, mappedClass, fields,
+    final properties = _buildPropertyData(context, mappedClass, propertyInfos,
         constructor?.parameters ?? const [], mapperImportUri);
 
     return MappedClassModel(
@@ -40,26 +40,28 @@ class MappedClassModelBuilder {
   static List<PropertyModel> _buildPropertyData(
       ValidationContext context,
       Code mappedClass,
-      List<FieldInfo> fields,
+      List<PropertyInfo> propertyInfos,
       List<ParameterInfo> constructorParameters,
       String mapperImportUri) {
-    final fieldsByPropertyName = {for (var field in fields) field.name: field};
+    final propertyInfosByName = {
+      for (var propertyInfo in propertyInfos) propertyInfo.name: propertyInfo
+    };
     final constructorParametersByName = {
       for (var param in constructorParameters) param.name: param
     };
     final allPropertyNames = {
-      ...fieldsByPropertyName.keys,
+      ...propertyInfosByName.keys,
       ...constructorParametersByName.keys,
     };
     return allPropertyNames.map((propertyName) {
-      final f = fieldsByPropertyName[propertyName];
+      final p = propertyInfosByName[propertyName];
       final c = constructorParametersByName[propertyName];
-      final propertyInfo = f?.propertyInfo ?? c?.propertyInfo;
+      final propertyInfo = p?.propertyInfo ?? c?.propertyInfo;
       // Determine collection information and methods
       final collectionInfo = propertyInfo?.collectionInfo;
 
-      var dartType = f?.type ?? c?.type ?? const Code.literal('dynamic');
-      var dartTypeNonNull = f?.typeNonNull ?? dartType;
+      var dartType = p?.type ?? c?.type ?? const Code.literal('dynamic');
+      var dartTypeNonNull = p?.typeNonNull ?? dartType;
 
       final iri = propertyInfo?.annotation.iri;
       final literal = propertyInfo?.annotation.literal;
@@ -67,8 +69,8 @@ class MappedClassModelBuilder {
       final localResource = propertyInfo?.annotation.localResource;
 
       final MappedClassModel? mapEntryClassModel;
-      if (f?.mapEntry != null) {
-        final mapEntry = f!.mapEntry!;
+      if (p?.mapEntry != null) {
+        final mapEntry = p!.mapEntry!;
         final entryClassInfo =
             BuilderHelper.processClass(context, mapEntry.itemClassElement);
         // FIXME: mapperImportUri might be wrong here! Maybe we should use
@@ -91,7 +93,7 @@ class MappedClassModelBuilder {
 
       final collectionMappingInfo = propertyInfo?.annotation.collection;
       final collectionFactory = collectionMappingInfo?.factory;
-      final isCollection = ((collectionInfo?.isCollection ?? false) &&
+      final isCollection = ((collectionInfo?.isCoreCollection ?? false) &&
               (collectionMappingInfo?.isAuto ?? false)) ||
           collectionFactory != null;
       final itemType = propertyInfo?.annotation.itemType;
@@ -104,17 +106,17 @@ class MappedClassModelBuilder {
         collectionMapperTypeCode = collectionFactory;
       } else {
         if (collectionInfo != null &&
-            collectionInfo.isCollection &&
+            collectionInfo.isCoreCollection &&
             (collectionMappingInfo?.isAuto ?? false)) {
-          if (collectionInfo.isList) {
+          if (collectionInfo.isCoreList) {
             collectionMapperTypeCode = Code.type('UnorderedItemsListMapper',
                 importUri: importRdfMapper);
             defaultValue ??= Code.literal('[]');
-          } else if (collectionInfo.isSet) {
+          } else if (collectionInfo.isCoreSet) {
             collectionMapperTypeCode = Code.type('UnorderedItemsSetMapper',
                 importUri: importRdfMapper);
             defaultValue ??= Code.literal('{}');
-          } else if (collectionInfo.isMap) {
+          } else if (collectionInfo.isCoreMap) {
             // currently, we have special handling for Maps that does not follow
             // the addCollection/requireCollection/optionalCollection pattern.
             collectionMapperTypeCode = null;
@@ -133,7 +135,7 @@ class MappedClassModelBuilder {
           : null;
       var collectionModel = CollectionModel(
         isCollection: isCollection,
-        isMap: collectionInfo?.isMap ?? false,
+        isMap: collectionInfo?.isCoreMap ?? false,
         isIterable: collectionInfo?.isIterable ?? false,
         collectionMapperFactoryCode: collectionMapperFactoryCode,
         elementTypeCode: (itemType == null ? null : typeToCode(itemType)) ??
@@ -149,16 +151,16 @@ class MappedClassModelBuilder {
         propertyName: propertyName,
         dartType: dartType,
         isRdfProperty: propertyInfo != null,
-        isRdfValue: f?.isRdfValue ?? c?.isRdfValue ?? false,
-        isRdfLanguageTag: f?.isRdfLanguageTag ?? c?.isRdfLanguageTag ?? false,
-        isRdfMapEntry: f?.mapEntry != null,
-        isRdfMapKey: f?.mapKey != null,
-        isRdfMapValue: f?.mapValue != null,
-        isRdfUnmappedTriples: f?.unmappedTriples != null,
-        isIriPart: f?.iriPart != null,
-        iriPartName: f?.iriPart?.name,
-        isProvides: f?.provides != null,
-        providesVariableName: f?.provides?.name,
+        isRdfValue: p?.isRdfValue ?? c?.isRdfValue ?? false,
+        isRdfLanguageTag: p?.isRdfLanguageTag ?? c?.isRdfLanguageTag ?? false,
+        isRdfMapEntry: p?.mapEntry != null,
+        isRdfMapKey: p?.mapKey != null,
+        isRdfMapValue: p?.mapValue != null,
+        isRdfUnmappedTriples: p?.unmappedTriples != null,
+        isIriPart: p?.iriPart != null,
+        iriPartName: p?.iriPart?.name,
+        isProvides: p?.provides != null,
+        providesVariableName: p?.provides?.name,
         predicate: propertyInfo?.annotation.predicate.code,
         include: propertyInfo?.annotation.include ?? false,
         defaultValue: defaultValue,
@@ -171,12 +173,14 @@ class MappedClassModelBuilder {
         isRequired:
             c?.isRequired ?? false, // constructor parameter required, actually
 
-        isField: f != null,
-        isFieldFinal: f?.isFinal ?? false,
-        isFieldLate: f?.isLate ?? false,
-        isFieldStatic: f?.isStatic ?? false,
-        isFieldSynthetic: f?.isSynthetic ?? false,
-        isFieldNullable: !(f?.isRequired ?? true),
+        isField: p != null,
+        isFieldFinal: p?.isFinal ?? false,
+        isFieldLate: p?.isLate ?? false,
+        isFieldStatic: p?.isStatic ?? false,
+        isFieldSynthetic: p?.isSynthetic ?? false,
+        isFieldNullable: !(p?.isRequired ?? true),
+        hasInitializer: p?.hasInitializer ?? false,
+        isSettable: p?.isSettable ?? true,
 
         collectionInfo: collectionModel,
         collectionMapping: collectionMappingInfo?.mapper == null
@@ -192,7 +196,7 @@ class MappedClassModelBuilder {
                 iri,
                 propertyInfo!,
                 collectionModel,
-                fields,
+                propertyInfos,
                 itemDartTypeNonNull,
                 propertyName),
         literalMapping: literal == null
@@ -213,7 +217,7 @@ class MappedClassModelBuilder {
 
   static LocalResourceMappingModel buildLocalResourceMapping(
       LocalResourceMappingInfo localResource,
-      PropertyInfo propertyInfo,
+      RdfPropertyInfo propertyInfo,
       CollectionModel collectionModel,
       Code dartTypeNonNull,
       String propertyName) {
@@ -229,7 +233,7 @@ class MappedClassModelBuilder {
 
   static CollectionMappingModel buildCollectionMapping(
       CollectionMappingInfo collection,
-      PropertyInfo propertyInfo,
+      RdfPropertyInfo propertyInfo,
       CollectionModel collectionModel,
       Code dartTypeNonNull,
       String propertyName) {
@@ -241,7 +245,7 @@ class MappedClassModelBuilder {
 
   static GlobalResourceMappingModel buildGlobalResourceMapping(
       GlobalResourceMappingInfo globalResource,
-      PropertyInfo propertyInfo,
+      RdfPropertyInfo propertyInfo,
       CollectionModel collectionModel,
       Code dartTypeNonNull,
       String propertyName) {
@@ -257,7 +261,7 @@ class MappedClassModelBuilder {
 
   static LiteralMappingModel? buildLiteralMapping(
       LiteralMappingInfo literal,
-      PropertyInfo propertyInfo,
+      RdfPropertyInfo propertyInfo,
       CollectionModel collectionModel,
       Code dartTypeNonNull,
       String propertyName) {
@@ -309,9 +313,9 @@ class MappedClassModelBuilder {
       Code mappedClassName,
       String mapperImportUri,
       IriMappingInfo iri,
-      PropertyInfo propertyInfo,
+      RdfPropertyInfo propertyInfo,
       CollectionModel collectionModel,
-      List<FieldInfo> fields,
+      List<PropertyInfo> fields,
       Code dartTypeNonNull,
       String propertyName) {
     if (iri.mapper == null && iri.template == null) {
@@ -395,7 +399,7 @@ class MappedClassModelBuilder {
   }
 
   static void _validateUnmappedTriplesFields(
-      ValidationContext context, List<FieldInfo> fields) {
+      ValidationContext context, List<PropertyInfo> fields) {
     final unmappedFields =
         fields.where((f) => f.unmappedTriples != null).toList();
 

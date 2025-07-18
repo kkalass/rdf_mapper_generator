@@ -71,6 +71,7 @@ abstract class FieldElem extends Elem implements AnnotatedElem {
   bool get isFinal;
   bool get isLate;
   bool get isSynthetic;
+  bool get hasInitializer;
   DartType get type;
   String get name;
   Iterable<ElemAnnotation> get annotations;

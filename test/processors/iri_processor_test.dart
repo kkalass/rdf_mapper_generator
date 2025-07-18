@@ -31,7 +31,7 @@ void main() {
       expect(annotation.template, 'http://example.org/books/{isbn}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithOnePartExplicitlyGlobal', () {
@@ -50,7 +50,7 @@ void main() {
       expect(annotation.template, 'http://example.org/books/{isbn}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithOnePartNamed', () {
@@ -69,7 +69,7 @@ void main() {
       expect(annotation.template, 'http://example.org/books/{isbn}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithTwoParts', () {
@@ -88,7 +88,7 @@ void main() {
       expect(annotation.template, 'http://example.org/{type}/{value}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
     });
 
     test('should process IriWithBaseUriAndTwoParts', () {
@@ -107,7 +107,7 @@ void main() {
       expect(annotation.template, '{+baseUri}/{type}/{value}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(2));
+      expect(result.properties, hasLength(2));
     });
 
     test('should process IriWithBaseUri', () {
@@ -126,7 +126,7 @@ void main() {
       expect(annotation.template, '{+baseUri}/books/{isbn}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithBaseUriNoGlobal', () {
@@ -145,7 +145,7 @@ void main() {
       expect(annotation.template, '{+baseUri}/books/{isbn}');
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithNamedMapper', () {
@@ -167,7 +167,7 @@ void main() {
       expect(annotation.template, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithMapper', () {
@@ -190,7 +190,7 @@ void main() {
       expect(annotation.template, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
 
     test('should process IriWithMapperInstance', () {
@@ -215,7 +215,7 @@ void main() {
       expect(annotation.template, isNull);
 
       expect(result.constructors, hasLength(1));
-      expect(result.fields, hasLength(1));
+      expect(result.properties, hasLength(1));
     });
   });
 }

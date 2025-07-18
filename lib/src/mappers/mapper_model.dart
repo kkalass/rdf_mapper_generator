@@ -285,11 +285,17 @@ class PropertyModel {
   final bool isFieldStatic;
   final bool isFieldSynthetic;
   final bool isFieldNullable;
+  final bool hasInitializer;
+  final bool isSettable;
   bool get isNeedsToBeSet =>
       (isConstructor && isRequired) ||
       (isField && isFieldLate) ||
-      (isField && !isFieldLate && isFieldFinal) ||
-      (isField && !isFieldLate && !isFieldFinal && !isFieldNullable);
+      (isField && !isFieldLate && isFieldFinal && !hasInitializer) ||
+      (isField &&
+          !isFieldLate &&
+          !isFieldFinal &&
+          !isFieldNullable &&
+          isSettable);
 
   final CollectionModel collectionInfo;
   final CollectionMappingModel? collectionMapping;
@@ -308,6 +314,8 @@ class PropertyModel {
     required this.isFieldStatic,
     required this.isFieldSynthetic,
     required this.isFieldNullable,
+    required this.hasInitializer,
+    required this.isSettable,
     required this.isProvides,
     required this.providesVariableName,
     required this.isRdfProperty,
