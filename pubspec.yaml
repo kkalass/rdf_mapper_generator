@@ -22,7 +22,7 @@ environment:
 dependencies:
   analyzer: '>=6.9.0 <8.0.0' 
   build: '>=2.5.3 <3.0.0'
-  dart_style: '>=2.3.7 <4.0.0'
+  dart_style: ">=2.3.7 <4.0.0"
   logging: '>=1.2.0 <2.0.0'
   mustache_template: '>=2.0.0 <3.0.0'
   rdf_core: ^0.9.6
