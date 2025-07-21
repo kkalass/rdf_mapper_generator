@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:analyzer/dart/element/element.dart';
+
 import 'analyzer_v6.dart' as v6;
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
@@ -10,8 +12,8 @@ class AnalyzerWrapperServiceV6 implements AnalyzerWrapperService {
   @override
   Future<LibraryElem> libraryFor(BuildStep buildStep, AssetId assetId,
       {bool allowSyntaxErrors = false}) async {
-    final libElem = (await buildStep.resolver
-        .libraryFor(assetId, allowSyntaxErrors: allowSyntaxErrors));
+    final libElem = (await buildStep.resolver.libraryFor(assetId,
+        allowSyntaxErrors: allowSyntaxErrors) as LibraryElement);
     return LibraryElemV6(libElem);
   }
 
