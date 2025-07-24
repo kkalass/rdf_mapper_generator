@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2025-07-24
+
+### Added
+
+- Automated dependency management with Dependabot configuration for weekly updates
+
+### Changed
+
+- **BREAKING**: Updated `build` dependency from 2.5.4 to 3.0.0 for improved build performance and compatibility, but continue to support older build versions
+- Updated dependency versions:
+  - `dart_style` from 3.1.0 to 3.1.1
+  - `analyzer` from 7.7.0 to 7.7.1  
+  - `rdf_core` from 0.9.7 to 0.9.11
+  - `rdf_mapper` from 0.9.2 to 0.9.3
+  - `rdf_mapper_annotations` from 0.3.1 to 0.3.2
+  - Various test dependencies updated to latest versions
+
+### Fixed
+
+- Compatibility with `build` package 3.0.0 by adding explicit type cast in analyzer wrapper
+- Code cleanup in analyzer v7.4 wrapper by removing unused exports
+
 ## [0.3.2] - 2025-07-18
 
 ### Added
