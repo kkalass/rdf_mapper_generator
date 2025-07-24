@@ -165,9 +165,9 @@ class InferenceTestContainerMapper
     IriTermMapper<TestIri> iriMapper = const TestIriMapper(),
     LocalResourceMapper<TestLocalResource> localResourceMapper =
         const TestLocalResourceMapper(),
-  })  : _globalResourceMapper = globalResourceMapper,
-        _iriMapper = iriMapper,
-        _localResourceMapper = localResourceMapper;
+  }) : _globalResourceMapper = globalResourceMapper,
+       _iriMapper = iriMapper,
+       _localResourceMapper = localResourceMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;

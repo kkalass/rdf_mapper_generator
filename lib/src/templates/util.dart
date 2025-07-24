@@ -8,9 +8,9 @@ const importRdfMapperAnnotations =
     'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 
 const importRdfCore = 'package:rdf_core/rdf_core.dart';
-const importRdfVocab = 'package:rdf_vocabularies/rdf.dart';
-const importXsd = 'package:rdf_vocabularies/xsd.dart';
-const importSchema = 'package:rdf_vocabularies/schema.dart';
+const importRdfVocab = 'package:rdf_vocabularies_core/rdf.dart';
+const importXsd = 'package:rdf_vocabularies_core/xsd.dart';
+const importSchema = 'package:rdf_vocabularies_schema/schema.dart';
 
 List<Map<String, dynamic>> toMustacheList<T>(List<T> values) {
   return List.generate(values.length, (i) {
