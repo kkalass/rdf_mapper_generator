@@ -135,7 +135,7 @@ void main() {
 
         final rdfContent = mapper.encodeObject(testObject,
             contentType: 'application/n-triples');
-        print(rdfContent);
+        // print(rdfContent);
         // Should work correctly with proper item type specification
         expect(rdfContent, contains('complexCollection'));
         expect(rdfContent, contains('<http://example.org/ComplexItem>'));
