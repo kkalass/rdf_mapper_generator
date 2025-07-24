@@ -13,7 +13,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'example_iri_strategies.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 
 /// Generated mapper for [StandardIsbn] global resources.
 ///

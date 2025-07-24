@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 import '../../fixtures/rdf_mapper_annotations/examples/inference.dart';
 import '../../fixtures/rdf_mapper_annotations/examples/inference.rdf_mapper.g.dart';
 

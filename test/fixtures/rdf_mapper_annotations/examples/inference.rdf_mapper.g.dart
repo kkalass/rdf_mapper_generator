@@ -13,7 +13,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'inference.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 
 /// Generated mapper for [TestGlobalResource] global resources.
 ///
@@ -165,9 +165,9 @@ class InferenceTestContainerMapper
     IriTermMapper<TestIri> iriMapper = const TestIriMapper(),
     LocalResourceMapper<TestLocalResource> localResourceMapper =
         const TestLocalResourceMapper(),
-  }) : _globalResourceMapper = globalResourceMapper,
-       _iriMapper = iriMapper,
-       _localResourceMapper = localResourceMapper;
+  })  : _globalResourceMapper = globalResourceMapper,
+        _iriMapper = iriMapper,
+        _localResourceMapper = localResourceMapper;
 
   @override
   IriTerm? get typeIri => SchemaBook.classIri;

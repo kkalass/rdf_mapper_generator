@@ -15,7 +15,7 @@ library;
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
-import 'package:rdf_vocabularies/rdf.dart' show Rdf;
+import 'package:rdf_vocabularies_core/rdf.dart' show Rdf;
 
 /// Example vocabulary for collection demonstrations
 class CollectionVocab {

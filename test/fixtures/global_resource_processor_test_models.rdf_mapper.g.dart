@@ -13,7 +13,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'global_resource_processor_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 
 /// Generated mapper for [String] global resources.
 ///
@@ -563,14 +563,13 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
 class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
     implements
         GlobalResourceMapper<
-          ClassWithIriNamedMapperStrategy2PartsWithProperties
-        > {
+            ClassWithIriNamedMapperStrategy2PartsWithProperties> {
   final IriTermMapper<(String id, String surname, int version)> _iriMapper;
 
   /// Constructor
   const ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper({
     required IriTermMapper<(String id, String surname, int version)>
-    testMapper3,
+        testMapper3,
   }) : _iriMapper = testMapper3;
 
   @override

@@ -4,8 +4,8 @@ import 'package:rdf_mapper_generator/src/processors/models/rdf_property_info.dar
 import 'package:rdf_mapper_generator/src/processors/property_processor.dart';
 import 'package:rdf_mapper_generator/src/processors/resource_processor.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
-import 'package:rdf_vocabularies/schema.dart';
-import 'package:rdf_vocabularies/xsd.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
+import 'package:rdf_vocabularies_core/xsd.dart';
 import 'package:test/test.dart';
 
 import '../fixtures/rdf_mapper_annotations/examples/collection_examples.dart'

@@ -13,8 +13,8 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'literal_processor_test_models.dart';
-import 'package:rdf_vocabularies/rdf.dart' as rdf;
-import 'package:rdf_vocabularies/xsd.dart';
+import 'package:rdf_vocabularies_core/rdf.dart' as rdf;
+import 'package:rdf_vocabularies_core/xsd.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 
 /// Generated mapper for [LiteralString] global resources.

@@ -13,7 +13,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'unmapped_triples_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 
 /// Generated mapper for [BookWithUnmappedTriples] global resources.
 ///

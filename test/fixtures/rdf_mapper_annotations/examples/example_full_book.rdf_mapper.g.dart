@@ -13,8 +13,8 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'example_full_book.dart';
-import 'package:rdf_vocabularies/schema.dart';
-import 'package:rdf_vocabularies/rdf.dart' as rdf;
+import 'package:rdf_vocabularies_schema/schema.dart';
+import 'package:rdf_vocabularies_core/rdf.dart' as rdf;
 
 /// Generated mapper for [String] global resources.
 ///
@@ -91,11 +91,11 @@ class BookMapper implements GlobalResourceMapper<Book> {
     final ISBN isbn = reader.require(SchemaBook.isbn);
     final Rating rating = reader.require(SchemaBook.aggregateRating);
     final BookFormat? format = reader.optional(SchemaBook.bookFormat);
-    final Iterable<Chapter> chapters = reader
-        .requireCollection<Iterable<Chapter>, Chapter>(
-          SchemaBook.hasPart,
-          UnorderedItemsMapper.new,
-        );
+    final Iterable<Chapter> chapters =
+        reader.requireCollection<Iterable<Chapter>, Chapter>(
+      SchemaBook.hasPart,
+      UnorderedItemsMapper.new,
+    );
 
     return Book(
       id: id,
@@ -286,8 +286,8 @@ class BookFormatMapper implements IriTermMapper<BookFormat> {
       'Ebook' => BookFormat.ebook,
       'GraphicNovel' => BookFormat.graphicNovel,
       _ => throw DeserializationException(
-        'Unknown BookFormat IRI: ${term.iri}',
-      ),
+          'Unknown BookFormat IRI: ${term.iri}',
+        ),
     };
   }
 
@@ -296,13 +296,14 @@ class BookFormatMapper implements IriTermMapper<BookFormat> {
     BookFormat value,
     SerializationContext context, {
     RdfSubject? parentSubject,
-  }) => switch (value) {
-    BookFormat.audiobook => IriTerm(_buildIri('AudiobookFormat')),
-    BookFormat.hardcover => IriTerm(_buildIri('Hardcover')),
-    BookFormat.paperback => IriTerm(_buildIri('Paperback')),
-    BookFormat.ebook => IriTerm(_buildIri('Ebook')),
-    BookFormat.graphicNovel => IriTerm(_buildIri('GraphicNovel')),
-  };
+  }) =>
+      switch (value) {
+        BookFormat.audiobook => IriTerm(_buildIri('AudiobookFormat')),
+        BookFormat.hardcover => IriTerm(_buildIri('Hardcover')),
+        BookFormat.paperback => IriTerm(_buildIri('Paperback')),
+        BookFormat.ebook => IriTerm(_buildIri('Ebook')),
+        BookFormat.graphicNovel => IriTerm(_buildIri('GraphicNovel')),
+      };
 
   /// Generates the complete IRI for a given enum value
   String _buildIri(String value) {

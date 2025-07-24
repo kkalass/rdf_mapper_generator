@@ -3,7 +3,7 @@
 library;
 
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 
 // Test models with different RDF annotations and registerGlobally: false
 

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
-import 'package:rdf_vocabularies/dcterms.dart';
+import 'package:rdf_vocabularies_core/dcterms.dart';
 
 // -- Our model class --
 @RdfGlobalResource(

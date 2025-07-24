@@ -13,7 +13,7 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'annotation_test_models.dart';
-import 'package:rdf_vocabularies/schema.dart';
+import 'package:rdf_vocabularies_schema/schema.dart';
 
 /// Generated mapper for [String] global resources.
 ///
@@ -28,7 +28,7 @@ class BookWithMapperTitleMapper implements IriTermMapper<String> {
 
   /// Constructor
   const BookWithMapperTitleMapper({required String Function() idProvider})
-    : _idProvider = idProvider;
+      : _idProvider = idProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -80,8 +80,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
-    final String title =
-        reader.optional(
+    final String title = reader.optional(
           SchemaBook.name,
           deserializer: BookWithMapperTitleMapper(
             idProvider: () =>
