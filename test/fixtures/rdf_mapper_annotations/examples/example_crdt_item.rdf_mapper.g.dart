@@ -118,7 +118,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
     final clientId = resource.clientId;
     final storageRoot = _storageRootProvider();
     final taskId = _taskIdProvider();
-    return '${storageRoot}/solidtask/task/${taskId}/vectorclock/${clientId}.ttl';
+    return '${storageRoot}/solidtask/task/${taskId}.ttl#vectorclock-${clientId}';
   }
 }
 

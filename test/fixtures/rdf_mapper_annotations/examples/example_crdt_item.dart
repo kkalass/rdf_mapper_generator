@@ -47,7 +47,7 @@ class Item {
 @RdfGlobalResource(
   SolidTaskVectorClockEntry.classIri,
   IriStrategy(
-    '{+storageRoot}/solidtask/task/{taskId}/vectorclock/{clientId}.ttl',
+    '{+storageRoot}/solidtask/task/{taskId}.ttl#vectorclock-{clientId}',
   ),
   registerGlobally: false,
 )

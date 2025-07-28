@@ -283,7 +283,13 @@ void main() {
         item.isDeleted = false;
 
         final (subject, triples) = mapper.toRdfResource(item, context);
-
+        /*
+        print(defaultInitTestRdfMapper(
+            storageRootProvider: () =>
+                'http://example.org/storage').encodeObject(item,
+            //contentType: 'application/n-triples',
+             baseUri: 'http://example.org/storage/solidtask/task/task456.ttl'));
+             */
         expect(
           subject.iri,
           equals('http://example.org/storage/solidtask/task/task456.ttl'),
