@@ -178,7 +178,7 @@ void main() {
         expect(
           subject.iri,
           equals(
-              'http://example.org/storage/solidtask/task/task123/vectorclock/client456.ttl'),
+              'http://example.org/storage/solidtask/task/task123.ttl#vectorclock-client456'),
         );
 
         expect(triples.length, equals(2)); // clientId and clockValue
@@ -200,7 +200,7 @@ void main() {
 
       test('deserializes vector clock entry from resource', () {
         final entrySubject = IriTerm(
-          'http://example.org/storage/solidtask/task/task789/vectorclock/clientABC.ttl',
+          'http://example.org/storage/solidtask/task/task789.ttl#vectorclock-clientABC',
         );
         final triples = [
           Triple(
@@ -255,7 +255,7 @@ void main() {
           expect(
             subject.iri,
             equals(
-                'http://test.org/solidtask/task/$taskId/vectorclock/$clientId.ttl'),
+                'http://test.org/solidtask/task/$taskId.ttl#vectorclock-$clientId'),
           );
 
           final clockTriple = triples.firstWhere(
@@ -343,7 +343,7 @@ void main() {
           'http://example.org/storage/solidtask/appinstance/user789.ttl',
         );
         final clockUser789Subject = IriTerm(
-          'http://example.org/storage/solidtask/task/taskABC/vectorclock/user789.ttl',
+          'http://example.org/storage/solidtask/task/taskABC.ttl#vectorclock-user789',
         );
         final triples = [
           Triple(
@@ -460,7 +460,7 @@ void main() {
         for (final vcTriple in vectorClockTriples) {
           expect(vcTriple.object, isA<IriTerm>());
           final vcIri = (vcTriple.object as IriTerm).iri;
-          expect(vcIri, contains('/vectorclock/'));
+          expect(vcIri, contains('#vectorclock-'));
           expect(vcIri, contains('user'));
         }
       });
@@ -595,7 +595,7 @@ void main() {
         for (final vcTriple in vectorClockTriples) {
           expect(vcTriple.object, isA<IriTerm>());
           final vcIri = (vcTriple.object as IriTerm).iri;
-          expect(vcIri, contains('/vectorclock/'));
+          expect(vcIri, contains('#vectorclock-'));
         }
 
         // Note: The actual clock values would be in separate triples for each vector clock entry resource
