@@ -98,6 +98,8 @@ abstract class ClassElem extends Elem implements AnnotatedElem {
   Iterable<GetterElem> get getters;
   Iterable<SetterElem> get setters;
   FieldElem? getField(String fieldName);
+  bool get hasTypeParameters;
+  List<String> get typeParameterNames;
   Code toCode();
 }
 

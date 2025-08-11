@@ -53,7 +53,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Book.
+/// and RDF triples for resources of type `Book`.
 class BookMapper implements LocalResourceMapper<Book> {
   final IriTermMapper<String> _authorIdMapper;
 
@@ -103,7 +103,7 @@ class BookMapper implements LocalResourceMapper<Book> {
 /// Generated mapper for [ClassNoRegisterGlobally] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassNoRegisterGlobally.
+/// and RDF triples for resources of type `ClassNoRegisterGlobally`.
 class ClassNoRegisterGloballyMapper
     implements LocalResourceMapper<ClassNoRegisterGlobally> {
   /// Constructor
@@ -142,7 +142,7 @@ class ClassNoRegisterGloballyMapper
 /// Generated mapper for [ClassWithNoRdfType] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithNoRdfType.
+/// and RDF triples for resources of type `ClassWithNoRdfType`.
 class ClassWithNoRdfTypeMapper
     implements LocalResourceMapper<ClassWithNoRdfType> {
   /// Constructor
@@ -183,7 +183,7 @@ class ClassWithNoRdfTypeMapper
 /// Generated mapper for [ClassWithPositionalProperty] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithPositionalProperty.
+/// and RDF triples for resources of type `ClassWithPositionalProperty`.
 class ClassWithPositionalPropertyMapper
     implements LocalResourceMapper<ClassWithPositionalProperty> {
   /// Constructor
@@ -222,7 +222,7 @@ class ClassWithPositionalPropertyMapper
 /// Generated mapper for [ClassWithNonFinalProperty] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithNonFinalProperty.
+/// and RDF triples for resources of type `ClassWithNonFinalProperty`.
 class ClassWithNonFinalPropertyMapper
     implements LocalResourceMapper<ClassWithNonFinalProperty> {
   /// Constructor
@@ -261,7 +261,7 @@ class ClassWithNonFinalPropertyMapper
 /// Generated mapper for [ClassWithNonFinalPropertyWithDefault] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithNonFinalPropertyWithDefault.
+/// and RDF triples for resources of type `ClassWithNonFinalPropertyWithDefault`.
 class ClassWithNonFinalPropertyWithDefaultMapper
     implements LocalResourceMapper<ClassWithNonFinalPropertyWithDefault> {
   /// Constructor
@@ -302,7 +302,7 @@ class ClassWithNonFinalPropertyWithDefaultMapper
 /// Generated mapper for [ClassWithNonFinalOptionalProperty] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithNonFinalOptionalProperty.
+/// and RDF triples for resources of type `ClassWithNonFinalOptionalProperty`.
 class ClassWithNonFinalOptionalPropertyMapper
     implements LocalResourceMapper<ClassWithNonFinalOptionalProperty> {
   /// Constructor
@@ -346,7 +346,7 @@ class ClassWithNonFinalOptionalPropertyMapper
 /// Generated mapper for [ClassWithLateNonFinalProperty] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithLateNonFinalProperty.
+/// and RDF triples for resources of type `ClassWithLateNonFinalProperty`.
 class ClassWithLateNonFinalPropertyMapper
     implements LocalResourceMapper<ClassWithLateNonFinalProperty> {
   /// Constructor
@@ -387,7 +387,7 @@ class ClassWithLateNonFinalPropertyMapper
 /// Generated mapper for [ClassWithLateFinalProperty] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithLateFinalProperty.
+/// and RDF triples for resources of type `ClassWithLateFinalProperty`.
 class ClassWithLateFinalPropertyMapper
     implements LocalResourceMapper<ClassWithLateFinalProperty> {
   /// Constructor
@@ -428,7 +428,7 @@ class ClassWithLateFinalPropertyMapper
 /// Generated mapper for [ClassWithMixedFinalAndLateFinalProperty] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithMixedFinalAndLateFinalProperty.
+/// and RDF triples for resources of type `ClassWithMixedFinalAndLateFinalProperty`.
 class ClassWithMixedFinalAndLateFinalPropertyMapper
     implements LocalResourceMapper<ClassWithMixedFinalAndLateFinalProperty> {
   /// Constructor

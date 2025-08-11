@@ -58,12 +58,16 @@ sealed class GeneratedMapperTemplateData
   final MapperConstructorTemplateData mapperConstructor;
   final List<FieldData> mapperFields;
 
+  /// Generic type parameters for the class (e.g., ['T', 'K', 'V'])
+  final List<String> typeParameters;
+
   GeneratedMapperTemplateData({
     required this.className,
     required this.mapperClassName,
     required this.mapperInterfaceName,
     required this.mapperConstructor,
     required List<FieldData> mapperFields,
+    this.typeParameters = const [],
   }) : mapperFields = mapperFields.toSet().toList(growable: false)
           ..sort(
             (a, b) => a.name.compareTo(b.name),
@@ -136,6 +140,7 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
     required super.mapperInterfaceName,
     required super.mapperConstructor,
     required super.mapperFields,
+    super.typeParameters = const [],
     required this.termClass,
     required Code? typeIri,
     required IriData? iriStrategy,

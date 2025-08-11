@@ -62,11 +62,11 @@ sealed class ResolvedMapperModel {
       ? const []
       : dependencies.map((d) => d.field).nonNulls.toList(growable: false);
 
-  Code get interfaceClass => Code.combine([
+  Code get interfaceClass => interfaceClassFor(mappedClass);
+
+  Code interfaceClassFor(Code cls) => Code.combine([
         Code.literal(type.dartInterfaceName),
-        Code.literal('<'),
-        mappedClass,
-        Code.literal('>')
+        Code.genericParamsList([cls])
       ]);
 
   MappableClassMapperTemplateData toTemplateData(
@@ -150,6 +150,8 @@ class ResourceResolvedMapperModel extends GeneratedResolvedMapperModel {
 
   final Iterable<ProvidesResolvedModel> provides;
 
+  final List<String> typeParameters;
+
   ResourceResolvedMapperModel({
     required this.id,
     required this.mappedClass,
@@ -162,7 +164,13 @@ class ResourceResolvedMapperModel extends GeneratedResolvedMapperModel {
     required this.needsReader,
     required this.dependencies,
     required this.provides,
+    this.typeParameters = const [],
   });
+
+  Code appendTypeParameters(Code cls) => typeParameters.isEmpty
+      ? cls
+      : Code.combine(
+          [cls, Code.genericParamsList(typeParameters.map(Code.literal))]);
 
   @override
   MappableClassMapperTemplateData toTemplateData(
@@ -172,10 +180,13 @@ class ResourceResolvedMapperModel extends GeneratedResolvedMapperModel {
     };
     final mappedClassData = mappedClassModel.toTemplateData(
         context, providesByVariableNames, mapperImportUri);
+    final fullMappedClass = appendTypeParameters(mappedClass);
+    final fullImplementationClass = appendTypeParameters(implementationClass);
     return ResourceMapperTemplateData(
-        className: mappedClass,
-        mapperClassName: implementationClass,
-        mapperInterfaceName: interfaceClass,
+        className: fullMappedClass,
+        mapperClassName: fullImplementationClass,
+        mapperInterfaceName: interfaceClassFor(fullMappedClass),
+        typeParameters: typeParameters,
         registerGlobally: registerGlobally,
         typeIri: typeIri,
         termClass: termClass,
@@ -415,6 +426,7 @@ class PropertyResolvedModel {
     final readerCall = _generateReaderCall(
       providesByProviderNames: providesByProviderNames,
     );
+
     return PropertyData(
         propertyName: propertyName,
         isFieldNullable: isFieldNullable,

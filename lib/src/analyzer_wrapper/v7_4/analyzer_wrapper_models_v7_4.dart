@@ -294,6 +294,13 @@ class ClassElemV7 extends ElemV7 implements ClassElem {
   Iterable<SetterElem> get setters =>
       classElement.setters2.map((s) => SetterElemV7(s));
 
+  @override
+  bool get hasTypeParameters => classElement.typeParameters2.isNotEmpty;
+
+  @override
+  List<String> get typeParameterNames => 
+      classElement.typeParameters2.map((tp) => tp.name3!).toList();
+
   ClassElemV7(this.classElement) : super(classElement);
 
   @override

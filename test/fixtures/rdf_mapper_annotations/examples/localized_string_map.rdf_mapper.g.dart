@@ -17,7 +17,7 @@ import 'localized_string_map.dart';
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Book.
+/// and RDF triples for resources of type `Book`.
 class BookMapper implements LocalResourceMapper<Book> {
   final LiteralTermMapper<MapEntry<String, String>> _translationsMapper;
 

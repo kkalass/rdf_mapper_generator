@@ -65,6 +65,8 @@ import 'fixtures/rdf_mapper_annotations/examples/provides.rdf_mapper.g.dart'
     as prmg;
 import 'fixtures/unmapped_triples_test_models.dart' as uttm;
 import 'fixtures/unmapped_triples_test_models.rdf_mapper.g.dart' as uttmrmg;
+import 'fixtures/valid_generic_test_models.dart' as vgtm;
+import 'fixtures/valid_generic_test_models.rdf_mapper.g.dart' as vgtmrmg;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
 ///
@@ -537,6 +539,9 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<uttm.BookWithInvalidUnmappedTriplesType>(
     uttmrmg.BookWithInvalidUnmappedTriplesTypeMapper(),
+  );
+  registry.registerMapper<vgtm.NonGenericPerson>(
+    vgtmrmg.NonGenericPersonMapper(),
   );
 
   return rdfMapper;

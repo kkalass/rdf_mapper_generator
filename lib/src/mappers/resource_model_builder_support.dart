@@ -72,7 +72,8 @@ class ResourceModelBuilderSupport {
         iriStrategy: iriStrategy,
         needsReader: resourceInfo.properties.any((p) => p.propertyInfo != null),
         registerGlobally: resourceInfo.annotation.registerGlobally,
-        provides: provides);
+        provides: provides,
+        typeParameters: resourceInfo.typeParameters);
 
     return [
       resourceMapper,

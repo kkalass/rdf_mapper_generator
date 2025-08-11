@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2025-08-11
+
+### Added
+
+- **Generic Type Parameter Support**: Full support for generating type-safe mappers from generic classes
+  - Classes with type parameters (e.g., `Document<T>`) now generate corresponding generic mappers (e.g., `DocumentMapper<T>`)  
+  - Generated mappers properly implement generic interfaces like `GlobalResourceMapper<Document<T>>`
+  - Support for single and multiple type parameters (e.g., `MultiGenericDocument<T, U, V>`)
+  - Preserved original type parameter syntax in generated code (e.g., `final T primaryTopic`)
+- **Generic Type Validation**: Comprehensive validation for generic class usage
+  - Generic classes must have `registerGlobally: false` since they cannot be registered without concrete types
+  - Clear error messages when validation fails: "Generic classes cannot be registered globally because they require concrete type parameters"
+  - Validation applies to both `@RdfGlobalResource` and `@RdfLocalResource` annotations
+- **Enhanced Analyzer Wrapper**: Extended analyzer API abstraction for generic type detection
+  - Added `hasTypeParameters` and `typeParameterNames` properties to `ClassElem` interface
+  - Compatible with both analyzer v6 and v7.4 through version-specific implementations
+  - Proper handling of type parameter extraction across different analyzer versions
+
+### Changed
+
+- **Code Generation Pipeline**: Enhanced template data generation to preserve generic type information
+  - Modified `ResourceProcessor` to extract and validate generic type parameters
+  - Updated `ResolvedMapperModel` to append type parameters using `Code.genericParamsList()` method
+  - Enhanced mustache templates to generate correct generic mapper syntax
+- **Test Infrastructure**: Improved testing capabilities for validation logic
+  - Added `buildTemplateDataFromString()` helper method for string-based testing
+  - Created comprehensive test suites covering processor validation, integration tests, and template generation
+  - Consolidated duplicate test fixture files for better maintainability
+
+### Fixed
+
+- **Build System Compatibility**: Resolved build failures caused by invalid generic test classes
+  - Removed invalid test classes with conflicting `registerGlobally: true` settings
+  - Implemented string-based validation testing to avoid build-time errors
+  - Ensured clean project builds with proper validation error reporting
+
 ## [0.10.0] - 2025-07-25
 
 ### Changed

@@ -88,7 +88,7 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
 /// Generated mapper for [SimpleBook] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type SimpleBook.
+/// and RDF triples for resources of type `SimpleBook`.
 class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
   static final RegExp _regex = RegExp(
     r'^https://library\.example\.org/books/(?<id>[^/]*)\.ttl$',
@@ -141,7 +141,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
 /// Generated mapper for [Person] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Person.
+/// and RDF triples for resources of type `Person`.
 class PersonMapper implements GlobalResourceMapper<Person> {
   /// Constructor
   const PersonMapper();
@@ -177,7 +177,7 @@ class PersonMapper implements GlobalResourceMapper<Person> {
 /// Generated mapper for [Chapter] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Chapter.
+/// and RDF triples for resources of type `Chapter`.
 class ChapterMapper implements GlobalResourceMapper<Chapter> {
   final IriTermMapper<(String bookId, int chapterNumber)> _iriMapper;
 

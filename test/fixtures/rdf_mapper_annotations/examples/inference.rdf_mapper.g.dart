@@ -18,7 +18,7 @@ import 'package:rdf_vocabularies_schema/schema.dart';
 /// Generated mapper for [TestGlobalResource] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type TestGlobalResource.
+/// and RDF triples for resources of type `TestGlobalResource`.
 class TestGlobalResourceMapper
     implements GlobalResourceMapper<TestGlobalResource> {
   static final RegExp _regex = RegExp(
@@ -75,7 +75,7 @@ class TestGlobalResourceMapper
 /// Generated mapper for [TestLocalResource] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type TestLocalResource.
+/// and RDF triples for resources of type `TestLocalResource`.
 class TestLocalResourceMapper
     implements LocalResourceMapper<TestLocalResource> {
   /// Constructor
@@ -151,7 +151,7 @@ class TestIriMapper implements IriTermMapper<TestIri> {
 /// Generated mapper for [InferenceTestContainer] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type InferenceTestContainer.
+/// and RDF triples for resources of type `InferenceTestContainer`.
 class InferenceTestContainerMapper
     implements LocalResourceMapper<InferenceTestContainer> {
   final GlobalResourceMapper<TestGlobalResource> _globalResourceMapper;

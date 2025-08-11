@@ -17,7 +17,7 @@ import 'custom_collection_type_example.dart';
 /// Generated mapper for [Library] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Library.
+/// and RDF triples for resources of type `Library`.
 class LibraryMapper implements GlobalResourceMapper<Library> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/library/(?<id>[^/]*)$');
 

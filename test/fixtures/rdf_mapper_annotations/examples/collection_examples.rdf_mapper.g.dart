@@ -21,7 +21,7 @@ import 'package:rdf_vocabularies_schema/schema.dart';
 /// Generated mapper for [Library] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Library.
+/// and RDF triples for resources of type `Library`.
 class LibraryMapper implements GlobalResourceMapper<Library> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/library/(?<id>[^/]*)$');
 
@@ -93,7 +93,7 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
 /// Generated mapper for [Playlist] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Playlist.
+/// and RDF triples for resources of type `Playlist`.
 class PlaylistMapper implements GlobalResourceMapper<Playlist> {
   static final RegExp _regex = RegExp(
     r'^(?<baseUri>.*)/playlist/(?<id>[^/]*)$',
@@ -158,7 +158,7 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
 /// Generated mapper for [Course] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Course.
+/// and RDF triples for resources of type `Course`.
 class CourseMapper implements GlobalResourceMapper<Course> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/course/(?<id>[^/]*)$');
 
@@ -285,7 +285,7 @@ class BookCollectionAuthorIdsMapper implements IriTermMapper<String> {
 /// Generated mapper for [BookCollection] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookCollection.
+/// and RDF triples for resources of type `BookCollection`.
 class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
   late final IriTermMapper<String> _authorIdsMapper;
   final String Function() _baseUriProvider;
@@ -380,7 +380,7 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Book.
+/// and RDF triples for resources of type `Book`.
 class BookMapper implements LocalResourceMapper<Book> {
   /// Constructor
   const BookMapper();
@@ -417,7 +417,7 @@ class BookMapper implements LocalResourceMapper<Book> {
 /// Generated mapper for [Track] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Track.
+/// and RDF triples for resources of type `Track`.
 class TrackMapper implements LocalResourceMapper<Track> {
   /// Constructor
   const TrackMapper();
@@ -454,7 +454,7 @@ class TrackMapper implements LocalResourceMapper<Track> {
 /// Generated mapper for [Module] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Module.
+/// and RDF triples for resources of type `Module`.
 class ModuleMapper implements LocalResourceMapper<Module> {
   /// Constructor
   const ModuleMapper();

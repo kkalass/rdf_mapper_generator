@@ -18,7 +18,7 @@ import 'package:rdf_vocabularies_schema/schema.dart';
 /// Generated mapper for [BookWithUnmappedTriples] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookWithUnmappedTriples.
+/// and RDF triples for resources of type `BookWithUnmappedTriples`.
 class BookWithUnmappedTriplesMapper
     implements GlobalResourceMapper<BookWithUnmappedTriples> {
   static final RegExp _regex = RegExp(
@@ -86,7 +86,7 @@ class BookWithUnmappedTriplesMapper
 /// Generated mapper for [BookWithUnmappedTriplesLateFields] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookWithUnmappedTriplesLateFields.
+/// and RDF triples for resources of type `BookWithUnmappedTriplesLateFields`.
 class BookWithUnmappedTriplesLateFieldsMapper
     implements GlobalResourceMapper<BookWithUnmappedTriplesLateFields> {
   static final RegExp _regex = RegExp(
@@ -154,7 +154,7 @@ class BookWithUnmappedTriplesLateFieldsMapper
 /// Generated mapper for [BookWithInvalidUnmappedTriplesType] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookWithInvalidUnmappedTriplesType.
+/// and RDF triples for resources of type `BookWithInvalidUnmappedTriplesType`.
 class BookWithInvalidUnmappedTriplesTypeMapper
     implements GlobalResourceMapper<BookWithInvalidUnmappedTriplesType> {
   static final RegExp _regex = RegExp(

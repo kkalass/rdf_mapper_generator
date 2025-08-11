@@ -53,7 +53,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Book.
+/// and RDF triples for resources of type `Book`.
 class BookMapper implements GlobalResourceMapper<Book> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/books/(?<isbn>[^/]*)$',
@@ -119,7 +119,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
 /// Generated mapper for [ClassWithEmptyIriStrategy] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithEmptyIriStrategy.
+/// and RDF triples for resources of type `ClassWithEmptyIriStrategy`.
 class ClassWithEmptyIriStrategyMapper
     implements GlobalResourceMapper<ClassWithEmptyIriStrategy> {
   /// Constructor
@@ -153,7 +153,7 @@ class ClassWithEmptyIriStrategyMapper
 /// Generated mapper for [ClassWithNoRdfType] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithNoRdfType.
+/// and RDF triples for resources of type `ClassWithNoRdfType`.
 class ClassWithNoRdfTypeMapper
     implements GlobalResourceMapper<ClassWithNoRdfType> {
   /// Constructor
@@ -200,7 +200,7 @@ class ClassWithNoRdfTypeMapper
 /// Generated mapper for [ClassWithEmptyIriStrategyNoRegisterGlobally] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithEmptyIriStrategyNoRegisterGlobally.
+/// and RDF triples for resources of type `ClassWithEmptyIriStrategyNoRegisterGlobally`.
 class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
     implements
         GlobalResourceMapper<ClassWithEmptyIriStrategyNoRegisterGlobally> {
@@ -235,7 +235,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
 /// Generated mapper for [ClassWithIriTemplateStrategy] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriTemplateStrategy.
+/// and RDF triples for resources of type `ClassWithIriTemplateStrategy`.
 class ClassWithIriTemplateStrategyMapper
     implements GlobalResourceMapper<ClassWithIriTemplateStrategy> {
   static final RegExp _regex = RegExp(
@@ -286,7 +286,7 @@ class ClassWithIriTemplateStrategyMapper
 /// Generated mapper for [ClassWithIriTemplateAndContextVariableStrategy] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriTemplateAndContextVariableStrategy.
+/// and RDF triples for resources of type `ClassWithIriTemplateAndContextVariableStrategy`.
 class ClassWithIriTemplateAndContextVariableStrategyMapper
     implements
         GlobalResourceMapper<ClassWithIriTemplateAndContextVariableStrategy> {
@@ -343,7 +343,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
 /// Generated mapper for [ClassWithOtherBaseUriNonGlobal] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithOtherBaseUriNonGlobal.
+/// and RDF triples for resources of type `ClassWithOtherBaseUriNonGlobal`.
 class ClassWithOtherBaseUriNonGlobalMapper
     implements GlobalResourceMapper<ClassWithOtherBaseUriNonGlobal> {
   static final RegExp _regex = RegExp(
@@ -399,7 +399,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
 /// Generated mapper for [ClassWithIriNamedMapperStrategy] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy.
+/// and RDF triples for resources of type `ClassWithIriNamedMapperStrategy`.
 class ClassWithIriNamedMapperStrategyMapper
     implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy> {
   final IriTermMapper<ClassWithIriNamedMapperStrategy> _iriMapper;
@@ -435,7 +435,7 @@ class ClassWithIriNamedMapperStrategyMapper
 /// Generated mapper for [ClassWithIriNamedMapperStrategy1Part] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy1Part.
+/// and RDF triples for resources of type `ClassWithIriNamedMapperStrategy1Part`.
 class ClassWithIriNamedMapperStrategy1PartMapper
     implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy1Part> {
   final IriTermMapper<(String id,)> _iriMapper;
@@ -473,7 +473,7 @@ class ClassWithIriNamedMapperStrategy1PartMapper
 /// Generated mapper for [ClassWithIriNamedMapperStrategy2Parts] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2Parts.
+/// and RDF triples for resources of type `ClassWithIriNamedMapperStrategy2Parts`.
 class ClassWithIriNamedMapperStrategy2PartsMapper
     implements GlobalResourceMapper<ClassWithIriNamedMapperStrategy2Parts> {
   final IriTermMapper<(String id, int version)> _iriMapper;
@@ -514,7 +514,7 @@ class ClassWithIriNamedMapperStrategy2PartsMapper
 /// Generated mapper for [ClassWithIriNamedMapperStrategy2PartsSwapped] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2PartsSwapped.
+/// and RDF triples for resources of type `ClassWithIriNamedMapperStrategy2PartsSwapped`.
 class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
     implements
         GlobalResourceMapper<ClassWithIriNamedMapperStrategy2PartsSwapped> {
@@ -559,7 +559,7 @@ class ClassWithIriNamedMapperStrategy2PartsSwappedMapper
 /// Generated mapper for [ClassWithIriNamedMapperStrategy2PartsWithProperties] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriNamedMapperStrategy2PartsWithProperties.
+/// and RDF triples for resources of type `ClassWithIriNamedMapperStrategy2PartsWithProperties`.
 class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
     implements
         GlobalResourceMapper<
@@ -625,7 +625,7 @@ class ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper
 /// Generated mapper for [ClassWithIriMapperStrategy] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriMapperStrategy.
+/// and RDF triples for resources of type `ClassWithIriMapperStrategy`.
 class ClassWithIriMapperStrategyMapper
     implements GlobalResourceMapper<ClassWithIriMapperStrategy> {
   final IriTermMapper<ClassWithIriMapperStrategy> _iriMapper;
@@ -661,7 +661,7 @@ class ClassWithIriMapperStrategyMapper
 /// Generated mapper for [ClassWithIriMapperInstanceStrategy] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ClassWithIriMapperInstanceStrategy.
+/// and RDF triples for resources of type `ClassWithIriMapperInstanceStrategy`.
 class ClassWithIriMapperInstanceStrategyMapper
     implements GlobalResourceMapper<ClassWithIriMapperInstanceStrategy> {
   final IriTermMapper<ClassWithIriMapperInstanceStrategy> _iriMapper;

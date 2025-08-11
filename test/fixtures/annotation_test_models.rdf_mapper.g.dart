@@ -57,7 +57,7 @@ class BookWithMapperTitleMapper implements IriTermMapper<String> {
 /// Generated mapper for [BookWithMapper] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookWithMapper.
+/// and RDF triples for resources of type `BookWithMapper`.
 class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
   final IriTermMapper<(String id,)> _iriMapper;
 
@@ -120,7 +120,7 @@ class BookWithMapperMapper implements GlobalResourceMapper<BookWithMapper> {
 /// Generated mapper for [BookWithMapperInstance] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookWithMapperInstance.
+/// and RDF triples for resources of type `BookWithMapperInstance`.
 class BookWithMapperInstanceMapper
     implements GlobalResourceMapper<BookWithMapperInstance> {
   final IriTermMapper<(String id,)> _iriMapper;
@@ -160,7 +160,7 @@ class BookWithMapperInstanceMapper
 /// Generated mapper for [BookWithTemplate] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type BookWithTemplate.
+/// and RDF triples for resources of type `BookWithTemplate`.
 class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
   static final RegExp _regex = RegExp(
     r'^https://example\.org/books/(?<id>[^/]*)$',

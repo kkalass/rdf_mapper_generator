@@ -588,6 +588,8 @@ class ResourceMapperModel extends GeneratedMapperModel {
 
   final Iterable<ProvidesModel> provides;
 
+  final List<String> typeParameters;
+
   ResourceMapperModel(
       {required this.id,
       required this.mappedClass,
@@ -599,7 +601,8 @@ class ResourceMapperModel extends GeneratedMapperModel {
       required this.termClass,
       required this.iriStrategy,
       required this.needsReader,
-      required this.provides});
+      required this.provides,
+      this.typeParameters = const []});
 
   @override
   ResolvedMapperModel resolveInternal(
@@ -618,6 +621,7 @@ class ResourceMapperModel extends GeneratedMapperModel {
       dependencies: context.resolvedDependencies,
       needsReader: needsReader,
       provides: provides.map((p) => p.resolve(context)).toList(growable: false),
+      typeParameters: typeParameters,
     );
   }
 }

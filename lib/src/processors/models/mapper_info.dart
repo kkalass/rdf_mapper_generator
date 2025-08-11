@@ -192,19 +192,23 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
   @override
   final RdfMapValueAnnotationInfo? rdfMapValue;
 
+  /// Generic type parameters for the class (e.g., ['T', 'K', 'V'])
+  final List<String> typeParameters;
+
   const ResourceInfo({
     required this.className,
     required this.annotation,
     required this.constructors,
     required this.properties,
     this.rdfMapValue,
+    this.typeParameters = const [],
   });
 
   bool get isGlobalResource => annotation is RdfGlobalResourceInfo;
 
   @override
   int get hashCode => Object.hashAll(
-      [className, annotation, constructors, properties, rdfMapValue]);
+      [className, annotation, constructors, properties, rdfMapValue, typeParameters]);
 
   @override
   bool operator ==(Object other) {
@@ -215,7 +219,8 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
         annotation == other.annotation &&
         constructors == other.constructors &&
         properties == other.properties &&
-        rdfMapValue == other.rdfMapValue;
+        rdfMapValue == other.rdfMapValue &&
+        typeParameters == other.typeParameters;
   }
 
   @override

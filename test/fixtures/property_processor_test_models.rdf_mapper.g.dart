@@ -19,7 +19,7 @@ import 'package:rdf_vocabularies_core/xsd.dart';
 /// Generated mapper for [SimplePropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type SimplePropertyTest.
+/// and RDF triples for resources of type `SimplePropertyTest`.
 class SimplePropertyTestMapper
     implements LocalResourceMapper<SimplePropertyTest> {
   /// Constructor
@@ -58,7 +58,7 @@ class SimplePropertyTestMapper
 /// Generated mapper for [SimpleCustomPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type SimpleCustomPropertyTest.
+/// and RDF triples for resources of type `SimpleCustomPropertyTest`.
 class SimpleCustomPropertyTestMapper
     implements GlobalResourceMapper<SimpleCustomPropertyTest> {
   /// Constructor
@@ -109,7 +109,7 @@ class SimpleCustomPropertyTestMapper
 /// Generated mapper for [DeserializationOnlyPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type DeserializationOnlyPropertyTest.
+/// and RDF triples for resources of type `DeserializationOnlyPropertyTest`.
 class DeserializationOnlyPropertyTestMapper
     implements LocalResourceMapper<DeserializationOnlyPropertyTest> {
   /// Constructor
@@ -145,7 +145,7 @@ class DeserializationOnlyPropertyTestMapper
 /// Generated mapper for [OptionalPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type OptionalPropertyTest.
+/// and RDF triples for resources of type `OptionalPropertyTest`.
 class OptionalPropertyTestMapper
     implements LocalResourceMapper<OptionalPropertyTest> {
   /// Constructor
@@ -187,7 +187,7 @@ class OptionalPropertyTestMapper
 /// Generated mapper for [DefaultValueTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type DefaultValueTest.
+/// and RDF triples for resources of type `DefaultValueTest`.
 class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
   /// Constructor
   const DefaultValueTestMapper();
@@ -233,7 +233,7 @@ class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
 /// Generated mapper for [IncludeDefaultsTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IncludeDefaultsTest.
+/// and RDF triples for resources of type `IncludeDefaultsTest`.
 class IncludeDefaultsTestMapper
     implements LocalResourceMapper<IncludeDefaultsTest> {
   /// Constructor
@@ -307,7 +307,7 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
 /// Generated mapper for [IriMappingTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingTest.
+/// and RDF triples for resources of type `IriMappingTest`.
 class IriMappingTestMapper implements LocalResourceMapper<IriMappingTest> {
   final IriTermMapper<String> _authorIdMapper;
 
@@ -396,7 +396,7 @@ class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
 /// Generated mapper for [IriMappingWithBaseUriTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithBaseUriTest.
+/// and RDF triples for resources of type `IriMappingWithBaseUriTest`.
 class IriMappingWithBaseUriTestMapper
     implements LocalResourceMapper<IriMappingWithBaseUriTest> {
   late final IriTermMapper<String> _authorIdMapper;
@@ -450,7 +450,7 @@ class IriMappingWithBaseUriTestMapper
 /// Generated mapper for [IriMappingFullIriTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingFullIriTest.
+/// and RDF triples for resources of type `IriMappingFullIriTest`.
 class IriMappingFullIriTestMapper
     implements LocalResourceMapper<IriMappingFullIriTest> {
   final IriTermMapper<String> _authorIriMapper;
@@ -500,7 +500,7 @@ class IriMappingFullIriTestMapper
 /// Generated mapper for [IriMappingFullIriSimpleTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingFullIriSimpleTest.
+/// and RDF triples for resources of type `IriMappingFullIriSimpleTest`.
 class IriMappingFullIriSimpleTestMapper
     implements LocalResourceMapper<IriMappingFullIriSimpleTest> {
   final IriTermMapper<String> _authorIriMapper;
@@ -591,7 +591,7 @@ class IriMappingWithProviderTestAuthorIdMapper
 /// Generated mapper for [IriMappingWithProviderTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithProviderTest.
+/// and RDF triples for resources of type `IriMappingWithProviderTest`.
 class IriMappingWithProviderTestMapper
     implements LocalResourceMapper<IriMappingWithProviderTest> {
   /// Constructor
@@ -681,7 +681,7 @@ class IriMappingWithBaseUriProviderTestAuthorIdMapper
 /// Generated mapper for [IriMappingWithBaseUriProviderTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithBaseUriProviderTest.
+/// and RDF triples for resources of type `IriMappingWithBaseUriProviderTest`.
 class IriMappingWithBaseUriProviderTestMapper
     implements LocalResourceMapper<IriMappingWithBaseUriProviderTest> {
   /// Constructor
@@ -773,7 +773,7 @@ class IriMappingWithProviderPropertyTestAuthorIdMapper
 /// Generated mapper for [IriMappingWithProviderPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithProviderPropertyTest.
+/// and RDF triples for resources of type `IriMappingWithProviderPropertyTest`.
 class IriMappingWithProviderPropertyTestMapper
     implements LocalResourceMapper<IriMappingWithProviderPropertyTest> {
   /// Constructor
@@ -875,7 +875,7 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
 /// Generated mapper for [IriMappingWithProvidersAndBaseUriPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingWithProvidersAndBaseUriPropertyTest.
+/// and RDF triples for resources of type `IriMappingWithProvidersAndBaseUriPropertyTest`.
 class IriMappingWithProvidersAndBaseUriPropertyTestMapper
     implements
         LocalResourceMapper<IriMappingWithProvidersAndBaseUriPropertyTest> {
@@ -945,7 +945,7 @@ class IriMappingWithProvidersAndBaseUriPropertyTestMapper
 /// Generated mapper for [IriMappingNamedMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingNamedMapperTest.
+/// and RDF triples for resources of type `IriMappingNamedMapperTest`.
 class IriMappingNamedMapperTestMapper
     implements LocalResourceMapper<IriMappingNamedMapperTest> {
   final IriTermMapper<String> _authorIdMapper;
@@ -995,7 +995,7 @@ class IriMappingNamedMapperTestMapper
 /// Generated mapper for [IriMappingMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingMapperTest.
+/// and RDF triples for resources of type `IriMappingMapperTest`.
 class IriMappingMapperTestMapper
     implements LocalResourceMapper<IriMappingMapperTest> {
   final IriTermMapper<String> _authorIdMapper;
@@ -1045,7 +1045,7 @@ class IriMappingMapperTestMapper
 /// Generated mapper for [IriMappingMapperInstanceTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type IriMappingMapperInstanceTest.
+/// and RDF triples for resources of type `IriMappingMapperInstanceTest`.
 class IriMappingMapperInstanceTestMapper
     implements LocalResourceMapper<IriMappingMapperInstanceTest> {
   final IriTermMapper<String> _authorIdMapper;
@@ -1095,7 +1095,7 @@ class IriMappingMapperInstanceTestMapper
 /// Generated mapper for [LocalResourceMappingTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LocalResourceMappingTest.
+/// and RDF triples for resources of type `LocalResourceMappingTest`.
 class LocalResourceMappingTestMapper
     implements LocalResourceMapper<LocalResourceMappingTest> {
   final LocalResourceMapper<Object> _authorMapper;
@@ -1141,7 +1141,7 @@ class LocalResourceMappingTestMapper
 /// Generated mapper for [GlobalResourceMappingTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type GlobalResourceMappingTest.
+/// and RDF triples for resources of type `GlobalResourceMappingTest`.
 class GlobalResourceMappingTestMapper
     implements LocalResourceMapper<GlobalResourceMappingTest> {
   final GlobalResourceMapper<Object> _publisherMapper;
@@ -1191,7 +1191,7 @@ class GlobalResourceMappingTestMapper
 /// Generated mapper for [LiteralMappingTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LiteralMappingTest.
+/// and RDF triples for resources of type `LiteralMappingTest`.
 class LiteralMappingTestMapper
     implements LocalResourceMapper<LiteralMappingTest> {
   final LiteralTermMapper<double> _priceMapper;
@@ -1241,7 +1241,7 @@ class LiteralMappingTestMapper
 /// Generated mapper for [LiteralMappingTestCustomDatatype] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LiteralMappingTestCustomDatatype.
+/// and RDF triples for resources of type `LiteralMappingTestCustomDatatype`.
 class LiteralMappingTestCustomDatatypeMapper
     implements LocalResourceMapper<LiteralMappingTestCustomDatatype> {
   final LiteralTermMapper<double> _priceMapper;
@@ -1291,7 +1291,7 @@ class LiteralMappingTestCustomDatatypeMapper
 /// Generated mapper for [CollectionNoneTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type CollectionNoneTest.
+/// and RDF triples for resources of type `CollectionNoneTest`.
 class CollectionNoneTestMapper
     implements LocalResourceMapper<CollectionNoneTest> {
   final Mapper<List<String>> _authorsMapper;
@@ -1341,7 +1341,7 @@ class CollectionNoneTestMapper
 /// Generated mapper for [CollectionAutoTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type CollectionAutoTest.
+/// and RDF triples for resources of type `CollectionAutoTest`.
 class CollectionAutoTestMapper
     implements LocalResourceMapper<CollectionAutoTest> {
   /// Constructor
@@ -1387,7 +1387,7 @@ class CollectionAutoTestMapper
 /// Generated mapper for [CollectionTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type CollectionTest.
+/// and RDF triples for resources of type `CollectionTest`.
 class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
   /// Constructor
   const CollectionTestMapper();
@@ -1437,7 +1437,7 @@ class CollectionTestMapper implements LocalResourceMapper<CollectionTest> {
 /// Generated mapper for [CollectionIterableTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type CollectionIterableTest.
+/// and RDF triples for resources of type `CollectionIterableTest`.
 class CollectionIterableTestMapper
     implements LocalResourceMapper<CollectionIterableTest> {
   /// Constructor
@@ -1484,7 +1484,7 @@ class CollectionIterableTestMapper
 /// Generated mapper for [MapNoCollectionNoMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type MapNoCollectionNoMapperTest.
+/// and RDF triples for resources of type `MapNoCollectionNoMapperTest`.
 class MapNoCollectionNoMapperTestMapper
     implements LocalResourceMapper<MapNoCollectionNoMapperTest> {
   /// Constructor
@@ -1523,7 +1523,7 @@ class MapNoCollectionNoMapperTestMapper
 /// Generated mapper for [MapLocalResourceMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type MapLocalResourceMapperTest.
+/// and RDF triples for resources of type `MapLocalResourceMapperTest`.
 class MapLocalResourceMapperTestMapper
     implements LocalResourceMapper<MapLocalResourceMapperTest> {
   final LocalResourceMapper<MapEntry<String, String>> _reviewsMapper;
@@ -1573,7 +1573,7 @@ class MapLocalResourceMapperTestMapper
 /// Generated mapper for [SetTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type SetTest.
+/// and RDF triples for resources of type `SetTest`.
 class SetTestMapper implements LocalResourceMapper<SetTest> {
   /// Constructor
   const SetTestMapper();
@@ -1618,7 +1618,7 @@ class SetTestMapper implements LocalResourceMapper<SetTest> {
 /// Generated mapper for [EnumTypeTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type EnumTypeTest.
+/// and RDF triples for resources of type `EnumTypeTest`.
 class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
   /// Constructor
   const EnumTypeTestMapper();
@@ -1656,7 +1656,7 @@ class EnumTypeTestMapper implements LocalResourceMapper<EnumTypeTest> {
 /// Generated mapper for [ComplexDefaultValueTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type ComplexDefaultValueTest.
+/// and RDF triples for resources of type `ComplexDefaultValueTest`.
 class ComplexDefaultValueTestMapper
     implements LocalResourceMapper<ComplexDefaultValueTest> {
   final Mapper<Map<String, dynamic>> _complexValueMapper;
@@ -1712,7 +1712,7 @@ class ComplexDefaultValueTestMapper
 /// Generated mapper for [FinalPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type FinalPropertyTest.
+/// and RDF triples for resources of type `FinalPropertyTest`.
 class FinalPropertyTestMapper
     implements LocalResourceMapper<FinalPropertyTest> {
   /// Constructor
@@ -1756,7 +1756,7 @@ class FinalPropertyTestMapper
 /// Generated mapper for [LatePropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LatePropertyTest.
+/// and RDF triples for resources of type `LatePropertyTest`.
 class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
   /// Constructor
   const LatePropertyTestMapper();
@@ -1802,7 +1802,7 @@ class LatePropertyTestMapper implements LocalResourceMapper<LatePropertyTest> {
 /// Generated mapper for [MutablePropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type MutablePropertyTest.
+/// and RDF triples for resources of type `MutablePropertyTest`.
 class MutablePropertyTestMapper
     implements LocalResourceMapper<MutablePropertyTest> {
   /// Constructor
@@ -1846,7 +1846,7 @@ class MutablePropertyTestMapper
 /// Generated mapper for [LanguageTagTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LanguageTagTest.
+/// and RDF triples for resources of type `LanguageTagTest`.
 class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
   final LiteralTermMapper<String> _descriptionMapper;
 
@@ -1896,7 +1896,7 @@ class LanguageTagTestMapper implements LocalResourceMapper<LanguageTagTest> {
 /// Generated mapper for [DatatypeTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type DatatypeTest.
+/// and RDF triples for resources of type `DatatypeTest`.
 class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
   final LiteralTermMapper<int> _countMapper;
   final LiteralTermMapper<String> _dateMapper;
@@ -1961,7 +1961,7 @@ class DatatypeTestMapper implements LocalResourceMapper<DatatypeTest> {
 /// Generated mapper for [GlobalResourceNamedMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type GlobalResourceNamedMapperTest.
+/// and RDF triples for resources of type `GlobalResourceNamedMapperTest`.
 class GlobalResourceNamedMapperTestMapper
     implements LocalResourceMapper<GlobalResourceNamedMapperTest> {
   final GlobalResourceMapper<Object> _publisherMapper;
@@ -2011,7 +2011,7 @@ class GlobalResourceNamedMapperTestMapper
 /// Generated mapper for [LiteralNamedMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LiteralNamedMapperTest.
+/// and RDF triples for resources of type `LiteralNamedMapperTest`.
 class LiteralNamedMapperTestMapper
     implements LocalResourceMapper<LiteralNamedMapperTest> {
   final LiteralTermMapper<String> _isbnMapper;
@@ -2057,7 +2057,7 @@ class LiteralNamedMapperTestMapper
 /// Generated mapper for [LiteralTypeMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LiteralTypeMapperTest.
+/// and RDF triples for resources of type `LiteralTypeMapperTest`.
 class LiteralTypeMapperTestMapper
     implements LocalResourceMapper<LiteralTypeMapperTest> {
   final LiteralTermMapper<double> _priceMapper;
@@ -2107,7 +2107,7 @@ class LiteralTypeMapperTestMapper
 /// Generated mapper for [GlobalResourceTypeMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type GlobalResourceTypeMapperTest.
+/// and RDF triples for resources of type `GlobalResourceTypeMapperTest`.
 class GlobalResourceTypeMapperTestMapper
     implements LocalResourceMapper<GlobalResourceTypeMapperTest> {
   final GlobalResourceMapper<Publisher> _publisherMapper;
@@ -2158,7 +2158,7 @@ class GlobalResourceTypeMapperTestMapper
 /// Generated mapper for [GlobalResourceMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type GlobalResourceMapperTest.
+/// and RDF triples for resources of type `GlobalResourceMapperTest`.
 class GlobalResourceMapperTestMapper
     implements LocalResourceMapper<GlobalResourceMapperTest> {
   final GlobalResourceMapper<Object> _publisherMapper;
@@ -2209,7 +2209,7 @@ class GlobalResourceMapperTestMapper
 /// Generated mapper for [GlobalResourceInstanceMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type GlobalResourceInstanceMapperTest.
+/// and RDF triples for resources of type `GlobalResourceInstanceMapperTest`.
 class GlobalResourceInstanceMapperTestMapper
     implements LocalResourceMapper<GlobalResourceInstanceMapperTest> {
   final GlobalResourceMapper<Object> _publisherMapper;
@@ -2260,7 +2260,7 @@ class GlobalResourceInstanceMapperTestMapper
 /// Generated mapper for [LocalResourceMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LocalResourceMapperTest.
+/// and RDF triples for resources of type `LocalResourceMapperTest`.
 class LocalResourceMapperTestMapper
     implements LocalResourceMapper<LocalResourceMapperTest> {
   final LocalResourceMapper<Author> _authorMapper;
@@ -2307,7 +2307,7 @@ class LocalResourceMapperTestMapper
 /// Generated mapper for [LocalResourceMapperObjectPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LocalResourceMapperObjectPropertyTest.
+/// and RDF triples for resources of type `LocalResourceMapperObjectPropertyTest`.
 class LocalResourceMapperObjectPropertyTestMapper
     implements LocalResourceMapper<LocalResourceMapperObjectPropertyTest> {
   final LocalResourceMapper<Object> _authorMapper;
@@ -2354,7 +2354,7 @@ class LocalResourceMapperObjectPropertyTestMapper
 /// Generated mapper for [LocalResourceInstanceMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LocalResourceInstanceMapperTest.
+/// and RDF triples for resources of type `LocalResourceInstanceMapperTest`.
 class LocalResourceInstanceMapperTestMapper
     implements LocalResourceMapper<LocalResourceInstanceMapperTest> {
   final LocalResourceMapper<Author> _authorMapper;
@@ -2401,7 +2401,7 @@ class LocalResourceInstanceMapperTestMapper
 /// Generated mapper for [LocalResourceInstanceMapperObjectPropertyTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LocalResourceInstanceMapperObjectPropertyTest.
+/// and RDF triples for resources of type `LocalResourceInstanceMapperObjectPropertyTest`.
 class LocalResourceInstanceMapperObjectPropertyTestMapper
     implements
         LocalResourceMapper<LocalResourceInstanceMapperObjectPropertyTest> {
@@ -2449,7 +2449,7 @@ class LocalResourceInstanceMapperObjectPropertyTestMapper
 /// Generated mapper for [LiteralMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LiteralMapperTest.
+/// and RDF triples for resources of type `LiteralMapperTest`.
 class LiteralMapperTestMapper
     implements LocalResourceMapper<LiteralMapperTest> {
   final LiteralTermMapper<int> _pageCountMapper;
@@ -2499,7 +2499,7 @@ class LiteralMapperTestMapper
 /// Generated mapper for [LiteralInstanceMapperTest] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type LiteralInstanceMapperTest.
+/// and RDF triples for resources of type `LiteralInstanceMapperTest`.
 class LiteralInstanceMapperTestMapper
     implements LocalResourceMapper<LiteralInstanceMapperTest> {
   final LiteralTermMapper<String> _isbnMapper;

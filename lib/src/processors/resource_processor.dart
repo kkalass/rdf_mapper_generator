@@ -41,12 +41,15 @@ class ResourceProcessor {
           RdfLocalResourceInfo _ => null,
         });
     final rdfMapValue = extractMapValueAnnotation(classElement.annotations);
+    final typeParameters = classElement.typeParameterNames;
+    
     return ResourceInfo(
         className: className,
         annotation: rdfResource,
         constructors: constructors,
         properties: properties,
-        rdfMapValue: rdfMapValue);
+        rdfMapValue: rdfMapValue,
+        typeParameters: typeParameters);
   }
 
   static RdfResourceInfo? _createRdfResource(
@@ -73,6 +76,15 @@ class ResourceProcessor {
 
       // Get the registerGlobally flag
       final registerGlobally = isRegisterGlobally(annotation);
+
+      // Check for generic type parameters and validate registerGlobally setting
+      if (classElement.hasTypeParameters && registerGlobally) {
+        context.addError(
+          'Class ${classElement.name} has generic type parameters and must have registerGlobally set to false. '
+          'Generic classes cannot be registered globally because they require concrete type parameters.',
+        );
+        return null;
+      }
 
       final mapper = getMapperRefInfo<GlobalResourceMapper>(annotation);
 

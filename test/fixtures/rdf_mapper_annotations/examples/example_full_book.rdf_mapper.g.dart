@@ -54,7 +54,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
 /// Generated mapper for [Book] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Book.
+/// and RDF triples for resources of type `Book`.
 class BookMapper implements GlobalResourceMapper<Book> {
   static final RegExp _regex = RegExp(
     r'^http://example\.org/book/(?<id>[^/]*)$',
@@ -150,7 +150,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
 /// Generated mapper for [Chapter] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Chapter.
+/// and RDF triples for resources of type `Chapter`.
 class ChapterMapper implements LocalResourceMapper<Chapter> {
   /// Constructor
   const ChapterMapper();

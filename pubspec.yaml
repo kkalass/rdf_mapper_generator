@@ -27,8 +27,8 @@ dependencies:
   mustache_template: '>=2.0.0 <3.0.0'
   rdf_core: ^0.9.12
   rdf_mapper_annotations: ^0.10.0
-  rdf_vocabularies_core: ^0.4.1
-  rdf_vocabularies_schema: ^0.4.1
+  rdf_vocabularies_core: ^0.4.4
+  rdf_vocabularies_schema: ^0.4.4
   path: '>=1.9.0 <2.0.0'
   rdf_mapper: ^0.10.0
   glob: '>=2.0.0 <3.0.0'

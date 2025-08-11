@@ -294,6 +294,13 @@ class ClassElemV6 extends ElemV6 implements ClassElem {
       .where((a) => a.isSetter && !a.isSynthetic)
       .map((s) => SetterElemV6(s));
 
+  @override
+  bool get hasTypeParameters => classElement.typeParameters.isNotEmpty;
+
+  @override
+  List<String> get typeParameterNames => 
+      classElement.typeParameters.map((tp) => tp.name).toList();
+
   ClassElemV6(this.classElement) : super(classElement);
 
   @override

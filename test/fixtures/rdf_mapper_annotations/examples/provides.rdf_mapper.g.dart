@@ -17,7 +17,7 @@ import 'provides.dart';
 /// Generated mapper for [Child] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Child.
+/// and RDF triples for resources of type `Child`.
 class ChildMapper implements GlobalResourceMapper<Child> {
   static final RegExp _regex = RegExp(
     r'^(?<baseUri>.*)/(?<parentId>[^/]*)/child/(?<id>[^/]*)\.ttl$',
@@ -126,7 +126,7 @@ class ParentSiblingIdMapper implements IriTermMapper<String> {
 /// Generated mapper for [Parent] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects
-/// and RDF triples for resources of type Parent.
+/// and RDF triples for resources of type `Parent`.
 class ParentMapper implements GlobalResourceMapper<Parent> {
   static final RegExp _regex = RegExp(r'^(?<baseUri>.*)/(?<id>[^/]*)\.ttl$');
 
