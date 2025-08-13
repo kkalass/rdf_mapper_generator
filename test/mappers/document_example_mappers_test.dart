@@ -27,38 +27,36 @@ void main() {
 
       // Create a Person instance with realistic data
       final person = Person(
-        name: 'Klas Kalaaß',
-        preferencesFile: Uri.parse('/settings/prefs.ttl'),
-        storage: Uri.parse('/'),
-        account: Uri.parse('/'),
+        name: 'Klas Kalass',
+        preferencesFile: '/settings/prefs.ttl',
+        storage: Uri.parse('http://example.org/'),
+        account: '/',
         oidcIssuer: Uri.parse('https://datapod.igrant.io'),
-        privateTypeIndex: Uri.parse('/settings/privateTypeIndex.ttl'),
-        publicTypeIndex: Uri.parse('/settings/publicTypeIndex.ttl'),
-        other: RdfGraph(),
+        privateTypeIndex: '/settings/privateTypeIndex.ttl',
+        publicTypeIndex: '/settings/publicTypeIndex.ttl',
       );
 
       // Create a Document<Person> instance
       final document = Document<Person>(
-        documentIri: './card',
-        maker: Uri.parse('#me'),
+        documentIri: 'http://example.org/card',
+        maker: Uri.parse('http://example.org/me'),
         primaryTopic: person,
         unmapped: RdfGraph(),
       );
 
       // Test serialization with explicit registration
-      final graph = mapper.encodeObject(document, register: (registry) {
-        registry.registerMapper(DocumentMapper<Person>(
-          primaryTopicSerializationProvider:
-              SerializationProvider.iriContextual((IriTerm iri) =>
+      final graph = mapper.encodeObject(document,
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<Person>(
+              primaryTopic: SerializationProvider.iriContextual((IriTerm iri) =>
                   PersonMapper(documentIriProvider: () => iri.iri)),
-        ));
-      });
+            )));
       expect(graph, isNotNull);
-      expect(graph, contains('Klas Kalaaß'));
+      expect(graph, contains('Klas Kalass'));
       expect(graph, contains('datapod.igrant.io'));
       expect(graph, contains('privateTypeIndex'));
       expect(graph, contains('publicTypeIndex'));
-      expect(graph, contains('./card'));
+      expect(graph, contains('http://example.org/card'));
 
       // Test deserialization with explicit registration
       final deserialized =
@@ -83,10 +81,11 @@ void main() {
 
       // Test serialization with explicit registration
       final graph = mapper.encodeObject(document,
-          register: (registry) => registry.registerMapper(
-              DocumentMapper<String>(
-                  primaryTopicSerializationProvider:
-                      SerializationProvider.nonContextual(StringMapper()))));
+          contentType: 'application/n-triples',
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<String>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(StringMapper()))));
       expect(graph, isNotNull);
       expect(graph, contains('Simple String Topic'));
       expect(graph, contains('http://example.org/simple-doc'));
@@ -94,10 +93,10 @@ void main() {
 
       // Test deserialization with explicit registration
       final deserialized = mapper.decodeObject<Document<String>>(graph,
-          register: (registry) => registry.registerMapper(
-              DocumentMapper<String>(
-                  primaryTopicSerializationProvider:
-                      SerializationProvider.nonContextual(StringMapper()))));
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<String>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(StringMapper()))));
       expect(deserialized, isNotNull);
       expect(deserialized.documentIri, equals(document.documentIri));
       expect(deserialized.maker, equals(document.maker));
@@ -114,19 +113,20 @@ void main() {
       // Create a Person instance with comprehensive data
       final person = Person(
         name: 'John Doe',
-        preferencesFile: Uri.parse('/user/settings/preferences.ttl'),
-        storage: Uri.parse('/user/storage/'),
-        account: Uri.parse('/user/account/'),
+        preferencesFile: 'user/settings/preferences.ttl',
+        storage: Uri.parse('http://example.org/user/storage/'),
+        account: 'user/account/',
         oidcIssuer: Uri.parse('https://auth.example.com'),
-        privateTypeIndex: Uri.parse('/user/settings/private-index.ttl'),
-        publicTypeIndex: Uri.parse('/user/settings/public-index.ttl'),
-        other: RdfGraph(),
+        privateTypeIndex: 'user/settings/private-index.ttl',
+        publicTypeIndex: 'user/settings/public-index.ttl',
       );
 
       // Test serialization with explicit registration
       final graph = mapper.encodeObject(person,
-          register: (registry) => registry.registerMapper(PersonMapper(
-              documentIriProvider: () => 'https://example.com/johndoe')));
+          contentType: 'application/n-triples',
+          register: (registry) => registry
+            ..registerMapper(PersonMapper(
+                documentIriProvider: () => 'https://example.com/johndoe')));
       expect(graph, isNotNull);
       expect(graph, contains('John Doe'));
       expect(graph, contains('auth.example.com'));
@@ -138,6 +138,7 @@ void main() {
 
       // Test deserialization with explicit registration
       final deserialized = mapper.decodeObject<Person>(graph,
+          contentType: 'application/n-triples',
           register: (registry) => registry.registerMapper(PersonMapper(
               documentIriProvider: () => 'https://example.com/johndoe')));
       expect(deserialized, isNotNull);
@@ -171,29 +172,33 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
     solid:oidcIssuer <https://datapod.igrant.io>;
     solid:privateTypeIndex </settings/privateTypeIndex.ttl>;
     solid:publicTypeIndex </settings/publicTypeIndex.ttl>;
-    foaf:name "Klas Kalaaß".
+    foaf:name "Klas Kalass".
 ''';
 
       // Test deserialization from real turtle data
       final deserialized = mapper.decodeObject<Document<Person>>(realTurtleData,
-          register: (registry) {
-        registry.registerMapper(createPersonDocumentMapper());
-      });
+          contentType: 'text/turtle',
+          documentUrl: 'http://example.org/kk/profile/card',
+          register: (registry) =>
+              registry..registerMapper(createPersonDocumentMapper()));
 
       expect(deserialized, isNotNull);
-      expect(deserialized.documentIri, equals('./card'));
-      expect(deserialized.maker, equals(Uri.parse('#me')));
-      expect(deserialized.primaryTopic.name, equals('Klas Kalaaß'));
+      expect(deserialized.documentIri,
+          equals('http://example.org/kk/profile/card'));
+      expect(deserialized.maker,
+          equals(Uri.parse('http://example.org/kk/profile/card#me')));
+      expect(deserialized.primaryTopic.name, equals('Klas Kalass'));
       expect(deserialized.primaryTopic.oidcIssuer,
           equals(Uri.parse('https://datapod.igrant.io')));
-      expect(deserialized.primaryTopic.storage, equals(Uri.parse('/')));
-      expect(deserialized.primaryTopic.account, equals(Uri.parse('/')));
+      expect(deserialized.primaryTopic.storage,
+          equals(Uri.parse('http://example.org/')));
+      expect(deserialized.primaryTopic.account, equals('/'));
       expect(deserialized.primaryTopic.preferencesFile,
-          equals(Uri.parse('/settings/prefs.ttl')));
+          equals('/settings/prefs.ttl'));
       expect(deserialized.primaryTopic.privateTypeIndex,
-          equals(Uri.parse('/settings/privateTypeIndex.ttl')));
+          equals('/settings/privateTypeIndex.ttl'));
       expect(deserialized.primaryTopic.publicTypeIndex,
-          equals(Uri.parse('/settings/publicTypeIndex.ttl')));
+          equals('/settings/publicTypeIndex.ttl'));
     });
 
     test('Document<int> mapping with numeric primary topic', () {
@@ -207,18 +212,21 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       // Test serialization with explicit registration
       final graph = mapper.encodeObject(document,
-          register: (registry) => registry.registerMapper(DocumentMapper<int>(
-              primaryTopicSerializationProvider:
-                  SerializationProvider.nonContextual(IntMapper()))));
+          contentType: 'application/n-triples',
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<int>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(IntMapper()))));
       expect(graph, isNotNull);
       expect(graph, contains('42'));
       expect(graph, contains('http://example.org/numeric-doc'));
 
       // Test deserialization with explicit registration
       final deserialized = mapper.decodeObject<Document<int>>(graph,
-          register: (registry) => registry.registerMapper(DocumentMapper<int>(
-              primaryTopicSerializationProvider:
-                  SerializationProvider.nonContextual(IntMapper()))));
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<int>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(IntMapper()))));
       expect(deserialized, isNotNull);
       expect(deserialized.primaryTopic, equals(42));
       expect(deserialized.documentIri, equals(document.documentIri));
@@ -235,19 +243,20 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       // Test serialization with explicit registration
       final graph = mapper.encodeObject(document,
-          register: (registry) => registry.registerMapper(DocumentMapper<
-                  List<String>>(
-              primaryTopicSerializationProvider:
-                  SerializationProvider.nonContextual(StringListMapper()))));
+          contentType: 'application/n-triples',
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<List<String>>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(StringListMapper()))));
       expect(graph, isNotNull);
       expect(graph, contains('http://example.org/list-doc'));
 
       // Test deserialization with explicit registration
       final deserialized = mapper.decodeObject<Document<List<String>>>(graph,
-          register: (registry) => registry.registerMapper(DocumentMapper<
-                  List<String>>(
-              primaryTopicSerializationProvider:
-                  SerializationProvider.nonContextual(StringListMapper()))));
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<List<String>>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(StringListMapper()))));
       expect(deserialized, isNotNull);
       expect(deserialized.primaryTopic, equals(['topic1', 'topic2', 'topic3']));
       expect(deserialized.documentIri, equals(document.documentIri));
@@ -276,13 +285,12 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
       final person = Person(
         name: 'test',
-        preferencesFile: Uri.parse('test'),
-        storage: Uri.parse('test'),
-        account: Uri.parse('test'),
-        oidcIssuer: Uri.parse('test'),
-        privateTypeIndex: Uri.parse('test'),
-        publicTypeIndex: Uri.parse('test'),
-        other: RdfGraph(),
+        preferencesFile: 'test',
+        storage: Uri.parse('http://example.org/test'),
+        account: 'test',
+        oidcIssuer: Uri.parse('http://issuer.example.org'),
+        privateTypeIndex: 'test',
+        publicTypeIndex: 'test',
       );
 
       expect(() => mapper.encodeObject(person),
@@ -293,62 +301,61 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
       // Test that unmapped triples are properly handled
       final person = Person(
         name: 'Test Person',
-        preferencesFile: Uri.parse('/prefs.ttl'),
-        storage: Uri.parse('/'),
-        account: Uri.parse('/'),
+        preferencesFile: '/prefs.ttl',
+        storage: Uri.parse('http://example.org/'),
+        account: '/',
         oidcIssuer: Uri.parse('https://example.com'),
-        privateTypeIndex: Uri.parse('/private.ttl'),
-        publicTypeIndex: Uri.parse('/public.ttl'),
-        other: RdfGraph(),
+        privateTypeIndex: '/private.ttl',
+        publicTypeIndex: '/public.ttl',
       );
 
       final document = Document<Person>(
         documentIri: 'http://example.org/unmapped-test',
-        maker: Uri.parse('#maker'),
+        maker: Uri.parse('http://example.org/unmapped-test#maker'),
         primaryTopic: person,
         unmapped: RdfGraph(),
       );
 
       // Test serialization preserves unmapped triples structure
-      final graph = mapper.encodeObject(document, register: (registry) {
-        registry.registerMapper(createPersonDocumentMapper());
-      });
+      final graph = mapper.encodeObject(document,
+          contentType: 'application/n-triples',
+          register: (registry) =>
+              registry..registerMapper(createPersonDocumentMapper()));
       expect(graph, isNotNull);
 
       // Test deserialization handles unmapped triples
-      final deserialized =
-          mapper.decodeObject<Document<Person>>(graph, register: (registry) {
-        registry.registerMapper(createPersonDocumentMapper());
-      });
+      final deserialized = mapper.decodeObject<Document<Person>>(graph,
+          register: (registry) =>
+              registry..registerMapper(createPersonDocumentMapper()));
       expect(deserialized, isNotNull);
       expect(deserialized.unmapped, isA<RdfGraph>());
-      expect(deserialized.primaryTopic.other, isA<RdfGraph>());
     });
 
     test('RdfProvides annotation functionality', () {
       // Test that @RdfProvides on documentIri works correctly
       final document = Document<String>(
         documentIri: 'http://example.org/provides-test',
-        maker: Uri.parse('#maker'),
+        maker: Uri.parse('http://example.org/provides-test#maker'),
         primaryTopic: 'Provides Test Topic',
         unmapped: RdfGraph(),
       );
 
       // Test serialization
       final graph = mapper.encodeObject(document,
-          register: (registry) => registry.registerMapper(
-              DocumentMapper<String>(
-                  primaryTopicSerializationProvider:
-                      SerializationProvider.nonContextual(StringMapper()))));
+          contentType: 'application/n-triples',
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<String>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(StringMapper()))));
       expect(graph, isNotNull);
       expect(graph, contains('http://example.org/provides-test'));
 
       // Test deserialization ensures documentIri is provided correctly
       final deserialized = mapper.decodeObject<Document<String>>(graph,
-          register: (registry) => registry.registerMapper(
-              DocumentMapper<String>(
-                  primaryTopicSerializationProvider:
-                      SerializationProvider.nonContextual(StringMapper()))));
+          register: (registry) => registry
+            ..registerMapper(DocumentMapper<String>(
+                primaryTopic:
+                    SerializationProvider.nonContextual(StringMapper()))));
       expect(deserialized, isNotNull);
       expect(
           deserialized.documentIri, equals('http://example.org/provides-test'));
@@ -358,7 +365,7 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
 DocumentMapper<Person> createPersonDocumentMapper() {
   return DocumentMapper<Person>(
-    primaryTopicSerializationProvider: SerializationProvider.iriContextual(
+    primaryTopic: SerializationProvider.iriContextual(
         (IriTerm iri) => PersonMapper(documentIriProvider: () => iri.iri)),
   );
 }

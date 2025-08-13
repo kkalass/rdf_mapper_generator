@@ -1,5 +1,6 @@
 // import 'package:analyzer/dart/constant/value.dart';
 // import 'package:analyzer/dart/element/type.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/processors/models/base_mapping_info.dart';
@@ -175,26 +176,24 @@ class IriMappingInfo extends BaseMappingInfo {
 ///
 /// Used when a property needs access to its parent object during serialization
 /// and subject during deserialization for computing context-dependent values.
-class ContextualMappingInfo {
-  /// The name identifier for the contextual mapping parameter.
-  final String name;
-
-  ContextualMappingInfo({required this.name});
-
+class ContextualMappingInfo extends BaseMappingInfo<SerializationProvider> {
+  ContextualMappingInfo({required super.mapper});
   @override
-  int get hashCode => name.hashCode;
+  int get hashCode => Object.hashAll([
+        super.hashCode,
+      ]);
 
   @override
   bool operator ==(Object other) {
     if (other is! ContextualMappingInfo) {
       return false;
     }
-    return name == other.name;
+    return super == other;
   }
 
   @override
   String toString() {
-    return 'ContextualMappingInfo{name: $name}';
+    return 'ContextualMappingInfo{mapper: $mapper}';
   }
 }
 

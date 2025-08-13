@@ -372,11 +372,10 @@ packages:
   rdf_core:
     dependency: "direct main"
     description:
-      name: rdf_core
-      sha256: "106624bbc2137d190839fd2ab8fac708afcf3ddc8b5169e81d1f7a157f9e6be2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.13"
+      path: "../rdf_core"
+      relative: true
+    source: path
+    version: "0.9.14-dev"
   rdf_mapper:
     dependency: "direct main"
     description:

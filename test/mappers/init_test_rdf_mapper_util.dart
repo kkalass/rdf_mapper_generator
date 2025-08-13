@@ -436,6 +436,51 @@ class TestCustomCollectionMapper implements LiteralTermMapper<List<String>> {
   }
 }
 
+/// Test custom map mapper for `Map<String, int>`
+class TestCustomMapMapper implements LiteralTermMapper<Map<String, int>> {
+  const TestCustomMapMapper();
+
+  @override
+  IriTerm? get datatype => null;
+
+  @override
+  Map<String, int> fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    // Parse JSON-like format: {"key1":42,"key2":100}
+    final value = term.value.trim();
+    if (value.isEmpty || value == '{}') return <String, int>{};
+
+    try {
+      // Simple JSON-like parsing for Map<String, int>
+      final map = <String, int>{};
+      final content = value.substring(1, value.length - 1); // Remove { and }
+      if (content.isNotEmpty) {
+        final pairs = content.split(',');
+        for (final pair in pairs) {
+          final colonIndex = pair.indexOf(':');
+          if (colonIndex > 0) {
+            final key =
+                pair.substring(0, colonIndex).trim().replaceAll('"', '');
+            final valueStr = pair.substring(colonIndex + 1).trim();
+            final intValue = int.parse(valueStr);
+            map[key] = intValue;
+          }
+        }
+      }
+      return map;
+    } catch (e) {
+      throw FormatException('Invalid map format: $value');
+    }
+  }
+
+  @override
+  LiteralTerm toRdfTerm(Map<String, int> value, SerializationContext context) {
+    if (value.isEmpty) return LiteralTerm('{}');
+    final entries = value.entries.map((e) => '"${e.key}":${e.value}').join(',');
+    return LiteralTerm('{$entries}');
+  }
+}
+
 const baseUri = 'http://example.org';
 
 RdfMapper defaultInitTestRdfMapper(

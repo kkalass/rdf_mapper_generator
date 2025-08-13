@@ -235,10 +235,12 @@ class LocalResourceMappingResolvedModel {
 }
 
 class ContextualMappingResolvedModel {
-  final String name;
+  final bool hasMapper;
+  final ResolvedMapperModel? resolvedMapper;
 
   ContextualMappingResolvedModel({
-    required this.name,
+    required this.hasMapper,
+    required this.resolvedMapper,
   });
 }
 
@@ -285,6 +287,7 @@ class PropertyResolvedModel {
   final bool isRdfMapKey;
   final bool isRdfMapValue;
   final bool isRdfUnmappedTriples;
+  final bool globalUnmapped;
   final String? iriPartName;
   final String? constructorParameterName;
   final bool isNamedConstructorParameter;
@@ -316,6 +319,7 @@ class PropertyResolvedModel {
     required this.isRdfMapKey,
     required this.isRdfMapValue,
     required this.isRdfUnmappedTriples,
+    required this.globalUnmapped,
     required this.iriPartName,
     required this.constructorParameterName,
     required this.isNamedConstructorParameter,
@@ -399,8 +403,14 @@ class PropertyResolvedModel {
   }) {
     if (isRdfUnmappedTriples) {
       // Generate getUnmapped call for unmapped triples
-      return Code.combine(
-          [Code.literal('reader.getUnmapped<'), dartType, Code.literal('>()')]);
+      final globalParameter = globalUnmapped ? 'globalUnmapped: true' : '';
+      return Code.combine([
+        Code.literal('reader.getUnmapped<'),
+        dartType,
+        Code.literal('>('),
+        if (globalUnmapped) Code.literal(globalParameter),
+        Code.literal(')')
+      ]);
     }
 
     if (!isRdfProperty || predicate == null) {
@@ -1199,51 +1209,70 @@ List<Code> _extractCustomDeserializerParameters(
     PropertyResolvedModel? propertyInfo,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames,
     {String? name = 'deserializer'}) {
-  var (paramName, resolvedMapper, paramValue) = switch (propertyInfo) {
+  var (paramName, paramValue) = switch (propertyInfo) {
     PropertyResolvedModel(
       collectionMapping: var collectionMapping?,
     ) =>
-      (name, collectionMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperDeserializerCode(
+            _buildMapperFieldName(fieldName),
+            collectionMapping.resolvedMapper,
+            providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
-      (name, iriMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperDeserializerCode(_buildMapperFieldName(fieldName),
+            iriMapping.resolvedMapper, providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       literalMapping: var literalMapping?,
     ) =>
-      (name, literalMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperDeserializerCode(_buildMapperFieldName(fieldName),
+            literalMapping.resolvedMapper, providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       globalResourceMapping: var globalResourceMapping?,
     ) =>
-      (name, globalResourceMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperDeserializerCode(
+            _buildMapperFieldName(fieldName),
+            globalResourceMapping.resolvedMapper,
+            providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       localResourceMapping: var localResourceMapping?,
     ) =>
-      (name, localResourceMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperDeserializerCode(
+            _buildMapperFieldName(fieldName),
+            localResourceMapping.resolvedMapper,
+            providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       contextualMapping: var contextualMapping?,
     ) =>
       (
         name,
-        null,
-        Code.literal(
-            '_${contextualMapping.name}SerializationProvider.deserializer(subject, context)'),
+        Code.combine([
+          _buildMapperDeserializerCode(
+              '_${fieldName}SerializationProvider',
+              contextualMapping.resolvedMapper,
+              providesByConstructorParameterNames),
+          Code.literal('.deserializer(subject, context)')
+        ]),
       ),
-    _ => const (null, null, null)
+    _ => const (null, null)
   };
-  if (paramName == null) {
+  if (paramName == null || paramValue == null) {
     return const <Code>[];
-  }
-
-  if (paramValue == null) {
-    final mapperFieldName = _buildMapperFieldName(fieldName);
-    final (parameterNames, generatedMapperName) =
-        _extractGeneratedMapperInfos(resolvedMapper);
-
-    paramValue = generatedMapperName != null && parameterNames.isNotEmpty
-        ? _buildMapperDeserializerCode(generatedMapperName, mapperFieldName,
-            parameterNames, providesByConstructorParameterNames)
-        : Code.literal(mapperFieldName);
   }
 
   return [
@@ -1260,51 +1289,71 @@ List<Code> _extractCustomSerializerParameters(
     PropertyResolvedModel? propertyInfo,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames,
     {String? name = 'serializer'}) {
-  var (paramName, resolvedMapper, paramValue) = switch (propertyInfo) {
+  var (paramName, paramValue) = switch (propertyInfo) {
     PropertyResolvedModel(
       collectionMapping: var collectionMapping?,
     ) =>
-      (name, collectionMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperSerializerCode(
+            _buildMapperFieldName(fieldName),
+            collectionMapping.resolvedMapper,
+            providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       iriMapping: var iriMapping?,
     ) =>
-      (name, iriMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperSerializerCode(_buildMapperFieldName(fieldName),
+            iriMapping.resolvedMapper, providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       literalMapping: var literalMapping?,
     ) =>
-      (name, literalMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperSerializerCode(_buildMapperFieldName(fieldName),
+            literalMapping.resolvedMapper, providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       globalResourceMapping: var globalResourceMapping?,
     ) =>
-      (name, globalResourceMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperSerializerCode(
+            _buildMapperFieldName(fieldName),
+            globalResourceMapping.resolvedMapper,
+            providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       localResourceMapping: var localResourceMapping?,
     ) =>
-      (name, localResourceMapping.resolvedMapper, null),
+      (
+        name,
+        _buildMapperSerializerCode(
+            _buildMapperFieldName(fieldName),
+            localResourceMapping.resolvedMapper,
+            providesByConstructorParameterNames)
+      ),
     PropertyResolvedModel(
       contextualMapping: var contextualMapping?,
     ) =>
       (
         name,
-        null,
-        Code.literal(
-            '_${contextualMapping.name}SerializationProvider.serializer(resource, subject, context)')
+        Code.combine([
+          _buildMapperSerializerCode(
+              '_' + fieldName + 'SerializationProvider',
+              contextualMapping.resolvedMapper,
+              providesByConstructorParameterNames),
+          Code.literal('.serializer(resource, subject, context)')
+        ]),
       ),
-    _ => const (null, null, null)
+    _ => const (null, null)
   };
 
-  if (paramName == null) {
+  if (paramName == null || paramValue == null) {
     return const <Code>[];
-  }
-
-  if (paramValue == null) {
-    final mapperFieldName = _buildMapperFieldName(fieldName);
-    final (parameterNames, generatedMapperName) =
-        _extractGeneratedMapperInfos(resolvedMapper);
-    paramValue = generatedMapperName != null && parameterNames.isNotEmpty
-        ? _buildMapperSerializerCode(generatedMapperName, mapperFieldName,
-            parameterNames, providesByConstructorParameterNames)
-        : Code.literal(mapperFieldName);
   }
 
   return [
@@ -1331,10 +1380,15 @@ List<Code> _extractCustomSerializerParameters(
 }
 
 Code _buildMapperSerializerCode(
-    Code mapperName,
     String mapperFieldName,
-    List<String> mapperConstructorParameterNames,
+    ResolvedMapperModel? resolvedMapper,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
+  final (mapperConstructorParameterNames, mapperName) =
+      _extractGeneratedMapperInfos(resolvedMapper);
+  if (mapperName == null || mapperConstructorParameterNames.isEmpty) {
+    return Code.literal(mapperFieldName);
+  }
+
   if (mapperConstructorParameterNames.isEmpty) {
     // No context variables at all, the mapper will be initialized as a field.
     return Code.literal(mapperFieldName);
@@ -1637,10 +1691,15 @@ Code _generateSerializerCall(
     };
 
 Code _buildMapperDeserializerCode(
-    Code mapperClassName,
     String mapperFieldName,
-    Iterable<String> constructorParameterNames,
+    ResolvedMapperModel? resolvedMapper,
     Map<String, ProvidesResolvedModel> providesByConstructorParameterNames) {
+  final (constructorParameterNames, mapperClassName) =
+      _extractGeneratedMapperInfos(resolvedMapper);
+  if (mapperClassName == null || constructorParameterNames.isEmpty) {
+    return Code.literal(mapperFieldName);
+  }
+
   if (constructorParameterNames.isEmpty) {
     // No context variables at all, the mapper will be initialized as a field.
     return Code.literal(mapperFieldName);

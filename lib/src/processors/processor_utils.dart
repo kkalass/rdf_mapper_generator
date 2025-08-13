@@ -49,7 +49,6 @@ DartObject? getAnnotation(
     Iterable<ElemAnnotation> annotations, String annotationName) {
   try {
     // Get metadata from the class element
-    ;
     for (final elementAnnotation in annotations) {
       try {
         final annotation = elementAnnotation.computeConstantValue();
@@ -134,9 +133,13 @@ RdfUnmappedTriplesAnnotationInfo? extractUnmappedTriplesAnnotation(
     Iterable<ElemAnnotation> annotations) {
   final unmappedTriplesAnnotation =
       getAnnotation(annotations, 'RdfUnmappedTriples');
-  return unmappedTriplesAnnotation == null
-      ? null
-      : RdfUnmappedTriplesAnnotationInfo();
+  if (unmappedTriplesAnnotation == null) {
+    return null;
+  }
+
+  final globalUnmapped =
+      getFieldBoolValue(unmappedTriplesAnnotation, 'globalUnmapped') ?? false;
+  return RdfUnmappedTriplesAnnotationInfo(globalUnmapped: globalUnmapped);
 }
 
 bool isNull(DartObject? field) {
@@ -150,10 +153,12 @@ MapperRefInfo<M>? getMapperRefInfo<M>(DartObject annotation) {
   if (name == null && isNull(typeField) && isNull(instanceField)) {
     return null;
   }
+  var typeValue = typeField?.toTypeValue();
+  var type = typeValue == null ? null : typeToCode(typeValue);
+  var rawType = typeValue == null ? null : typeToCode(typeValue, raw: true);
+
   return MapperRefInfo(
-      name: name,
-      type: isNull(typeField) ? null : typeToCode(typeField!.toTypeValue()!),
-      instance: instanceField);
+      name: name, type: type, rawType: rawType, instance: instanceField);
 }
 
 bool isRegisterGlobally(DartObject annotation) {
@@ -181,6 +186,10 @@ DartObject? getField(DartObject obj, String fieldName) {
 String? getFieldStringValue(DartObject obj, String fieldName) {
   final retval = getField(obj, fieldName)?.toStringValue();
   return retval == null || retval.isEmpty ? null : retval;
+}
+
+bool? getFieldBoolValue(DartObject obj, String fieldName) {
+  return getField(obj, fieldName)?.toBoolValue();
 }
 
 E getEnumFieldValue<E extends Enum>(

@@ -45,8 +45,8 @@ class DartTypeV7 extends DartType {
   }
 
   @override
-  Code toCode({bool enforceNonNull = false}) {
-    return _typeToCode(dartType, enforceNonNull: enforceNonNull);
+  Code toCode({bool enforceNonNull = false, bool raw = false}) {
+    return _typeToCode(dartType, enforceNonNull: enforceNonNull, raw: raw);
   }
 }
 
@@ -298,7 +298,7 @@ class ClassElemV7 extends ElemV7 implements ClassElem {
   bool get hasTypeParameters => classElement.typeParameters2.isNotEmpty;
 
   @override
-  List<String> get typeParameterNames => 
+  List<String> get typeParameterNames =>
       classElement.typeParameters2.map((tp) => tp.name3!).toList();
 
   ClassElemV7(this.classElement) : super(classElement);
@@ -371,8 +371,12 @@ class ConstructorElemV7 extends ElemV7 implements ConstructorElem {
           .toList(growable: false);
 }
 
-Code _typeToCode(v7.DartType type, {bool enforceNonNull = false}) {
-  var typeName = type.getDisplayString();
+Code _typeToCode(v7.DartType type,
+    {bool enforceNonNull = false, bool raw = false}) {
+  var typeName = raw ? type?.name : null;
+
+  typeName ??= type.getDisplayString();
+
   if (enforceNonNull && typeName.endsWith('?')) {
     typeName = typeName.substring(0, typeName.length - 1);
   }
@@ -496,7 +500,9 @@ Code _toCode(v7.DartObject? value) {
         final importUri = _getImportUriForType(typeElement);
 
         return Code.combine([
-          Code.constructor('const $constructorName(', importUri: importUri),
+          Code.literal('const '),
+          Code.type(constructorName, importUri: importUri),
+          Code.literal('('),
           argsCode,
           Code.value(')')
         ]);

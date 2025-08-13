@@ -1,3 +1,4 @@
+import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:test/test.dart';
 
@@ -5,7 +6,9 @@ import '../test_helper.dart';
 
 void main() {
   group('Generic Type Validation Tests', () {
-    test('throws ValidationException for generic class with registerGlobally=true', () async {
+    test(
+        'throws ValidationException for generic class with registerGlobally=true',
+        () async {
       const sourceCode = '''
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies_core/foaf.dart';
@@ -44,7 +47,9 @@ class InvalidGenericDocument<T> {
       );
     });
 
-    test('throws ValidationException for generic local resource with registerGlobally=true', () async {
+    test(
+        'throws ValidationException for generic local resource with registerGlobally=true',
+        () async {
       const sourceCode = '''
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies_core/foaf.dart';
@@ -79,7 +84,8 @@ class InvalidGenericLocalResource<T> {
       );
     });
 
-    test('succeeds for valid generic class with registerGlobally=false', () async {
+    test('succeeds for valid generic class with registerGlobally=false',
+        () async {
       const sourceCode = '''
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies_core/foaf.dart';
@@ -105,16 +111,19 @@ class ValidGenericDocument<T> {
 
       // This should NOT throw an exception
       final templateData = await buildTemplateDataFromString(sourceCode);
-      
+
       // Verify that the template data was generated successfully
       expect(templateData, isNotNull);
-      expect(templateData.mappers, hasLength(1));
-      
+      expect(templateData!.mappers, hasLength(1));
+
       final mapper = templateData.mappers.first;
-      expect(mapper.mapperData.toMap(), contains('ValidGenericDocument<T>'));
+      var map = mapper.mapperData.toMap();
+      expect(Code.fromMap(map['className']).codeWithoutAlias,
+          equals('ValidGenericDocument<T>'));
     });
 
-    test('succeeds for valid non-generic class with registerGlobally=true', () async {
+    test('succeeds for valid non-generic class with registerGlobally=true',
+        () async {
       const sourceCode = '''
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies_schema/schema.dart';
@@ -140,13 +149,15 @@ class ValidNonGenericPerson {
 
       // This should NOT throw an exception
       final templateData = await buildTemplateDataFromString(sourceCode);
-      
+
       // Verify that the template data was generated successfully
       expect(templateData, isNotNull);
-      expect(templateData.mappers, hasLength(1));
-      
+      expect(templateData!.mappers, hasLength(1));
+
       final mapper = templateData.mappers.first;
-      expect(mapper.mapperData.toMap(), contains('ValidNonGenericPerson'));
+      var map = mapper.mapperData.toMap();
+      expect(Code.fromMap(map['className']).codeWithoutAlias,
+          equals('ValidNonGenericPerson'));
     });
 
     test('succeeds for multiple valid generic classes', () async {
@@ -202,15 +213,21 @@ class MultipleGeneric<T, U, V> {
 
       // This should NOT throw an exception
       final templateData = await buildTemplateDataFromString(sourceCode);
-      
+
       // Verify that both mappers were generated successfully
       expect(templateData, isNotNull);
-      expect(templateData.mappers, hasLength(2));
-      
+      expect(templateData!.mappers, hasLength(2));
+
       // Check that both mappers contain the expected generic types in their data
-      final mapperDataStrings = templateData.mappers.map((m) => m.mapperData.toMap().toString()).toList();
-      expect(mapperDataStrings.any((data) => data.contains('SingleGeneric<T>')), isTrue);
-      expect(mapperDataStrings.any((data) => data.contains('MultipleGeneric<T, U, V>')), isTrue);
+      final mapperDataStrings = templateData.mappers
+          .map((m) => m.mapperData.toMap().toString())
+          .toList();
+      expect(mapperDataStrings.any((data) => data.contains('SingleGeneric<T>')),
+          isTrue);
+      expect(
+          mapperDataStrings
+              .any((data) => data.contains('MultipleGeneric<T, U, V>')),
+          isTrue);
     });
   });
 }

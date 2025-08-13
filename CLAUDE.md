@@ -357,7 +357,7 @@ Code createGenericType(Code baseType, List<Code> typeArgs) {
 
 #### Best Practices
 
-1. **Use appropriate factory methods** - `Code.type()` for types, `Code.constructor()` for constructors, etc.
+1. **Use appropriate factory methods** - `Code.type()` for types, etc.
 2. **Leverage specialized builders** - Use `Code.paramsList()` and `Code.genericParamsList()` instead of manual bracket handling
 3. **Let the template system handle string conversion** - Don't call `toString()` or `.code` manually in data processing
 4. **Access raw names with `codeWithoutAlias`** - When you need the pure type name without import prefixes
@@ -380,16 +380,6 @@ final methodCall = Code.combine([
   Code.paramsList([Code.literal('arg1'), Code.literal('arg2')])
 ]);
 ```
-
-**Constructor Handling**:
-```dart
-// Automatically handles const constructors and import aliasing
-final constructor = Code.constructor(
-  'const MyClass.named(value: 42)',
-  importUri: 'package:example/my_class.dart'
-);
-```
-Note that this feature is actually nearly never used - we prefer to use the other possibilities.
 
 **Conditional Code Generation**:
 ```dart

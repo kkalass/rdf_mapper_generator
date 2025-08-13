@@ -207,8 +207,14 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
   bool get isGlobalResource => annotation is RdfGlobalResourceInfo;
 
   @override
-  int get hashCode => Object.hashAll(
-      [className, annotation, constructors, properties, rdfMapValue, typeParameters]);
+  int get hashCode => Object.hashAll([
+        className,
+        annotation,
+        constructors,
+        properties,
+        rdfMapValue,
+        typeParameters
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -895,16 +901,27 @@ final class RdfMapEntryAnnotationInfo extends AnnotationInfo {
 }
 
 final class RdfUnmappedTriplesAnnotationInfo extends AnnotationInfo {
-  static const RdfUnmappedTriplesAnnotationInfo instance =
-      RdfUnmappedTriplesAnnotationInfo._();
+  final bool globalUnmapped;
 
-  const RdfUnmappedTriplesAnnotationInfo._();
+  const RdfUnmappedTriplesAnnotationInfo({this.globalUnmapped = false});
 
-  factory RdfUnmappedTriplesAnnotationInfo() => instance;
+  factory RdfUnmappedTriplesAnnotationInfo.instance() =>
+      const RdfUnmappedTriplesAnnotationInfo();
 
   @override
   String toString() {
-    return 'RdfUnmappedTriplesAnnotationInfo';
+    return 'RdfUnmappedTriplesAnnotationInfo(globalUnmapped: $globalUnmapped)';
+  }
+
+  @override
+  int get hashCode => globalUnmapped.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! RdfUnmappedTriplesAnnotationInfo) {
+      return false;
+    }
+    return globalUnmapped == other.globalUnmapped;
   }
 }
 

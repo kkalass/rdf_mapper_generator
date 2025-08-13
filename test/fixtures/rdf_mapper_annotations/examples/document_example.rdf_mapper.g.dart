@@ -22,17 +22,15 @@ import 'package:rdf_vocabularies_core/solid.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type `Document<T>`.
 class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
-  final SerializationProvider<Document<T>, T>
-  _primaryTopicSerializationProvider;
+  final SerializationProvider<Document, T> _primaryTopicSerializationProvider;
 
   /// Constructor
   const DocumentMapper({
-    required SerializationProvider<Document<T>, T>
-    primaryTopicSerializationProvider,
-  }) : _primaryTopicSerializationProvider = primaryTopicSerializationProvider;
+    required SerializationProvider<Document, T> primaryTopic,
+  }) : _primaryTopicSerializationProvider = primaryTopic;
 
   @override
-  IriTerm? get typeIri => FoafDocument.classIri;
+  IriTerm? get typeIri => FoafPersonalProfileDocument.classIri;
 
   @override
   Document<T> fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -40,16 +38,18 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
 
     final documentIri = subject.iri;
     final T primaryTopic = reader.require(
-      FoafDocument.primaryTopic,
+      FoafPersonalProfileDocument.primaryTopic,
       deserializer: _primaryTopicSerializationProvider.deserializer(
         subject,
         context,
       ),
     );
-    final Uri maker = reader.require(FoafDocument.maker);
+    final Uri maker = reader.require(FoafPersonalProfileDocument.maker);
 
     // Get unmapped triples as the last reader operation for lossless mapping
-    final RdfGraph unmapped = reader.getUnmapped<RdfGraph>();
+    final RdfGraph unmapped = reader.getUnmapped<RdfGraph>(
+      globalUnmapped: true,
+    );
 
     return Document<T>(
       documentIri: documentIri,
@@ -70,7 +70,7 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
     return context
         .resourceBuilder(subject)
         .addValue(
-          FoafDocument.primaryTopic,
+          FoafPersonalProfileDocument.primaryTopic,
           resource.primaryTopic,
           serializer: _primaryTopicSerializationProvider.serializer(
             resource,
@@ -78,7 +78,7 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
             context,
           ),
         )
-        .addValue(FoafDocument.maker, resource.maker)
+        .addValue(FoafPersonalProfileDocument.maker, resource.maker)
         .addUnmapped(resource.unmapped)
         .build();
   }
@@ -89,11 +89,35 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type `Person`.
 class PersonMapper implements GlobalResourceMapper<Person> {
+  final SerializationProvider<Person, String> _accountSerializationProvider;
   final String Function() _documentIriProvider;
+  final SerializationProvider<Person, String>
+  _preferencesFileSerializationProvider;
+  final SerializationProvider<Person, String>
+  _privateTypeIndexSerializationProvider;
+  final SerializationProvider<Person, String>
+  _publicTypeIndexSerializationProvider;
 
   /// Constructor
-  const PersonMapper({required String Function() documentIriProvider})
-    : _documentIriProvider = documentIriProvider;
+  const PersonMapper({
+    SerializationProvider<Person, String> accountSerializationProvider =
+        const IriRelativeSerializationProvider(),
+    required String Function() documentIriProvider,
+    SerializationProvider<Person, String> preferencesFileSerializationProvider =
+        const IriRelativeSerializationProvider(),
+    SerializationProvider<Person, String>
+        privateTypeIndexSerializationProvider =
+        const IriRelativeSerializationProvider(),
+    SerializationProvider<Person, String> publicTypeIndexSerializationProvider =
+        const IriRelativeSerializationProvider(),
+  }) : _accountSerializationProvider = accountSerializationProvider,
+       _documentIriProvider = documentIriProvider,
+       _preferencesFileSerializationProvider =
+           preferencesFileSerializationProvider,
+       _privateTypeIndexSerializationProvider =
+           privateTypeIndexSerializationProvider,
+       _publicTypeIndexSerializationProvider =
+           publicTypeIndexSerializationProvider;
 
   @override
   IriTerm? get typeIri => FoafPerson.classIri;
@@ -103,15 +127,36 @@ class PersonMapper implements GlobalResourceMapper<Person> {
     final reader = context.reader(subject);
 
     final String name = reader.require(FoafPerson.name);
-    final Uri preferencesFile = reader.require(FoafPerson.pimPreferencesFile);
+    final String preferencesFile = reader.require(
+      FoafPerson.pimPreferencesFile,
+      deserializer: _preferencesFileSerializationProvider.deserializer(
+        subject,
+        context,
+      ),
+    );
     final Uri storage = reader.require(Pim.storage);
-    final Uri account = reader.require(Solid.account);
+    final String account = reader.require(
+      Solid.account,
+      deserializer: _accountSerializationProvider.deserializer(
+        subject,
+        context,
+      ),
+    );
     final Uri oidcIssuer = reader.require(Solid.oidcIssuer);
-    final Uri privateTypeIndex = reader.require(Solid.privateTypeIndex);
-    final Uri publicTypeIndex = reader.require(Solid.publicTypeIndex);
-
-    // Get unmapped triples as the last reader operation for lossless mapping
-    final RdfGraph other = reader.getUnmapped<RdfGraph>();
+    final String privateTypeIndex = reader.require(
+      Solid.privateTypeIndex,
+      deserializer: _privateTypeIndexSerializationProvider.deserializer(
+        subject,
+        context,
+      ),
+    );
+    final String publicTypeIndex = reader.require(
+      Solid.publicTypeIndex,
+      deserializer: _publicTypeIndexSerializationProvider.deserializer(
+        subject,
+        context,
+      ),
+    );
 
     return Person(
       name: name,
@@ -121,7 +166,6 @@ class PersonMapper implements GlobalResourceMapper<Person> {
       oidcIssuer: oidcIssuer,
       privateTypeIndex: privateTypeIndex,
       publicTypeIndex: publicTypeIndex,
-      other: other,
     );
   }
 
@@ -136,13 +180,44 @@ class PersonMapper implements GlobalResourceMapper<Person> {
     return context
         .resourceBuilder(subject)
         .addValue(FoafPerson.name, resource.name)
-        .addValue(FoafPerson.pimPreferencesFile, resource.preferencesFile)
+        .addValue(
+          FoafPerson.pimPreferencesFile,
+          resource.preferencesFile,
+          serializer: _preferencesFileSerializationProvider.serializer(
+            resource,
+            subject,
+            context,
+          ),
+        )
         .addValue(Pim.storage, resource.storage)
-        .addValue(Solid.account, resource.account)
+        .addValue(
+          Solid.account,
+          resource.account,
+          serializer: _accountSerializationProvider.serializer(
+            resource,
+            subject,
+            context,
+          ),
+        )
         .addValue(Solid.oidcIssuer, resource.oidcIssuer)
-        .addValue(Solid.privateTypeIndex, resource.privateTypeIndex)
-        .addValue(Solid.publicTypeIndex, resource.publicTypeIndex)
-        .addUnmapped(resource.other)
+        .addValue(
+          Solid.privateTypeIndex,
+          resource.privateTypeIndex,
+          serializer: _privateTypeIndexSerializationProvider.serializer(
+            resource,
+            subject,
+            context,
+          ),
+        )
+        .addValue(
+          Solid.publicTypeIndex,
+          resource.publicTypeIndex,
+          serializer: _publicTypeIndexSerializationProvider.serializer(
+            resource,
+            subject,
+            context,
+          ),
+        )
         .build();
   }
 

@@ -9,43 +9,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Contextual Property Mapping**: Support for context-dependent property serialization/deserialization
-  - Properties can now access parent object and subject during RDF operations via `ContextualMapping.named("name")`
-  - Generated mappers accept `SerializationProvider<Parent, T>` parameters for contextual property handling
-  - Enables complex scenarios like dependent object IRIs and cross-property validation
-  - Mutual exclusivity validation ensures contextual mapping cannot be combined with other mapping strategies
-
-- **Generic Type Parameter Support**: Full support for generating type-safe mappers from generic classes
-  - Classes with type parameters (e.g., `Document<T>`) now generate corresponding generic mappers (e.g., `DocumentMapper<T>`)  
-  - Generated mappers properly implement generic interfaces like `GlobalResourceMapper<Document<T>>`
-  - Support for single and multiple type parameters (e.g., `MultiGenericDocument<T, U, V>`)
-  - Preserved original type parameter syntax in generated code (e.g., `final T primaryTopic`)
-- **Generic Type Validation**: Comprehensive validation for generic class usage
-  - Generic classes must have `registerGlobally: false` since they cannot be registered without concrete types
-  - Clear error messages when validation fails: "Generic classes cannot be registered globally because they require concrete type parameters"
-  - Validation applies to both `@RdfGlobalResource` and `@RdfLocalResource` annotations
-- **Enhanced Analyzer Wrapper**: Extended analyzer API abstraction for generic type detection
-  - Added `hasTypeParameters` and `typeParameterNames` properties to `ClassElem` interface
-  - Compatible with both analyzer v6 and v7.4 through version-specific implementations
-  - Proper handling of type parameter extraction across different analyzer versions
-
 ### Changed
-
-- **Code Generation Pipeline**: Enhanced template data generation to preserve generic type information
-  - Modified `ResourceProcessor` to extract and validate generic type parameters
-  - Updated `ResolvedMapperModel` to append type parameters using `Code.genericParamsList()` method
-  - Enhanced mustache templates to generate correct generic mapper syntax
-- **Test Infrastructure**: Improved testing capabilities for validation logic
-  - Added `buildTemplateDataFromString()` helper method for string-based testing
-  - Created comprehensive test suites covering processor validation, integration tests, and template generation
-  - Consolidated duplicate test fixture files for better maintainability
 
 ### Fixed
 
-- **Build System Compatibility**: Resolved build failures caused by invalid generic test classes
-  - Removed invalid test classes with conflicting `registerGlobally: true` settings
-  - Implemented string-based validation testing to avoid build-time errors
-  - Ensured clean project builds with proper validation error reporting
+## [0.10.1] - 2025-08-13
+
+### Added
+
+- **Contextual Property Mapping Improvements**: Enhanced support for context-dependent property serialization/deserialization
+  - Refactored `ContextualMapping` to use proper `SerializationProvider` dependencies instead of named providers
+  - Improved dependency injection for contextual mappers in generated code
+  - Added support for `@RdfUnmappedTriples(globalUnmapped: true)` to capture all unmapped triples globally
+
+- **Raw Type Support**: Added `raw` parameter to type code generation for better mapper instantiation
+  - New `raw` parameter in `DartType.toCode()` method allows getting raw class names without generic parameters
+  - Enables proper mapper constructor calls with raw class types while preserving generic type information
+  - Implemented across all analyzer wrapper versions (v6 and v7.4)
+
+### Changed
+
+- **Code Generation Improvements**: Enhanced template system and dependency management
+  - Removed deprecated `Code.constructor()` factory method in favor of more flexible `Code.type()` and `Code.literal()` combination
+  - Improved mapper dependency resolution with better parameter naming (configurable suffix support)
+  - Enhanced contextual mapping code generation with proper `SerializationProvider` integration
+  - Simplified constructor code generation using `Code.paramsList()` for better readability
+
+- **Mapper Reference Handling**: Improved mapper reference tracking and instantiation
+  - Enhanced `MapperRefInfo` to track both full type and raw type separately
+  - Better handling of generic type parameters in mapper references
+  - Improved mapper dependency default value generation
+
+- **Test Infrastructure Updates**: Enhanced testing capabilities and examples
+  - Updated document example to demonstrate contextual mapping with `IriRelativeSerializationProvider`
+  - Improved test fixtures with better generic type handling
+  - Enhanced validation test infrastructure with proper project setup
+
+### Fixed
+
+- **Constructor Code Generation**: Fixed issues with const constructor and parameter handling
+  - Corrected const constructor generation to use proper `Code.literal()` and `Code.type()` combination
+  - Fixed parameter list generation for cleaner, more readable generated code
+  - Resolved issues with import alias handling in constructor calls
+
+- **Dependency Management**: Improved dependency resolution and parameter handling
+  - Fixed contextual mapping dependency generation with proper `SerializationProvider` types
+  - Corrected mapper dependency suffix handling for better naming consistency
+  - Improved error handling for unresolved mapper dependencies
 
 ## [0.10.0] - 2025-07-25
 

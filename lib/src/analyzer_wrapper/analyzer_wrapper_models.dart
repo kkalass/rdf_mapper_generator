@@ -7,7 +7,7 @@ abstract class LibraryImport {
 }
 
 abstract class DartType {
-  Code toCode({bool enforceNonNull = false});
+  Code toCode({bool enforceNonNull = false, bool raw = false});
   bool get isInterfaceType;
   bool get isNotInterfaceType => !isInterfaceType;
   bool get isNullable;

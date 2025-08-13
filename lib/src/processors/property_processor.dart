@@ -309,7 +309,6 @@ class PropertyProcessor {
     if (isNull(globalResource)) {
       return null;
     }
-    // Check if it's an IriMapping
     final mapper = getMapperRefInfo<IriTermMapper>(globalResource!);
     return GlobalResourceMappingInfo(mapper: mapper);
   }
@@ -321,11 +320,8 @@ class PropertyProcessor {
     if (isNull(contextual)) {
       return null;
     }
-    final name = getField(contextual!, 'name')?.toStringValue();
-    if (name == null || name.isEmpty) {
-      throw Exception('ContextualMapping must have a non-empty name');
-    }
-    return ContextualMappingInfo(name: name);
+    final mapper = getMapperRefInfo<SerializationProvider>(contextual!);
+    return ContextualMappingInfo(mapper: mapper);
   }
 
   static LiteralMappingInfo? _extractLiteralMapping(DartObject annotation) {

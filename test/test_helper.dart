@@ -20,6 +20,99 @@ final AnalyzerWrapperService _analyzerWrapperService =
         .create(); // Use the appropriate version for your tests
 StreamSubscription<LogRecord>? _currentSubscription;
 
+/// Class to manage a temporary project directory with proper dependency resolution
+class TempProject {
+  final Directory directory;
+  final Directory libDirectory;
+  
+  TempProject._(this.directory, this.libDirectory);
+  
+  /// Creates a temporary project with proper pubspec.yaml, build.yaml, and dependency resolution
+  static Future<TempProject> create() async {
+    final tempDir = Directory.systemTemp.createTempSync('rdf_mapper_string_test_');
+    
+    // Create pubspec.yaml with proper dependencies
+    final pubspecFile = File(p.join(tempDir.path, 'pubspec.yaml'));
+    await pubspecFile.writeAsString('''
+name: test_validation
+version: 1.0.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  rdf_mapper_annotations: 
+    path: ${Directory.current.path}/../rdf_mapper_annotations
+  rdf_vocabularies_core: any
+  build: any
+
+dev_dependencies:
+  rdf_mapper_generator:
+    path: ${Directory.current.path}
+  build_runner: any
+
+dependency_overrides: 
+  rdf_mapper:
+    path: ${Directory.current.path}/../rdf_mapper
+  rdf_mapper_annotations:
+    path: ${Directory.current.path}/../rdf_mapper_annotations
+''');
+
+    // Create build.yaml
+    final buildFile = File(p.join(tempDir.path, 'build.yaml'));
+    await buildFile.writeAsString('''
+targets:
+  \$default:
+    builders:
+      rdf_mapper_generator:cache_builder:
+        enabled: true
+      rdf_mapper_generator:source_builder:
+        enabled: true
+      rdf_mapper_generator:init_file_builder:
+        enabled: true
+''');
+
+    // Create lib directory
+    final libDir = Directory(p.join(tempDir.path, 'lib'));
+    await libDir.create(recursive: true);
+
+    // Run pub get to install dependencies
+    final pubGetResult = await Process.run(
+      'dart',
+      ['pub', 'get'],
+      workingDirectory: tempDir.path,
+    );
+
+    if (pubGetResult.exitCode != 0) {
+      // Clean up on failure
+      try {
+        await tempDir.delete(recursive: true);
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+      throw Exception('pub get failed: ${pubGetResult.stderr}');
+    }
+
+    return TempProject._(tempDir, libDir);
+  }
+  
+  /// Writes source code to a file in the lib directory
+  Future<File> writeLibFile(String fileName, String sourceCode) async {
+    final file = File(p.join(libDirectory.path, fileName));
+    await file.writeAsString(sourceCode);
+    return file;
+  }
+  
+  /// Cleans up the temporary directory
+  Future<void> cleanup() async {
+    try {
+      await directory.delete(recursive: true);
+    } catch (e) {
+      // Ignore cleanup errors in tests
+    }
+  }
+}
+
 void setupTestLogging({Level level = Level.WARNING}) {
   // Set up logging to show warnings and above
   Logger.root.level = level;
@@ -61,50 +154,43 @@ Future<(LibraryElem library, String path)> analyzeTestFile(
 }
 
 /// Analyzes source code from a string and returns LibraryElem for testing validation logic
-/// without requiring physical files.
-Future<LibraryElem> analyzeStringCode(String sourceCode, {String fileName = 'test.dart'}) async {
-  // Create a temporary directory for the string-based analysis
-  final tempDir = Directory.systemTemp.createTempSync('rdf_mapper_string_test_');
-  
+/// without requiring physical files. Uses proper project setup with dependency resolution.
+Future<LibraryElem> analyzeStringCode(String sourceCode,
+    {String fileName = 'test.dart'}) async {
+  final tempProject = await TempProject.create();
+
   try {
-    // Write the source code to a temporary file
-    final tempFile = File(p.join(tempDir.path, fileName));
-    await tempFile.writeAsString(sourceCode);
-    
-    // Use the existing loadLibrary method to analyze the temporary file
-    final libraryElem = await _analyzerWrapperService.loadLibrary(tempDir.path, tempFile.path);
-    
+    // Write the source code to the lib directory
+    final sourceFile = await tempProject.writeLibFile(fileName, sourceCode);
+
+    // Use the existing loadLibrary method to analyze the file in the proper project context
+    final libraryElem = await _analyzerWrapperService.loadLibrary(
+        tempProject.directory.path, sourceFile.path);
+
     return libraryElem;
   } finally {
-    // Clean up the temporary directory
-    try {
-      tempDir.deleteSync(recursive: true);
-    } catch (e) {
-      // Ignore cleanup errors in tests
-    }
+    // Clean up the temporary project
+    await tempProject.cleanup();
   }
 }
 
 /// Builds template data from source code string, useful for testing validation logic
 /// and template generation without requiring physical files.
-/// 
+///
 /// This method will throw ValidationException if there are validation errors,
 /// which is exactly what we want to test in validation tests.
-Future<FileTemplateData> buildTemplateDataFromString(
-    String sourceCode, {
-    String fileName = 'test.dart',
-    String packageName = 'test'}) async {
-  
+Future<FileTemplateData?> buildTemplateDataFromString(String sourceCode,
+    {String fileName = 'test.dart', String packageName = 'test'}) async {
   // Analyze the source code to get LibraryElem
   final library = await analyzeStringCode(sourceCode, fileName: fileName);
-  
+
   // Extract classes and enums from the library
   final classes = library.classes;
   final enums = library.enums;
-  
+
   // Create broader imports from the library
   final broaderImports = BroaderImports.create(library);
-  
+
   // Use BuilderHelper to build template data
   // This will throw ValidationException if there are validation errors
   final builderHelper = BuilderHelper();
@@ -115,11 +201,6 @@ Future<FileTemplateData> buildTemplateDataFromString(
     enums,
     broaderImports,
   );
-  
-  if (templateData == null) {
-    throw Exception('Template data was null but no validation exception was thrown');
-  }
-  
   return templateData;
 }
 

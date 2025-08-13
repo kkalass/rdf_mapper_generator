@@ -52,8 +52,9 @@ Code toCode(DartObject? dartObject) {
   return dartObject?.toCode() ?? Code.value('null');
 }
 
-Code typeToCode(DartType type, {bool enforceNonNull = false}) {
-  return type.toCode(enforceNonNull: enforceNonNull);
+Code typeToCode(DartType type,
+    {bool enforceNonNull = false, bool raw = false}) {
+  return type.toCode(enforceNonNull: enforceNonNull, raw: raw);
 }
 
 Code classToCode(ClassElem classElem) {

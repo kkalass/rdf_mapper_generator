@@ -58,7 +58,7 @@ class IriModelBuilderSupport {
     return mapper.name != null
         ? MapperRef.fromInstanceName(mapper.name!)
         : mapper.type != null
-            ? MapperRef.fromImplementationClass(mapper.type!)
+            ? MapperRef.fromImplementationClass(mapper.type!, mapper.rawType)
             : MapperRef.fromInstantiationCode(toCode(mapper.instance));
   }
 

@@ -99,7 +99,7 @@ class MapperModelBuilder {
       return [];
     }
     final id = mapper.type != null
-        ? MapperRef.fromImplementationClass(mapper.type!)
+        ? MapperRef.fromImplementationClass(mapper.type!, mapper.rawType)
         : (mapper.instance != null
             ? MapperRef.fromInstantiationCode(toCode(mapper.instance!))
             : MapperRef.fromInstanceName(mapper.name!));

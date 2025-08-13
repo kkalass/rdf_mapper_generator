@@ -1,47 +1,25 @@
 import 'package:rdf_core/rdf_core.dart';
+import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies_core/foaf.dart';
 import 'package:rdf_vocabularies_core/solid.dart';
 import 'package:rdf_vocabularies_core/pim.dart';
 
-final turtleDocument = '''
-@prefix : <#>.
-@prefix foaf: <http://xmlns.com/foaf/0.1/>.
-@prefix schema: <http://schema.org/>.
-@prefix solid: <http://www.w3.org/ns/solid/terms#>.
-@prefix space: <http://www.w3.org/ns/pim/space#>.
-@prefix pro: <./>.
-@prefix kk: </>.
-
-pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
-
-:me
-    a schema:Person, foaf:Person;
-    space:preferencesFile </settings/prefs.ttl>;
-    space:storage kk:;
-    solid:account kk:;
-    solid:oidcIssuer <https://datapod.igrant.io>;
-    solid:privateTypeIndex </settings/privateTypeIndex.ttl>;
-    solid:publicTypeIndex </settings/publicTypeIndex.ttl>;
-    foaf:name "Klas Kala\u00df".
-''';
-
-@RdfGlobalResource(FoafDocument.classIri, IriStrategy(),
+@RdfGlobalResource(FoafPersonalProfileDocument.classIri, IriStrategy(),
     registerGlobally: false)
 class Document<T> {
   @RdfIriPart()
   @RdfProvides()
   final String documentIri;
 
-  @RdfProperty(FoafDocument.primaryTopic,
-      contextual: ContextualMapping.named("primaryTopic"))
+  @RdfProperty(FoafPersonalProfileDocument.primaryTopic,
+      contextual: ContextualMapping.namedProvider("primaryTopic"))
   final T primaryTopic;
 
-  @RdfProperty(FoafDocument.maker)
+  @RdfProperty(FoafPersonalProfileDocument.maker)
   final Uri maker;
 
-// FIXME: this should have some flag like 'global' to grab all unmapped triples
-  @RdfUnmappedTriples()
+  @RdfUnmappedTriples(globalUnmapped: true)
   final RdfGraph unmapped;
 
   Document(
@@ -51,32 +29,32 @@ class Document<T> {
       required this.unmapped});
 }
 
+const iriRelative =
+    ContextualMapping.provider(IriRelativeSerializationProvider);
+
 @RdfGlobalResource(FoafPerson.classIri, IriStrategy("{+documentIri}#me"),
     registerGlobally: false)
 class Person {
   @RdfProperty(FoafPerson.name)
   String name;
 
-  @RdfProperty(FoafPerson.pimPreferencesFile)
-  Uri preferencesFile;
+  @RdfProperty(FoafPerson.pimPreferencesFile, contextual: iriRelative)
+  String preferencesFile;
 
   @RdfProperty(Pim.storage)
   Uri storage;
 
-  @RdfProperty(Solid.account)
-  Uri account;
+  @RdfProperty(Solid.account, contextual: iriRelative)
+  String account;
 
   @RdfProperty(Solid.oidcIssuer)
   Uri oidcIssuer;
 
-  @RdfProperty(Solid.privateTypeIndex)
-  Uri privateTypeIndex;
+  @RdfProperty(Solid.privateTypeIndex, contextual: iriRelative)
+  String privateTypeIndex;
 
-  @RdfProperty(Solid.publicTypeIndex)
-  Uri publicTypeIndex;
-
-  @RdfUnmappedTriples()
-  RdfGraph other;
+  @RdfProperty(Solid.publicTypeIndex, contextual: iriRelative)
+  String publicTypeIndex;
 
   Person(
       {required this.name,
@@ -85,6 +63,5 @@ class Person {
       required this.account,
       required this.oidcIssuer,
       required this.privateTypeIndex,
-      required this.publicTypeIndex,
-      required this.other});
+      required this.publicTypeIndex});
 }

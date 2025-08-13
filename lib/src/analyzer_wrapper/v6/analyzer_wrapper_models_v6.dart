@@ -53,8 +53,8 @@ class DartTypeV6 extends DartType {
   }
 
   @override
-  Code toCode({bool enforceNonNull = false}) {
-    return _typeToCode(dartType, enforceNonNull: enforceNonNull);
+  Code toCode({bool enforceNonNull = false, bool raw = false}) {
+    return _typeToCode(dartType, enforceNonNull: enforceNonNull, raw: raw);
   }
 }
 
@@ -298,7 +298,7 @@ class ClassElemV6 extends ElemV6 implements ClassElem {
   bool get hasTypeParameters => classElement.typeParameters.isNotEmpty;
 
   @override
-  List<String> get typeParameterNames => 
+  List<String> get typeParameterNames =>
       classElement.typeParameters.map((tp) => tp.name).toList();
 
   ClassElemV6(this.classElement) : super(classElement);
@@ -372,8 +372,12 @@ class ConstructorElemV6 extends ElemV6 implements ConstructorElem {
           .toList(growable: false);
 }
 
-Code _typeToCode(v6.DartType type, {bool enforceNonNull = false}) {
-  var typeName = type.getDisplayString(withNullability: false);
+Code _typeToCode(v6.DartType type,
+    {bool enforceNonNull = false, bool raw = false}) {
+  var typeName = raw ? type.name : null;
+
+  typeName ??= type.getDisplayString(withNullability: false);
+
   final isNullable =
       type.element?.library?.typeSystem.isNullable(type) ?? false;
   if (!enforceNonNull && isNullable) {
@@ -495,13 +499,12 @@ Code _toCode(v6.DartObject? value) {
         allArgCodes.addAll(positionalArgCodes);
         allArgCodes.addAll(namedArgCodes);
 
-        final argsCode = Code.combine(allArgCodes, separator: ', ');
         final importUri = _getImportUriForType(typeElement);
 
         return Code.combine([
-          Code.constructor('const $constructorName(', importUri: importUri),
-          argsCode,
-          Code.value(')')
+          Code.literal('const '),
+          Code.type(constructorName, importUri: importUri),
+          Code.paramsList(allArgCodes)
         ]);
       }
     }

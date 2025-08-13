@@ -45,8 +45,9 @@ sealed class MapperRef {
 
   const MapperRef(this.id);
 
-  static MapperRef fromImplementationClass(Code mapperClassName) {
-    return _ImplementationMapperRef(mapperClassName);
+  static MapperRef fromImplementationClass(Code mapperClassName,
+      [Code? rawClass]) {
+    return _ImplementationMapperRef(mapperClassName, rawClass);
   }
 
   static MapperRef fromInstanceName(String instance) {
@@ -73,7 +74,13 @@ sealed class MapperRef {
 
 class _ImplementationMapperRef extends MapperRef {
   final Code code;
-  _ImplementationMapperRef(this.code) : super('Implementation:' + code.code);
+  final Code? _rawClass;
+
+  Code get rawClass => _rawClass ?? code;
+  _ImplementationMapperRef(this.code, this._rawClass)
+      : super('Implementation:' +
+            code.code +
+            (_rawClass != null ? "|raw:" + (_rawClass.code) : ''));
 
   @override
   String toString() => 'ImplementationMapperRef($id)';
@@ -182,17 +189,18 @@ class LocalResourceMappingModel {
 }
 
 class ContextualMappingModel {
-  final String name;
+  final bool hasMapper;
+  final MapperDependency dependency;
 
-  ContextualMappingModel({required this.name});
+  ContextualMappingModel({required this.hasMapper, required this.dependency});
 
   ContextualMappingResolvedModel resolve(
     ResolveStep2Context context,
   ) {
-    // For contextual mapping, the resolved model just contains the name
-    // Dependencies are handled at the resource level via ExternalDependency
+    final resolvedMapper = context.getResolvedMapperModel(dependency.mapperRef);
     return ContextualMappingResolvedModel(
-      name: name,
+      hasMapper: hasMapper,
+      resolvedMapper: resolvedMapper,
     );
   }
 }
@@ -279,6 +287,7 @@ class PropertyModel {
   final bool isRdfMapKey;
   final bool isRdfMapValue;
   final bool isRdfUnmappedTriples;
+  final bool globalUnmapped;
   final bool isIriPart;
   final String? iriPartName;
   final bool isProvides;
@@ -358,6 +367,7 @@ class PropertyModel {
     required this.isRdfMapKey,
     required this.isRdfMapValue,
     required this.isRdfUnmappedTriples,
+    required this.globalUnmapped,
   });
 
   PropertyResolvedModel resolve(
@@ -372,6 +382,7 @@ class PropertyModel {
       isRdfMapKey: isRdfMapKey,
       isRdfMapValue: isRdfMapValue,
       isRdfUnmappedTriples: isRdfUnmappedTriples,
+      globalUnmapped: globalUnmapped,
       include: include,
       predicate: predicate,
       defaultValue: defaultValue,
@@ -1108,13 +1119,14 @@ sealed class DependencyModel {
   List<DependencyResolvedModel> resolve(ResolveStep1Context context);
 
   static MapperDependency mapper(
-      Code type, String referenceName, MapperRef mapperId) {
+      Code type, String referenceName, MapperRef mapperId,
+      {String suffix = "Mapper"}) {
     return MapperDependency(
-      id: DependencyId.generateId(),
-      type: type,
-      referenceName: referenceName,
-      mapperRef: mapperId,
-    );
+        id: DependencyId.generateId(),
+        type: type,
+        referenceName: referenceName,
+        mapperRef: mapperId,
+        suffix: suffix);
   }
 
   factory DependencyModel.external(Code type, String referenceName,
@@ -1166,16 +1178,18 @@ class MapperDependency extends DependencyModel {
   final MapperRef mapperRef;
   final Code type;
   final String referenceName;
+  final String suffix;
 
   MapperDependency(
       {required this.type,
       required this.id,
       required this.mapperRef,
-      required this.referenceName});
+      required this.referenceName,
+      this.suffix = 'Mapper'});
 
   List<DependencyResolvedModel> resolve(ResolveStep1Context context) {
-    final fieldName = '_${referenceName}Mapper';
-    final parameterName = '${referenceName}Mapper';
+    final fieldName = '_${referenceName}${suffix}';
+    final parameterName = '${referenceName}${suffix}';
     _log.fine('Resolve mapper dependency $id for $referenceName: $mapperRef');
     switch (mapperRef) {
       case _ImplementationMapperRef implRef:
@@ -1183,7 +1197,7 @@ class MapperDependency extends DependencyModel {
         _log.fine('resolvedMapperModel: $resolvedMapperModel');
         if (resolvedMapperModel == null) {
           context.addFine(
-              'Mapper dependency $mapperRef for $referenceName is not resolved - this is OK for references to user provided mappers. Will assume a no-args constructor');
+              '${suffix.isEmpty ? 'Mapper' : suffix} dependency $mapperRef for $referenceName is not resolved - this is OK for references to user provided mappers. Will assume a no-args constructor');
           return [forSimpleDependency(fieldName, parameterName, implRef)];
         }
         switch (resolvedMapperModel) {
@@ -1227,7 +1241,7 @@ class MapperDependency extends DependencyModel {
                   .toList(growable: false);
             } else {
               _log.fine(
-                  'Mapper model is not a ResourceMapperModel, using all dependencies');
+                  '${suffix.isEmpty ? 'Mapper' : suffix} model is not a ResourceMapperModel, using all dependencies');
               newDependencies = otherConstructorRequiredDepencencies;
             }
 
@@ -1257,7 +1271,7 @@ class MapperDependency extends DependencyModel {
                         type: type,
                         paramName: parameterName,
                         defaultValue: Code.combine([
-                          implRef.code,
+                          implRef.rawClass,
                           Code.paramsList(
                             otherConstructorParamNames.map((d) => Code.combine([
                                   Code.literal(d),
@@ -1288,7 +1302,7 @@ class MapperDependency extends DependencyModel {
                     type: type,
                     paramName: parameterName,
                     defaultValue: customMapper.customMapperInstanceCode ??
-                        Code.combine([implRef.code, Code.literal('()')])),
+                        Code.combine([implRef.rawClass, Code.literal('()')])),
                 usageCode: Code.literal(fieldName),
               )
             ];
@@ -1332,6 +1346,9 @@ class MapperDependency extends DependencyModel {
 
   DependencyResolvedModel forSimpleDependency(String fieldName,
       String parameterName, _ImplementationMapperRef implRef) {
+    final defaultValue = Code.combine(
+        [Code.literal('const '), implRef.rawClass, Code.literal('()')]);
+
     return DependencyResolvedModel(
       id: id,
       field: FieldResolvedModel(
@@ -1341,10 +1358,7 @@ class MapperDependency extends DependencyModel {
         type: type,
       ),
       constructorParam: ConstructorParameterResolvedModel(
-          type: type,
-          paramName: parameterName,
-          defaultValue: Code.combine(
-              [Code.literal('const '), implRef.code, Code.literal('()')])),
+          type: type, paramName: parameterName, defaultValue: defaultValue),
       usageCode: Code.literal(fieldName),
     );
   }

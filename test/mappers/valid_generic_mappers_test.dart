@@ -1,11 +1,56 @@
-
 import 'package:rdf_mapper/rdf_mapper.dart';
 import 'package:test/test.dart';
+import 'package:rdf_core/rdf_core.dart';
 
 // Import test models
 import '../fixtures/valid_generic_test_models.dart';
 import '../fixtures/valid_generic_test_models.rdf_mapper.g.dart';
 import 'init_test_rdf_mapper_util.dart';
+
+/// Simple literal mapper for `Map<String, int>` for testing purposes
+class SimpleMapMapper implements LiteralTermMapper<Map<String, int>> {
+  const SimpleMapMapper();
+
+  @override
+  IriTerm? get datatype => null;
+
+  @override
+  Map<String, int> fromRdfTerm(LiteralTerm term, DeserializationContext context,
+      {bool bypassDatatypeCheck = false}) {
+    // Parse JSON-like format: {"key1":42,"key2":100}
+    final value = term.value.trim();
+    if (value.isEmpty || value == '{}') return <String, int>{};
+
+    try {
+      // Simple JSON-like parsing for Map<String, int>
+      final map = <String, int>{};
+      final content = value.substring(1, value.length - 1); // Remove { and }
+      if (content.isNotEmpty) {
+        final pairs = content.split(',');
+        for (final pair in pairs) {
+          final colonIndex = pair.indexOf(':');
+          if (colonIndex > 0) {
+            final key =
+                pair.substring(0, colonIndex).trim().replaceAll('"', '');
+            final valueStr = pair.substring(colonIndex + 1).trim();
+            final intValue = int.parse(valueStr);
+            map[key] = intValue;
+          }
+        }
+      }
+      return map;
+    } catch (e) {
+      throw FormatException('Invalid map format: $value');
+    }
+  }
+
+  @override
+  LiteralTerm toRdfTerm(Map<String, int> value, SerializationContext context) {
+    if (value.isEmpty) return LiteralTerm('{}');
+    final entries = value.entries.map((e) => '"${e.key}":${e.value}').join(',');
+    return LiteralTerm('{$entries}');
+  }
+}
 
 void main() {
   late RdfMapper mapper;
@@ -13,7 +58,10 @@ void main() {
   setUp(() {
     mapper = defaultInitTestRdfMapper(
       testMapper: TestMapper(),
+      customCollectionMapper: TestCustomCollectionMapper(),
     );
+    // Register the complex type mappers globally for generic class testing
+    mapper.registry.registerMapper(SimpleMapMapper());
   });
 
   group('Valid Generic Mapper Tests', () {
@@ -33,6 +81,7 @@ void main() {
 
       // Test serialization with explicit registration
       final graph = mapper.encodeObject(document,
+          contentType: 'application/n-triples',
           register: (registry) =>
               registry.registerMapper(GenericDocumentMapper<String>()));
       expect(graph, isNotNull);
@@ -84,18 +133,20 @@ void main() {
         title: 'List Document',
       );
 
-      // Test serialization with explicit registration
-      final graph = mapper.encodeObject(document,
-          register: (registry) =>
-              registry.registerMapper(GenericDocumentMapper<List<String>>()));
+      // Test serialization with explicit registration of both the document mapper and the List<String> mapper
+      final graph = mapper.encodeObject(document, register: (registry) {
+        registry.registerMapper(GenericDocumentMapper<List<String>>());
+        registry.registerMapper(TestCustomCollectionMapper());
+      });
       expect(graph, isNotNull);
       expect(graph, contains('List Document'));
 
       // Test deserialization with explicit registration
-      final deserialized =
-          mapper.decodeObject<GenericDocument<List<String>>>(graph,
-              register: (registry) => registry
-                  .registerMapper(GenericDocumentMapper<List<String>>()));
+      final deserialized = mapper.decodeObject<GenericDocument<List<String>>>(
+          graph, register: (registry) {
+        registry.registerMapper(GenericDocumentMapper<List<String>>());
+        registry.registerMapper(TestCustomCollectionMapper());
+      });
       expect(deserialized, isNotNull);
       expect(deserialized.documentIri, equals(document.documentIri));
       expect(deserialized.primaryTopic, equals(document.primaryTopic));
@@ -152,7 +203,8 @@ void main() {
       );
 
       // Test serialization (no explicit registration needed)
-      final graph = mapper.encodeObject(person);
+      final graph =
+          mapper.encodeObject(person, contentType: 'application/n-triples');
       expect(graph, isNotNull);
       expect(graph, contains('John Doe'));
       expect(graph, contains('http://example.org/persons/john-doe'));
@@ -192,10 +244,10 @@ void main() {
       expect(graph, contains('Test Local Resource'));
 
       // Test deserialization with explicit registration
-      final deserialized =
-          mapper.decodeObject<GenericLocalResource<String>>(graph,
-              register: (registry) => registry
-                  .registerMapper(GenericLocalResourceMapper<String>()));
+      final deserialized = mapper.decodeObject<GenericLocalResource<String>>(
+          graph,
+          register: (registry) =>
+              registry.registerMapper(GenericLocalResourceMapper<String>()));
       expect(deserialized, isNotNull);
       expect(deserialized.value, equals(resource.value));
       expect(deserialized.label, equals(resource.label));
@@ -208,18 +260,23 @@ void main() {
         label: 'Map Resource',
       );
 
-      // Test serialization with explicit registration
-      final graph = mapper.encodeObject(resource,
-          register: (registry) => registry
-              .registerMapper(GenericLocalResourceMapper<Map<String, int>>()));
+      // Test serialization with explicit registration of both mappers
+      final graph = mapper.encodeObject(resource, register: (registry) {
+        registry
+          ..registerMapper(GenericLocalResourceMapper<Map<String, int>>())
+          ..registerMapper<Map<String, int>>(SimpleMapMapper());
+      });
       expect(graph, isNotNull);
       expect(graph, contains('Map Resource'));
 
       // Test deserialization with explicit registration
-      final deserialized =
-          mapper.decodeObject<GenericLocalResource<Map<String, int>>>(graph,
-              register: (registry) => registry.registerMapper(
-                  GenericLocalResourceMapper<Map<String, int>>()));
+      final deserialized = mapper
+          .decodeObject<GenericLocalResource<Map<String, int>>>(graph,
+              register: (registry) {
+        registry
+          ..registerMapper(GenericLocalResourceMapper<Map<String, int>>())
+          ..registerMapper<Map<String, int>>(SimpleMapMapper());
+      });
       expect(deserialized, isNotNull);
       expect(deserialized.value, equals(resource.value));
       expect(deserialized.label, equals(resource.label));
@@ -262,10 +319,10 @@ void main() {
       expect(boolGraph, isNotNull);
 
       // Test deserialization with correct type preservation
-      final deserializedString =
-          mapper.decodeObject<GenericDocument<String>>(stringGraph,
-              register: (registry) =>
-                  registry.registerMapper(GenericDocumentMapper<String>()));
+      final deserializedString = mapper.decodeObject<GenericDocument<String>>(
+          stringGraph,
+          register: (registry) =>
+              registry.registerMapper(GenericDocumentMapper<String>()));
       final deserializedInt = mapper.decodeObject<GenericDocument<int>>(
           intGraph,
           register: (registry) =>

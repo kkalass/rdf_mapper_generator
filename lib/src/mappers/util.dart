@@ -11,26 +11,32 @@ EnumValueModel toEnumValueModel(EnumValueInfo e) {
 }
 
 /// Builds the mapper interface type, considering collection types
-Code buildMapperInterfaceTypeForProperty(
-    Code mapperInterface, CollectionModel? collectionModel, Code typeNonNull) {
+Code buildElementTypeForProperty(
+    CollectionModel? collectionModel, Code typeNonNull) {
   if (collectionModel == null || !collectionModel.isCollection) {
-    return codeGeneric1(mapperInterface, typeNonNull);
+    return typeNonNull;
   }
 
   // For collections, the mapper type should be for the element type
   if (collectionModel.isMap && collectionModel.mapEntryClassModel != null) {
-    return codeGeneric1(
-        mapperInterface, collectionModel.mapEntryClassModel!.className);
+    return collectionModel.mapEntryClassModel!.className;
   } else if (collectionModel.isMap &&
       collectionModel.mapKeyTypeCode != null &&
       collectionModel.mapValueTypeCode != null) {
     // For maps, use MapEntry<K,V> as the element type
     final mapEntryType = codeGeneric2(Code.type('MapEntry'),
         collectionModel.mapKeyTypeCode!, collectionModel.mapValueTypeCode!);
-    return codeGeneric1(mapperInterface, mapEntryType);
+    return mapEntryType;
   } else if (collectionModel.elementTypeCode != null) {
     // For List/Set, use the element type
-    return codeGeneric1(mapperInterface, collectionModel.elementTypeCode!);
+    return collectionModel.elementTypeCode!;
   }
-  return codeGeneric1(mapperInterface, typeNonNull);
+  return typeNonNull;
+}
+
+/// Builds the mapper interface type, considering collection types
+Code buildMapperInterfaceTypeForProperty(
+    Code mapperInterface, CollectionModel? collectionModel, Code typeNonNull) {
+  return codeGeneric1(mapperInterface,
+      buildElementTypeForProperty(collectionModel, typeNonNull));
 }

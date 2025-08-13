@@ -158,6 +158,7 @@ class MappedClassModelBuilder {
         isRdfMapKey: p?.mapKey != null,
         isRdfMapValue: p?.mapValue != null,
         isRdfUnmappedTriples: p?.unmappedTriples != null,
+        globalUnmapped: p?.unmappedTriples?.globalUnmapped ?? false,
         isIriPart: p?.iriPart != null,
         iriPartName: p?.iriPart?.name,
         isProvides: p?.provides != null,
@@ -214,8 +215,16 @@ class MappedClassModelBuilder {
                 collectionModel, itemDartTypeNonNull, propertyName),
         contextualMapping: contextual == null
             ? null
-            : buildContextualMapping(contextual, propertyInfo!, collectionModel,
-                itemDartTypeNonNull, propertyName),
+            : buildContextualMapping(
+                contextual,
+                propertyInfo!,
+                collectionModel,
+                // FIXME: I need the mappedClass with generic params here - is
+                // there actually use for the non-complete version anywhere, or should
+                // mappedClass contain the generic params?
+                mappedClass,
+                itemDartTypeNonNull,
+                propertyName),
       );
     }).toList();
   }
@@ -240,9 +249,13 @@ class MappedClassModelBuilder {
       ContextualMappingInfo contextual,
       RdfPropertyInfo propertyInfo,
       CollectionModel collectionModel,
+      Code mappedClass,
       Code dartTypeNonNull,
       String propertyName) {
-    return ContextualMappingModel(name: contextual.name);
+    return ContextualMappingModel(
+        hasMapper: true,
+        dependency: createSerializationProviderDependency(collectionModel,
+            contextual.mapper!, mappedClass, dartTypeNonNull, propertyName));
   }
 
   static CollectionMappingModel buildCollectionMapping(
@@ -410,6 +423,23 @@ class MappedClassModelBuilder {
       propertyName,
       IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper),
     );
+  }
+
+  static MapperDependency createSerializationProviderDependency(
+      CollectionModel? collectionModel,
+      MapperRefInfo mapper,
+      Code parentInstanceType,
+      Code dartTypeNonNull,
+      String propertyName) {
+    return DependencyModel.mapper(
+        codeGeneric2(
+          Code.type('SerializationProvider', importUri: importRdfMapper),
+          parentInstanceType,
+          buildElementTypeForProperty(collectionModel, dartTypeNonNull),
+        ),
+        propertyName,
+        IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper),
+        suffix: "SerializationProvider");
   }
 
   static void _validateUnmappedTriplesFields(

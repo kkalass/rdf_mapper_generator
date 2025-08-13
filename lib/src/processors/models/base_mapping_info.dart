@@ -6,14 +6,18 @@ class MapperRefInfo<M> {
   final String? name;
 
   final Code? type;
+  final Code? rawType;
 
   final DartObject? instance;
 
   const MapperRefInfo(
-      {required this.name, required this.type, required this.instance});
+      {required this.name,
+      required this.type,
+      this.rawType,
+      required this.instance});
 
   @override
-  int get hashCode => Object.hashAll([name, type, instance]);
+  int get hashCode => Object.hashAll([name, type, rawType, instance]);
 
   @override
   bool operator ==(Object other) {
@@ -22,6 +26,7 @@ class MapperRefInfo<M> {
     }
     return name == other.name &&
         type == other.type &&
+        rawType == other.rawType &&
         instance == other.instance;
   }
 
@@ -30,6 +35,7 @@ class MapperRefInfo<M> {
     return 'MapperRefInfo{'
         'name: $name, '
         'type: $type, '
+        'rawType: $rawType, '
         'instance: $instance}';
   }
 }

@@ -67,36 +67,6 @@ class Code {
     return Code.type(typeName, importUri: importDartCore);
   }
 
-  /// Creates a Code instance for a constructor call
-  factory Code.constructor(String constructorCall, {String? importUri}) {
-    if (importUri == null) {
-      return Code.literal(constructorCall);
-    }
-
-    // Replace the constructor with the aliased version using markers
-    final parts = constructorCall.split('(');
-    if (parts.length >= 2) {
-      final constructorPart = parts[0].trim();
-      final remainder = parts.sublist(1).join('(');
-
-      String aliasedConstructor;
-      if (constructorPart.startsWith('const ')) {
-        // Handle const constructors: "const MyClass" or "const MyClass.named"
-        final constructorName = constructorPart.substring(6); // Remove "const "
-        aliasedConstructor =
-            'const ${_wrapImportUri(importUri)}$constructorName';
-      } else {
-        // Handle regular constructors: "MyClass" or "MyClass.named"
-        aliasedConstructor = '${_wrapImportUri(importUri)}$constructorPart';
-      }
-
-      final aliasedCode = '$aliasedConstructor($remainder';
-      return Code._(aliasedCode, {importUri});
-    }
-
-    return Code.literal(constructorCall);
-  }
-
   /// Combines multiple Code instances to a parameter list
   factory Code.paramsList(Iterable<Code> params) {
     return Code.combine(
