@@ -120,13 +120,13 @@ RdfMapper initTestRdfMapper({
   required LiteralTermMapper<String> testCustomMapper,
   required GlobalResourceMapper<Object> testGlobalMapper,
   required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>
-      testGlobalResourceMapper,
+  testGlobalResourceMapper,
   required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
   required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
   required LiteralTermMapper<double> testLiteralPriceMapper,
   required LocalResourceMapper<Object> testLocalMapper,
   required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>
-      testLocalResourceMapper,
+  testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
   required IriTermMapper<(String id, String surname, int version)> testMapper3,
   required GlobalResourceMapper<Object> testNamedMapper,
@@ -213,7 +213,8 @@ RdfMapper initTestRdfMapper({
     grptmrmg.ClassWithIriNamedMapperStrategyMapper(testMapper: testMapper),
   );
   registry.registerMapper<
-      grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties>(
+    grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties
+  >(
     grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
       testMapper3: testMapper3,
     ),
