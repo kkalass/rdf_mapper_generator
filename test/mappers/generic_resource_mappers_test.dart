@@ -12,7 +12,7 @@ void main() {
         const mapper = GenericDocumentMapper<String>();
         expect(mapper, isA<GenericDocumentMapper<String>>());
         expect(mapper, isA<GlobalResourceMapper<GenericDocument<String>>>());
-        
+
         // Test with different type parameter
         const intMapper = GenericDocumentMapper<int>();
         expect(intMapper, isA<GenericDocumentMapper<int>>());
@@ -28,13 +28,18 @@ void main() {
       test('generates local resource mapper with generics', () {
         const mapper = GenericLocalResourceMapper<String>();
         expect(mapper, isA<GenericLocalResourceMapper<String>>());
-        expect(mapper, isA<LocalResourceMapper<GenericLocalResource<String>>>());
+        expect(
+            mapper, isA<LocalResourceMapper<GenericLocalResource<String>>>());
       });
 
       test('generates mapper with multiple type parameters', () {
         const mapper = MultiGenericDocumentMapper<String, int, bool>();
         expect(mapper, isA<MultiGenericDocumentMapper<String, int, bool>>());
-        expect(mapper, isA<GlobalResourceMapper<MultiGenericDocument<String, int, bool>>>());
+        expect(
+            mapper,
+            isA<
+                GlobalResourceMapper<
+                    MultiGenericDocument<String, int, bool>>>());
       });
     });
 
@@ -46,7 +51,7 @@ void main() {
           primaryTopic: 'string',
           title: 'title',
         );
-        
+
         const intDoc = GenericDocument<int>(
           documentIri: 'test',
           primaryTopic: 42,
@@ -63,7 +68,8 @@ void main() {
         const intMapper = GenericDocumentMapper<int>();
 
         // Type parameters should be preserved in mapper interfaces
-        expect(stringMapper, isA<GlobalResourceMapper<GenericDocument<String>>>());
+        expect(
+            stringMapper, isA<GlobalResourceMapper<GenericDocument<String>>>());
         expect(intMapper, isA<GlobalResourceMapper<GenericDocument<int>>>());
       });
 
@@ -73,16 +79,24 @@ void main() {
         const boolMapper = GenericDocumentMapper<bool>();
 
         // Each should be correctly typed
-        expect(stringMapper.runtimeType.toString(), contains('GenericDocumentMapper<String>'));
-        expect(intMapper.runtimeType.toString(), contains('GenericDocumentMapper<int>'));
-        expect(boolMapper.runtimeType.toString(), contains('GenericDocumentMapper<bool>'));
+        expect(stringMapper.runtimeType.toString(),
+            contains('GenericDocumentMapper<String>'));
+        expect(intMapper.runtimeType.toString(),
+            contains('GenericDocumentMapper<int>'));
+        expect(boolMapper.runtimeType.toString(),
+            contains('GenericDocumentMapper<bool>'));
       });
 
       test('multi-generic mappers maintain type safety', () {
         const mapper = MultiGenericDocumentMapper<String, int, bool>();
-        expect(mapper, isA<GlobalResourceMapper<MultiGenericDocument<String, int, bool>>>());
-        expect(mapper.runtimeType.toString(), contains('MultiGenericDocumentMapper<String, int, bool>'));
-        
+        expect(
+            mapper,
+            isA<
+                GlobalResourceMapper<
+                    MultiGenericDocument<String, int, bool>>>());
+        expect(mapper.runtimeType.toString(),
+            contains('MultiGenericDocumentMapper<String, int, bool>'));
+
         // Test that we can create the document with correct types
         const document = MultiGenericDocument<String, int, bool>(
           documentIri: 'test',
@@ -90,7 +104,7 @@ void main() {
           author: 42,
           metadata: true,
         );
-        
+
         expect(document.primaryTopic, isA<String>());
         expect(document.author, isA<int>());
         expect(document.metadata, isA<bool>());
@@ -115,8 +129,10 @@ void main() {
         const nonGenericMapper = NonGenericPersonMapper();
 
         // Test interface implementations
-        expect(globalMapper, isA<GlobalResourceMapper<GenericDocument<String>>>());
-        expect(localMapper, isA<LocalResourceMapper<GenericLocalResource<String>>>());
+        expect(
+            globalMapper, isA<GlobalResourceMapper<GenericDocument<String>>>());
+        expect(localMapper,
+            isA<LocalResourceMapper<GenericLocalResource<String>>>());
         expect(nonGenericMapper, isA<GlobalResourceMapper<NonGenericPerson>>());
 
         // All should be instances of their respective mapper interfaces
@@ -132,7 +148,7 @@ void main() {
           primaryTopic: 'topic',
           title: 'title',
         );
-        
+
         const doc2 = GenericDocument<int>(
           documentIri: 'test2',
           primaryTopic: 42,
@@ -142,7 +158,8 @@ void main() {
         // Type information should be preserved
         expect(doc1.primaryTopic, isA<String>());
         expect(doc2.primaryTopic, isA<int>());
-        expect(doc1.runtimeType.toString(), contains('GenericDocument<String>'));
+        expect(
+            doc1.runtimeType.toString(), contains('GenericDocument<String>'));
         expect(doc2.runtimeType.toString(), contains('GenericDocument<int>'));
       });
     });
@@ -172,8 +189,10 @@ void main() {
         const stringLocalMapper = GenericLocalResourceMapper<String>();
         const intLocalMapper = GenericLocalResourceMapper<int>();
 
-        expect(stringLocalMapper, isA<LocalResourceMapper<GenericLocalResource<String>>>());
-        expect(intLocalMapper, isA<LocalResourceMapper<GenericLocalResource<int>>>());
+        expect(stringLocalMapper,
+            isA<LocalResourceMapper<GenericLocalResource<String>>>());
+        expect(intLocalMapper,
+            isA<LocalResourceMapper<GenericLocalResource<int>>>());
       });
     });
   });

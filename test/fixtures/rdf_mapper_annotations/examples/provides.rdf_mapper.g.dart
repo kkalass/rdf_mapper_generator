@@ -30,8 +30,8 @@ class ChildMapper implements GlobalResourceMapper<Child> {
   const ChildMapper({
     required String Function() baseUriProvider,
     required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
+  })  : _baseUriProvider = baseUriProvider,
+        _parentIdProvider = parentIdProvider;
 
   @override
   IriTerm? get typeIri => ExampleVocab.Child;
@@ -95,8 +95,8 @@ class ParentSiblingIdMapper implements IriTermMapper<String> {
   const ParentSiblingIdMapper({
     required String Function() baseUriProvider,
     required String Function() parentIdProvider,
-  }) : _baseUriProvider = baseUriProvider,
-       _parentIdProvider = parentIdProvider;
+  })  : _baseUriProvider = baseUriProvider,
+        _parentIdProvider = parentIdProvider;
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
@@ -134,7 +134,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
 
   /// Constructor
   const ParentMapper({required String Function() baseUriProvider})
-    : _baseUriProvider = baseUriProvider;
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriTerm? get typeIri => ExampleVocab.Parent;

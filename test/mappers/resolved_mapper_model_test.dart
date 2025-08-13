@@ -11,56 +11,58 @@ void main() {
       test('returns original code when no type parameters', () {
         final mapper = _createTestResourceMapper(typeParameters: []);
         final baseCode = Code.type('Document');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, equals('Document'));
       });
 
       test('appends single type parameter correctly', () {
         final mapper = _createTestResourceMapper(typeParameters: ['T']);
         final baseCode = Code.type('Document');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, equals('Document<T>'));
       });
 
       test('appends multiple type parameters with commas', () {
-        final mapper = _createTestResourceMapper(typeParameters: ['T', 'U', 'V']);
+        final mapper =
+            _createTestResourceMapper(typeParameters: ['T', 'U', 'V']);
         final baseCode = Code.type('Document');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, equals('Document<T, U, V>'));
       });
 
       test('handles two type parameters correctly', () {
         final mapper = _createTestResourceMapper(typeParameters: ['T', 'U']);
         final baseCode = Code.type('GenericClass');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, equals('GenericClass<T, U>'));
       });
 
       test('works with complex type parameter names', () {
         final mapper = _createTestResourceMapper(
-          typeParameters: ['TData', 'UMetadata', 'VResult']
-        );
+            typeParameters: ['TData', 'UMetadata', 'VResult']);
         final baseCode = Code.type('ComplexDocument');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
-        expect(result.code, equals('ComplexDocument<TData, UMetadata, VResult>'));
+
+        expect(
+            result.code, equals('ComplexDocument<TData, UMetadata, VResult>'));
       });
 
       test('preserves code import information', () {
         final mapper = _createTestResourceMapper(typeParameters: ['T']);
-        final baseCode = Code.type('Document', importUri: 'package:example/document.dart');
-        
+        final baseCode =
+            Code.type('Document', importUri: 'package:example/document.dart');
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, contains('Document<T>'));
         expect(result.imports, contains('package:example/document.dart'));
       });
@@ -70,22 +72,22 @@ void main() {
       test('includes type parameters in template data', () {
         final context = ValidationContext();
         final mapper = _createTestResourceMapper(typeParameters: ['T', 'U']);
-        
+
         final templateData = mapper.toTemplateData(context, 'test://mapper');
-        
+
         expect(templateData, isA<ResourceMapperTemplateData>());
         final resourceTemplateData = templateData as ResourceMapperTemplateData;
-        
+
         expect(resourceTemplateData.typeParameters, equals(['T', 'U']));
       });
 
       test('generates enhanced class names with type parameters', () {
         final context = ValidationContext();
         final mapper = _createTestResourceMapper(typeParameters: ['T']);
-        
+
         final templateData = mapper.toTemplateData(context, 'test://mapper');
         final resourceTemplateData = templateData as ResourceMapperTemplateData;
-        
+
         // The className should include type parameters
         expect(resourceTemplateData.className.code, contains('<T>'));
         expect(resourceTemplateData.mapperClassName.code, contains('<T>'));
@@ -94,13 +96,11 @@ void main() {
       test('generates correct interface names with type parameters', () {
         final context = ValidationContext();
         final mapper = _createTestResourceMapper(
-          typeParameters: ['T', 'U'],
-          isGlobalResource: true
-        );
-        
+            typeParameters: ['T', 'U'], isGlobalResource: true);
+
         final templateData = mapper.toTemplateData(context, 'test://mapper');
         final resourceTemplateData = templateData as ResourceMapperTemplateData;
-        
+
         // The interface name should include the enhanced class name
         final interfaceName = resourceTemplateData.mapperInterfaceName.code;
         expect(interfaceName, contains('GlobalResourceMapper'));
@@ -111,10 +111,10 @@ void main() {
       test('handles no type parameters correctly in template data', () {
         final context = ValidationContext();
         final mapper = _createTestResourceMapper(typeParameters: []);
-        
+
         final templateData = mapper.toTemplateData(context, 'test://mapper');
         final resourceTemplateData = templateData as ResourceMapperTemplateData;
-        
+
         expect(resourceTemplateData.typeParameters, isEmpty);
         expect(resourceTemplateData.className.code, isNot(contains('<')));
         expect(resourceTemplateData.mapperClassName.code, isNot(contains('<')));
@@ -125,30 +125,31 @@ void main() {
       test('handles empty type parameter list', () {
         final mapper = _createTestResourceMapper(typeParameters: []);
         final baseCode = Code.type('Document');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, equals('Document'));
         expect(result.code, isNot(contains('<')));
         expect(result.code, isNot(contains('>')));
       });
 
       test('handles single character type parameters', () {
-        final mapper = _createTestResourceMapper(typeParameters: ['A', 'B', 'C']);
+        final mapper =
+            _createTestResourceMapper(typeParameters: ['A', 'B', 'C']);
         final baseCode = Code.type('Test');
-        
+
         final result = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result.code, equals('Test<A, B, C>'));
       });
 
       test('maintains consistency across multiple calls', () {
         final mapper = _createTestResourceMapper(typeParameters: ['T', 'U']);
         final baseCode = Code.type('Document');
-        
+
         final result1 = mapper.appendTypeParameters(baseCode);
         final result2 = mapper.appendTypeParameters(baseCode);
-        
+
         expect(result1.code, equals(result2.code));
         expect(result1.code, equals('Document<T, U>'));
       });
@@ -168,7 +169,8 @@ ResourceResolvedMapperModel _createTestResourceMapper({
     implementationClass: Code.type('TestMapper'),
     registerGlobally: false,
     typeIri: null,
-    termClass: isGlobalResource ? Code.type('IriTerm') : Code.type('BlankNodeTerm'),
+    termClass:
+        isGlobalResource ? Code.type('IriTerm') : Code.type('BlankNodeTerm'),
     iriStrategy: isGlobalResource ? _createTestIriStrategy() : null,
     needsReader: false,
     dependencies: const [],

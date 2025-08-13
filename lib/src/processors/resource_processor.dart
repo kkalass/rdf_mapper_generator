@@ -42,7 +42,7 @@ class ResourceProcessor {
         });
     final rdfMapValue = extractMapValueAnnotation(classElement.annotations);
     final typeParameters = classElement.typeParameterNames;
-    
+
     return ResourceInfo(
         className: className,
         annotation: rdfResource,

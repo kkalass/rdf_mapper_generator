@@ -230,7 +230,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
 
   /// Constructor
   const IriWithBaseUriMapper({required String Function() baseUriProvider})
-    : _baseUriProvider = baseUriProvider;
+      : _baseUriProvider = baseUriProvider;
 
   @override
   IriWithBaseUri fromRdfTerm(IriTerm term, DeserializationContext context) {

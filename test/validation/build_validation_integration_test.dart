@@ -34,7 +34,8 @@ class InvalidGenericDocument<T> {
 }
 ''';
 
-        await tempProject.writeLibFile('invalid_generic.dart', invalidSourceCode);
+        await tempProject.writeLibFile(
+            'invalid_generic.dart', invalidSourceCode);
 
         // Run build_runner build and expect it to fail with validation errors
         final buildResult = await Process.run(

@@ -24,13 +24,14 @@ StreamSubscription<LogRecord>? _currentSubscription;
 class TempProject {
   final Directory directory;
   final Directory libDirectory;
-  
+
   TempProject._(this.directory, this.libDirectory);
-  
+
   /// Creates a temporary project with proper pubspec.yaml, build.yaml, and dependency resolution
   static Future<TempProject> create() async {
-    final tempDir = Directory.systemTemp.createTempSync('rdf_mapper_string_test_');
-    
+    final tempDir =
+        Directory.systemTemp.createTempSync('rdf_mapper_string_test_');
+
     // Create pubspec.yaml with proper dependencies
     final pubspecFile = File(p.join(tempDir.path, 'pubspec.yaml'));
     await pubspecFile.writeAsString('''
@@ -95,14 +96,14 @@ targets:
 
     return TempProject._(tempDir, libDir);
   }
-  
+
   /// Writes source code to a file in the lib directory
   Future<File> writeLibFile(String fileName, String sourceCode) async {
     final file = File(p.join(libDirectory.path, fileName));
     await file.writeAsString(sourceCode);
     return file;
   }
-  
+
   /// Cleans up the temporary directory
   Future<void> cleanup() async {
     try {

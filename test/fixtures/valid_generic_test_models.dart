@@ -13,10 +13,10 @@ import 'package:rdf_vocabularies_schema/schema.dart';
 class GenericDocument<T> {
   @RdfIriPart()
   final String documentIri;
-  
+
   @RdfProperty(FoafDocument.primaryTopic)
   final T primaryTopic;
-  
+
   @RdfProperty(FoafDocument.title)
   final String title;
 
@@ -36,13 +36,13 @@ class GenericDocument<T> {
 class MultiGenericDocument<T, U, V> {
   @RdfIriPart()
   final String documentIri;
-  
+
   @RdfProperty(FoafDocument.primaryTopic)
   final T primaryTopic;
-  
+
   @RdfProperty(SchemaCreativeWork.author)
   final U author;
-  
+
   @RdfProperty(SchemaCreativeWork.about)
   final V metadata;
 
@@ -63,7 +63,7 @@ class MultiGenericDocument<T, U, V> {
 class NonGenericPerson {
   @RdfIriPart()
   final String id;
-  
+
   @RdfProperty(SchemaPerson.name)
   final String name;
 
@@ -78,7 +78,7 @@ class NonGenericPerson {
 class GenericLocalResource<T> {
   @RdfProperty(FoafDocument.primaryTopic)
   final T value;
-  
+
   @RdfProperty(SchemaThing.name)
   final String label;
 
