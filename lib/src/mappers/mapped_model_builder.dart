@@ -67,6 +67,7 @@ class MappedClassModelBuilder {
       final literal = propertyInfo?.annotation.literal;
       final globalResource = propertyInfo?.annotation.globalResource;
       final localResource = propertyInfo?.annotation.localResource;
+      final contextual = propertyInfo?.annotation.contextual;
 
       final MappedClassModel? mapEntryClassModel;
       if (p?.mapEntry != null) {
@@ -211,6 +212,10 @@ class MappedClassModelBuilder {
             ? null
             : buildLocalResourceMapping(localResource, propertyInfo!,
                 collectionModel, itemDartTypeNonNull, propertyName),
+        contextualMapping: contextual == null
+            ? null
+            : buildContextualMapping(contextual, propertyInfo!, collectionModel,
+                itemDartTypeNonNull, propertyName),
       );
     }).toList();
   }
@@ -229,6 +234,15 @@ class MappedClassModelBuilder {
             dartTypeNonNull,
             propertyName,
             'LocalResourceMapper'));
+  }
+
+  static ContextualMappingModel buildContextualMapping(
+      ContextualMappingInfo contextual,
+      RdfPropertyInfo propertyInfo,
+      CollectionModel collectionModel,
+      Code dartTypeNonNull,
+      String propertyName) {
+    return ContextualMappingModel(name: contextual.name);
   }
 
   static CollectionMappingModel buildCollectionMapping(

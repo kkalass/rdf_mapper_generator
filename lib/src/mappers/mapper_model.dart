@@ -181,6 +181,22 @@ class LocalResourceMappingModel {
   }
 }
 
+class ContextualMappingModel {
+  final String name;
+
+  ContextualMappingModel({required this.name});
+
+  ContextualMappingResolvedModel resolve(
+    ResolveStep2Context context,
+  ) {
+    // For contextual mapping, the resolved model just contains the name
+    // Dependencies are handled at the resource level via ExternalDependency
+    return ContextualMappingResolvedModel(
+      name: name,
+    );
+  }
+}
+
 class CollectionMappingModel {
   final bool hasMapper;
   final MapperDependency dependency;
@@ -303,6 +319,7 @@ class PropertyModel {
   final LiteralMappingModel? literalMapping;
   final GlobalResourceMappingModel? globalResourceMapping;
   final LocalResourceMappingModel? localResourceMapping;
+  final ContextualMappingModel? contextualMapping;
 
   const PropertyModel({
     required this.propertyName,
@@ -336,6 +353,7 @@ class PropertyModel {
     required this.literalMapping,
     required this.globalResourceMapping,
     required this.localResourceMapping,
+    required this.contextualMapping,
     required this.isRdfMapEntry,
     required this.isRdfMapKey,
     required this.isRdfMapValue,
@@ -367,6 +385,7 @@ class PropertyModel {
       literalMapping: literalMapping?.resolve(context),
       globalResourceMapping: globalResourceMapping?.resolve(context),
       localResourceMapping: localResourceMapping?.resolve(context),
+      contextualMapping: contextualMapping?.resolve(context),
       isRdfValue: isRdfValue,
       isRdfLanguageTag: isRdfLanguageTag,
       iriPartName: iriPartName,

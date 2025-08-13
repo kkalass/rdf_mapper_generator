@@ -171,6 +171,33 @@ class IriMappingInfo extends BaseMappingInfo {
   }
 }
 
+/// Information about contextual mapping configuration.
+///
+/// Used when a property needs access to its parent object during serialization
+/// and subject during deserialization for computing context-dependent values.
+class ContextualMappingInfo {
+  /// The name identifier for the contextual mapping parameter.
+  final String name;
+
+  ContextualMappingInfo({required this.name});
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! ContextualMappingInfo) {
+      return false;
+    }
+    return name == other.name;
+  }
+
+  @override
+  String toString() {
+    return 'ContextualMappingInfo{name: $name}';
+  }
+}
+
 /// Processed information from an [RdfProperty] annotation.
 ///
 /// This class represents the complete parsed and validated RDF property
@@ -229,6 +256,13 @@ class RdfPropertyAnnotationInfo implements RdfAnnotation {
   /// Mutually exclusive with other mapping strategies.
   final GlobalResourceMappingInfo? globalResource;
 
+  /// Contextual mapping configuration.
+  ///
+  /// When set, field values are mapped using contextual serializer and deserializer
+  /// factory functions that have access to the parent object and subject.
+  /// Mutually exclusive with other mapping strategies.
+  final ContextualMappingInfo? contextual;
+
   /// Collection mapping strategy configuration.
   ///
   /// Determines how Dart collections are structured in RDF (default triples,
@@ -248,6 +282,7 @@ class RdfPropertyAnnotationInfo implements RdfAnnotation {
     required this.localResource,
     required this.literal,
     required this.globalResource,
+    required this.contextual,
     required this.collection,
     required this.itemType,
   });
@@ -262,6 +297,7 @@ class RdfPropertyAnnotationInfo implements RdfAnnotation {
         localResource,
         literal,
         globalResource,
+        contextual,
         collection,
       ]);
 
@@ -279,6 +315,7 @@ class RdfPropertyAnnotationInfo implements RdfAnnotation {
         localResource == other.localResource &&
         literal == other.literal &&
         globalResource == other.globalResource &&
+        contextual == other.contextual &&
         collection == other.collection;
   }
 
@@ -293,6 +330,7 @@ class RdfPropertyAnnotationInfo implements RdfAnnotation {
         'localResource: $localResource, '
         'literal: $literal, '
         'globalResource: $globalResource, '
+        'contextual: $contextual, '
         'collection: $collection}';
   }
 }

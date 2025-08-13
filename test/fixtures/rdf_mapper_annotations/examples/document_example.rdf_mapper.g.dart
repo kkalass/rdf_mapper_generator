@@ -22,8 +22,14 @@ import 'package:rdf_vocabularies_core/solid.dart';
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF triples for resources of type `Document<T>`.
 class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
+  final SerializationProvider<Document<T>, T>
+  _primaryTopicSerializationProvider;
+
   /// Constructor
-  const DocumentMapper();
+  const DocumentMapper({
+    required SerializationProvider<Document<T>, T>
+    primaryTopicSerializationProvider,
+  }) : _primaryTopicSerializationProvider = primaryTopicSerializationProvider;
 
   @override
   IriTerm? get typeIri => FoafDocument.classIri;
@@ -33,7 +39,13 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
     final reader = context.reader(subject);
 
     final documentIri = subject.iri;
-    final T primaryTopic = reader.require(FoafDocument.primaryTopic);
+    final T primaryTopic = reader.require(
+      FoafDocument.primaryTopic,
+      deserializer: _primaryTopicSerializationProvider.deserializer(
+        subject,
+        context,
+      ),
+    );
     final Uri maker = reader.require(FoafDocument.maker);
 
     // Get unmapped triples as the last reader operation for lossless mapping
@@ -57,7 +69,15 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(FoafDocument.primaryTopic, resource.primaryTopic)
+        .addValue(
+          FoafDocument.primaryTopic,
+          resource.primaryTopic,
+          serializer: _primaryTopicSerializationProvider.serializer(
+            resource,
+            subject,
+            context,
+          ),
+        )
         .addValue(FoafDocument.maker, resource.maker)
         .addUnmapped(resource.unmapped)
         .build();

@@ -173,6 +173,7 @@ class PropertyProcessor {
     final localResource = _extractLocalResourceMapping(annotation);
     final literal = _extractLiteralMapping(annotation);
     final globalResource = _extractGlobalResourceMapping(annotation);
+    final contextual = _extractContextualMapping(annotation);
 
     // FIXME: validate that collection.mapper.type is a subclass of Mapper<T>, and that its
     // default constructor corresponds to the type `CollectionMapperFactory<C, T>` which is a typedef for
@@ -203,6 +204,19 @@ class PropertyProcessor {
     final iri = _extractIriMapping(
         context, fieldName, fieldMappedClassType, annotation);
 
+    // Validate mutual exclusivity of mapping strategies
+    final mappingCount = [
+      localResource,
+      literal,
+      globalResource,
+      contextual,
+      iri
+    ].where((m) => m != null).length;
+    if (mappingCount > 1) {
+      context.addError(
+          'RdfProperty on field $fieldName cannot have multiple mapping strategies (localResource, literal, globalResource, contextual, iri)');
+    }
+
     // Smart inference: if no explicit mapping is provided and the field type
     // has an RDF annotation with registerGlobally: false, infer the appropriate mapper
     final inferredMappings = _inferMappingsFromType(
@@ -216,6 +230,7 @@ class PropertyProcessor {
         localResource: inferredMappings.localResource ?? localResource,
         literal: inferredMappings.literal ?? literal,
         globalResource: inferredMappings.globalResource ?? globalResource,
+        contextual: contextual,
         iri: inferredMappings.iri ?? iri,
         collection: collection,
         itemType: collectionItemType);
@@ -297,6 +312,20 @@ class PropertyProcessor {
     // Check if it's an IriMapping
     final mapper = getMapperRefInfo<IriTermMapper>(globalResource!);
     return GlobalResourceMappingInfo(mapper: mapper);
+  }
+
+  static ContextualMappingInfo? _extractContextualMapping(
+      DartObject annotation) {
+    // Check for named parameter 'contextual'
+    final contextual = getField(annotation, 'contextual');
+    if (isNull(contextual)) {
+      return null;
+    }
+    final name = getField(contextual!, 'name')?.toStringValue();
+    if (name == null || name.isEmpty) {
+      throw Exception('ContextualMapping must have a non-empty name');
+    }
+    return ContextualMappingInfo(name: name);
   }
 
   static LiteralMappingInfo? _extractLiteralMapping(DartObject annotation) {

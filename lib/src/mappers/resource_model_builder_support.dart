@@ -53,7 +53,7 @@ class ResourceModelBuilderSupport {
     }
 
     final dependencies =
-        _collectDependencies(iriStrategy, mappedClassModel, mapperImportUri);
+        _collectDependencies(iriStrategy, mappedClassModel, mapperImportUri, resourceInfo.typeParameters);
     final provides = mappedClassModel.properties
         .where((p) => p.isProvides)
         .map((p) => ProvidesModel(
@@ -83,7 +83,7 @@ class ResourceModelBuilderSupport {
   }
 
   static List<DependencyModel> _collectDependencies(IriModel? iriStrategy,
-          MappedClassModel mappedClassModel, String mapperImportUri) =>
+          MappedClassModel mappedClassModel, String mapperImportUri, List<String> typeParameters) =>
       [
         if (iriStrategy?.mapper != null) iriStrategy!.mapper!,
         if (iriStrategy?.template?.contextVariables != null)
@@ -94,6 +94,7 @@ class ResourceModelBuilderSupport {
           final literal = f.literalMapping;
           final globalResourceMapper = f.globalResourceMapping;
           final localResourceMapper = f.localResourceMapping;
+          final contextual = f.contextualMapping;
 
           return [
             if (collection != null) collection.dependency,
@@ -101,9 +102,39 @@ class ResourceModelBuilderSupport {
             if (literal != null) literal.dependency,
             if (globalResourceMapper != null) globalResourceMapper.dependency,
             if (localResourceMapper != null) localResourceMapper.dependency,
+            if (contextual != null)
+              ..._buildContextualDependencies(contextual, mappedClassModel, f, typeParameters),
           ];
         })
       ];
+
+  /// Builds contextual mapping dependencies (SerializationProvider).
+  static List<DependencyModel> _buildContextualDependencies(
+      ContextualMappingModel contextual,
+      MappedClassModel mappedClassModel,
+      PropertyModel propertyModel,
+      List<String> typeParameters) {
+    final parentClassType = typeParameters.isEmpty
+        ? mappedClassModel.className
+        : Code.combine([
+            mappedClassModel.className,
+            Code.genericParamsList(typeParameters.map(Code.literal))
+          ]);
+    final propertyType = propertyModel.dartType;
+    
+    // Create SerializationProvider<Parent, T> type
+    final serializationProviderType = Code.combine([
+      Code.type('SerializationProvider', importUri: importRdfMapper),
+      Code.genericParamsList([parentClassType, propertyType]),
+    ]);
+
+    return [
+      DependencyModel.external(
+        serializationProviderType,
+        '${contextual.name}SerializationProvider',
+      ),
+    ];
+  }
 
   /// Builds the type IRI expression.
   static Code? _buildTypeIri(ResourceInfo resourceInfo) {

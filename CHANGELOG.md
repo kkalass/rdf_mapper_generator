@@ -5,9 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.10.1] - 2025-08-11
+## [Unreleased] - TBD
 
 ### Added
+
+- **Contextual Property Mapping**: Support for context-dependent property serialization/deserialization
+  - Properties can now access parent object and subject during RDF operations via `ContextualMapping.named("name")`
+  - Generated mappers accept `SerializationProvider<Parent, T>` parameters for contextual property handling
+  - Enables complex scenarios like dependent object IRIs and cross-property validation
+  - Mutual exclusivity validation ensures contextual mapping cannot be combined with other mapping strategies
 
 - **Generic Type Parameter Support**: Full support for generating type-safe mappers from generic classes
   - Classes with type parameters (e.g., `Document<T>`) now generate corresponding generic mappers (e.g., `DocumentMapper<T>`)  

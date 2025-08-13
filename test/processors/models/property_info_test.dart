@@ -180,6 +180,7 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
+        contextual: null,
         collection: null,
         itemType: null,
       );
@@ -193,6 +194,7 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
+        contextual: null,
         collection: null,
         itemType: null,
       );
@@ -206,6 +208,7 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
+        contextual: null,
         collection: null,
         itemType: null,
       );
@@ -255,6 +258,7 @@ void main() {
         localResource: null,
         literal: null,
         globalResource: null,
+        contextual: null,
         collection: null,
         itemType: null,
       );

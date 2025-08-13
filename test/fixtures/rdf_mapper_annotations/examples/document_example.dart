@@ -33,7 +33,8 @@ class Document<T> {
   @RdfProvides()
   final String documentIri;
 
-  @RdfProperty(FoafDocument.primaryTopic)
+  @RdfProperty(FoafDocument.primaryTopic,
+      contextual: ContextualMapping.named("primaryTopic"))
   final T primaryTopic;
 
   @RdfProperty(FoafDocument.maker)

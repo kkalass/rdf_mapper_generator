@@ -91,6 +91,138 @@ This is a Dart code generator that creates type-safe RDF mappers from annotated 
 
 The generator supports complex RDF mapping scenarios including IRI templates, custom collections, enum mappings, lossless round-trip mapping, multi-language literals, and generic type parameters.
 
+## Testing Standards
+
+This project follows a consistent three-tier testing pattern for comprehensive coverage:
+
+### Test File Organization
+
+For each feature area, tests should be organized as follows:
+
+1. **Model Files** (`test/fixtures/feature_test_models.dart`)
+   - Contains test classes with RDF annotations
+   - Should cover both valid and edge cases for the feature
+   - Gets automatically built to generate `.rdf_mapper.g.dart` companion files
+   - Used by both processor and mapper tests
+
+2. **Processor Tests** (`test/processors/feature_processor_test.dart`)
+   - Tests the **processing logic** that analyzes classes and extracts information
+   - Uses `ResourceProcessor.processClass()` or similar to test annotation processing
+   - Tests validation logic and error cases
+   - Should test type parameter extraction, validation rules, etc.
+   - Example: `global_resource_processor_test.dart`, `generic_resource_processor_test.dart`
+
+3. **Mapper Tests** (`test/mappers/feature_mappers_test.dart`)
+   - Tests the **generated mappers** themselves
+   - Imports both the model file and its generated `.rdf_mapper.g.dart`
+   - Tests serialization/deserialization functionality
+   - Tests that the generated code compiles and works correctly
+   - **MUST follow the high-quality pattern from `global_resource_processor_mappers_test.dart`**
+   - Example: `global_resource_processor_mappers_test.dart`, `valid_generic_mappers_test.dart`
+
+### Additional Test Types
+
+4. **Integration Tests** (`test/integration/feature_integration_test.dart`)
+   - Tests end-to-end build process
+   - Verifies that `dart run build_runner build` succeeds
+   - Tests that generated files exist and contain expected content
+   - Example: `generic_types_integration_test.dart`
+
+5. **Validation Tests** (`test/validation/feature_validation_test.dart`)
+   - Tests validation logic in isolation
+   - Can use string-based testing with `buildTemplateDataFromString()`
+   - Tests error scenarios and validation exceptions
+   - Example: `generic_validation_test.dart`
+
+### Example Pattern
+
+For a feature called "MyFeature":
+- `test/fixtures/my_feature_test_models.dart` - Model classes
+- `test/processors/my_feature_processor_test.dart` - Processing logic tests  
+- `test/mappers/my_feature_mappers_test.dart` - Generated mapper functionality tests
+- `test/integration/my_feature_integration_test.dart` - End-to-end build tests (optional)
+- `test/validation/my_feature_validation_test.dart` - Validation logic tests (optional)
+
+This pattern ensures comprehensive coverage from low-level processing through generated code functionality to full integration testing.
+
+### High-Quality Mapper Testing Standards
+
+Mapper tests should follow the comprehensive pattern established in `global_resource_processor_mappers_test.dart`, which provides superior coverage compared to simpler approaches:
+
+#### Required Test Structure
+
+1. **Full Round-Trip Testing**
+   - Create realistic model instances with comprehensive data
+   - Test serialization to RDF graph/turtle
+   - Test deserialization back to objects
+   - Verify all properties are preserved exactly
+
+2. **Registration Behavior Verification**
+   - Explicitly test whether classes are registered globally vs locally
+   - Use `mapper.registry.hasGlobalResourceDeserializerFor<T>()` to verify registration state
+   - Test that `registerGlobally: false` classes throw exceptions without explicit registration
+   - Test that `registerGlobally: true` classes work without explicit registration
+
+3. **Explicit Mapper Registration Testing**
+   - For classes with `registerGlobally: false`, test both serialization and deserialization with explicit registration using the `register:` parameter
+   - Verify that temporary registration doesn't affect global state
+   - Test complex registration scenarios (e.g., classes with dependencies)
+
+4. **Realistic Data Testing**
+   - Use realistic, comprehensive test data that exercises all properties
+   - Test edge cases, empty values, and complex nested structures
+   - Include actual turtle/RDF examples when available
+
+5. **Type Safety and Generic Support**
+   - For generic classes, test multiple type parameter combinations
+   - Verify type safety is maintained through serialization/deserialization cycles
+   - Test complex generic types (List<String>, Map<String, int>, etc.)
+
+6. **Graph Content Verification**
+   - Inspect generated RDF graphs for expected content
+   - Verify proper IRI generation, property mapping, and namespace handling
+   - Check for specific expected strings/patterns in the output
+
+7. **Exception Handling Testing**
+   - Test that appropriate exceptions are thrown when mappers are not registered
+   - Verify specific exception types (`SerializerNotFoundException`, `DeserializerNotFoundException`)
+
+#### Example High-Quality Test Pattern
+
+```dart
+test('ComplexClass mapping', () {
+  // Verify registration state
+  final isRegistered = mapper.registry.hasGlobalResourceDeserializerFor<ComplexClass>();
+  expect(isRegistered, isFalse, reason: 'ComplexClass should not be registered globally');
+  
+  // Create realistic instance
+  final instance = ComplexClass(
+    id: 'test-id',
+    property1: 'Complex Value',
+    property2: 42,
+    nestedObject: NestedClass(...),
+  );
+  
+  // Test serialization with explicit registration
+  final graph = mapper.encodeObject(instance,
+      register: (registry) => registry.registerMapper(ComplexClassMapper()));
+  expect(graph, isNotNull);
+  expect(graph, contains('Complex Value'));
+  expect(graph, contains('42'));
+  
+  // Test deserialization with explicit registration
+  final deserialized = mapper.decodeObject<ComplexClass>(graph,
+      register: (registry) => registry.registerMapper(ComplexClassMapper()));
+  expect(deserialized, isNotNull);
+  expect(deserialized.id, equals(instance.id));
+  expect(deserialized.property1, equals(instance.property1));
+  expect(deserialized.property2, equals(instance.property2));
+  // ... verify all properties
+});
+```
+
+This comprehensive approach ensures that generated mappers work correctly in real-world scenarios and helps catch integration issues that simpler tests might miss.
+
 ## Code Generation System
 
 ### The Code Class (`lib/src/templates/code.dart`)

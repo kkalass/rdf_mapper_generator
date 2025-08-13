@@ -241,6 +241,8 @@ void main() {
             reason: 'Custom collection mappers handle items internally');
         expect(result.annotation.globalResource, isNull,
             reason: 'Custom collection mappers handle items internally');
+        expect(result.annotation.contextual, isNull,
+            reason: 'Custom collection mappers handle items internally');
       }
     });
   });

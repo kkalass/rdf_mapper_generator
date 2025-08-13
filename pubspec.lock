@@ -380,19 +380,17 @@ packages:
   rdf_mapper:
     dependency: "direct main"
     description:
-      name: rdf_mapper
-      sha256: "40571724565284e86033d5ae7a38d615bc967475b90bbfcdb61bc386b1ba0b90"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.0"
+      path: "../rdf_mapper"
+      relative: true
+    source: path
+    version: "0.10.1-dev"
   rdf_mapper_annotations:
     dependency: "direct main"
     description:
-      name: rdf_mapper_annotations
-      sha256: "9ba441c8fdc1183a288d99fde6d56802769c72b7331439d4ce4c0240105d3ad2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.0"
+      path: "../rdf_mapper_annotations"
+      relative: true
+    source: path
+    version: "0.10.1-dev"
   rdf_vocabularies_core:
     dependency: "direct main"
     description:
