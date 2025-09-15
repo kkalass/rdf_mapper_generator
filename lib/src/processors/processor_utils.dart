@@ -53,8 +53,7 @@ DartObject? getAnnotation(
       try {
         final annotation = elementAnnotation.computeConstantValue();
         if (annotation != null) {
-          final name = annotation.type?.element.name;
-          if (name == annotationName) {
+          if (_matchesAnnotationInHierarchy(annotation.type, annotationName)) {
             return annotation;
           }
         }
@@ -69,6 +68,45 @@ DartObject? getAnnotation(
   }
 
   return null;
+}
+
+/// Checks if the given type or any of its supertypes match the target annotation name.
+/// This supports annotation subclassing by walking up the inheritance hierarchy.
+bool _matchesAnnotationInHierarchy(
+    DartType? type, String targetAnnotationName) {
+  if (type == null) {
+    return false;
+  }
+
+  final visitedTypes = <String>{};
+  return _checkTypeHierarchy(type, targetAnnotationName, visitedTypes);
+}
+
+/// Recursively checks the type hierarchy to find a match for the target annotation name.
+/// Uses a visited set to prevent infinite loops in case of circular dependencies.
+bool _checkTypeHierarchy(
+    DartType type, String targetAnnotationName, Set<String> visitedTypes) {
+  final typeName = type.element.name;
+
+  // Prevent infinite loops
+  if (visitedTypes.contains(typeName)) {
+    return false;
+  }
+  visitedTypes.add(typeName);
+
+  // Check if current type matches
+  if (typeName == targetAnnotationName) {
+    return true;
+  }
+
+  // Check supertypes - the analyzer wrapper provides this data
+  for (final supertype in type.allSupertypes) {
+    if (_checkTypeHierarchy(supertype, targetAnnotationName, visitedTypes)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 IriPartAnnotationInfo? extractIriPartAnnotation(

@@ -16,6 +16,16 @@ abstract class DartType {
   Elem get element;
   List<DartType> get typeArguments;
 
+  /// Returns the supertypes of this type (superclass, mixins, interfaces).
+  /// Returns empty list if this type has no supertypes or if supertype information is not available.
+  List<DartType> get allSupertypes;
+
+  DartType? get superclass;
+
+  List<DartType> get mixins;
+
+  List<DartType> get interfaces;
+
   String getDisplayString();
 }
 

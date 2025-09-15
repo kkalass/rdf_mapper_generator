@@ -56,6 +56,41 @@ class DartTypeV6 extends DartType {
   Code toCode({bool enforceNonNull = false, bool raw = false}) {
     return _typeToCode(dartType, enforceNonNull: enforceNonNull, raw: raw);
   }
+
+  @override
+  DartType? get superclass {
+    if (dartType case final v6.InterfaceType interfaceType) {
+      if (interfaceType.superclass != null) {
+        return DartTypeV6(interfaceType.superclass!);
+      }
+    }
+    return null;
+  }
+
+  @override
+  List<DartType> get mixins {
+    if (dartType case final v6.InterfaceType interfaceType) {
+      return interfaceType.mixins
+          .map((mixin) => DartTypeV6(mixin))
+          .toList(growable: false);
+    }
+    return const [];
+  }
+
+  @override
+  List<DartType> get interfaces {
+    if (dartType case final v6.InterfaceType interfaceType) {
+      return interfaceType.interfaces
+          .map((mixin) => DartTypeV6(mixin))
+          .toList(growable: false);
+    }
+    return const [];
+  }
+
+  @override
+  List<DartType> get allSupertypes {
+    return [if (superclass != null) superclass!, ...mixins, ...interfaces];
+  }
 }
 
 class FieldElemV6 extends ElemV6 implements FieldElem {

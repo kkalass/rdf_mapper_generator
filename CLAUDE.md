@@ -21,11 +21,14 @@ dart run build_runner clean
 # Run all tests
 dart test
 
-# Run tests with coverage
+# Run tests with coverage (generates HTML report if lcov installed)
 dart tool/run_tests.dart
 
-# Run specific test
+# Run specific test file
 dart test test/specific_test.dart
+
+# Run tests matching a pattern
+dart test --name="pattern"
 ```
 
 ### Code Quality
@@ -93,7 +96,7 @@ The generator supports complex RDF mapping scenarios including IRI templates, cu
 
 ## Testing Standards
 
-This project follows a consistent three-tier testing pattern for comprehensive coverage:
+This project follows a comprehensive testing approach that ensures code generation quality at multiple levels:
 
 ### Test File Organization
 

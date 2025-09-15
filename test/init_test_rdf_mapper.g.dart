@@ -9,6 +9,8 @@
 
 import 'package:rdf_mapper/rdf_mapper.dart';
 
+import 'fixtures/annotation_subclass_test_models.dart' as astm;
+import 'fixtures/annotation_subclass_test_models.rdf_mapper.g.dart' as astmrmg;
 import 'fixtures/annotation_test_models.dart' as atm;
 import 'fixtures/annotation_test_models.rdf_mapper.g.dart' as atmrmg;
 import 'fixtures/comprehensive_collection_tests.dart' as cct;
@@ -137,6 +139,15 @@ RdfMapper initTestRdfMapper({
   }
   var registry = rdfMapper.registry;
 
+  registry.registerMapper<astm.BookWithCustomAnnotation>(
+    astmrmg.BookWithCustomAnnotationMapper(),
+  );
+  registry.registerMapper<astm.PersonWithPodResource>(
+    astmrmg.PersonWithPodResourceMapper(),
+  );
+  registry.registerMapper<astm.ArticleWithRegularAnnotation>(
+    astmrmg.ArticleWithRegularAnnotationMapper(),
+  );
   registry.registerMapper<atm.BookWithMapper>(atmrmg.BookWithMapperMapper());
   registry.registerMapper<atm.BookWithTemplate>(
     atmrmg.BookWithTemplateMapper(),
