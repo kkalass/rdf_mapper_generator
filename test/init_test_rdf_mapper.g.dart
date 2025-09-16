@@ -90,6 +90,7 @@ import 'fixtures/valid_generic_test_models.rdf_mapper.g.dart' as vgtmrmg;
 /// * [mapEntryMapper]
 /// * [orgNamespaceProvider]
 /// * [simpleBookIriFactory]
+/// * [simpleVariantRefFactory]
 /// * [storageRootProvider]
 /// * [testCustomMapper]
 /// * [testGlobalMapper]
@@ -123,6 +124,7 @@ RdfMapper initTestRdfMapper({
   required LocalResourceMapper<MapEntry<String, String>> mapEntryMapper,
   required String Function() orgNamespaceProvider,
   required IriTermMapper<(String id,)> Function<T>() simpleBookIriFactory,
+  required IriTermMapper<String> Function<T>(Type) simpleVariantRefFactory,
   required String Function() storageRootProvider,
   required LiteralTermMapper<String> testCustomMapper,
   required GlobalResourceMapper<Object> testGlobalMapper,
@@ -153,7 +155,7 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<astm.PersonWithPodResource2>(
     astmrmg.PersonWithPodResource2Mapper(
-      $podIri$: $podIri$Factory<astm.PersonWithPodResource2>(
+      iriMapper: $podIri$Factory<astm.PersonWithPodResource2>(
         const astm.PodConfig(digits: 2),
       ),
     ),
@@ -347,12 +349,12 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<nftm.SimpleBook>(
     nftmrmg.SimpleBookMapper(
-      simpleBookIri: simpleBookIriFactory<nftm.SimpleBook>(),
+      iriMapper: simpleBookIriFactory<nftm.SimpleBook>(),
     ),
   );
   registry.registerMapper<nftm.ConfigurableBook>(
     nftmrmg.ConfigurableBookMapper(
-      configurableBookIri: configurableBookIriFactory<nftm.ConfigurableBook>(
+      iriMapper: configurableBookIriFactory<nftm.ConfigurableBook>(
         const nftm.IriMapperConfig(
           baseUri: 'https://books.example.com',
           format: 'detailed',
@@ -362,12 +364,14 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<nftm.ContextualBook>(
     nftmrmg.ContextualBookMapper(
-      configurableBookIri: configurableBookIriFactory<nftm.ContextualBook>(
+      iriMapper: configurableBookIriFactory<nftm.ContextualBook>(
         const nftm.IriMapperConfig(
           baseUri: 'https://contextual.example.com',
           format: 'contextual',
         ),
       ),
+      simpleVariant2Mapper: simpleVariantRefFactory<String>(nftm.SimpleBook),
+      simpleVariantMapper: simpleVariantRefFactory<String>(nftm.SimpleBook),
     ),
   );
   registry.registerMapper<pptm.SimplePropertyTest>(

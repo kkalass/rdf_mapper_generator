@@ -117,12 +117,18 @@ class ContextualBook {
   @RdfProperty(IriTerm.prevalidated('http://example.com/title'))
   final String title;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/baseUri'))
-  final String Function() baseUriProvider;
+  @RdfProperty(IriTerm.prevalidated('http://example.com/simpleVariant'),
+      iri: IriMapping.namedFactory('simpleVariantRefFactory', SimpleBook))
+  final String simpleVariant;
+
+  @RdfProperty(IriTerm.prevalidated('http://example.com/simpleVariant2'),
+      iri: IriMapping.namedFactory('simpleVariantRefFactory', SimpleBook))
+  final String simpleVariant2;
 
   const ContextualBook({
     required this.id,
     required this.title,
-    required this.baseUriProvider,
+    required this.simpleVariant,
+    required this.simpleVariant2,
   });
 }

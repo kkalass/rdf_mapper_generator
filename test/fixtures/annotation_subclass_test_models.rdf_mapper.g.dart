@@ -139,8 +139,8 @@ class PersonWithPodResource2Mapper
 
   /// Constructor
   const PersonWithPodResource2Mapper({
-    required IriTermMapper<(String id,)> $podIri$,
-  }) : _iriMapper = $podIri$;
+    required IriTermMapper<(String id,)> iriMapper,
+  }) : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => SchemaPerson.classIri;

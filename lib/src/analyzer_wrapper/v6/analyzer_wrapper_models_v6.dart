@@ -1,8 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'analyzer_v6.dart' as v6;
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+
+import 'analyzer_v6.dart' as v6;
 
 class DartTypeV6 extends DartType {
   final v6.DartType dartType;
@@ -441,6 +442,10 @@ Code _classToCode(v6.ClassElement type) {
 Code _toCode(v6.DartObject? value) {
   if (value == null || value.isNull) {
     return Code.value('null');
+  }
+
+  if (value.type?.isDartCoreType == true) {
+    return DartTypeV6(value.toTypeValue()!).toCode();
   }
 
   // Handle primitive types (no imports needed)

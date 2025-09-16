@@ -1,8 +1,9 @@
 // ignore_for_file: unnecessary_type_check, unreachable_switch_case, dead_code
 
-import 'analyzer_v7_4.dart' as v7;
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
+
+import 'analyzer_v7_4.dart' as v7;
 
 class DartTypeV7 extends DartType {
   final v7.DartType dartType;
@@ -438,6 +439,10 @@ Code _classToCode(v7.ClassElement2 type) {
 Code _toCode(v7.DartObject? value) {
   if (value == null || value.isNull) {
     return Code.value('null');
+  }
+
+  if (value.type?.isDartCoreType == true) {
+    return DartTypeV7(value.toTypeValue()!).toCode();
   }
 
   // Handle primitive types (no imports needed)

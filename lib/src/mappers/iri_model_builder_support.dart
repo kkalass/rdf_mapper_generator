@@ -62,11 +62,10 @@ class IriModelBuilderSupport {
   static MapperRef mapperRefInfoToMapperRef(
       MapperRefInfo<dynamic> mapper, Code mappedClassName) {
     if (mapper.factoryName != null) {
+      final configCode =
+          mapper.configInstance == null ? null : toCode(mapper.configInstance);
       return MapperRef.fromFactoryName(
-          mapper.factoryName!,
-          mapper.configInstance == null ? null : toCode(mapper.configInstance),
-          mapper.configType,
-          mappedClassName);
+          mapper.factoryName!, configCode, mapper.configType, mappedClassName);
     }
     if (mapper.name != null) {
       return MapperRef.fromInstanceName(mapper.name!);

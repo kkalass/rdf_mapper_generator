@@ -22,8 +22,8 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
   final IriTermMapper<(String id,)> _iriMapper;
 
   /// Constructor
-  const SimpleBookMapper({required IriTermMapper<(String id,)> simpleBookIri})
-    : _iriMapper = simpleBookIri;
+  const SimpleBookMapper({required IriTermMapper<(String id,)> iriMapper})
+    : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri => const IriTerm.prevalidated('http://example.com/Book');
@@ -67,9 +67,8 @@ class ConfigurableBookMapper implements GlobalResourceMapper<ConfigurableBook> {
   final IriTermMapper<(String id,)> _iriMapper;
 
   /// Constructor
-  const ConfigurableBookMapper({
-    required IriTermMapper<(String id,)> configurableBookIri,
-  }) : _iriMapper = configurableBookIri;
+  const ConfigurableBookMapper({required IriTermMapper<(String id,)> iriMapper})
+    : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri =>
@@ -124,8 +123,8 @@ class LocalBookMapper implements GlobalResourceMapper<LocalBook> {
   final IriTermMapper<(String id,)> _iriMapper;
 
   /// Constructor
-  const LocalBookMapper({required IriTermMapper<(String id,)> simpleBookIri})
-    : _iriMapper = simpleBookIri;
+  const LocalBookMapper({required IriTermMapper<(String id,)> iriMapper})
+    : _iriMapper = iriMapper;
 
   @override
   IriTerm? get typeIri =>
@@ -168,11 +167,17 @@ class LocalBookMapper implements GlobalResourceMapper<LocalBook> {
 /// and RDF triples for resources of type `ContextualBook`.
 class ContextualBookMapper implements GlobalResourceMapper<ContextualBook> {
   final IriTermMapper<(String id,)> _iriMapper;
+  final IriTermMapper<String> _simpleVariant2Mapper;
+  final IriTermMapper<String> _simpleVariantMapper;
 
   /// Constructor
   const ContextualBookMapper({
-    required IriTermMapper<(String id,)> configurableBookIri,
-  }) : _iriMapper = configurableBookIri;
+    required IriTermMapper<(String id,)> iriMapper,
+    required IriTermMapper<String> simpleVariant2Mapper,
+    required IriTermMapper<String> simpleVariantMapper,
+  }) : _iriMapper = iriMapper,
+       _simpleVariant2Mapper = simpleVariant2Mapper,
+       _simpleVariantMapper = simpleVariantMapper;
 
   @override
   IriTerm? get typeIri =>
@@ -190,14 +195,20 @@ class ContextualBookMapper implements GlobalResourceMapper<ContextualBook> {
     final String title = reader.require(
       const IriTerm.prevalidated('http://example.com/title'),
     );
-    final String Function() baseUriProvider = reader.require(
-      const IriTerm.prevalidated('http://example.com/baseUri'),
+    final String simpleVariant = reader.require(
+      const IriTerm.prevalidated('http://example.com/simpleVariant'),
+      deserializer: _simpleVariantMapper,
+    );
+    final String simpleVariant2 = reader.require(
+      const IriTerm.prevalidated('http://example.com/simpleVariant2'),
+      deserializer: _simpleVariant2Mapper,
     );
 
     return ContextualBook(
       id: id,
       title: title,
-      baseUriProvider: baseUriProvider,
+      simpleVariant: simpleVariant,
+      simpleVariant2: simpleVariant2,
     );
   }
 
@@ -216,8 +227,14 @@ class ContextualBookMapper implements GlobalResourceMapper<ContextualBook> {
           resource.title,
         )
         .addValue(
-          const IriTerm.prevalidated('http://example.com/baseUri'),
-          resource.baseUriProvider,
+          const IriTerm.prevalidated('http://example.com/simpleVariant'),
+          resource.simpleVariant,
+          serializer: _simpleVariantMapper,
+        )
+        .addValue(
+          const IriTerm.prevalidated('http://example.com/simpleVariant2'),
+          resource.simpleVariant2,
+          serializer: _simpleVariant2Mapper,
         )
         .build();
   }

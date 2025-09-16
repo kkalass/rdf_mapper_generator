@@ -573,6 +573,13 @@ IriTermMapper<(String,)> Function<T>() get _defaultSimpleBookIriFactory {
   };
 }
 
+/// Default simple variant reference factory for test purposes
+IriTermMapper<String> Function<T>(Type) get _defaultSimpleVariantRefFactory {
+  return <T>(Type type) {
+    return TestIriMapper();
+  };
+}
+
 RdfMapper defaultInitTestRdfMapper(
     {RdfMapper? rdfMapper,
     // Provider parameters
@@ -615,7 +622,8 @@ RdfMapper defaultInitTestRdfMapper(
     // Factory function parameters
     IriTermMapper<(String id,)> Function<T>(astm.PodConfig)? podIriFactory,
     IriTermMapper<(String id,)> Function<T>(nftm.IriMapperConfig)? configurableBookIriFactory,
-    IriTermMapper<(String id,)> Function<T>()? simpleBookIriFactory}) {
+    IriTermMapper<(String id,)> Function<T>()? simpleBookIriFactory,
+    IriTermMapper<String> Function<T>(Type)? simpleVariantRefFactory}) {
   return initTestRdfMapper(
     rdfMapper: rdfMapper,
     // Provider parameters
@@ -660,5 +668,6 @@ RdfMapper defaultInitTestRdfMapper(
     $podIri$Factory: podIriFactory ?? _defaultPodIriFactory,
     configurableBookIriFactory: configurableBookIriFactory ?? _defaultConfigurableBookIriFactory,
     simpleBookIriFactory: simpleBookIriFactory ?? _defaultSimpleBookIriFactory,
+    simpleVariantRefFactory: simpleVariantRefFactory ?? _defaultSimpleVariantRefFactory,
   );
 }

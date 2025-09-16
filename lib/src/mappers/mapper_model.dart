@@ -1330,13 +1330,7 @@ class MapperDependency extends DependencyModel {
         // and can be used directly. The init function needs to get the factory
         // injected and instantiate it to get the instane injected here.
 
-        var paramName2 = factoryRef.name.endsWith('Factory')
-            ? factoryRef.name
-                .substring(0, factoryRef.name.length - 'Factory'.length)
-            : factoryRef.name;
-        var factoryName = factoryRef.name.endsWith('Factory')
-            ? factoryRef.name
-            : '${factoryRef.name}Factory';
+        var factoryName = factoryRef.name;
         return [
           DependencyResolvedModel(
             id: id,
@@ -1349,7 +1343,9 @@ class MapperDependency extends DependencyModel {
             constructorParam:
                 FactoryInstantiatedConstructorParameterResolvedModel(
                     type: type,
-                    paramName: paramName2,
+                    paramName: fieldName.startsWith('_')
+                        ? fieldName.substring(1)
+                        : fieldName,
                     initFunctionParameterName: factoryName,
                     initFunctionParameterType: _buildFactorySignature(
                         type, 'T', factoryRef.configType),
