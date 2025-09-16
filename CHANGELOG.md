@@ -13,6 +13,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.10.2] - 2025-09-16
+
+### Added
+
+- **Annotation Subclassing Support**: Added comprehensive support for inheritance of RDF annotations
+  - Classes can now inherit RDF mappings from their parent classes
+  - Proper handling of annotation inheritance chains for complex class hierarchies
+  - Validation and error handling for annotation inheritance conflicts
+  - Enhanced mapper generation to support inherited annotation patterns
+
+- **Named Factory Constructor Support**: Added full support for named factory constructors in RDF mapping
+  - Enhanced analyzer wrapper models (both v6 and v7.4) to detect and handle named constructors
+  - Updated mapper model builder to properly configure named factory constructors
+  - Generated mappers now support classes using named factory constructors for instantiation
+  - Improved constructor resolution and parameter handling in code generation
+
+### Changed
+
+- **Enhanced Mapper Model Building**: Improved internal mapper model building infrastructure
+  - Updated `IriModelBuilderSupport` and `MapperModel` classes for better constructor handling
+  - Enhanced parameter resolution and type inference for complex constructor scenarios
+  - Better integration between analyzer wrapper and mapper generation systems
+
+- **Updated Dependencies**: Updated to latest versions of RDF-related dependencies
+  - Updated `rdf_mapper_annotations` to version 0.10.2 for enhanced annotation features
+  - Refreshed other RDF ecosystem dependencies for improved compatibility and features
+
+### Fixed
+
+- **Constructor Resolution**: Fixed issues with constructor detection and parameter mapping
+  - Resolved problems with named factory constructor parameter resolution
+  - Improved handling of complex constructor scenarios in inheritance hierarchies
+  - Fixed edge cases in constructor validation and error reporting
+
+- **Code Generation Consistency**: Improved consistency in generated mapper code
+  - Fixed formatting and structure issues in generated test files
+  - Enhanced code generation for complex inheritance and constructor scenarios
+  - Better handling of import dependencies in generated code
+
 ## [0.10.1] - 2025-08-13
 
 ### Added
