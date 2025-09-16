@@ -135,6 +135,7 @@ class ResourceModelBuilderSupport {
         iriStrategy.iriMapperType?.type,
         iriStrategy.iriMapperType?.parts,
         iriStrategy.templateInfo,
-        resourceInfo.properties);
+        resourceInfo.properties,
+        resourceInfo.className);
   }
 }

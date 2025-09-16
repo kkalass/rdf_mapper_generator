@@ -117,6 +117,30 @@ class ConstructorParameterResolvedModel {
   }
 }
 
+class FactoryInstantiatedConstructorParameterResolvedModel
+    extends ConstructorParameterResolvedModel {
+  final Code initFunctionParameterType;
+  final String initFunctionParameterName;
+  final Code initFunctionParameterCode;
+  FactoryInstantiatedConstructorParameterResolvedModel({
+    required this.initFunctionParameterType,
+    required this.initFunctionParameterName,
+    required this.initFunctionParameterCode,
+    required Code type,
+    required String paramName,
+  }) : super(type: type, paramName: paramName, defaultValue: null);
+
+  ConstructorParameterData toTemplateData(ValidationContext context) {
+    return ConstructorParameterData.full(
+        type: type,
+        parameterName: paramName,
+        defaultValue: defaultValue,
+        initFunctionParameterType: initFunctionParameterType,
+        initFunctionParameterName: initFunctionParameterName,
+        initFunctionParameterCode: initFunctionParameterCode);
+  }
+}
+
 /// A mapper for global resources
 class ResourceResolvedMapperModel extends GeneratedResolvedMapperModel {
   @override

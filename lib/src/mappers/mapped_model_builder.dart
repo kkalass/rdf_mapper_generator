@@ -300,8 +300,8 @@ class MappedClassModelBuilder {
 
     final MapperRef mapperRef;
     if (literal.mapper != null) {
-      mapperRef =
-          IriModelBuilderSupport.mapperRefInfoToMapperRef(literal.mapper!);
+      mapperRef = IriModelBuilderSupport.mapperRefInfoToMapperRef(
+          literal.mapper!, propertyInfo.type);
     } else if (literal.datatype != null) {
       mapperRef = MapperRef.fromInstantiationCode(Code.combine([
         Code.literal('const '),
@@ -352,7 +352,8 @@ class MappedClassModelBuilder {
     final MapperRef mapperRef;
     final List<MapperModel> extraMappers = [];
     if (iri.mapper != null) {
-      mapperRef = IriModelBuilderSupport.mapperRefInfoToMapperRef(iri.mapper!);
+      mapperRef = IriModelBuilderSupport.mapperRefInfoToMapperRef(
+          iri.mapper!, propertyInfo.type);
     } else if (iri.template != null && !iri.isFullIriTemplate) {
       if (!iri.template!.propertyVariables.any((v) => v.name == propertyName)) {
         context.addError(
@@ -421,7 +422,7 @@ class MappedClassModelBuilder {
           collectionModel,
           dartTypeNonNull),
       propertyName,
-      IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper),
+      IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper, dartTypeNonNull),
     );
   }
 
@@ -438,7 +439,8 @@ class MappedClassModelBuilder {
           buildElementTypeForProperty(collectionModel, dartTypeNonNull),
         ),
         propertyName,
-        IriModelBuilderSupport.mapperRefInfoToMapperRef(mapper),
+        IriModelBuilderSupport.mapperRefInfoToMapperRef(
+            mapper, dartTypeNonNull),
         suffix: "SerializationProvider");
   }
 

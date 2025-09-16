@@ -10,14 +10,35 @@ class MapperRefInfo<M> {
 
   final DartObject? instance;
 
-  const MapperRefInfo(
-      {required this.name,
-      required this.type,
-      this.rawType,
-      required this.instance});
+  /// Factory name for namedFactory pattern
+  final String? factoryName;
+
+  /// Configuration instance for namedFactory pattern
+  final DartObject? configInstance;
+
+  /// Type of the configuration parameter
+  final Code? configType;
+
+  const MapperRefInfo({
+    required this.name,
+    required this.type,
+    this.rawType,
+    required this.instance,
+    this.factoryName,
+    this.configInstance,
+    this.configType,
+  });
 
   @override
-  int get hashCode => Object.hashAll([name, type, rawType, instance]);
+  int get hashCode => Object.hashAll([
+        name,
+        type,
+        rawType,
+        instance,
+        factoryName,
+        configInstance,
+        configType,
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -27,7 +48,10 @@ class MapperRefInfo<M> {
     return name == other.name &&
         type == other.type &&
         rawType == other.rawType &&
-        instance == other.instance;
+        instance == other.instance &&
+        factoryName == other.factoryName &&
+        configInstance == other.configInstance &&
+        configType == other.configType;
   }
 
   @override
@@ -36,7 +60,10 @@ class MapperRefInfo<M> {
         'name: $name, '
         'type: $type, '
         'rawType: $rawType, '
-        'instance: $instance}';
+        'instance: $instance, '
+        'factoryName: $factoryName, '
+        'configInstance: $configInstance, '
+        'configType: $configType}';
   }
 }
 

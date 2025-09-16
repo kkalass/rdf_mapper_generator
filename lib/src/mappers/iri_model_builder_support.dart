@@ -17,10 +17,12 @@ class IriModelBuilderSupport {
       Code? type,
       List<IriPartInfo>? iriParts,
       IriTemplateInfo? templateInfo,
-      List<PropertyInfo>? fields) {
+      List<PropertyInfo>? fields,
+      Code mappedClassName) {
     final mapperRef = mapper == null || type == null
         ? null
-        : mapperRefInfoToDependency(type, referenceName, mapper);
+        : mapperRefInfoToDependency(
+            type, referenceName, mapper, mappedClassName);
 
     final rdfPropertyFields = fields
         ?.where((f) => f.propertyInfo != null)
@@ -46,20 +48,33 @@ class IriModelBuilderSupport {
   }
 
   static DependencyModel mapperRefInfoToDependency(
-      Code type, String referenceName, MapperRefInfo<dynamic> mapper) {
+      Code type,
+      String referenceName,
+      MapperRefInfo<dynamic> mapper,
+      Code mappedClassName) {
     return DependencyModel.mapper(
       type,
       referenceName,
-      mapperRefInfoToMapperRef(mapper),
+      mapperRefInfoToMapperRef(mapper, mappedClassName),
     );
   }
 
-  static MapperRef mapperRefInfoToMapperRef(MapperRefInfo<dynamic> mapper) {
-    return mapper.name != null
-        ? MapperRef.fromInstanceName(mapper.name!)
-        : mapper.type != null
-            ? MapperRef.fromImplementationClass(mapper.type!, mapper.rawType)
-            : MapperRef.fromInstantiationCode(toCode(mapper.instance));
+  static MapperRef mapperRefInfoToMapperRef(
+      MapperRefInfo<dynamic> mapper, Code mappedClassName) {
+    if (mapper.factoryName != null) {
+      return MapperRef.fromFactoryName(
+          mapper.factoryName!,
+          mapper.configInstance == null ? null : toCode(mapper.configInstance),
+          mapper.configType,
+          mappedClassName);
+    }
+    if (mapper.name != null) {
+      return MapperRef.fromInstanceName(mapper.name!);
+    }
+    if (mapper.type != null) {
+      return MapperRef.fromImplementationClass(mapper.type!, mapper.rawType);
+    }
+    return MapperRef.fromInstantiationCode(toCode(mapper.instance));
   }
 
   static IriTemplateModel buildTemplateData(

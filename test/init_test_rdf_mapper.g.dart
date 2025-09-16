@@ -27,6 +27,8 @@ import 'fixtures/literal_processor_test_models.rdf_mapper.g.dart' as lptmrmg;
 import 'fixtures/local_resource_processor_test_models.dart' as lrptm;
 import 'fixtures/local_resource_processor_test_models.rdf_mapper.g.dart'
     as lrptmrmg;
+import 'fixtures/named_factory_test_models.dart' as nftm;
+import 'fixtures/named_factory_test_models.rdf_mapper.g.dart' as nftmrmg;
 import 'fixtures/property_processor_test_models.dart' as pptm;
 import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
 import 'fixtures/rdf_mapper_annotations/examples/collection_examples.dart'
@@ -73,52 +75,55 @@ import 'fixtures/valid_generic_test_models.rdf_mapper.g.dart' as vgtmrmg;
 /// Initializes and returns an RdfMapper with test mappers registered.
 ///
 /// [rdfMapper] An optional RdfMapper instance to use. If not provided, a new one will be created.
-/// Provider parameters:
+/// * [$podIri$Factory]
 /// * [apiBaseProvider]
 /// * [baseUriProvider]
 /// * [baseVocabProvider]
+/// * [chapterIdMapper]
+/// * [complexItemMapperGlobal]
+/// * [complexItemMapperLocal]
+/// * [configurableBookIriFactory]
+/// * [customCollectionMapper]
+/// * [customPriorityMapper]
 /// * [departmentProvider]
+/// * [iriMapper]
+/// * [mapEntryMapper]
 /// * [orgNamespaceProvider]
+/// * [simpleBookIriFactory]
 /// * [storageRootProvider]
+/// * [testCustomMapper]
+/// * [testGlobalMapper]
+/// * [testGlobalResourceMapper]
+/// * [testIriMapper]
+/// * [testLiteralMapper]
+/// * [testLiteralPriceMapper]
+/// * [testLocalMapper]
+/// * [testLocalResourceMapper]
+/// * [testMapper]
+/// * [testMapper3]
+/// * [testNamedMapper]
+/// * [userReferenceMapper]
 /// * [versionProvider]
-/// named mapper parameters:
-/// * [chapterIdMapper] mapper
-/// * [complexItemMapperGlobal] mapper
-/// * [complexItemMapperLocal] mapper
-/// * [customCollectionMapper] mapper
-/// * [customPriorityMapper] mapper
-/// * [iriMapper] mapper
-/// * [mapEntryMapper] mapper
-/// * [testCustomMapper] mapper
-/// * [testGlobalMapper] mapper
-/// * [testGlobalResourceMapper] mapper
-/// * [testIriMapper] mapper
-/// * [testLiteralMapper] mapper
-/// * [testLiteralPriceMapper] mapper
-/// * [testLocalMapper] mapper
-/// * [testLocalResourceMapper] mapper
-/// * [testMapper] mapper
-/// * [testMapper3] mapper
-/// * [testNamedMapper] mapper
-/// * [userReferenceMapper] mapper
 RdfMapper initTestRdfMapper({
   RdfMapper? rdfMapper,
-  // Provider parameters
+  required IriTermMapper<(String id,)> Function<T>(astm.PodConfig)
+  $podIri$Factory,
   required String Function() apiBaseProvider,
   required String Function() baseUriProvider,
   required String Function() baseVocabProvider,
-  required String Function() departmentProvider,
-  required String Function() orgNamespaceProvider,
-  required String Function() storageRootProvider,
-  required String Function() versionProvider,
-  // Named mapper parameters
   required IriTermMapper<(String bookId, int chapterNumber)> chapterIdMapper,
   required GlobalResourceMapper<cct.ComplexItem> complexItemMapperGlobal,
   required LocalResourceMapper<cct.ComplexItem> complexItemMapperLocal,
+  required IriTermMapper<(String id,)> Function<T>(nftm.IriMapperConfig)
+  configurableBookIriFactory,
   required Mapper<List<String>> customCollectionMapper,
   required LiteralTermMapper<ems.Priority> customPriorityMapper,
+  required String Function() departmentProvider,
   required IriTermMapper<String> iriMapper,
   required LocalResourceMapper<MapEntry<String, String>> mapEntryMapper,
+  required String Function() orgNamespaceProvider,
+  required IriTermMapper<(String id,)> Function<T>() simpleBookIriFactory,
+  required String Function() storageRootProvider,
   required LiteralTermMapper<String> testCustomMapper,
   required GlobalResourceMapper<Object> testGlobalMapper,
   required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>
@@ -133,6 +138,7 @@ RdfMapper initTestRdfMapper({
   required IriTermMapper<(String id, String surname, int version)> testMapper3,
   required GlobalResourceMapper<Object> testNamedMapper,
   required IriTermMapper<eis.UserReference> userReferenceMapper,
+  required String Function() versionProvider,
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();
@@ -144,6 +150,13 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<astm.PersonWithPodResource>(
     astmrmg.PersonWithPodResourceMapper(),
+  );
+  registry.registerMapper<astm.PersonWithPodResource2>(
+    astmrmg.PersonWithPodResource2Mapper(
+      $podIri$: $podIri$Factory<astm.PersonWithPodResource2>(
+        const astm.PodConfig(digits: 2),
+      ),
+    ),
   );
   registry.registerMapper<astm.ArticleWithRegularAnnotation>(
     astmrmg.ArticleWithRegularAnnotationMapper(),
@@ -331,6 +344,31 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<lrptm.ClassWithMapperInstanceStrategy>(
     const lrptm.TestLocalResourceMapper2(),
+  );
+  registry.registerMapper<nftm.SimpleBook>(
+    nftmrmg.SimpleBookMapper(
+      simpleBookIri: simpleBookIriFactory<nftm.SimpleBook>(),
+    ),
+  );
+  registry.registerMapper<nftm.ConfigurableBook>(
+    nftmrmg.ConfigurableBookMapper(
+      configurableBookIri: configurableBookIriFactory<nftm.ConfigurableBook>(
+        const nftm.IriMapperConfig(
+          baseUri: 'https://books.example.com',
+          format: 'detailed',
+        ),
+      ),
+    ),
+  );
+  registry.registerMapper<nftm.ContextualBook>(
+    nftmrmg.ContextualBookMapper(
+      configurableBookIri: configurableBookIriFactory<nftm.ContextualBook>(
+        const nftm.IriMapperConfig(
+          baseUri: 'https://contextual.example.com',
+          format: 'contextual',
+        ),
+      ),
+    ),
   );
   registry.registerMapper<pptm.SimplePropertyTest>(
     pptmrmg.SimplePropertyTestMapper(),

@@ -54,6 +54,11 @@ sealed class MapperRef {
     return _InstanceMapperRef(instance);
   }
 
+  static MapperRef fromFactoryName(String factory, Code? configInstance,
+      Code? configType, Code resourceType) {
+    return _FactoryMapperRef(factory, configInstance, configType, resourceType);
+  }
+
   static MapperRef fromInstantiationCode(Code instantiation) {
     return _InstantiationMapperRef(instantiation);
   }
@@ -92,6 +97,19 @@ class _InstanceMapperRef extends MapperRef {
 
   @override
   String toString() => 'InstanceMapperRef($id)';
+}
+
+class _FactoryMapperRef extends MapperRef {
+  final String name;
+  final Code? configInstance;
+  final Code? configType;
+  final Code resourceType;
+  _FactoryMapperRef(
+      this.name, this.configInstance, this.configType, this.resourceType)
+      : super('Factory:' + name);
+
+  @override
+  String toString() => 'FactoryMapperRef($id)';
 }
 
 class _InstantiationMapperRef extends MapperRef {
@@ -1307,6 +1325,41 @@ class MapperDependency extends DependencyModel {
               )
             ];
         }
+      case _FactoryMapperRef factoryRef:
+        // From the point of view of the mapper, this is injected as an instance
+        // and can be used directly. The init function needs to get the factory
+        // injected and instantiate it to get the instane injected here.
+
+        var paramName2 = factoryRef.name.endsWith('Factory')
+            ? factoryRef.name
+                .substring(0, factoryRef.name.length - 'Factory'.length)
+            : factoryRef.name;
+        var factoryName = factoryRef.name.endsWith('Factory')
+            ? factoryRef.name
+            : '${factoryRef.name}Factory';
+        return [
+          DependencyResolvedModel(
+            id: id,
+            field: FieldResolvedModel(
+              isFinal: true,
+              isLate: false,
+              name: fieldName,
+              type: type,
+            ),
+            constructorParam:
+                FactoryInstantiatedConstructorParameterResolvedModel(
+                    type: type,
+                    paramName: paramName2,
+                    initFunctionParameterName: factoryName,
+                    initFunctionParameterType: _buildFactorySignature(
+                        type, 'T', factoryRef.configType),
+                    initFunctionParameterCode: _buildCodeInstantiateFactory(
+                        factoryName,
+                        factoryRef.configInstance,
+                        factoryRef.resourceType)),
+            usageCode: Code.literal(fieldName),
+          )
+        ];
       case _InstanceMapperRef instanceRef:
         // This is a mapper that is injected as an instance, we can use it directly.
         return [
@@ -1397,4 +1450,35 @@ class ExternalDependency extends DependencyModel {
           usageCode: usageCode)
     ];
   }
+}
+
+/// Builds the factory function signature for namedFactory pattern
+Code _buildFactorySignature(
+    Code mapperType, String genericParamName, Code? configType) {
+  // Build generic constraint: <T>
+  final genericConstraint =
+      Code.genericParamsList([Code.literal(genericParamName)]);
+
+  // Build parameter list: () or (ConfigType)
+  final parameters = Code.paramsList([if (configType != null) configType]);
+
+  // Build complete signature
+  return Code.combine(
+      [mapperType, Code.literal(' Function'), genericConstraint, parameters]);
+}
+
+/// Builds the factory function call for namedFactory pattern
+Code _buildCodeInstantiateFactory(
+  String factoryName,
+  Code? configCode,
+  Code resourceType,
+) {
+  // Build generic type argument: <ResourceType>
+  final typeArgument = Code.genericParamsList([resourceType]);
+
+  // Build parameter list: () or (configInstance)
+  final parameters = Code.paramsList([if (configCode != null) configCode]);
+
+  // Build complete factory call: factoryName<ResourceType>() or factoryName<ResourceType>(config)
+  return Code.combine([Code.literal(factoryName), typeArgument, parameters]);
 }

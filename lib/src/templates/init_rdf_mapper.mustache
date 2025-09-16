@@ -18,32 +18,18 @@ import '{{uri}}'{{#hasAlias}} as {{alias}}{{/hasAlias}};
 /// Initializes and returns an RdfMapper with {{#isTest}}test {{/isTest}}mappers registered.
 /// 
 /// [rdfMapper] An optional RdfMapper instance to use. If not provided, a new one will be created.
-{{#hasProviders}}
-/// Provider parameters:
-{{#providers}}
-/// * [{{parameterName}}] {{placeholder}}
-{{/providers}}
-{{/hasProviders}}
-{{#hasNamedCustomMappers}}
-/// named mapper parameters:
-{{#namedCustomMappers}}
-/// * [{{name}}] mapper 
-{{/namedCustomMappers}}
-{{/hasNamedCustomMappers}}
+{{#hasInitFunctionParameters}}
+{{#initFunctionParameters}}
+/// * [{{name}}] 
+{{/initFunctionParameters}}
+{{/hasInitFunctionParameters}}
 RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   RdfMapper? rdfMapper,
-  {{#hasProviders}}
-  // Provider parameters
-  {{#providers}}
-  required {{type}} Function() {{parameterName}},
-  {{/providers}}
-  {{/hasProviders}}
-  {{#hasNamedCustomMappers}}
-  // Named mapper parameters
-  {{#namedCustomMappers}}
+  {{#hasInitFunctionParameters}}
+  {{#initFunctionParameters}}
   required {{type}} {{name}},
-  {{/namedCustomMappers}}
-  {{/hasNamedCustomMappers}}
+  {{/initFunctionParameters}}
+  {{/hasInitFunctionParameters}}
 }) {
   if (rdfMapper == null) {
     rdfMapper = RdfMapper.withDefaultRegistry();

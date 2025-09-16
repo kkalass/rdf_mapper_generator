@@ -2,44 +2,6 @@ import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
-/// Information about a mapper reference
-class MapperRefData {
-  /// The name of the mapper (for named mappers)
-  final String? name;
-
-  /// The (interface) type of the mapper (for all mappers)
-  final Code type;
-
-  /// Whether this is a named mapper
-  final bool isNamed;
-
-  /// Whether this is a type-based mapper
-  final bool isTypeBased;
-
-  /// Whether this is a direct instance
-  final bool isInstance;
-
-  final Code? instanceInitializationCode;
-
-  const MapperRefData({
-    this.name,
-    required this.type,
-    this.isNamed = false,
-    this.isTypeBased = false,
-    this.isInstance = false,
-    this.instanceInitializationCode,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'name': name,
-        'type': type.toMap(),
-        'isNamed': isNamed,
-        'isTypeBased': isTypeBased,
-        'isInstance': isInstance,
-        'instanceInitializationCode': instanceInitializationCode?.toMap(),
-      };
-}
-
 sealed class MappableClassMapperTemplateData {
   Map<String, dynamic> toMap();
   const MappableClassMapperTemplateData();
@@ -743,17 +705,34 @@ class ConstructorParameterData {
   final Code type;
   final String parameterName;
   final Code? defaultValue;
+  final Code initFunctionParameterType;
+  final String initFunctionParameterName;
+  final Code initFunctionParameterCode;
 
   ConstructorParameterData(
       {required this.type,
       required this.parameterName,
-      required this.defaultValue});
+      required this.defaultValue})
+      : initFunctionParameterType = type,
+        initFunctionParameterName = parameterName,
+        initFunctionParameterCode = Code.literal(parameterName);
+
+  ConstructorParameterData.full(
+      {required this.type,
+      required this.parameterName,
+      required this.defaultValue,
+      required this.initFunctionParameterType,
+      required this.initFunctionParameterName,
+      required this.initFunctionParameterCode});
 
   Map<String, dynamic> toMap() => {
         'type': type.toMap(),
         'parameterName': parameterName,
         'defaultValue': defaultValue?.toMap(),
         'hasDefaultValue': defaultValue != null,
+        'initFunctionParameterType': initFunctionParameterType.toMap(),
+        'initFunctionParameterName': initFunctionParameterName,
+        'initFunctionParameterCode': initFunctionParameterCode.toMap(),
       };
 
   @override

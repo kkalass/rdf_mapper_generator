@@ -1,11 +1,13 @@
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
 
+import '../fixtures/annotation_subclass_test_models.dart' as astm;
 import '../fixtures/comprehensive_collection_tests.dart' as cct;
 import '../fixtures/global_resource_processor_test_models.dart' as grptm;
 import '../fixtures/local_resource_processor_test_models.dart' as lrptm;
 import '../fixtures/iri_processor_test_models.dart' as iptm;
 import '../fixtures/literal_processor_test_models.dart' as lptm;
+import '../fixtures/named_factory_test_models.dart' as nftm;
 import '../fixtures/rdf_mapper_annotations/examples/enum_mapping_simple.dart'
     as ems;
 import '../fixtures/rdf_mapper_annotations/examples/example_iri_strategies.dart'
@@ -481,7 +483,95 @@ class TestCustomMapMapper implements LiteralTermMapper<Map<String, int>> {
   }
 }
 
+/// Test IRI mapper for PodIri factory
+class TestPodIriMapper<T> implements IriTermMapper<(String,)> {
+  final astm.PodConfig config;
+  const TestPodIriMapper(this.config);
+
+  @override
+  (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract id from IRI like http://example.org/pod/test-id
+    final iri = term.iri;
+    final match = RegExp(r'http://example\.org/pod/(.+)$').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid pod IRI format: $iri');
+    }
+    return (match.group(1)!,);
+  }
+
+  @override
+  IriTerm toRdfTerm((String,) value, SerializationContext context) {
+    final paddedId = value.$1.padLeft(config.digits, '0');
+    return IriTerm('http://example.org/pod/$paddedId');
+  }
+}
+
+/// Test IRI mapper for configurable book IRI factory
+class TestConfigurableBookIriMapper<T> implements IriTermMapper<(String,)> {
+  final nftm.IriMapperConfig config;
+  const TestConfigurableBookIriMapper(this.config);
+
+  @override
+  (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract id from IRI using config baseUri
+    final iri = term.iri;
+    final baseUri = config.baseUri;
+    final match = RegExp('$baseUri/books/(.+)\\?format=${config.format}').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid configurable book IRI format: $iri');
+    }
+    return (match.group(1)!,);
+  }
+
+  @override
+  IriTerm toRdfTerm((String,) value, SerializationContext context) {
+    return IriTerm('${config.baseUri}/books/${value.$1}?format=${config.format}');
+  }
+}
+
+/// Test IRI mapper for simple book IRI factory
+class TestSimpleBookIriMapper<T> implements IriTermMapper<(String,)> {
+  const TestSimpleBookIriMapper();
+
+  @override
+  (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
+    // Extract id from IRI like https://example.com/books/test-id
+    final iri = term.iri;
+    final match = RegExp(r'https://example\.com/books/(.+)$').firstMatch(iri);
+    if (match == null) {
+      throw ArgumentError('Invalid simple book IRI format: $iri');
+    }
+    return (match.group(1)!,);
+  }
+
+  @override
+  IriTerm toRdfTerm((String,) value, SerializationContext context) {
+    return IriTerm('https://example.com/books/${value.$1}');
+  }
+}
+
 const baseUri = 'http://example.org';
+
+/// Default PodIri factory for test purposes
+IriTermMapper<(String,)> Function<T>(astm.PodConfig) get _defaultPodIriFactory {
+  return <T>(astm.PodConfig config) {
+    return TestPodIriMapper<T>(config);
+  };
+}
+
+/// Default configurable book IRI factory for test purposes
+IriTermMapper<(String,)> Function<T>(nftm.IriMapperConfig) get _defaultConfigurableBookIriFactory {
+  return <T>(nftm.IriMapperConfig config) {
+    return TestConfigurableBookIriMapper<T>(config);
+  };
+}
+
+/// Default simple book IRI factory for test purposes
+IriTermMapper<(String,)> Function<T>() get _defaultSimpleBookIriFactory {
+  return <T>() {
+    return TestSimpleBookIriMapper<T>();
+  };
+}
 
 RdfMapper defaultInitTestRdfMapper(
     {RdfMapper? rdfMapper,
@@ -521,7 +611,11 @@ RdfMapper defaultInitTestRdfMapper(
     // New mapper parameters
     GlobalResourceMapper<cct.ComplexItem>? complexItemMapperGlobal,
     LocalResourceMapper<cct.ComplexItem>? complexItemMapperLocal,
-    LiteralTermMapper<List<String>>? customCollectionMapper}) {
+    Mapper<List<String>>? customCollectionMapper,
+    // Factory function parameters
+    IriTermMapper<(String id,)> Function<T>(astm.PodConfig)? podIriFactory,
+    IriTermMapper<(String id,)> Function<T>(nftm.IriMapperConfig)? configurableBookIriFactory,
+    IriTermMapper<(String id,)> Function<T>()? simpleBookIriFactory}) {
   return initTestRdfMapper(
     rdfMapper: rdfMapper,
     // Provider parameters
@@ -562,5 +656,9 @@ RdfMapper defaultInitTestRdfMapper(
         complexItemMapperLocal ?? const TestComplexItemLocalMapper(),
     customCollectionMapper:
         customCollectionMapper ?? const TestCustomCollectionMapper(),
+    // Factory function parameters
+    $podIri$Factory: podIriFactory ?? _defaultPodIriFactory,
+    configurableBookIriFactory: configurableBookIriFactory ?? _defaultConfigurableBookIriFactory,
+    simpleBookIriFactory: simpleBookIriFactory ?? _defaultSimpleBookIriFactory,
   );
 }

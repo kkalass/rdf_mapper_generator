@@ -3,6 +3,27 @@ import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 import 'package:rdf_vocabularies_schema/schema.dart';
 
+class PodConfig {
+  final int digits;
+
+  const PodConfig({this.digits = 2});
+}
+
+class PodIriStrategy extends IriStrategy {
+  const PodIriStrategy(PodConfig config)
+      : super.namedFactory(r'$podIri$Factory', config);
+}
+
+class PodResource2 extends RdfGlobalResource {
+  const PodResource2(IriTerm classIri,
+      [PodIriStrategy strategy = const PodIriStrategy(PodConfig())])
+      : super(
+          classIri,
+          strategy,
+          registerGlobally: true,
+        );
+}
+
 // Custom annotation that extends RdfGlobalResource
 class CustomGlobalResource extends RdfGlobalResource {
   const CustomGlobalResource(
@@ -54,6 +75,20 @@ class PersonWithPodResource {
   final String name;
 
   PersonWithPodResource({
+    required this.id,
+    required this.name,
+  });
+}
+
+@PodResource2(SchemaPerson.classIri, PodIriStrategy(PodConfig(digits: 2)))
+class PersonWithPodResource2 {
+  @RdfIriPart()
+  final String id;
+
+  @RdfProperty(SchemaPerson.name)
+  final String name;
+
+  PersonWithPodResource2({
     required this.id,
     required this.name,
   });

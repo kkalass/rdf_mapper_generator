@@ -129,6 +129,51 @@ class PersonWithPodResourceMapper
   }
 }
 
+/// Generated mapper for [PersonWithPodResource2] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type `PersonWithPodResource2`.
+class PersonWithPodResource2Mapper
+    implements GlobalResourceMapper<PersonWithPodResource2> {
+  final IriTermMapper<(String id,)> _iriMapper;
+
+  /// Constructor
+  const PersonWithPodResource2Mapper({
+    required IriTermMapper<(String id,)> $podIri$,
+  }) : _iriMapper = $podIri$;
+
+  @override
+  IriTerm? get typeIri => SchemaPerson.classIri;
+
+  @override
+  PersonWithPodResource2 fromRdfResource(
+    IriTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final (id,) = _iriMapper.fromRdfTerm(subject, context);
+
+    final String name = reader.require(SchemaPerson.name);
+
+    return PersonWithPodResource2(id: id, name: name);
+  }
+
+  @override
+  (IriTerm, Iterable<Triple>) toRdfResource(
+    PersonWithPodResource2 resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = _iriMapper.toRdfTerm((resource.id,), context);
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(SchemaPerson.name, resource.name)
+        .build();
+  }
+}
+
 /// Generated mapper for [ArticleWithRegularAnnotation] global resources.
 ///
 /// This mapper handles serialization and deserialization between Dart objects

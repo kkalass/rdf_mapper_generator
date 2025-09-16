@@ -11,59 +11,24 @@ class _InitFileTemplateData {
   final String generatedOn;
   final bool isTest;
   final List<_Mapper> mappers;
-  final List<_Provider> providers;
-  final List<_CustomMapper> namedCustomMappers;
+  final List<_InitFunctionParameter> initFunctionParameters;
 
   _InitFileTemplateData(
       {required this.generatedOn,
       required this.isTest,
       required this.mappers,
-      required this.providers,
-      required this.namedCustomMappers});
+      required this.initFunctionParameters});
 
   Map<String, dynamic> toMap() {
     return {
       'generatedOn': generatedOn,
       'isTest': isTest,
       'mappers': mappers.map((m) => m.toMap()).toList(),
-      'providers': providers.map((p) => p.toMap()).toList(),
-      'hasProviders': providers.isNotEmpty,
-      'namedCustomMappers': namedCustomMappers.map((i) => i.toMap()).toList(),
-      'hasNamedCustomMappers': namedCustomMappers.isNotEmpty,
+      'initFunctionParameters':
+          initFunctionParameters.map((i) => i.toMap()).toList(),
+      'hasInitFunctionParameters': initFunctionParameters.isNotEmpty,
     };
   }
-}
-
-class _MustacheListEntry<T> {
-  final Map<String, dynamic> Function(T value) _valueToMap;
-  final T value;
-  final bool last;
-
-  _MustacheListEntry(this._valueToMap, this.value, {this.last = false});
-
-  Map<String, dynamic> toMap() {
-    return {
-      'value': _valueToMap(value),
-      'last': last,
-    };
-  }
-}
-
-class _ContextProvider {
-  /// The name of the constructor parameter
-  final String parameterName;
-
-  final Code type;
-
-  _ContextProvider({
-    required this.parameterName,
-    Code? type,
-  }) : type = type ?? Code.coreType('String');
-
-  Map<String, dynamic> toMap() => {
-        'parameterName': parameterName,
-        'type': type.toMap(),
-      };
 }
 
 class _Mapper {
@@ -83,27 +48,48 @@ class _Mapper {
   }
 }
 
-class _CustomMapper {
+class _InitFunctionParameter {
   final Code type;
-  final Code code;
+  final String? name;
+  _InitFunctionParameter({
+    required this.type,
+    this.name,
+  });
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type.toMap(),
+      'name': name,
+    };
+  }
+}
+
+class _RequiredMapperParameter {
+  final Code type;
   final String parameterName;
   final bool isNamed;
   final bool isTypeBased;
   final bool isInstance;
   final String? name;
-  _CustomMapper({
+  final Code initFunctionParameterCode;
+  final Code initFunctionParameterType;
+  final String initFunctionParameterName;
+
+  _RequiredMapperParameter({
     required this.type,
-    required this.code,
     required this.parameterName,
     required this.isNamed,
     required this.isTypeBased,
     required this.isInstance,
     required this.name,
+    required this.initFunctionParameterCode,
+    required this.initFunctionParameterType,
+    required this.initFunctionParameterName,
   });
+
   Map<String, dynamic> toMap() {
     return {
       'type': type.toMap(),
-      'code': code.toMap(),
+      'code': initFunctionParameterCode.toMap(),
       'parameterName': parameterName,
       'isNamed': isNamed,
       'isTypeBased': isTypeBased,
@@ -113,31 +99,13 @@ class _CustomMapper {
   }
 }
 
-class _Provider {
-  final String parameterName;
-
-  final Code type;
-
-  _Provider({required this.parameterName, Code? type})
-      : type = type ?? Code.coreType('String');
-
-  Map<String, dynamic> toMap() {
-    return {
-      'parameterName': parameterName,
-      'type': type.toMap(),
-    };
-  }
-}
-
 typedef _InitFileContributions = (
   Iterable<_Mapper>,
-  Map<String, _Provider>,
-  Map<String, _CustomMapper>
+  Map<String, _InitFunctionParameter>,
 );
 const _InitFileContributions noInitFileContributions = (
   const <_Mapper>[],
-  const <String, _Provider>{},
-  const <String, _CustomMapper>{}
+  const <String, _InitFunctionParameter>{},
 );
 
 class InitFileBuilderHelper {
@@ -195,16 +163,15 @@ class InitFileBuilderHelper {
       }
     });
 
-    final (mappers, providers, namedCustomMappers) =
+    final (mappers, initFunctionParameters) =
         mergeInitFileContributions(contributions);
-    final sortedProviders = _sortProviders(providers);
-    final sortedNamedCustomMappers = _sortCustomMappers(namedCustomMappers);
+    final sortedMapperParameters =
+        _sortInitFunctionParameters(initFunctionParameters);
     return _InitFileTemplateData(
       generatedOn: DateTime.now().toIso8601String(),
       isTest: isTest,
-      mappers: mappers.toList(growable: false),
-      providers: sortedProviders,
-      namedCustomMappers: sortedNamedCustomMappers,
+      mappers: mappers.toList(),
+      initFunctionParameters: sortedMapperParameters,
     );
   }
 
@@ -214,13 +181,12 @@ class InitFileBuilderHelper {
         (jsonData['mappers'] as List? ?? []).cast<Map<String, dynamic>>();
     final all = mappersData.map<_InitFileContributions>(
         (mapperData) => switch (mapperData['__type__'] as String?) {
-              'ResourceMapperTemplateData' => collectResourceMapper(mapperData),
+              'ResourceMapperTemplateData' => collectMapper(mapperData),
               'CustomMapperTemplateData' => collectCustomMapper(mapperData),
-              'IriMapperTemplateData' => collectIriMapper(mapperData),
-              'LiteralMapperTemplateData' => collectLiteralMapper(mapperData),
-              'EnumIriMapperTemplateData' => collectEnumIriMapper(mapperData),
-              'EnumLiteralMapperTemplateData' =>
-                collectEnumLiteralMapper(mapperData),
+              'IriMapperTemplateData' => collectMapper(mapperData),
+              'LiteralMapperTemplateData' => collectMapper(mapperData),
+              'EnumIriMapperTemplateData' => collectMapper(mapperData),
+              'EnumLiteralMapperTemplateData' => collectMapper(mapperData),
               _ => () {
                   log.warning('Unknown mapper type: ${mapperData['__type__']}');
                   return noInitFileContributions;
@@ -232,27 +198,13 @@ class InitFileBuilderHelper {
   _InitFileContributions mergeInitFileContributions(
       Iterable<_InitFileContributions> all) {
     final mappers = all.expand((c) => c.$1).toList();
-    final providers =
-        all.fold<Map<String, _Provider>>({}, (acc, c) => {...acc, ...c.$2});
-    final allCustomMappers =
-        all.fold<Map<String, _CustomMapper>>({}, (acc, c) => {...acc, ...c.$3});
-
-    // Remove any custom mappers that have the same parameter name as providers
-    // to avoid duplication in the generated init file
-    final providerParameterNames =
-        providers.values.map((p) => p.parameterName).toSet();
-    final deduplicatedCustomMappers = Map<String, _CustomMapper>.fromEntries(
-        allCustomMappers.entries.where((entry) {
-      final customMapper = entry.value;
-      // Only exclude if this custom mapper's parameter name matches a provider parameter name
-      return !providerParameterNames.contains(customMapper.parameterName);
-    }));
-
-    return (mappers, providers, deduplicatedCustomMappers);
+    final allInitFunctionParameters = all
+        .fold<Map<String, _InitFunctionParameter>>(
+            {}, (acc, c) => {...acc, ...c.$2});
+    return (mappers, allInitFunctionParameters);
   }
 
-  _InitFileContributions collectResourceMapper(
-      Map<String, dynamic> mapperData) {
+  _InitFileContributions collectMapper(Map<String, dynamic> mapperData) {
     final className = extractNullableCodeProperty(mapperData, 'className');
     final mapperClassName =
         extractNullableCodeProperty(mapperData, 'mapperClassName');
@@ -261,21 +213,17 @@ class InitFileBuilderHelper {
       return noInitFileContributions;
     }
 
-    // Extract context providers for this mapper
-    final contextProviders = _extractContextProviders(mapperData);
-    final providersByName =
-        _indexProviders(contextProviders.map((e) => e.value));
-
     // Extract all required custom mappers for this mapper, excluding those that are already providers
-    final providerNames = providersByName.keys.toSet();
-    final customMappers = _extractAllCustomMappers(mapperData,
-        excludeParameterNames: providerNames);
-    final customMappersByName = _indexNamedCustomMappers(customMappers);
+    final requiredMapperParameters =
+        _extractRequiredMapperParameters(mapperData);
+    final parametersByName =
+        _indexInitFunctionParameters(requiredMapperParameters);
 
     // Check if this mapper should be registered globally
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-    final code = _buildCodeInstantiateMapperWithCustomMappers(
-        mapperClassName, contextProviders, customMappers);
+    final code = _buildCodeInstantiateMapperFromRequired(
+        mapperClassName, requiredMapperParameters);
+
     if (registerGlobally) {
       return (
         [
@@ -284,41 +232,30 @@ class InitFileBuilderHelper {
             type: className,
           )
         ],
-        providersByName,
-        customMappersByName
+        parametersByName,
       );
     }
     return noInitFileContributions;
   }
 
-  Code _buildCodeInstantiateMapperWithCustomMappers(
-      Code mapperClassName,
-      List<_MustacheListEntry<_ContextProvider>> contextProviders,
-      List<_CustomMapper> customMappers) {
-    var providerParams = _contextProvidersToParams(contextProviders);
-    var customMapperParams =
-        customMappers.map((i) => (i.parameterName, i.code));
+  Code _buildCodeInstantiateMapperFromRequired(Code mapperClassName,
+      List<_RequiredMapperParameter> requiredMapperParameters) {
+    var requiredMapperParams = requiredMapperParameters
+        .map((i) => (i.parameterName, i.initFunctionParameterCode));
 
-    // Deduplicate parameters by name, giving priority to providers
+    // Deduplicate parameters by name
     var paramMap = <String, (String, Code)>{};
-    for (var param in providerParams) {
-      paramMap[param.$1] = param;
-    }
-    for (var param in customMapperParams) {
-      // Only add custom mapper params if there's no provider with the same name
+    for (var param in requiredMapperParams) {
+      if (paramMap.containsKey(param.$1)) {
+        log.warning(
+            'Duplicate parameter name "${param.$1}" in mapper instantiation. Using the first occurrence.');
+      }
       paramMap.putIfAbsent(param.$1, () => param);
     }
 
-    return _buildCodeInstantiateMapper(
-        mapperClassName, paramMap.values.toList());
-  }
-
-  Iterable<(String, Code)> _contextProvidersToParams(
-      List<_MustacheListEntry<_ContextProvider>> contextProviders) {
-    return contextProviders.map((cp) => (
-          cp.value.parameterName,
-          Code.literal(cp.value.parameterName),
-        ));
+    var sortedParams = paramMap.values.toList()
+      ..sort((a, b) => a.$1.compareTo(b.$1));
+    return _buildCodeInstantiateMapper(mapperClassName, sortedParams);
   }
 
   Code _buildCodeInstantiateMapper(
@@ -332,136 +269,10 @@ class InitFileBuilderHelper {
     ]);
   }
 
-  _InitFileContributions collectIriMapper(Map<String, dynamic> mapperData) {
-    final className = extractNullableCodeProperty(mapperData, 'className');
-    final mapperClassName =
-        extractNullableCodeProperty(mapperData, 'mapperClassName');
-
-    if (className == null || mapperClassName == null) {
-      return noInitFileContributions;
-    }
-
-    // Extract context providers for this mapper
-    final contextProviders = _extractContextProviders(mapperData);
-    final providersByName =
-        _indexProviders(contextProviders.map((e) => e.value));
-
-    // Check if this mapper should be registered globally
-    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-
-    if (registerGlobally) {
-      final code = _buildCodeInstantiateMapper(mapperClassName,
-          _contextProvidersToParams(contextProviders).toList());
-      return (
-        [
-          _Mapper(
-            code: code,
-            type: className,
-          )
-        ],
-        providersByName,
-        {}
-      );
-    }
-    return noInitFileContributions;
-  }
-
-  _InitFileContributions collectLiteralMapper(Map<String, dynamic> mapperData) {
-    final className = extractNullableCodeProperty(mapperData, 'className');
-    final mapperClassName =
-        extractNullableCodeProperty(mapperData, 'mapperClassName');
-
-    if (className == null || mapperClassName == null) {
-      return noInitFileContributions;
-    }
-
-    // Check if this mapper should be registered globally
-    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-
-    if (registerGlobally) {
-      final code = _buildCodeInstantiateMapper(mapperClassName, const []);
-      return (
-        [
-          _Mapper(
-            code: code,
-            type: className,
-          )
-        ],
-        const {},
-        const {}
-      );
-    }
-    return noInitFileContributions;
-  }
-
-  _InitFileContributions collectEnumIriMapper(Map<String, dynamic> mapperData) {
-    final className = extractNullableCodeProperty(mapperData, 'className');
-    final mapperClassName =
-        extractNullableCodeProperty(mapperData, 'mapperClassName');
-
-    if (className == null || mapperClassName == null) {
-      return noInitFileContributions;
-    }
-
-    // Extract context providers for this mapper
-    final contextProviders = _extractContextProviders(mapperData);
-    final providersByName =
-        _indexProviders(contextProviders.map((e) => e.value));
-
-    // Check if this mapper should be registered globally
-    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-
-    if (registerGlobally) {
-      final code = _buildCodeInstantiateMapper(mapperClassName,
-          _contextProvidersToParams(contextProviders).toList());
-      return (
-        [
-          _Mapper(
-            code: code,
-            type: className,
-          )
-        ],
-        providersByName,
-        const {}
-      );
-    }
-    return noInitFileContributions;
-  }
-
-  _InitFileContributions collectEnumLiteralMapper(
-      Map<String, dynamic> mapperData) {
-    final className = extractNullableCodeProperty(mapperData, 'className');
-    final mapperClassName =
-        extractNullableCodeProperty(mapperData, 'mapperClassName');
-
-    if (className == null || mapperClassName == null) {
-      return noInitFileContributions;
-    }
-
-    // Check if this mapper should be registered globally
-    final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
-
-    if (registerGlobally) {
-      final code = _buildCodeInstantiateMapper(mapperClassName, const []);
-      return (
-        [
-          _Mapper(
-            code: code,
-            type: className,
-          )
-        ],
-        const {},
-        const {}
-      );
-    }
-    return noInitFileContributions;
-  }
-
   _InitFileContributions collectCustomMapper(Map<String, dynamic> mapperData) {
     final className = extractCodeProperty(mapperData, 'className');
     final mapperInterfaceType =
         extractCodeProperty(mapperData, 'mapperInterfaceType');
-    final isTypeBased = mapperData['isTypeBased'] as bool? ?? true;
     final customMapperInstance =
         extractNullableCodeProperty(mapperData, 'customMapperInstance');
     final customMapperName = mapperData['customMapperName'] as String?;
@@ -474,15 +285,11 @@ class InitFileBuilderHelper {
       if (code == null) {
         throw ArgumentError('No valid code found for Custom mapper ');
       }
-      final customMapper = _CustomMapper(
-        type: mapperInterfaceType,
-        code: code,
-        name: customMapperName,
-        parameterName: customMapperName ?? 'customMapper',
-        isNamed: customMapperName != null,
-        isTypeBased: isTypeBased,
-        isInstance: customMapperInstance != null,
-      );
+      final initFunctionParameter = customMapperName != null
+          ? _InitFunctionParameter(
+              type: mapperInterfaceType, name: customMapperName)
+          : null;
+
       return (
         [
           _Mapper(
@@ -490,11 +297,10 @@ class InitFileBuilderHelper {
             code: code,
           )
         ],
-        {},
         {
-          if (customMapper.isNamed && customMapper.name != null)
-            customMapper.name!: customMapper
-        }
+          if (initFunctionParameter?.name != null)
+            initFunctionParameter!.name!: initFunctionParameter
+        },
       );
     }
     return noInitFileContributions;
@@ -510,123 +316,9 @@ class InitFileBuilderHelper {
           Map<String, dynamic> mapperData, String propertyName) =>
       Code.fromMap(mapperData[propertyName] as Map<String, dynamic>);
 
-  /// Extracts context providers from mapper data
-  List<_MustacheListEntry<_ContextProvider>> _extractContextProviders(
-      Map<String, dynamic> mapperData) {
-    /*
-    var data = (mapperData['contextProviders'] as List?)
-            ?.cast<Map<String, dynamic>>() ??
-        [];
-    var origContextProviders = data.map((d) {
-      final value = d['value'] as Map<String, dynamic>;
-      final contextProvider = _ContextProvider(
-          //variableName: value['variableName'] as String,
-          //privateFieldName: value['privateFieldName'] as String,
-          parameterName: value['parameterName'] as String,
-          placeholder: value['placeholder'] as String);
-      final last = d['last'] as bool;
-      return _MustacheListEntry<_ContextProvider>(
-          (ct) => ct.toMap(), contextProvider,
-          last: last);
-    }).toList();
-    return origContextProviders;*/
-    final model = mapperData['mapperConstructor'] as Map<String, dynamic>?;
-    final constructorParams =
-        (model?['parameters'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-    final convertedConstructorParams = constructorParams
-        .map<_MustacheListEntry<_ContextProvider>?>((p) {
-          final value = p['value'] as Map<String, dynamic>;
-          final last = p['last'] as bool;
-          final type = value['type'] as Map<String, dynamic>?;
-          final typeCode = type == null ? null : Code.fromMap(type);
-
-          final isProvider = typeCode?.code == 'String Function()';
-          if (!isProvider) {
-            return null; // skip non-provider parameters
-          }
-          final hasDefaultValue = value['hasDefaultValue'] as bool? ?? false;
-          // we only need those that are absolutely required
-          if (hasDefaultValue) {
-            return null;
-          }
-          final contextProvider = _ContextProvider(
-            parameterName: value['parameterName'] as String,
-          );
-          return _MustacheListEntry<_ContextProvider>(
-              (ct) => ct.toMap(), contextProvider,
-              last: last);
-        })
-        .nonNulls
-        .toList();
-    return convertedConstructorParams;
-  }
-
-  /// Collects context providers into the providers map
-  Map<String, _Provider> _indexProviders(
-          Iterable<_ContextProvider> contextProviders) =>
-      {
-        for (final provider in contextProviders)
-          provider.parameterName: _Provider(
-            parameterName: provider.parameterName,
-          ),
-      };
-
-  /// Extracts all custom mappers from mapper data (global IRI mappers + constructor parameter mappers)
-  List<_CustomMapper> _extractAllCustomMappers(Map<String, dynamic> mapperData,
-      {Set<String>? excludeParameterNames}) {
-    var result = <_CustomMapper>[];
-
-    // Extract global IRI mappers from iriStrategy
-    result.addAll(_extractCustomIriMappers(mapperData));
-
-    // Extract custom mappers from constructor parameters, excluding provider parameter names
-    result.addAll(_extractConstructorParameterMappers(mapperData,
-        excludeParameterNames: excludeParameterNames));
-
-    return result;
-  }
-
-  /// Extracts IRI mappers from mapper data
-  List<_CustomMapper> _extractCustomIriMappers(
-      Map<String, dynamic> mapperData) {
-    final iriStrategy = mapperData['iriStrategy'] as Map<String, dynamic>?;
-    if (iriStrategy == null) return [];
-
-    final mapper = iriStrategy['mapper'] as Map<String, dynamic>?;
-    if (mapper == null) return [];
-
-    // Extract IRI mapper type and name information
-    final type = extractNullableCodeProperty(mapper, 'type');
-    final name = mapper['name'] as String?;
-
-    final isNamed = mapper['isNamed'] as bool? ?? false;
-    final isTypeBased = mapper['isTypeBased'] as bool? ?? false;
-    final isInstance = mapper['isInstance'] as bool? ?? false;
-    final instanceInitializationCode =
-        extractNullableCodeProperty(mapper, 'instanceInitializationCode');
-    if (type == null) return [];
-    final code = instanceInitializationCode ??
-        (name == null ? null : Code.literal(name));
-    if (code == null) {
-      throw ArgumentError(
-          'IRI mapper must have either a type or an instance initialization code');
-    }
-    return [
-      _CustomMapper(
-          type: type,
-          code: code,
-          parameterName: isNamed && name != null ? name : 'iriMapper',
-          isNamed: isNamed,
-          isTypeBased: isTypeBased,
-          isInstance: isInstance,
-          name: name),
-    ];
-  }
-
   /// Extracts custom mappers from constructor parameters that require named mappers
-  List<_CustomMapper> _extractConstructorParameterMappers(
-      Map<String, dynamic> mapperData,
-      {Set<String>? excludeParameterNames}) {
+  List<_RequiredMapperParameter> _extractRequiredMapperParameters(
+      Map<String, dynamic> mapperData) {
     final mapperConstructor =
         mapperData['mapperConstructor'] as Map<String, dynamic>?;
     if (mapperConstructor == null) return [];
@@ -640,12 +332,14 @@ class InitFileBuilderHelper {
         .map((param) => param!)
         .where((param) => !(param['hasDefaultValue'] as bool? ?? false))
         .where((param) => param['type'] != null)
-        .where((param) =>
-            excludeParameterNames?.contains(param['parameterName'] as String) !=
-            true)
-        .map((param) => _CustomMapper(
+        .map((param) => _RequiredMapperParameter(
+            initFunctionParameterCode:
+                extractCodeProperty(param, 'initFunctionParameterCode'),
+            initFunctionParameterType:
+                extractCodeProperty(param, 'initFunctionParameterType'),
+            initFunctionParameterName:
+                param['initFunctionParameterName'] as String,
             type: extractCodeProperty(param, 'type'),
-            code: Code.literal(param['parameterName'] as String),
             parameterName: param['parameterName'] as String,
             isNamed: true,
             isTypeBased: false,
@@ -654,13 +348,14 @@ class InitFileBuilderHelper {
         .toList();
   }
 
-  /// Collects custom mappers into the customMappers map by name
-  Map<String, _CustomMapper> _indexNamedCustomMappers(
-          List<_CustomMapper> customMappers) =>
+  /// Collects required mapper parameters into the initFunctionParameters map by name
+  Map<String, _InitFunctionParameter> _indexInitFunctionParameters(
+          List<_RequiredMapperParameter> requiredMapperParameters) =>
       {
-        for (final mapper in customMappers)
-          if (mapper.isNamed && mapper.name != null && mapper.name!.isNotEmpty)
-            mapper.name!: mapper
+        for (final param in requiredMapperParameters)
+          param.initFunctionParameterName: _InitFunctionParameter(
+              type: param.initFunctionParameterType,
+              name: param.initFunctionParameterName)
       };
 
   /// Builds the final template data from processing results
@@ -678,15 +373,9 @@ class InitFileBuilderHelper {
     return data;
   }
 
-  /// Sorts providers by parameter name for consistent ordering
-  List<_Provider> _sortProviders(Map<String, _Provider> providers) {
-    return providers.values.toList()
-      ..sort((a, b) => (a.parameterName).compareTo(b.parameterName));
-  }
-
   /// Sorts IRI mappers by parameter name for consistent ordering
-  List<_CustomMapper> _sortCustomMappers(
-      Map<String, _CustomMapper> iriMappers) {
+  List<_InitFunctionParameter> _sortInitFunctionParameters(
+      Map<String, _InitFunctionParameter> iriMappers) {
     return iriMappers.values.toList()
       ..sort((a, b) => (a.name!).compareTo(b.name!));
   }

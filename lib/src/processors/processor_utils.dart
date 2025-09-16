@@ -188,15 +188,36 @@ MapperRefInfo<M>? getMapperRefInfo<M>(DartObject annotation) {
   final typeField = getField(annotation, '_mapperType');
   final instanceField = getField(annotation, '_mapperInstance');
   final name = getFieldStringValue(annotation, '_mapperName');
-  if (name == null && isNull(typeField) && isNull(instanceField)) {
+  final factoryName = getFieldStringValue(annotation, '_factoryName');
+  final configInstanceField = getField(annotation, '_factoryConfigInstance');
+
+  // Check if we have any mapping information
+  if (name == null && factoryName == null && isNull(typeField) && isNull(instanceField)) {
     return null;
   }
+
   var typeValue = typeField?.toTypeValue();
   var type = typeValue == null ? null : typeToCode(typeValue);
   var rawType = typeValue == null ? null : typeToCode(typeValue, raw: true);
 
+  // Handle config instance type for namedFactory
+  Code? configType;
+  if (configInstanceField != null && !configInstanceField.isNull) {
+    final configTypeValue = configInstanceField.type;
+    if (configTypeValue != null) {
+      configType = typeToCode(configTypeValue);
+    }
+  }
+
   return MapperRefInfo(
-      name: name, type: type, rawType: rawType, instance: instanceField);
+    name: name,
+    type: type,
+    rawType: rawType,
+    instance: instanceField,
+    factoryName: factoryName,
+    configInstance: configInstanceField,
+    configType: configType,
+  );
 }
 
 bool isRegisterGlobally(DartObject annotation) {
