@@ -71,7 +71,6 @@
   final className = extractCodeProperty(mapperData, &#39;className&#39;);
   final mapperInterfaceType =
       extractCodeProperty(mapperData, &#39;mapperInterfaceType&#39;);
-  final isTypeBased = mapperData[&#39;isTypeBased&#39;] as bool? ?? true;
   final customMapperInstance =
       extractNullableCodeProperty(mapperData, &#39;customMapperInstance&#39;);
   final customMapperName = mapperData[&#39;customMapperName&#39;] as String?;
@@ -84,15 +83,11 @@
     if (code == null) {
       throw ArgumentError(&#39;No valid code found for Custom mapper &#39;);
     }
-    final customMapper = _CustomMapper(
-      type: mapperInterfaceType,
-      code: code,
-      name: customMapperName,
-      parameterName: customMapperName ?? &#39;customMapper&#39;,
-      isNamed: customMapperName != null,
-      isTypeBased: isTypeBased,
-      isInstance: customMapperInstance != null,
-    );
+    final initFunctionParameter = customMapperName != null
+        ? _InitFunctionParameter(
+            type: mapperInterfaceType, name: customMapperName)
+        : null;
+
     return (
       [
         _Mapper(
@@ -100,11 +95,10 @@
           code: code,
         )
       ],
-      {},
       {
-        if (customMapper.isNamed &amp;&amp; customMapper.name != null)
-          customMapper.name!: customMapper
-      }
+        if (initFunctionParameter?.name != null)
+          initFunctionParameter!.name!: initFunctionParameter
+      },
     );
   }
   return noInitFileContributions;
@@ -136,7 +130,7 @@
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.1
+      0.10.2
   </span>
   
 </footer>

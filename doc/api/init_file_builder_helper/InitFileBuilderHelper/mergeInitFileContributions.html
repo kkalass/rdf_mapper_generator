@@ -70,23 +70,10 @@
   <pre class="language-dart"><code class="language-dart">_InitFileContributions mergeInitFileContributions(
     Iterable&lt;_InitFileContributions&gt; all) {
   final mappers = all.expand((c) =&gt; c.$1).toList();
-  final providers =
-      all.fold&lt;Map&lt;String, _Provider&gt;&gt;({}, (acc, c) =&gt; {...acc, ...c.$2});
-  final allCustomMappers =
-      all.fold&lt;Map&lt;String, _CustomMapper&gt;&gt;({}, (acc, c) =&gt; {...acc, ...c.$3});
-
-  &#47;&#47; Remove any custom mappers that have the same parameter name as providers
-  &#47;&#47; to avoid duplication in the generated init file
-  final providerParameterNames =
-      providers.values.map((p) =&gt; p.parameterName).toSet();
-  final deduplicatedCustomMappers = Map&lt;String, _CustomMapper&gt;.fromEntries(
-      allCustomMappers.entries.where((entry) {
-    final customMapper = entry.value;
-    &#47;&#47; Only exclude if this custom mapper&#39;s parameter name matches a provider parameter name
-    return !providerParameterNames.contains(customMapper.parameterName);
-  }));
-
-  return (mappers, providers, deduplicatedCustomMappers);
+  final allInitFunctionParameters = all
+      .fold&lt;Map&lt;String, _InitFunctionParameter&gt;&gt;(
+          {}, (acc, c) =&gt; {...acc, ...c.$2});
+  return (mappers, allInitFunctionParameters);
 }</code></pre>
 </section>
 
@@ -115,7 +102,7 @@
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.1
+      0.10.2
   </span>
   
 </footer>
