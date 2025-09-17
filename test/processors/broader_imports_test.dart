@@ -142,6 +142,137 @@ void main() {
       expect(broaderImports['test:libC'], equals('test:libC'));
     });
   });
+
+  group('BroaderImports Transitive Import Chain Tests', () {
+    test('should handle import->import->export chain', () {
+      // Scenario: Main imports Annotations, Annotations imports Core, Core exports Src
+      // Expected: Src should map to Core (the library that directly exports it)
+      final mainLib = MockLibraryElement();
+      final annotationsLib = MockLibraryElement();
+      final coreLib = MockLibraryElement();
+      final srcLib = MockLibraryElement();
+
+      mainLib.identifier = 'package:test_project/models.dart';
+      annotationsLib.identifier = 'package:my_annotations/my_annotations.dart';
+      coreLib.identifier = 'package:my_core/my_core.dart';
+      srcLib.identifier = 'package:my_core/src/config.dart';
+
+      mainLib.importedLibraries = [annotationsLib];
+      annotationsLib.importedLibraries = [coreLib];
+      coreLib.exportedLibraries = [srcLib];
+
+      final broaderImports = BroaderImports.create(mainLib);
+
+      // The src library should map to the core library (which exports it)
+      expect(broaderImports['package:my_core/src/config.dart'],
+          equals('package:my_core/my_core.dart'),
+          reason:
+              'Src imports should map to the library that directly exports them');
+    });
+
+    test('should handle direct import->export chain', () {
+      // Scenario: Main imports Core, Core exports Src
+      // Expected: Src should map to Core
+      final mainLib = MockLibraryElement();
+      final coreLib = MockLibraryElement();
+      final srcLib = MockLibraryElement();
+
+      mainLib.identifier = 'package:test_project/models.dart';
+      coreLib.identifier = 'package:my_core/my_core.dart';
+      srcLib.identifier = 'package:my_core/src/config.dart';
+
+      mainLib.importedLibraries = [coreLib];
+      coreLib.exportedLibraries = [srcLib];
+
+      final broaderImports = BroaderImports.create(mainLib);
+
+      expect(broaderImports['package:my_core/src/config.dart'],
+          equals('package:my_core/my_core.dart'),
+          reason: 'Direct export should map src to the exporting library');
+    });
+
+    test('should handle deep transitive chains', () {
+      // Scenario: Main -> A -> B -> C (exports) -> Src
+      // Expected: Src should map to C
+      final mainLib = MockLibraryElement();
+      final libA = MockLibraryElement();
+      final libB = MockLibraryElement();
+      final libC = MockLibraryElement();
+      final srcLib = MockLibraryElement();
+
+      mainLib.identifier = 'package:test/main.dart';
+      libA.identifier = 'package:a/a.dart';
+      libB.identifier = 'package:b/b.dart';
+      libC.identifier = 'package:c/c.dart';
+      srcLib.identifier = 'package:c/src/internal.dart';
+
+      mainLib.importedLibraries = [libA];
+      libA.importedLibraries = [libB];
+      libB.importedLibraries = [libC];
+      libC.exportedLibraries = [srcLib];
+
+      final broaderImports = BroaderImports.create(mainLib);
+
+      expect(broaderImports['package:c/src/internal.dart'],
+          equals('package:c/c.dart'),
+          reason:
+              'Deep transitive import should map to the actual exporting library');
+    });
+
+    test('should not map unrelated imports', () {
+      // Scenario: Main imports A and B, A imports C, B exports D
+      // Expected: D should map to B, but C should not be mapped anywhere
+      final mainLib = MockLibraryElement();
+      final libA = MockLibraryElement();
+      final libB = MockLibraryElement();
+      final libC = MockLibraryElement();
+      final libD = MockLibraryElement();
+
+      mainLib.identifier = 'package:test/main.dart';
+      libA.identifier = 'package:a/a.dart';
+      libB.identifier = 'package:b/b.dart';
+      libC.identifier = 'package:c/c.dart';
+      libD.identifier = 'package:b/src/d.dart';
+
+      mainLib.importedLibraries = [libA, libB];
+      libA.importedLibraries = [libC];
+      libB.exportedLibraries = [libD];
+
+      final broaderImports = BroaderImports.create(mainLib);
+
+      // D should map to B (its exporter)
+      expect(
+          broaderImports['package:b/src/d.dart'], equals('package:b/b.dart'));
+
+      // C should not be mapped anywhere since it's not exported
+      expect(broaderImports['package:c/c.dart'], isNull,
+          reason: 'Imported but not exported libraries should not be mapped');
+    });
+
+    test('should handle multiple export chains from same import', () {
+      // Scenario: Main imports A, A exports B and C
+      // Expected: Both B and C should map to A
+      final mainLib = MockLibraryElement();
+      final libA = MockLibraryElement();
+      final libB = MockLibraryElement();
+      final libC = MockLibraryElement();
+
+      mainLib.identifier = 'package:test/main.dart';
+      libA.identifier = 'package:a/a.dart';
+      libB.identifier = 'package:a/src/b.dart';
+      libC.identifier = 'package:a/src/c.dart';
+
+      mainLib.importedLibraries = [libA];
+      libA.exportedLibraries = [libB, libC];
+
+      final broaderImports = BroaderImports.create(mainLib);
+
+      expect(
+          broaderImports['package:a/src/b.dart'], equals('package:a/a.dart'));
+      expect(
+          broaderImports['package:a/src/c.dart'], equals('package:a/a.dart'));
+    });
+  });
 }
 
 /// Mock implementation of LibraryElem for testing

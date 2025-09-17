@@ -13,9 +13,6 @@ import 'package:rdf_mapper/rdf_mapper.dart';
 
 // Other imports
 import 'collection_examples.dart';
-import 'package:rdf_mapper/src/mappers/resource/rdf_list_mapper.dart' as rlm;
-import 'package:rdf_mapper/src/mappers/resource/rdf_container_mapper.dart'
-    as rcm;
 import 'package:rdf_vocabularies_schema/schema.dart';
 
 /// Generated mapper for [Library] global resources.
@@ -123,7 +120,7 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
     final List<Track> orderedTracks = reader
         .requireCollection<List<Track>, Track>(
           CollectionVocab.orderedTracks,
-          rlm.RdfListMapper.new,
+          RdfListMapper.new,
         );
 
     return Playlist(id: id, orderedTracks: orderedTracks);
@@ -142,7 +139,7 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
         .addCollection<List<Track>, Track>(
           CollectionVocab.orderedTracks,
           resource.orderedTracks,
-          rlm.RdfListMapper.new,
+          RdfListMapper.new,
         )
         .build();
   }
@@ -185,17 +182,17 @@ class CourseMapper implements GlobalResourceMapper<Course> {
     final id = iriParts['id']!;
     final List<Module> modules = reader.requireCollection<List<Module>, Module>(
       CollectionVocab.modules,
-      rcm.RdfSeqMapper.new,
+      RdfSeqMapper.new,
     );
     final List<String> prerequisites = reader
         .requireCollection<List<String>, String>(
           CollectionVocab.prerequisites,
-          rcm.RdfBagMapper.new,
+          RdfBagMapper.new,
         );
     final List<String> alternatives = reader
         .requireCollection<List<String>, String>(
           CollectionVocab.alternatives,
-          rcm.RdfAltMapper.new,
+          RdfAltMapper.new,
         );
 
     return Course(
@@ -219,17 +216,17 @@ class CourseMapper implements GlobalResourceMapper<Course> {
         .addCollection<List<Module>, Module>(
           CollectionVocab.modules,
           resource.modules,
-          rcm.RdfSeqMapper.new,
+          RdfSeqMapper.new,
         )
         .addCollection<List<String>, String>(
           CollectionVocab.prerequisites,
           resource.prerequisites,
-          rcm.RdfBagMapper.new,
+          RdfBagMapper.new,
         )
         .addCollection<List<String>, String>(
           CollectionVocab.alternatives,
           resource.alternatives,
-          rcm.RdfAltMapper.new,
+          RdfAltMapper.new,
         )
         .build();
   }
@@ -334,7 +331,7 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
     final List<DateTime> publicationDates = reader
         .requireCollection<List<DateTime>, DateTime>(
           SchemaBook.datePublished,
-          rlm.RdfListMapper.new,
+          RdfListMapper.new,
           itemDeserializer: _publicationDatesMapper,
         );
 
@@ -370,7 +367,7 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
         .addCollection<List<DateTime>, DateTime>(
           SchemaBook.datePublished,
           resource.publicationDates,
-          rlm.RdfListMapper.new,
+          RdfListMapper.new,
           itemSerializer: _publicationDatesMapper,
         )
         .build();

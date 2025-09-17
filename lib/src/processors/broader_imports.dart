@@ -37,14 +37,23 @@ class BroaderImports {
       return const <MapEntry<String, String>>[];
     }
 
-    // Create a new set that includes the current library to track this path
-    final newVisited = Set<String>.from(visited)..add(lib.identifier);
+    // track that we have visited this library in the current path
+    visited.add(lib.identifier);
 
-    return lib.exportedLibraries.expand((exp) => [
-          MapEntry<String, String>(exp.identifier, broaderImportName),
-          ..._exportedLibraryMappingsWithVisited(
-              exp, broaderImportName, newVisited)
-        ]);
+    return [
+      // Map all exported libraries to the broader import
+      ...lib.exportedLibraries.expand((exp) => [
+            MapEntry<String, String>(exp.identifier, broaderImportName),
+            ..._exportedLibraryMappingsWithVisited(
+                exp, broaderImportName, visited)
+          ]),
+      // ADDITION: Also recursively process imported libraries to handle transitive chains
+      ...lib.importedLibraries
+          .where((imp) => !imp.identifier.contains(
+              '/src/')) // only consider imports that are from src/ to avoid mappings back to src files
+          .expand((imp) => _exportedLibraryMappingsWithVisited(
+              imp, imp.identifier, visited)),
+    ];
   }
 
   Map<String, dynamic> toMap() {

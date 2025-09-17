@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.10.3] - 2025-09-17
+
+### Fixed
+
+- **Transitive Import Chain Resolution**: Fixed `BroaderImports` to properly handle transitive import dependencies
+  - Added recursive processing of imported libraries to resolve import->import->export chains
+  - Fixed issue where libraries imported through intermediate dependencies weren't properly mapped to their broader imports
+  - Results in cleaner generated code with simplified import aliases (e.g., `RdfListMapper.new` instead of `rlm.RdfListMapper.new`)
+  - Added comprehensive test coverage for complex transitive import scenarios including deep dependency chains
+
 ## [0.10.2] - 2025-09-16
 
 ### Added
