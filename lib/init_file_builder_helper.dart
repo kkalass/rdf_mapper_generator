@@ -12,12 +12,14 @@ class _InitFileTemplateData {
   final bool isTest;
   final List<_Mapper> mappers;
   final List<_InitFunctionParameter> initFunctionParameters;
+  final Map<String, String> broaderImports;
 
   _InitFileTemplateData(
       {required this.generatedOn,
       required this.isTest,
       required this.mappers,
-      required this.initFunctionParameters});
+      required this.initFunctionParameters,
+      required this.broaderImports});
 
   Map<String, dynamic> toMap() {
     return {
@@ -27,6 +29,7 @@ class _InitFileTemplateData {
       'initFunctionParameters':
           initFunctionParameters.map((i) => i.toMap()).toList(),
       'hasInitFunctionParameters': initFunctionParameters.isNotEmpty,
+      'broaderImports': broaderImports,
     };
   }
 }
@@ -102,10 +105,12 @@ class _RequiredMapperParameter {
 typedef _InitFileContributions = (
   Iterable<_Mapper>,
   Map<String, _InitFunctionParameter>,
+  Map<String, String>, // BroaderImports
 );
 const _InitFileContributions noInitFileContributions = (
   const <_Mapper>[],
   const <String, _InitFunctionParameter>{},
+  const <String, String>{},
 );
 
 class InitFileBuilderHelper {
@@ -163,7 +168,7 @@ class InitFileBuilderHelper {
       }
     });
 
-    final (mappers, initFunctionParameters) =
+    final (mappers, initFunctionParameters, broaderImports) =
         mergeInitFileContributions(contributions);
     final sortedMapperParameters =
         _sortInitFunctionParameters(initFunctionParameters);
@@ -172,6 +177,7 @@ class InitFileBuilderHelper {
       isTest: isTest,
       mappers: mappers.toList(),
       initFunctionParameters: sortedMapperParameters,
+      broaderImports: broaderImports,
     );
   }
 
@@ -192,7 +198,12 @@ class InitFileBuilderHelper {
                   return noInitFileContributions;
                 }()
             });
-    return mergeInitFileContributions(all);
+    final (mappers, initFunctionParameters, _) = mergeInitFileContributions(all);
+
+    // Extract broader imports from this file
+    final broaderImports = _safeCastToStringMap(jsonData['broaderImports']);
+
+    return (mappers, initFunctionParameters, broaderImports);
   }
 
   _InitFileContributions mergeInitFileContributions(
@@ -201,7 +212,10 @@ class InitFileBuilderHelper {
     final allInitFunctionParameters = all
         .fold<Map<String, _InitFunctionParameter>>(
             {}, (acc, c) => {...acc, ...c.$2});
-    return (mappers, allInitFunctionParameters);
+    final allBroaderImports = all
+        .fold<Map<String, String>>(
+            {}, (acc, c) => {...acc, ...c.$3});
+    return (mappers, allInitFunctionParameters, allBroaderImports);
   }
 
   _InitFileContributions collectMapper(Map<String, dynamic> mapperData) {
@@ -233,6 +247,7 @@ class InitFileBuilderHelper {
           )
         ],
         parametersByName,
+        const <String, String>{}, // No broader imports at mapper level
       );
     }
     return noInitFileContributions;
@@ -301,6 +316,7 @@ class InitFileBuilderHelper {
           if (initFunctionParameter?.name != null)
             initFunctionParameter!.name!: initFunctionParameter
         },
+        const <String, String>{}, // No broader imports at mapper level
       );
     }
     return noInitFileContributions;
@@ -364,13 +380,24 @@ class InitFileBuilderHelper {
     String currentPackage,
   ) {
     final rawData = result.toMap();
+    final broaderImports = result.broaderImports;
     final data = _templateRenderer.resolveCodeSnipplets(rawData,
-        defaultImports: [importRdfMapper, importDartCore]);
+        defaultImports: [importRdfMapper, importDartCore],
+        broaderImports: broaderImports);
 
     // Clean up aliasedImports URIs by removing asset:packageName/lib/ or asset:packageName/test/ prefixes
     _fixupAliasedImports(data, currentPackage);
 
     return data;
+  }
+
+  Map<String, String> _safeCastToStringMap(dynamic value) {
+    if (value == null) return {};
+    if (value is Map<String, String>) return value;
+    if (value is Map) {
+      return value.map((key, val) => MapEntry(key.toString(), val.toString()));
+    }
+    return {};
   }
 
   /// Sorts IRI mappers by parameter name for consistent ordering

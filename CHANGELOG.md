@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [0.10.4] - TBD
+
+### Fixed
+
+- **Init File Import Resolution**: Fixed init file builder to properly apply BroaderImports for import resolution
+  - Init files now use clean import aliases like `RdfListMapper.new` instead of verbose prefixes like `rlm.RdfListMapper.new`
+  - Extended `_InitFileTemplateData` to include BroaderImports from cache files
+  - Improved consistency between individual mapper files and init file generation
+
 ## [0.10.3] - 2025-09-17
 
 ### Fixed
