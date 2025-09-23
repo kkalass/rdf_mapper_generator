@@ -415,7 +415,7 @@ class CombinedItemMappingTestsIriItemsListMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -432,7 +432,7 @@ class CombinedItemMappingTestsIriItemsListMapper
   }) {
     final iriItemsList = iriTermValue.toString();
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/item/${iriItemsList}');
+    return context.createIriTerm('${baseUri}/item/${iriItemsList}');
   }
 }
 
@@ -857,7 +857,7 @@ class ContextProviderTestsContextManagedItemsMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -874,7 +874,7 @@ class ContextProviderTestsContextManagedItemsMapper
   }) {
     final contextManagedItems = iriTermValue.toString();
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/item/${contextManagedItems}');
+    return context.createIriTerm('${baseUri}/item/${contextManagedItems}');
   }
 }
 

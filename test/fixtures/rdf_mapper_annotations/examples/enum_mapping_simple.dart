@@ -261,13 +261,13 @@ class Book {
 
 class MyBookVocab {
   static const String namespace = 'http://example.org/vocab/';
-  static const IriTerm classIri = IriTerm.prevalidated('${namespace}Book');
-  static const IriTerm bookFormat = IriTerm.prevalidated(
+  static const IriTerm classIri = const IriTerm('${namespace}Book');
+  static const IriTerm bookFormat = const IriTerm(
     '${namespace}bookFormat',
   );
-  static const IriTerm itemCondition = IriTerm.prevalidated(
+  static const IriTerm itemCondition = const IriTerm(
     '${namespace}itemCondition',
   );
-  static const IriTerm priority = IriTerm.prevalidated('${namespace}priority');
-  static const IriTerm status = IriTerm.prevalidated('${namespace}status');
+  static const IriTerm priority = const IriTerm('${namespace}priority');
+  static const IriTerm status = const IriTerm('${namespace}status');
 }

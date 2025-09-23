@@ -33,7 +33,7 @@ class BookWithMapperTitleMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -50,7 +50,7 @@ class BookWithMapperTitleMapper implements IriTermMapper<String> {
   }) {
     final title = iriTermValue.toString();
     final id = _idProvider();
-    return IriTerm('https://example.org/books/${id}/${title}');
+    return context.createIriTerm('https://example.org/books/${id}/${title}');
   }
 }
 
@@ -177,7 +177,7 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
     IriTerm subject,
     DeserializationContext context,
   ) {
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -195,7 +195,7 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context.resourceBuilder(subject).build();
   }

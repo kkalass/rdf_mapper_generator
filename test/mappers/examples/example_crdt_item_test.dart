@@ -41,7 +41,7 @@ void main() {
         final iriTerm = mapper.toRdfTerm('user123', context);
 
         expect(
-          iriTerm.iri,
+          iriTerm.value,
           equals(
               'http://example.org/storage/solidtask/appinstance/user123.ttl'),
         );
@@ -54,7 +54,7 @@ void main() {
         final context = createDeserializationContext();
 
         final userId = mapper.fromRdfTerm(
-          IriTerm(
+          const IriTerm(
               'http://example.org/storage/solidtask/appinstance/user456.ttl'),
           context,
         );
@@ -78,7 +78,7 @@ void main() {
 
           final iriTerm = mapper.toRdfTerm('testUser', context);
           expect(
-            iriTerm.iri,
+            iriTerm.value,
             equals('$storageRoot/solidtask/appinstance/testUser.ttl'),
           );
         }
@@ -118,7 +118,7 @@ void main() {
         final iriTerm = mapper.toRdfTerm('client123', context);
 
         expect(
-          iriTerm.iri,
+          iriTerm.value,
           equals(
               'http://example.org/storage/solidtask/appinstance/client123.ttl'),
         );
@@ -131,7 +131,7 @@ void main() {
         final context = createDeserializationContext();
 
         final clientId = mapper.fromRdfTerm(
-          IriTerm(
+          const IriTerm(
               'http://example.org/storage/solidtask/appinstance/client456.ttl'),
           context,
         );
@@ -156,7 +156,7 @@ void main() {
         for (final clientId in clientIds) {
           final iriTerm = mapper.toRdfTerm(clientId, context);
           expect(
-            iriTerm.iri,
+            iriTerm.value,
             equals(
                 'http://example.org/storage/solidtask/appinstance/$clientId.ttl'),
           );
@@ -176,7 +176,7 @@ void main() {
         final (subject, triples) = mapper.toRdfResource(entry, context);
 
         expect(
-          subject.iri,
+          subject.value,
           equals(
               'http://example.org/storage/solidtask/task/task123.ttl#vectorclock-client456'),
         );
@@ -187,7 +187,7 @@ void main() {
           (t) => t.predicate == SolidTaskVectorClockEntry.clientId,
         );
         expect(
-          (clientTriple.object as IriTerm).iri,
+          (clientTriple.object as IriTerm).value,
           equals(
               'http://example.org/storage/solidtask/appinstance/client456.ttl'),
         );
@@ -199,21 +199,22 @@ void main() {
       });
 
       test('deserializes vector clock entry from resource', () {
-        final entrySubject = IriTerm(
+        final entrySubject = const IriTerm(
           'http://example.org/storage/solidtask/task/task789.ttl#vectorclock-clientABC',
         );
         final triples = [
           Triple(
             entrySubject,
             SolidTaskVectorClockEntry.clientId,
-            IriTerm(
+            const IriTerm(
                 'http://example.org/storage/solidtask/appinstance/clientABC.ttl'),
           ),
           Triple(
             entrySubject,
             SolidTaskVectorClockEntry.clockValue,
             LiteralTerm('15',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
+                datatype:
+                    const IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           ),
         ];
 
@@ -253,7 +254,7 @@ void main() {
           final (subject, triples) = mapper.toRdfResource(entry, context);
 
           expect(
-            subject.iri,
+            subject.value,
             equals(
                 'http://test.org/solidtask/task/$taskId.ttl#vectorclock-$clientId'),
           );
@@ -291,7 +292,7 @@ void main() {
              baseUri: 'http://example.org/storage/solidtask/task/task456.ttl'));
              */
         expect(
-          subject.iri,
+          subject.value,
           equals('http://example.org/storage/solidtask/task/task456.ttl'),
         );
 
@@ -308,7 +309,7 @@ void main() {
           (t) => t.predicate == Dcterms.creator,
         );
         expect(
-          (creatorTriple.object as IriTerm).iri,
+          (creatorTriple.object as IriTerm).value,
           equals(
               'http://example.org/storage/solidtask/appinstance/user123.ttl'),
         );
@@ -336,13 +337,13 @@ void main() {
       });
 
       test('deserializes item from complete RDF graph', () {
-        final itemSubject = IriTerm(
+        final itemSubject = const IriTerm(
           'http://example.org/storage/solidtask/task/taskABC.ttl',
         );
-        final user789Subject = IriTerm(
+        final user789Subject = const IriTerm(
           'http://example.org/storage/solidtask/appinstance/user789.ttl',
         );
-        final clockUser789Subject = IriTerm(
+        final clockUser789Subject = const IriTerm(
           'http://example.org/storage/solidtask/task/taskABC.ttl#vectorclock-user789',
         );
         final triples = [
@@ -354,7 +355,7 @@ void main() {
           Triple(
             itemSubject,
             Dcterms.creator,
-            IriTerm(
+            const IriTerm(
                 'http://example.org/storage/solidtask/appinstance/user789.ttl'),
           ),
           Triple(
@@ -362,14 +363,16 @@ void main() {
             Dcterms.created,
             LiteralTerm(
               '2023-07-20T14:45:30.000Z',
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#dateTime'),
+              datatype:
+                  const IriTerm('http://www.w3.org/2001/XMLSchema#dateTime'),
             ),
           ),
           Triple(
             itemSubject,
             SolidTaskTask.isDeleted,
             LiteralTerm('true',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#boolean')),
+                datatype:
+                    const IriTerm('http://www.w3.org/2001/XMLSchema#boolean')),
           ),
           Triple(
             itemSubject,
@@ -459,7 +462,7 @@ void main() {
         // Verify that each vector clock entry points to a proper IRI
         for (final vcTriple in vectorClockTriples) {
           expect(vcTriple.object, isA<IriTerm>());
-          final vcIri = (vcTriple.object as IriTerm).iri;
+          final vcIri = (vcTriple.object as IriTerm).value;
           expect(vcIri, contains('#vectorclock-'));
           expect(vcIri, contains('user'));
         }
@@ -555,14 +558,14 @@ void main() {
 
           final (subject, triples) = mapper.toRdfResource(item, context);
 
-          expect(subject.iri,
+          expect(subject.value,
               equals('$storageRoot/solidtask/task/configTest.ttl'));
 
           final creatorTriple = triples.firstWhere(
             (t) => t.predicate == Dcterms.creator,
           );
           expect(
-            (creatorTriple.object as IriTerm).iri,
+            (creatorTriple.object as IriTerm).value,
             equals('$storageRoot/solidtask/appinstance/configUser.ttl'),
           );
         }
@@ -594,7 +597,7 @@ void main() {
         // Vector clock entries should be IRIs pointing to separate resources
         for (final vcTriple in vectorClockTriples) {
           expect(vcTriple.object, isA<IriTerm>());
-          final vcIri = (vcTriple.object as IriTerm).iri;
+          final vcIri = (vcTriple.object as IriTerm).value;
           expect(vcIri, contains('#vectorclock-'));
         }
 
@@ -647,7 +650,7 @@ void main() {
 
         for (final iri in complexPatterns) {
           // Should not throw - extracts what follows the pattern
-          final userId = mapper.fromRdfTerm(IriTerm(iri), context);
+          final userId = mapper.fromRdfTerm(IriTerm.validated(iri), context);
           expect(userId, isNotEmpty);
         }
       });

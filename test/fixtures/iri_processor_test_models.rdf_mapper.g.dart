@@ -29,7 +29,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
   @override
   IriWithOnePart fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -47,7 +47,7 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
     RdfSubject? parentSubject,
   }) {
     final isbn = iriTermValue.isbn;
-    return IriTerm('http://example.org/books/${isbn}');
+    return context.createIriTerm('http://example.org/books/${isbn}');
   }
 }
 
@@ -70,7 +70,7 @@ class IriWithOnePartExplicitlyGlobalMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -88,7 +88,7 @@ class IriWithOnePartExplicitlyGlobalMapper
     RdfSubject? parentSubject,
   }) {
     final isbn = iriTermValue.isbn;
-    return IriTerm('http://example.org/books/${isbn}');
+    return context.createIriTerm('http://example.org/books/${isbn}');
   }
 }
 
@@ -110,7 +110,7 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -128,7 +128,7 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
     RdfSubject? parentSubject,
   }) {
     final value = iriTermValue.value;
-    return IriTerm('http://example.org/books/${value}');
+    return context.createIriTerm('http://example.org/books/${value}');
   }
 }
 
@@ -147,7 +147,7 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
   @override
   IriWithTwoParts fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -167,7 +167,7 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
   }) {
     final value = iriTermValue.value;
     final type = iriTermValue.type;
-    return IriTerm('http://example.org/${type}/${value}');
+    return context.createIriTerm('http://example.org/${type}/${value}');
   }
 }
 
@@ -194,7 +194,7 @@ class IriWithBaseUriAndTwoPartsMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -215,7 +215,7 @@ class IriWithBaseUriAndTwoPartsMapper
     final value = iriTermValue.value;
     final otherPart = iriTermValue.otherPart;
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/${otherPart}/${value}');
+    return context.createIriTerm('${baseUri}/${otherPart}/${value}');
   }
 }
 
@@ -235,7 +235,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
   @override
   IriWithBaseUri fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -254,7 +254,7 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
   }) {
     final isbn = iriTermValue.isbn;
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/books/${isbn}');
+    return context.createIriTerm('${baseUri}/books/${isbn}');
   }
 }
 
@@ -279,7 +279,7 @@ class IriWithBaseUriNoGlobalMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -298,7 +298,7 @@ class IriWithBaseUriNoGlobalMapper
   }) {
     final isbn = iriTermValue.isbn;
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/books/${isbn}');
+    return context.createIriTerm('${baseUri}/books/${isbn}');
   }
 }
 
@@ -321,7 +321,7 @@ class IriWithNonConstructorFieldsMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -341,7 +341,7 @@ class IriWithNonConstructorFieldsMapper
     RdfSubject? parentSubject,
   }) {
     final id = iriTermValue.id;
-    return IriTerm('http://example.org/items/${id}');
+    return context.createIriTerm('http://example.org/items/${id}');
   }
 }
 
@@ -366,7 +366,7 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
     DeserializationContext context,
   ) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -387,7 +387,7 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
   }) {
     final id = iriTermValue.id;
     final myBaseUri = _myBaseUriProvider();
-    return IriTerm('${myBaseUri}/items/${id}');
+    return context.createIriTerm('${myBaseUri}/items/${id}');
   }
 }
 
@@ -406,7 +406,7 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
   @override
   IriWithMixedFields fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -430,7 +430,7 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
     final brand = iriTermValue.brand;
     final productCategory = iriTermValue.productCategory;
     final id = iriTermValue.id;
-    return IriTerm(
+    return context.createIriTerm(
       'http://example.org/products/${brand}/${productCategory}/${id}',
     );
   }

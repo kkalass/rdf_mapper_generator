@@ -159,34 +159,36 @@ void main() {
         // Test serialization - should use direct IRI values
         final plainTextIri = mapper.toRdfTerm(DocumentType.plainText, context);
         expect(plainTextIri, isA<IriTerm>());
-        expect(plainTextIri.iri,
+        expect(plainTextIri.value,
             equals('https://www.iana.org/assignments/media-types/text/plain'));
 
         final htmlIri = mapper.toRdfTerm(DocumentType.html, context);
         expect(htmlIri, isA<IriTerm>());
-        expect(htmlIri.iri,
+        expect(htmlIri.value,
             equals('https://www.iana.org/assignments/media-types/text/html'));
 
         final pdfIri = mapper.toRdfTerm(DocumentType.pdf, context);
         expect(pdfIri, isA<IriTerm>());
         expect(
-            pdfIri.iri,
+            pdfIri.value,
             equals(
                 'https://www.iana.org/assignments/media-types/application/pdf'));
 
         // Test deserialization
         final plainTextDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://www.iana.org/assignments/media-types/text/plain'),
+            const IriTerm(
+                'https://www.iana.org/assignments/media-types/text/plain'),
             deserContext);
         expect(plainTextDeserialized, equals(DocumentType.plainText));
 
         final htmlDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://www.iana.org/assignments/media-types/text/html'),
+            const IriTerm(
+                'https://www.iana.org/assignments/media-types/text/html'),
             deserContext);
         expect(htmlDeserialized, equals(DocumentType.html));
 
         final pdfDeserialized = mapper.fromRdfTerm(
-            IriTerm(
+            const IriTerm(
                 'https://www.iana.org/assignments/media-types/application/pdf'),
             deserContext);
         expect(pdfDeserialized, equals(DocumentType.pdf));
@@ -213,29 +215,30 @@ void main() {
         // Test serialization - should use template with value substitution
         final booksIri = mapper.toRdfTerm(CategoryType.books, context);
         expect(booksIri, isA<IriTerm>());
-        expect(booksIri.iri, equals('https://example.org/types/books'));
+        expect(booksIri.value, equals('https://example.org/types/books'));
 
         final musicIri = mapper.toRdfTerm(CategoryType.music, context);
         expect(musicIri, isA<IriTerm>());
-        expect(musicIri.iri, equals('https://example.org/types/music'));
+        expect(musicIri.value, equals('https://example.org/types/music'));
 
         final electronicsIri =
             mapper.toRdfTerm(CategoryType.electronics, context);
         expect(electronicsIri, isA<IriTerm>());
-        expect(electronicsIri.iri,
+        expect(electronicsIri.value,
             equals('https://example.org/types/electronics'));
 
         // Test deserialization - should parse IRI template
         final booksDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/types/books'), deserContext);
+            const IriTerm('https://example.org/types/books'), deserContext);
         expect(booksDeserialized, equals(CategoryType.books));
 
         final musicDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/types/music'), deserContext);
+            const IriTerm('https://example.org/types/music'), deserContext);
         expect(musicDeserialized, equals(CategoryType.music));
 
         final electronicsDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/types/electronics'), deserContext);
+            const IriTerm('https://example.org/types/electronics'),
+            deserContext);
         expect(electronicsDeserialized, equals(CategoryType.electronics));
       });
 
@@ -258,7 +261,7 @@ void main() {
 
         expect(
           () => mapper.fromRdfTerm(
-              IriTerm('https://example.org/types/invalid'), deserContext),
+              const IriTerm('https://example.org/types/invalid'), deserContext),
           throwsA(isA<DeserializationException>()),
         );
       });
@@ -269,7 +272,7 @@ void main() {
 
         expect(
           () => mapper.fromRdfTerm(
-              IriTerm('https://different.org/types/books'), deserContext),
+              const IriTerm('https://different.org/types/books'), deserContext),
           throwsA(isA<DeserializationException>()),
         );
       });
@@ -287,27 +290,27 @@ void main() {
         // Test serialization with baseUri provider
         final textIri = mapper.toRdfTerm(FileFormat.text, context);
         expect(textIri, isA<IriTerm>());
-        expect(textIri.iri, equals('https://example.org/formats/text'));
+        expect(textIri.value, equals('https://example.org/formats/text'));
 
         final binaryIri = mapper.toRdfTerm(FileFormat.binary, context);
         expect(binaryIri, isA<IriTerm>());
-        expect(binaryIri.iri, equals('https://example.org/formats/binary'));
+        expect(binaryIri.value, equals('https://example.org/formats/binary'));
 
         final xmlIri = mapper.toRdfTerm(FileFormat.xml, context);
         expect(xmlIri, isA<IriTerm>());
-        expect(xmlIri.iri, equals('https://example.org/formats/xml'));
+        expect(xmlIri.value, equals('https://example.org/formats/xml'));
 
         // Test deserialization
         final textDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/formats/text'), deserContext);
+            const IriTerm('https://example.org/formats/text'), deserContext);
         expect(textDeserialized, equals(FileFormat.text));
 
         final binaryDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/formats/binary'), deserContext);
+            const IriTerm('https://example.org/formats/binary'), deserContext);
         expect(binaryDeserialized, equals(FileFormat.binary));
 
         final xmlDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/formats/xml'), deserContext);
+            const IriTerm('https://example.org/formats/xml'), deserContext);
         expect(xmlDeserialized, equals(FileFormat.xml));
       });
 
@@ -339,30 +342,31 @@ void main() {
         final bookIri = mapper.toRdfTerm(ItemType.book, context);
         expect(bookIri, isA<IriTerm>());
         expect(
-            bookIri.iri, equals('https://example.org/types/literature/book'));
+            bookIri.value, equals('https://example.org/types/literature/book'));
 
         final magazineIri = mapper.toRdfTerm(ItemType.magazine, context);
         expect(magazineIri, isA<IriTerm>());
-        expect(magazineIri.iri,
+        expect(magazineIri.value,
             equals('https://example.org/types/literature/magazine'));
 
         final newspaperIri = mapper.toRdfTerm(ItemType.newspaper, context);
         expect(newspaperIri, isA<IriTerm>());
-        expect(newspaperIri.iri,
+        expect(newspaperIri.value,
             equals('https://example.org/types/literature/newspaper'));
 
         // Test deserialization
         final bookDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/types/literature/book'), deserContext);
+            const IriTerm('https://example.org/types/literature/book'),
+            deserContext);
         expect(bookDeserialized, equals(ItemType.book));
 
         final magazineDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/types/literature/magazine'),
+            const IriTerm('https://example.org/types/literature/magazine'),
             deserContext);
         expect(magazineDeserialized, equals(ItemType.magazine));
 
         final newspaperDeserialized = mapper.fromRdfTerm(
-            IriTerm('https://example.org/types/literature/newspaper'),
+            const IriTerm('https://example.org/types/literature/newspaper'),
             deserContext);
         expect(newspaperDeserialized, equals(ItemType.newspaper));
       });
@@ -501,7 +505,7 @@ void main() {
 
         // DocumentType has no template, so should use direct IRI access
         final iri = mapper.toRdfTerm(DocumentType.plainText, context);
-        expect(iri.iri,
+        expect(iri.value,
             equals('https://www.iana.org/assignments/media-types/text/plain'));
 
         // Verify the generated code structure through the _buildIri method behavior
@@ -515,7 +519,7 @@ void main() {
         // CategoryType has template 'https://example.org/types/{value}'
         // So it should use template substitution for serialization
         final iri = mapper.toRdfTerm(CategoryType.books, context);
-        expect(iri.iri, equals('https://example.org/types/books'));
+        expect(iri.value, equals('https://example.org/types/books'));
 
         // Verify the generated code uses regex for deserialization
         // This is tested indirectly through the round-trip tests
@@ -532,9 +536,9 @@ void main() {
         final iri1 = mapper1.toRdfTerm(FileFormat.text, context);
         final iri2 = mapper2.toRdfTerm(FileFormat.text, context);
 
-        expect(iri1.iri, equals('https://example.org/formats/text'));
-        expect(iri2.iri, equals('https://different.org/formats/text'));
-        expect(iri1.iri, isNot(equals(iri2.iri)));
+        expect(iri1.value, equals('https://example.org/formats/text'));
+        expect(iri2.value, equals('https://different.org/formats/text'));
+        expect(iri1.value, isNot(equals(iri2.value)));
       });
     });
   });

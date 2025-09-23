@@ -5,7 +5,7 @@ import 'package:rdf_mapper_annotations/rdf_mapper_annotations.dart';
 @RdfLocalResource()
 class Book {
   @RdfProperty(
-    IriTerm.prevalidated('http://example.org/book/title'),
+    const IriTerm('http://example.org/book/title'),
     literal: LiteralMapping.mapperInstance(const LocalizedEntryMapper()),
   )
   final Map<String, String> translations;

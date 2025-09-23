@@ -48,12 +48,12 @@ class UserReferenceMapper implements IriTermMapper<UserReference> {
 
   @override
   IriTerm toRdfTerm(UserReference value, SerializationContext context) {
-    return IriTerm('$baseUrl/users/${value.username}');
+    return context.createIriTerm('$baseUrl/users/${value.username}');
   }
 
   @override
   UserReference fromRdfTerm(IriTerm term, DeserializationContext context) {
-    final uri = Uri.parse(term.iri);
+    final uri = Uri.parse(term.value);
     final segments = uri.pathSegments;
 
     if (segments.length >= 2 && segments[0] == 'users') {
@@ -61,7 +61,7 @@ class UserReferenceMapper implements IriTermMapper<UserReference> {
       return UserReference(username);
     }
 
-    throw FormatException('Invalid UserProfile IRI format: ${term.iri}');
+    throw FormatException('Invalid UserProfile IRI format: ${term.value}');
   }
 }
 
@@ -137,7 +137,7 @@ class ChapterIdMapper implements IriTermMapper<(String bookId, int chapterId)> {
 
   @override
   (String, int) fromRdfTerm(IriTerm term, DeserializationContext context) {
-    final uri = Uri.parse(term.iri);
+    final uri = Uri.parse(term.value);
     final segments = uri.pathSegments;
 
     // Expected path: /books/{bookId}/chapters/{chapterId}
@@ -149,7 +149,7 @@ class ChapterIdMapper implements IriTermMapper<(String bookId, int chapterId)> {
       return (bookId, chapterId);
     }
 
-    throw FormatException('Invalid Chapter/Section IRI format: ${term.iri}');
+    throw FormatException('Invalid Chapter/Section IRI format: ${term.value}');
   }
 
   @override
@@ -157,6 +157,7 @@ class ChapterIdMapper implements IriTermMapper<(String bookId, int chapterId)> {
     (String bookId, int chapterNumber) value,
     SerializationContext context,
   ) {
-    return IriTerm('$baseUrl/books/${value.$1}/chapters/${value.$2}');
+    return context
+        .createIriTerm('$baseUrl/books/${value.$1}/chapters/${value.$2}');
   }
 }

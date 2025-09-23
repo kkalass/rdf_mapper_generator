@@ -41,7 +41,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -75,7 +75,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -219,10 +219,12 @@ class ItemConditionMapper implements IriTermMapper<ItemCondition> {
   @override
   ItemCondition fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown ItemCondition IRI: ${term.iri}');
+      throw DeserializationException(
+        'Unknown ItemCondition IRI: ${term.value}',
+      );
     }
 
     final iriParts = {
@@ -235,7 +237,7 @@ class ItemConditionMapper implements IriTermMapper<ItemCondition> {
       'UsedCondition' => ItemCondition.used,
       'refurbished' => ItemCondition.refurbished,
       _ => throw DeserializationException(
-        'Unknown ItemCondition IRI: ${term.iri}',
+        'Unknown ItemCondition IRI: ${term.value}',
       ),
     };
   }
@@ -246,9 +248,11 @@ class ItemConditionMapper implements IriTermMapper<ItemCondition> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    ItemCondition.brandNew => IriTerm(_buildIri('NewCondition')),
-    ItemCondition.used => IriTerm(_buildIri('UsedCondition')),
-    ItemCondition.refurbished => IriTerm(_buildIri('refurbished')),
+    ItemCondition.brandNew => context.createIriTerm(_buildIri('NewCondition')),
+    ItemCondition.used => context.createIriTerm(_buildIri('UsedCondition')),
+    ItemCondition.refurbished => context.createIriTerm(
+      _buildIri('refurbished'),
+    ),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -272,10 +276,10 @@ class OrderStatusMapper implements IriTermMapper<OrderStatus> {
   @override
   OrderStatus fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown OrderStatus IRI: ${term.iri}');
+      throw DeserializationException('Unknown OrderStatus IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -289,7 +293,7 @@ class OrderStatusMapper implements IriTermMapper<OrderStatus> {
       'shipped' => OrderStatus.shipped,
       'delivered-completed' => OrderStatus.delivered,
       _ => throw DeserializationException(
-        'Unknown OrderStatus IRI: ${term.iri}',
+        'Unknown OrderStatus IRI: ${term.value}',
       ),
     };
   }
@@ -300,10 +304,12 @@ class OrderStatusMapper implements IriTermMapper<OrderStatus> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    OrderStatus.pending => IriTerm(_buildIri('pending')),
-    OrderStatus.processing => IriTerm(_buildIri('in-progress')),
-    OrderStatus.shipped => IriTerm(_buildIri('shipped')),
-    OrderStatus.delivered => IriTerm(_buildIri('delivered-completed')),
+    OrderStatus.pending => context.createIriTerm(_buildIri('pending')),
+    OrderStatus.processing => context.createIriTerm(_buildIri('in-progress')),
+    OrderStatus.shipped => context.createIriTerm(_buildIri('shipped')),
+    OrderStatus.delivered => context.createIriTerm(
+      _buildIri('delivered-completed'),
+    ),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -364,11 +370,11 @@ class BusinessEntityTypeMapper implements IriTermMapper<BusinessEntityType> {
   @override
   BusinessEntityType fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
       throw DeserializationException(
-        'Unknown BusinessEntityType IRI: ${term.iri}',
+        'Unknown BusinessEntityType IRI: ${term.value}',
       );
     }
 
@@ -383,7 +389,7 @@ class BusinessEntityTypeMapper implements IriTermMapper<BusinessEntityType> {
       'PublicInstitution' => BusinessEntityType.publicInstitution,
       'Reseller' => BusinessEntityType.reseller,
       _ => throw DeserializationException(
-        'Unknown BusinessEntityType IRI: ${term.iri}',
+        'Unknown BusinessEntityType IRI: ${term.value}',
       ),
     };
   }
@@ -394,12 +400,12 @@ class BusinessEntityTypeMapper implements IriTermMapper<BusinessEntityType> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    BusinessEntityType.business => IriTerm(_buildIri('Business')),
-    BusinessEntityType.endUser => IriTerm(_buildIri('Enduser')),
-    BusinessEntityType.publicInstitution => IriTerm(
+    BusinessEntityType.business => context.createIriTerm(_buildIri('Business')),
+    BusinessEntityType.endUser => context.createIriTerm(_buildIri('Enduser')),
+    BusinessEntityType.publicInstitution => context.createIriTerm(
       _buildIri('PublicInstitution'),
     ),
-    BusinessEntityType.reseller => IriTerm(_buildIri('Reseller')),
+    BusinessEntityType.reseller => context.createIriTerm(_buildIri('Reseller')),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -423,10 +429,10 @@ class UserRatingMapper implements IriTermMapper<UserRating> {
   @override
   UserRating fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown UserRating IRI: ${term.iri}');
+      throw DeserializationException('Unknown UserRating IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -441,7 +447,7 @@ class UserRatingMapper implements IriTermMapper<UserRating> {
       'poor-2-stars' => UserRating.poor,
       'terrible-1-star' => UserRating.terrible,
       _ => throw DeserializationException(
-        'Unknown UserRating IRI: ${term.iri}',
+        'Unknown UserRating IRI: ${term.value}',
       ),
     };
   }
@@ -452,11 +458,13 @@ class UserRatingMapper implements IriTermMapper<UserRating> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    UserRating.excellent => IriTerm(_buildIri('excellent-5-stars')),
-    UserRating.good => IriTerm(_buildIri('good-4-stars')),
-    UserRating.average => IriTerm(_buildIri('average-3-stars')),
-    UserRating.poor => IriTerm(_buildIri('poor-2-stars')),
-    UserRating.terrible => IriTerm(_buildIri('terrible-1-star')),
+    UserRating.excellent => context.createIriTerm(
+      _buildIri('excellent-5-stars'),
+    ),
+    UserRating.good => context.createIriTerm(_buildIri('good-4-stars')),
+    UserRating.average => context.createIriTerm(_buildIri('average-3-stars')),
+    UserRating.poor => context.createIriTerm(_buildIri('poor-2-stars')),
+    UserRating.terrible => context.createIriTerm(_buildIri('terrible-1-star')),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -483,11 +491,11 @@ class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
   @override
   ProductCategory fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
       throw DeserializationException(
-        'Unknown ProductCategory IRI: ${term.iri}',
+        'Unknown ProductCategory IRI: ${term.value}',
       );
     }
 
@@ -502,7 +510,7 @@ class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
       'clothing' => ProductCategory.clothing,
       'home-garden' => ProductCategory.homeAndGarden,
       _ => throw DeserializationException(
-        'Unknown ProductCategory IRI: ${term.iri}',
+        'Unknown ProductCategory IRI: ${term.value}',
       ),
     };
   }
@@ -513,10 +521,16 @@ class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    ProductCategory.electronics => IriTerm(_buildIri('electronics')),
-    ProductCategory.booksAndMedia => IriTerm(_buildIri('books-media')),
-    ProductCategory.clothing => IriTerm(_buildIri('clothing')),
-    ProductCategory.homeAndGarden => IriTerm(_buildIri('home-garden')),
+    ProductCategory.electronics => context.createIriTerm(
+      _buildIri('electronics'),
+    ),
+    ProductCategory.booksAndMedia => context.createIriTerm(
+      _buildIri('books-media'),
+    ),
+    ProductCategory.clothing => context.createIriTerm(_buildIri('clothing')),
+    ProductCategory.homeAndGarden => context.createIriTerm(
+      _buildIri('home-garden'),
+    ),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -548,10 +562,12 @@ class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
   @override
   ShippingMethod fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown ShippingMethod IRI: ${term.iri}');
+      throw DeserializationException(
+        'Unknown ShippingMethod IRI: ${term.value}',
+      );
     }
 
     final iriParts = {
@@ -565,7 +581,7 @@ class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
       'same-day-delivery' => ShippingMethod.sameDay,
       'pickup-in-store' => ShippingMethod.pickup,
       _ => throw DeserializationException(
-        'Unknown ShippingMethod IRI: ${term.iri}',
+        'Unknown ShippingMethod IRI: ${term.value}',
       ),
     };
   }
@@ -576,10 +592,16 @@ class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    ShippingMethod.standard => IriTerm(_buildIri('standard')),
-    ShippingMethod.express => IriTerm(_buildIri('express-overnight')),
-    ShippingMethod.sameDay => IriTerm(_buildIri('same-day-delivery')),
-    ShippingMethod.pickup => IriTerm(_buildIri('pickup-in-store')),
+    ShippingMethod.standard => context.createIriTerm(_buildIri('standard')),
+    ShippingMethod.express => context.createIriTerm(
+      _buildIri('express-overnight'),
+    ),
+    ShippingMethod.sameDay => context.createIriTerm(
+      _buildIri('same-day-delivery'),
+    ),
+    ShippingMethod.pickup => context.createIriTerm(
+      _buildIri('pickup-in-store'),
+    ),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -612,10 +634,10 @@ class EmployeeRoleMapper implements IriTermMapper<EmployeeRole> {
   @override
   EmployeeRole fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown EmployeeRole IRI: ${term.iri}');
+      throw DeserializationException('Unknown EmployeeRole IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -629,7 +651,7 @@ class EmployeeRoleMapper implements IriTermMapper<EmployeeRole> {
       'developer' => EmployeeRole.developer,
       'quality-assurance' => EmployeeRole.qualityAssurance,
       _ => throw DeserializationException(
-        'Unknown EmployeeRole IRI: ${term.iri}',
+        'Unknown EmployeeRole IRI: ${term.value}',
       ),
     };
   }
@@ -640,10 +662,12 @@ class EmployeeRoleMapper implements IriTermMapper<EmployeeRole> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    EmployeeRole.manager => IriTerm(_buildIri('manager')),
-    EmployeeRole.teamLead => IriTerm(_buildIri('team-lead')),
-    EmployeeRole.developer => IriTerm(_buildIri('developer')),
-    EmployeeRole.qualityAssurance => IriTerm(_buildIri('quality-assurance')),
+    EmployeeRole.manager => context.createIriTerm(_buildIri('manager')),
+    EmployeeRole.teamLead => context.createIriTerm(_buildIri('team-lead')),
+    EmployeeRole.developer => context.createIriTerm(_buildIri('developer')),
+    EmployeeRole.qualityAssurance => context.createIriTerm(
+      _buildIri('quality-assurance'),
+    ),
   };
 
   /// Generates the complete IRI for a given enum value

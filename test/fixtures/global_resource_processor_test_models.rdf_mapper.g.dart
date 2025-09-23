@@ -30,7 +30,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -46,7 +46,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
     RdfSubject? parentSubject,
   }) {
     final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/authors/${authorId}');
+    return context.createIriTerm('http://example.org/authors/${authorId}');
   }
 }
 
@@ -73,7 +73,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -96,7 +96,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -133,7 +133,7 @@ class ClassWithEmptyIriStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    final iri = subject.iri;
+    final iri = subject.value;
 
     return ClassWithEmptyIriStrategy(iri: iri);
   }
@@ -144,7 +144,7 @@ class ClassWithEmptyIriStrategyMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.iri);
+    final subject = context.createIriTerm(resource.iri);
 
     return context.resourceBuilder(subject).build();
   }
@@ -171,7 +171,7 @@ class ClassWithNoRdfTypeMapper
 
     final String name = reader.require(SchemaPerson.name);
     final int? age = reader.optional(SchemaPerson.foafAge);
-    final iri = subject.iri;
+    final iri = subject.value;
 
     final retval = ClassWithNoRdfType(name, age: age);
     retval.iri = iri;
@@ -184,7 +184,7 @@ class ClassWithNoRdfTypeMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.iri);
+    final subject = context.createIriTerm(resource.iri);
 
     return context
         .resourceBuilder(subject)
@@ -215,7 +215,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    final iri = subject.iri;
+    final iri = subject.value;
 
     return ClassWithEmptyIriStrategyNoRegisterGlobally(iri: iri);
   }
@@ -226,7 +226,7 @@ class ClassWithEmptyIriStrategyNoRegisterGloballyMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.iri);
+    final subject = context.createIriTerm(resource.iri);
 
     return context.resourceBuilder(subject).build();
   }
@@ -253,7 +253,7 @@ class ClassWithIriTemplateStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -271,7 +271,7 @@ class ClassWithIriTemplateStrategyMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context.resourceBuilder(subject).build();
   }
@@ -309,7 +309,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -327,7 +327,7 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context.resourceBuilder(subject).build();
   }
@@ -365,7 +365,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
     IriTerm subject,
     DeserializationContext context,
   ) {
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -383,7 +383,7 @@ class ClassWithOtherBaseUriNonGlobalMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context.resourceBuilder(subject).build();
   }

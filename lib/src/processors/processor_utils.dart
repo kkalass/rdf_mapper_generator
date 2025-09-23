@@ -17,7 +17,7 @@ final _log = Logger('ProcessorUtils');
 /// Contains information about an IRI source reference including the
 /// source code expression and required import.
 class IriTermInfo {
-  /// The source code expression (e.g., 'SchemaBook.classIri' or 'IriTerm("https://schema.org/Book")')
+  /// The source code expression (e.g., 'SchemaBook.classIri' or 'const IriTerm("https://schema.org/Book")')
   final Code code;
 
   /// The actual IRI value for fallback purposes
@@ -192,7 +192,10 @@ MapperRefInfo<M>? getMapperRefInfo<M>(DartObject annotation) {
   final configInstanceField = getField(annotation, '_factoryConfigInstance');
 
   // Check if we have any mapping information
-  if (name == null && factoryName == null && isNull(typeField) && isNull(instanceField)) {
+  if (name == null &&
+      factoryName == null &&
+      isNull(typeField) &&
+      isNull(instanceField)) {
     return null;
   }
 
@@ -269,9 +272,9 @@ IriTerm? getIriTerm(DartObject? iriTermObject) {
   try {
     if (iriTermObject != null && !iriTermObject.isNull) {
       // Get the IRI string from the IriTerm
-      final iriValue = getFieldStringValue(iriTermObject, 'iri');
+      final iriValue = getFieldStringValue(iriTermObject, 'value');
       if (iriValue != null) {
-        return IriTerm(iriValue);
+        return IriTerm.validated(iriValue);
       }
     }
 

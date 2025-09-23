@@ -32,7 +32,7 @@ String Function<T extends ConfigurableBook>(IriMapperConfig config)
 
 /// Test model with namedFactory without config
 @RdfGlobalResource(
-  IriTerm.prevalidated('http://example.com/Book'),
+  const IriTerm('http://example.com/Book'),
   IriStrategy.namedFactory(
     'simpleBookIriFactory',
   ),
@@ -41,7 +41,7 @@ class SimpleBook {
   @RdfIriPart()
   final String id;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/title'))
+  @RdfProperty(const IriTerm('http://example.com/title'))
   final String title;
 
   const SimpleBook({
@@ -52,7 +52,7 @@ class SimpleBook {
 
 /// Test model with namedFactory with config
 @RdfGlobalResource(
-  IriTerm.prevalidated('http://example.com/ConfigurableBook'),
+  const IriTerm('http://example.com/ConfigurableBook'),
   IriStrategy.namedFactory(
     'configurableBookIriFactory',
     IriMapperConfig(
@@ -65,10 +65,10 @@ class ConfigurableBook {
   @RdfIriPart()
   final String id;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/title'))
+  @RdfProperty(const IriTerm('http://example.com/title'))
   final String title;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/author'))
+  @RdfProperty(const IriTerm('http://example.com/author'))
   final String author;
 
   const ConfigurableBook({
@@ -80,7 +80,7 @@ class ConfigurableBook {
 
 /// Test model with registerGlobally: false and namedFactory
 @RdfGlobalResource(
-  IriTerm.prevalidated('http://example.com/LocalBook'),
+  const IriTerm('http://example.com/LocalBook'),
   IriStrategy.namedFactory(
     'simpleBookIriFactory',
   ),
@@ -90,7 +90,7 @@ class LocalBook {
   @RdfIriPart()
   final String id;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/title'))
+  @RdfProperty(const IriTerm('http://example.com/title'))
   final String title;
 
   const LocalBook({
@@ -101,7 +101,7 @@ class LocalBook {
 
 /// Test model combining namedFactory with context providers
 @RdfGlobalResource(
-  IriTerm.prevalidated('http://example.com/ContextualBook'),
+  const IriTerm('http://example.com/ContextualBook'),
   IriStrategy.namedFactory(
     'configurableBookIriFactory',
     IriMapperConfig(
@@ -114,14 +114,14 @@ class ContextualBook {
   @RdfIriPart()
   final String id;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/title'))
+  @RdfProperty(const IriTerm('http://example.com/title'))
   final String title;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/simpleVariant'),
+  @RdfProperty(const IriTerm('http://example.com/simpleVariant'),
       iri: IriMapping.namedFactory('simpleVariantRefFactory', SimpleBook))
   final String simpleVariant;
 
-  @RdfProperty(IriTerm.prevalidated('http://example.com/simpleVariant2'),
+  @RdfProperty(const IriTerm('http://example.com/simpleVariant2'),
       iri: IriMapping.namedFactory('simpleVariantRefFactory', SimpleBook))
   final String simpleVariant2;
 

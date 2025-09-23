@@ -54,9 +54,7 @@ class EnhancedRatingMapper implements LiteralTermMapper<EnhancedRating> {
 /// This mapper handles serialization and deserialization between Dart objects
 /// and RDF terms for iri terms of type Temperature.
 class TemperatureMapper implements LiteralTermMapper<Temperature> {
-  final IriTerm? datatype = const IriTerm.prevalidated(
-    'http://example.org/temperature',
-  );
+  final IriTerm? datatype = const IriTerm('http://example.org/temperature');
 
   const TemperatureMapper();
 
@@ -67,12 +65,11 @@ class TemperatureMapper implements LiteralTermMapper<Temperature> {
     bool bypassDatatypeCheck = false,
   }) {
     if (!bypassDatatypeCheck &&
-        term.datatype !=
-            const IriTerm.prevalidated('http://example.org/temperature')) {
+        term.datatype != const IriTerm('http://example.org/temperature')) {
       throw DeserializerDatatypeMismatchException(
         'Failed to parse Temperature: ${term.value}. ',
         actual: term.datatype,
-        expected: const IriTerm.prevalidated('http://example.org/temperature'),
+        expected: const IriTerm('http://example.org/temperature'),
         targetType: Temperature,
         mapperRuntimeType: this.runtimeType,
       );

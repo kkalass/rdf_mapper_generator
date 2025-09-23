@@ -39,7 +39,7 @@ void main() {
         final iriTerm = mapper.toRdfTerm(isbn, context);
 
         expect(iriTerm, isA<IriTerm>());
-        expect(iriTerm.iri, equals('urn:isbn:9780261102217'));
+        expect(iriTerm.value, equals('urn:isbn:9780261102217'));
       });
 
       test('deserializes from IRI with template pattern', () {
@@ -47,7 +47,7 @@ void main() {
         final context = createDeserializationContext();
 
         final isbn = mapper.fromRdfTerm(
-          IriTerm('urn:isbn:9780261102217'),
+          const IriTerm('urn:isbn:9780261102217'),
           context,
         );
 
@@ -63,15 +63,15 @@ void main() {
         final isbnX = StandardIsbn('026110221X');
 
         expect(
-          mapper.toRdfTerm(isbn13, context).iri,
+          mapper.toRdfTerm(isbn13, context).value,
           equals('urn:isbn:9780261102217'),
         );
         expect(
-          mapper.toRdfTerm(isbn10, context).iri,
+          mapper.toRdfTerm(isbn10, context).value,
           equals('urn:isbn:0261102214'),
         );
         expect(
-          mapper.toRdfTerm(isbnX, context).iri,
+          mapper.toRdfTerm(isbnX, context).value,
           equals('urn:isbn:026110221X'),
         );
       });
@@ -85,7 +85,7 @@ void main() {
         final uri = AbsoluteUri('https://example.org/resources/123');
         final iriTerm = mapper.toRdfTerm(uri, context);
 
-        expect(iriTerm.iri, equals('https://example.org/resources/123'));
+        expect(iriTerm.value, equals('https://example.org/resources/123'));
       });
 
       test('deserializes using IRI value directly', () {
@@ -93,7 +93,7 @@ void main() {
         final context = createDeserializationContext();
 
         final uri = mapper.fromRdfTerm(
-          IriTerm('https://example.org/resources/456'),
+          const IriTerm('https://example.org/resources/456'),
           context,
         );
 
@@ -121,7 +121,7 @@ void main() {
         final userRef = UserReference('johndoe');
         final iriTerm = testMapper.toRdfTerm(userRef, context);
 
-        expect(iriTerm.iri, equals('http://example.org/users/johndoe'));
+        expect(iriTerm.value, equals('http://example.org/users/johndoe'));
       });
 
       test('deserializes from custom IRI format', () {
@@ -129,7 +129,7 @@ void main() {
         final context = createDeserializationContext();
 
         final userRef = testMapper.fromRdfTerm(
-          IriTerm('http://example.org/users/janedoe'),
+          const IriTerm('http://example.org/users/janedoe'),
           context,
         );
 
@@ -142,7 +142,7 @@ void main() {
 
         expect(
           () => testMapper.fromRdfTerm(
-            IriTerm('http://invalid.org/profile/user'),
+            const IriTerm('http://invalid.org/profile/user'),
             context,
           ),
           throwsA(isA<ArgumentError>()),
@@ -156,7 +156,7 @@ void main() {
         final userRef = UserReference('user-123_test');
         final iriTerm = testMapper.toRdfTerm(userRef, context);
 
-        expect(iriTerm.iri, equals('http://example.org/users/user-123_test'));
+        expect(iriTerm.value, equals('http://example.org/users/user-123_test'));
 
         final deserContext = createDeserializationContext();
         final deserializedUserRef =
@@ -174,7 +174,7 @@ void main() {
         final (subject, triples) = mapper.toRdfResource(book, context);
 
         expect(
-          subject.iri,
+          subject.value,
           equals('https://library.example.org/books/hobbit.ttl'),
         );
         expect(triples.length, greaterThan(0));
@@ -191,7 +191,7 @@ void main() {
       test('deserializes global resource from IRI template', () {
         final triples = [
           Triple(
-            IriTerm('https://library.example.org/books/lotr.ttl'),
+            const IriTerm('https://library.example.org/books/lotr.ttl'),
             SchemaBook.name,
             LiteralTerm('The Lord of the Rings'),
           ),
@@ -205,7 +205,7 @@ void main() {
 
         const bookMapper = SimpleBookMapper();
         final book = bookMapper.fromRdfResource(
-          IriTerm('https://library.example.org/books/lotr.ttl'),
+          const IriTerm('https://library.example.org/books/lotr.ttl'),
           context,
         );
 
@@ -216,7 +216,7 @@ void main() {
       test('extracts ID from IRI template correctly', () {
         final triples = [
           Triple(
-            IriTerm(
+            const IriTerm(
                 'https://library.example.org/books/complex-book-id-123.ttl'),
             SchemaBook.name,
             LiteralTerm('Complex Book'),
@@ -231,7 +231,8 @@ void main() {
 
         const bookMapper = SimpleBookMapper();
         final book = bookMapper.fromRdfResource(
-          IriTerm('https://library.example.org/books/complex-book-id-123.ttl'),
+          const IriTerm(
+              'https://library.example.org/books/complex-book-id-123.ttl'),
           context,
         );
 
@@ -251,7 +252,7 @@ void main() {
         );
         final (subject, triples) = mapper.toRdfResource(person, context);
 
-        expect(subject.iri, equals('https://example.org/person/43'));
+        expect(subject.value, equals('https://example.org/person/43'));
 
         final givenNameTriple = triples.firstWhere(
           (t) => t.predicate == SchemaPerson.givenName,
@@ -265,7 +266,7 @@ void main() {
       test('deserializes global resource from direct IRI', () {
         final triples = [
           Triple(
-            IriTerm('https://example.org/person/jane'),
+            const IriTerm('https://example.org/person/jane'),
             SchemaPerson.givenName,
             LiteralTerm('Jane'),
           ),
@@ -279,7 +280,7 @@ void main() {
 
         const personMapper = PersonMapper();
         final person = personMapper.fromRdfResource(
-          IriTerm('https://example.org/person/jane'),
+          const IriTerm('https://example.org/person/jane'),
           context,
         );
 
@@ -297,7 +298,7 @@ void main() {
         final iriTerm = testMapper.toRdfTerm(chapterData, context);
 
         expect(
-          iriTerm.iri,
+          iriTerm.value,
           equals('http://example.org/books/hobbit/chapters/3'),
         );
       });
@@ -307,7 +308,7 @@ void main() {
         final context = createDeserializationContext();
 
         final chapterData = testMapper.fromRdfTerm(
-          IriTerm('http://example.org/books/lotr/chapters/7'),
+          const IriTerm('http://example.org/books/lotr/chapters/7'),
           context,
         );
 
@@ -318,20 +319,21 @@ void main() {
       test('serializes and deserializes Chapter resource', () {
         final triples = [
           Triple(
-            IriTerm('http://example.org/books/hobbit/chapters/1'),
+            const IriTerm('http://example.org/books/hobbit/chapters/1'),
             SchemaChapter.name,
             LiteralTerm('An Unexpected Party'),
           ),
           Triple(
-            IriTerm('http://example.org/books/hobbit/chapters/1'),
+            const IriTerm('http://example.org/books/hobbit/chapters/1'),
             SchemaChapter.isPartOf,
             LiteralTerm('hobbit'),
           ),
           Triple(
-            IriTerm('http://example.org/books/hobbit/chapters/1'),
+            const IriTerm('http://example.org/books/hobbit/chapters/1'),
             SchemaChapter.position,
             LiteralTerm('1',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
+                datatype:
+                    const IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           ),
         ];
 
@@ -345,7 +347,7 @@ void main() {
           chapterIdMapper: const TestChapterIdMapper(),
         );
         final chapter = chapterMapper.fromRdfResource(
-          IriTerm('http://example.org/books/hobbit/chapters/1'),
+          const IriTerm('http://example.org/books/hobbit/chapters/1'),
           context,
         );
 
@@ -360,7 +362,7 @@ void main() {
 
         expect(
           () => testMapper.fromRdfTerm(
-            IriTerm('http://invalid.org/wrong/format'),
+            const IriTerm('http://invalid.org/wrong/format'),
             context,
           ),
           throwsA(isA<ArgumentError>()),
@@ -372,7 +374,7 @@ void main() {
         final context = createDeserializationContext();
 
         final chapterData = testMapper.fromRdfTerm(
-          IriTerm('http://example.org/books/test/chapters/007'),
+          const IriTerm('http://example.org/books/test/chapters/007'),
           context,
         );
 
@@ -426,7 +428,7 @@ void main() {
 
         final iriTerm = testMapper.toRdfTerm(chapterData, context);
         expect(
-          iriTerm.iri,
+          iriTerm.value,
           equals('http://example.org/books/$complexBookId/chapters/99'),
         );
 
@@ -442,14 +444,14 @@ void main() {
 
         // Test empty value
         final emptyIsbn = isbnMapper.fromRdfTerm(
-          IriTerm('urn:isbn:'),
+          const IriTerm('urn:isbn:'),
           context,
         );
         expect(emptyIsbn.value, equals(''));
 
         // Test value with special characters
         final specialIsbn = isbnMapper.fromRdfTerm(
-          IriTerm('urn:isbn:123-456-789-X'),
+          const IriTerm('urn:isbn:123-456-789-X'),
           context,
         );
         expect(specialIsbn.value, equals('123-456-789-X'));

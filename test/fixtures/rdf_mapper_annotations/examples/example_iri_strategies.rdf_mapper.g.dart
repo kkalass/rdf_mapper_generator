@@ -28,7 +28,7 @@ class StandardIsbnMapper implements IriTermMapper<StandardIsbn> {
   @override
   StandardIsbn fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -46,7 +46,7 @@ class StandardIsbnMapper implements IriTermMapper<StandardIsbn> {
     RdfSubject? parentSubject,
   }) {
     final value = iriTermValue.value;
-    return IriTerm('urn:isbn:${value}');
+    return context.createIriTerm('urn:isbn:${value}');
   }
 }
 
@@ -63,7 +63,7 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
   @override
   AbsoluteUri fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -81,7 +81,7 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
     RdfSubject? parentSubject,
   }) {
     final uri = iriTermValue.uri;
-    return IriTerm('${uri}');
+    return context.createIriTerm('${uri}');
   }
 }
 
@@ -104,7 +104,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
   SimpleBook fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -123,7 +123,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -153,7 +153,7 @@ class PersonMapper implements GlobalResourceMapper<Person> {
   Person fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final iri = subject.iri;
+    final iri = subject.value;
     final String givenName = reader.require(SchemaPerson.givenName);
 
     return Person(iri, givenName);
@@ -165,7 +165,7 @@ class PersonMapper implements GlobalResourceMapper<Person> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.iri);
+    final subject = context.createIriTerm(resource.iri);
 
     return context
         .resourceBuilder(subject)

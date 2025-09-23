@@ -38,7 +38,7 @@ class TestGlobalResourceMapper
   ) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -57,7 +57,7 @@ class TestGlobalResourceMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -126,7 +126,7 @@ class TestIriMapper implements IriTermMapper<TestIri> {
   @override
   TestIri fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -144,7 +144,7 @@ class TestIriMapper implements IriTermMapper<TestIri> {
     RdfSubject? parentSubject,
   }) {
     final id = iriTermValue.id;
-    return IriTerm('http://example.org/items/${id}');
+    return context.createIriTerm('http://example.org/items/${id}');
   }
 }
 

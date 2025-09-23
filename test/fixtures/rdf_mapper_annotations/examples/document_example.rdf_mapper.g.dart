@@ -36,7 +36,7 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
   Document<T> fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final documentIri = subject.iri;
+    final documentIri = subject.value;
     final T primaryTopic = reader.require(
       FoafPersonalProfileDocument.primaryTopic,
       deserializer: _primaryTopicSerializationProvider.deserializer(
@@ -65,7 +65,7 @@ class DocumentMapper<T> implements GlobalResourceMapper<Document<T>> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.documentIri);
+    final subject = context.createIriTerm(resource.documentIri);
 
     return context
         .resourceBuilder(subject)
@@ -175,7 +175,7 @@ class PersonMapper implements GlobalResourceMapper<Person> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)

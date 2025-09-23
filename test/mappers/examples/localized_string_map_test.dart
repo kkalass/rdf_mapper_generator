@@ -191,8 +191,7 @@ void main() {
         expect(subject, isA<BlankNodeTerm>());
         expect(triples.length, equals(translations.length));
 
-        final titleProperty =
-            IriTerm.prevalidated('http://example.org/book/title');
+        final titleProperty = const IriTerm('http://example.org/book/title');
         final titleTriples = triples.where((t) => t.predicate == titleProperty);
         expect(titleTriples.length, equals(translations.length));
 
@@ -208,8 +207,7 @@ void main() {
 
       test('deserializes book from multiple translation triples', () {
         final blankNode = BlankNodeTerm();
-        final titleProperty =
-            IriTerm.prevalidated('http://example.org/book/title');
+        final titleProperty = const IriTerm('http://example.org/book/title');
 
         final triples = [
           Triple(blankNode, titleProperty,
@@ -270,8 +268,7 @@ void main() {
 
       test('handles translations with missing language tags', () {
         final blankNode = BlankNodeTerm();
-        final titleProperty =
-            IriTerm.prevalidated('http://example.org/book/title');
+        final titleProperty = const IriTerm('http://example.org/book/title');
 
         final triples = [
           Triple(blankNode, titleProperty,
@@ -299,8 +296,7 @@ void main() {
 
       test('handles translations with duplicate language codes', () {
         final blankNode = BlankNodeTerm();
-        final titleProperty =
-            IriTerm.prevalidated('http://example.org/book/title');
+        final titleProperty = const IriTerm('http://example.org/book/title');
 
         final triples = [
           Triple(blankNode, titleProperty,
@@ -375,8 +371,7 @@ void main() {
         final book = Book(translations: unicodeTranslations);
         final (subject, triples) = mapper.toRdfResource(book, context);
 
-        final titleProperty =
-            IriTerm.prevalidated('http://example.org/book/title');
+        final titleProperty = const IriTerm('http://example.org/book/title');
         final titleTriples = triples.where((t) => t.predicate == titleProperty);
 
         final actualTranslations = <String, String>{};

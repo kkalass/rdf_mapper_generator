@@ -398,7 +398,7 @@ class Temperature {
   final double celsius;
 
   LiteralTerm formatCelsius() =&gt; 
-    LiteralTerm('${celsius}°C', datatype: IriTerm('https://units.org/Temperature'));
+    LiteralTerm('${celsius}°C', datatype: const IriTerm('https://units.org/Temperature'));
     
   static Temperature parse(LiteralTerm term) =&gt; 
     Temperature(double.parse(term.value.replaceAll('°C', '')));

@@ -30,7 +30,7 @@ class TestIriTermRecordMapper implements IriTermMapper<(String id,)> {
 
   @override
   (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
-    final uri = term.iri;
+    final uri = term.value;
     final lastSlashIndex = uri.lastIndexOf('/');
     if (lastSlashIndex == -1 || lastSlashIndex == uri.length - 1) {
       throw ArgumentError('Invalid IRI format: cannot extract ID from $uri');
@@ -43,7 +43,7 @@ class TestIriTermRecordMapper implements IriTermMapper<(String id,)> {
   IriTerm toRdfTerm((String,) value, SerializationContext context) {
     final id = value.$1;
     final uri = baseUri.endsWith('/') ? '$baseUri$id' : '$baseUri/$id';
-    return IriTerm(uri);
+    return context.createIriTerm(uri);
   }
 }
 
@@ -124,15 +124,15 @@ void main() {
 
       // Verify the generated IRI follows the pattern
       final subject = graph.triples.first.subject as IriTerm;
-      expect(subject.iri, startsWith('https://example.org/books/'));
-      expect(subject.iri, contains('123'));
+      expect(subject.value, startsWith('https://example.org/books/'));
+      expect(subject.value, contains('123'));
 
       // Verify type triple exists
       final typeTriples = graph.triples.where((t) =>
           t.predicate ==
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'));
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'));
       expect(typeTriples, isNotEmpty);
-      expect((typeTriples.first.object as IriTerm).iri,
+      expect((typeTriples.first.object as IriTerm).value,
           equals('https://schema.org/Book'));
 
       // Test deserialization
@@ -153,8 +153,8 @@ void main() {
       expect(graph, isNotNull);
 
       // Verify no title property is serialized when it equals default
-      final titleTriples = graph.triples
-          .where((t) => t.predicate == IriTerm('https://schema.org/name'));
+      final titleTriples = graph.triples.where(
+          (t) => t.predicate == const IriTerm('https://schema.org/name'));
       expect(titleTriples, isEmpty);
 
       // Test deserialization - should get default value
@@ -175,13 +175,13 @@ void main() {
       expect(graph, isNotNull);
 
       // Verify title property is serialized
-      final titleTriples = graph.triples
-          .where((t) => t.predicate == IriTerm('https://schema.org/name'));
+      final titleTriples = graph.triples.where(
+          (t) => t.predicate == const IriTerm('https://schema.org/name'));
       expect(titleTriples, isNotEmpty);
 
       // Verify the IRI mapping for title property includes both id and title
       final titleTriple = titleTriples.first;
-      final titleIri = (titleTriple.object as IriTerm).iri;
+      final titleIri = (titleTriple.object as IriTerm).value;
       expect(titleIri, equals('https://example.org/books/789/CustomTitle'));
 
       // Test deserialization
@@ -193,18 +193,19 @@ void main() {
 
     test('BookWithMapper IRI mapping extraction during deserialization', () {
       // Create a manual graph with custom IRI structure
-      final subject = IriTerm('https://example.org/books/test-id');
-      final titleIri = IriTerm('https://example.org/books/test-id/MyTitle');
+      final subject = const IriTerm('https://example.org/books/test-id');
+      final titleIri =
+          const IriTerm('https://example.org/books/test-id/MyTitle');
 
       final graph = RdfGraph.fromTriples([
         Triple(
           subject,
-          IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-          IriTerm('https://schema.org/Book'),
+          const IriTerm('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+          const IriTerm('https://schema.org/Book'),
         ),
         Triple(
           subject,
-          IriTerm('https://schema.org/name'),
+          const IriTerm('https://schema.org/name'),
           titleIri,
         ),
       ]);
@@ -228,7 +229,7 @@ void main() {
 
       // Verify IRI construction with special characters
       final subject = graph.triples.first.subject as IriTerm;
-      expect(subject.iri, contains('book-123_test'));
+      expect(subject.value, contains('book-123_test'));
 
       // Test round-trip
       final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);
@@ -283,7 +284,7 @@ void main() {
 
       // Verify the numeric ID is properly encoded in the IRI
       final subject = graph.triples.first.subject as IriTerm;
-      expect(subject.iri, contains('12345'));
+      expect(subject.value, contains('12345'));
 
       // Test round-trip
       final deserialized = mapper.graph.decodeObject<BookWithMapper>(graph);

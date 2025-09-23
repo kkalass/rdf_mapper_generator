@@ -695,7 +695,7 @@ void main() {
       expect(annotation.literal!.mapper!.instance, isNotNull);
       expect(annotation.literal!.mapper!.instance!.type!.getDisplayString(),
           'DoubleMapper');
-      expect(annotation.predicate.value.iri, 'http://example.org/book/price');
+      expect(annotation.predicate.value.value, 'http://example.org/book/price');
     });
 
     test('should process property with complex default value', () {
@@ -716,7 +716,7 @@ void main() {
       expect(defaultValue, isNotNull);
 
       expect(annotation.predicate.value,
-          equals(IriTerm.prevalidated('http://example.org/test/complexValue')));
+          equals(const IriTerm('http://example.org/test/complexValue')));
     });
 
     test('should process final properties', () {
@@ -854,7 +854,7 @@ void main() {
       final annotation = result!.annotation;
       expect(annotation.literal, isNotNull);
       expect(annotation.literal!.datatype, isNotNull);
-      expect(annotation.literal!.datatype!.value.iri,
+      expect(annotation.literal!.datatype!.value.value,
           'http://www.w3.org/2001/XMLSchema#string');
       expect(annotation.predicate.value, equals(SchemaBook.description));
     });
@@ -987,7 +987,7 @@ void main() {
       // Assert
       expect(result, isNotNull);
       expect(result!.name, 'name');
-      expect(result.annotation.predicate.value.iri,
+      expect(result.annotation.predicate.value.value,
           equals('http://example.org/types/Book/name'));
       expect(result.annotation.include, isTrue);
       expect(result.annotation.includeDefaultsInSerialization, isFalse);

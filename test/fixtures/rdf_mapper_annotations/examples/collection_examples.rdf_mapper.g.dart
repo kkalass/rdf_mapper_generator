@@ -35,7 +35,7 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
   Library fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -62,7 +62,7 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -109,7 +109,7 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
   Playlist fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -132,7 +132,7 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -172,7 +172,7 @@ class CourseMapper implements GlobalResourceMapper<Course> {
   Course fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -209,7 +209,7 @@ class CourseMapper implements GlobalResourceMapper<Course> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -258,7 +258,7 @@ class BookCollectionAuthorIdsMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -275,7 +275,7 @@ class BookCollectionAuthorIdsMapper implements IriTermMapper<String> {
   }) {
     final authorIds = iriTermValue.toString();
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/author/${authorIds}');
+    return context.createIriTerm('${baseUri}/author/${authorIds}');
   }
 }
 
@@ -296,7 +296,7 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
         const LanguageOverrideMapper<String>('en'),
     LiteralTermMapper<DateTime> publicationDatesMapper =
         const DatatypeOverrideMapper<DateTime>(
-          const IriTerm.prevalidated('http://www.w3.org/2001/XMLSchema#date'),
+          const IriTerm('http://www.w3.org/2001/XMLSchema#date'),
         ),
   }) : _baseUriProvider = baseUriProvider,
        _keywordsMapper = keywordsMapper,

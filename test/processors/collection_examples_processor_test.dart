@@ -385,7 +385,7 @@ void main() {
       // Assert - Basic field info
       expect(result, isNotNull);
       expect(result!.name, equals('keywords'));
-      expect(result.annotation.predicate.value.iri,
+      expect(result.annotation.predicate.value.value,
           contains('schema.org/keywords'));
 
       // Assert - Default collection with literal item mapping
@@ -423,7 +423,7 @@ void main() {
       // Assert - Basic field info
       expect(result, isNotNull);
       expect(result!.name, equals('publicationDates'));
-      expect(result.annotation.predicate.value.iri,
+      expect(result.annotation.predicate.value.value,
           contains('schema.org/datePublished'));
 
       // Assert - RDF List collection with literal item mapping

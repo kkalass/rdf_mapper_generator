@@ -14,7 +14,7 @@ class _TestMapper1Part implements IriTermMapper<(String,)> {
   @override
   (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract ID from IRI like http://example.org/1part/test-id
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'http://example\.org/1part/(.+)$').firstMatch(iri);
     if (match == null) {
       throw ArgumentError('Invalid IRI format: $iri');
@@ -24,7 +24,7 @@ class _TestMapper1Part implements IriTermMapper<(String,)> {
 
   @override
   IriTerm toRdfTerm((String,) value, SerializationContext context) {
-    return IriTerm('http://example.org/1part/${value.$1}');
+    return context.createIriTerm('http://example.org/1part/${value.$1}');
   }
 }
 
@@ -35,7 +35,7 @@ class _TestMapper2Parts implements IriTermMapper<(String, int)> {
   @override
   (String, int) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract ID and version from IRI like http://example.org/2parts/test-id/42
-    final iri = term.iri;
+    final iri = term.value;
     final match =
         RegExp(r'http://example\.org/2parts/([^/]+)/(\d+)$').firstMatch(iri);
     if (match == null) {
@@ -46,7 +46,8 @@ class _TestMapper2Parts implements IriTermMapper<(String, int)> {
 
   @override
   IriTerm toRdfTerm((String, int) value, SerializationContext context) {
-    return IriTerm('http://example.org/2parts/${value.$1}/${value.$2}');
+    return context
+        .createIriTerm('http://example.org/2parts/${value.$1}/${value.$2}');
   }
 }
 
@@ -57,7 +58,7 @@ class _TestMapper2PartsSwapped implements IriTermMapper<(int, String)> {
   @override
   (int, String) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract version and ID from IRI like http://example.org/swapped/99/test-id
-    final iri = term.iri;
+    final iri = term.value;
     final match =
         RegExp(r'http://example\.org/swapped/(\d+)/([^/]+)$').firstMatch(iri);
     if (match == null) {
@@ -68,7 +69,8 @@ class _TestMapper2PartsSwapped implements IriTermMapper<(int, String)> {
 
   @override
   IriTerm toRdfTerm((int, String) value, SerializationContext context) {
-    return IriTerm('http://example.org/swapped/${value.$1}/${value.$2}');
+    return context
+        .createIriTerm('http://example.org/swapped/${value.$1}/${value.$2}');
   }
 }
 

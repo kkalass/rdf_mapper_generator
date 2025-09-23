@@ -142,14 +142,14 @@ void main() {
 
         final brandNewTerm = mapper.toRdfTerm(ItemCondition.brandNew, context);
         expect(brandNewTerm, isA<IriTerm>());
-        expect(brandNewTerm.iri, equals('http://schema.org/NewCondition'));
+        expect(brandNewTerm.value, equals('http://schema.org/NewCondition'));
 
         final usedTerm = mapper.toRdfTerm(ItemCondition.used, context);
-        expect(usedTerm.iri, equals('http://schema.org/UsedCondition'));
+        expect(usedTerm.value, equals('http://schema.org/UsedCondition'));
 
         final refurbishedTerm =
             mapper.toRdfTerm(ItemCondition.refurbished, context);
-        expect(refurbishedTerm.iri, equals('http://schema.org/refurbished'));
+        expect(refurbishedTerm.value, equals('http://schema.org/refurbished'));
       });
 
       test('deserializes from IRIs with template pattern', () {
@@ -157,15 +157,15 @@ void main() {
         final context = createDeserializationContext();
 
         final brandNew = mapper.fromRdfTerm(
-            IriTerm('http://schema.org/NewCondition'), context);
+            const IriTerm('http://schema.org/NewCondition'), context);
         expect(brandNew, equals(ItemCondition.brandNew));
 
         final used = mapper.fromRdfTerm(
-            IriTerm('http://schema.org/UsedCondition'), context);
+            const IriTerm('http://schema.org/UsedCondition'), context);
         expect(used, equals(ItemCondition.used));
 
         final refurbished = mapper.fromRdfTerm(
-            IriTerm('http://schema.org/refurbished'), context);
+            const IriTerm('http://schema.org/refurbished'), context);
         expect(refurbished, equals(ItemCondition.refurbished));
       });
 
@@ -174,7 +174,8 @@ void main() {
         final context = createDeserializationContext();
 
         expect(
-          () => mapper.fromRdfTerm(IriTerm('http://invalid.org/test'), context),
+          () => mapper.fromRdfTerm(
+              const IriTerm('http://invalid.org/test'), context),
           throwsA(isA<DeserializationException>()),
         );
       });
@@ -186,21 +187,21 @@ void main() {
         final context = createSerializationContext();
 
         final pendingTerm = mapper.toRdfTerm(OrderStatus.pending, context);
-        expect(pendingTerm.iri,
+        expect(pendingTerm.value,
             equals('http://example.org/vocab/order-status/pending'));
 
         final processingTerm =
             mapper.toRdfTerm(OrderStatus.processing, context);
-        expect(processingTerm.iri,
+        expect(processingTerm.value,
             equals('http://example.org/vocab/order-status/in-progress'));
 
         final shippedTerm = mapper.toRdfTerm(OrderStatus.shipped, context);
-        expect(shippedTerm.iri,
+        expect(shippedTerm.value,
             equals('http://example.org/vocab/order-status/shipped'));
 
         final deliveredTerm = mapper.toRdfTerm(OrderStatus.delivered, context);
         expect(
-            deliveredTerm.iri,
+            deliveredTerm.value,
             equals(
                 'http://example.org/vocab/order-status/delivered-completed'));
       });
@@ -210,20 +211,22 @@ void main() {
         final context = createDeserializationContext();
 
         final pending = mapper.fromRdfTerm(
-            IriTerm('http://example.org/vocab/order-status/pending'), context);
+            const IriTerm('http://example.org/vocab/order-status/pending'),
+            context);
         expect(pending, equals(OrderStatus.pending));
 
         final processing = mapper.fromRdfTerm(
-            IriTerm('http://example.org/vocab/order-status/in-progress'),
+            const IriTerm('http://example.org/vocab/order-status/in-progress'),
             context);
         expect(processing, equals(OrderStatus.processing));
 
         final shipped = mapper.fromRdfTerm(
-            IriTerm('http://example.org/vocab/order-status/shipped'), context);
+            const IriTerm('http://example.org/vocab/order-status/shipped'),
+            context);
         expect(shipped, equals(OrderStatus.shipped));
 
         final delivered = mapper.fromRdfTerm(
-            IriTerm(
+            const IriTerm(
                 'http://example.org/vocab/order-status/delivered-completed'),
             context);
         expect(delivered, equals(OrderStatus.delivered));
@@ -273,22 +276,22 @@ void main() {
 
         final businessTerm =
             mapper.toRdfTerm(BusinessEntityType.business, context);
-        expect(businessTerm.iri,
+        expect(businessTerm.value,
             equals('http://purl.org/goodrelations/v1#Business'));
 
         final endUserTerm =
             mapper.toRdfTerm(BusinessEntityType.endUser, context);
-        expect(endUserTerm.iri,
+        expect(endUserTerm.value,
             equals('http://purl.org/goodrelations/v1#Enduser'));
 
         final publicInstitutionTerm =
             mapper.toRdfTerm(BusinessEntityType.publicInstitution, context);
-        expect(publicInstitutionTerm.iri,
+        expect(publicInstitutionTerm.value,
             equals('http://purl.org/goodrelations/v1#PublicInstitution'));
 
         final resellerTerm =
             mapper.toRdfTerm(BusinessEntityType.reseller, context);
-        expect(resellerTerm.iri,
+        expect(resellerTerm.value,
             equals('http://purl.org/goodrelations/v1#Reseller'));
       });
 
@@ -297,20 +300,22 @@ void main() {
         final context = createDeserializationContext();
 
         final business = mapper.fromRdfTerm(
-            IriTerm('http://purl.org/goodrelations/v1#Business'), context);
+            const IriTerm('http://purl.org/goodrelations/v1#Business'),
+            context);
         expect(business, equals(BusinessEntityType.business));
 
         final endUser = mapper.fromRdfTerm(
-            IriTerm('http://purl.org/goodrelations/v1#Enduser'), context);
+            const IriTerm('http://purl.org/goodrelations/v1#Enduser'), context);
         expect(endUser, equals(BusinessEntityType.endUser));
 
         final publicInstitution = mapper.fromRdfTerm(
-            IriTerm('http://purl.org/goodrelations/v1#PublicInstitution'),
+            const IriTerm('http://purl.org/goodrelations/v1#PublicInstitution'),
             context);
         expect(publicInstitution, equals(BusinessEntityType.publicInstitution));
 
         final reseller = mapper.fromRdfTerm(
-            IriTerm('http://purl.org/goodrelations/v1#Reseller'), context);
+            const IriTerm('http://purl.org/goodrelations/v1#Reseller'),
+            context);
         expect(reseller, equals(BusinessEntityType.reseller));
       });
     });
@@ -321,23 +326,23 @@ void main() {
         final context = createSerializationContext();
 
         final excellentTerm = mapper.toRdfTerm(UserRating.excellent, context);
-        expect(excellentTerm.iri,
+        expect(excellentTerm.value,
             equals('http://example.org/rating-system/excellent-5-stars'));
 
         final goodTerm = mapper.toRdfTerm(UserRating.good, context);
-        expect(goodTerm.iri,
+        expect(goodTerm.value,
             equals('http://example.org/rating-system/good-4-stars'));
 
         final averageTerm = mapper.toRdfTerm(UserRating.average, context);
-        expect(averageTerm.iri,
+        expect(averageTerm.value,
             equals('http://example.org/rating-system/average-3-stars'));
 
         final poorTerm = mapper.toRdfTerm(UserRating.poor, context);
-        expect(poorTerm.iri,
+        expect(poorTerm.value,
             equals('http://example.org/rating-system/poor-2-stars'));
 
         final terribleTerm = mapper.toRdfTerm(UserRating.terrible, context);
-        expect(terribleTerm.iri,
+        expect(terribleTerm.value,
             equals('http://example.org/rating-system/terrible-1-star'));
       });
 
@@ -346,25 +351,27 @@ void main() {
         final context = createDeserializationContext();
 
         final excellent = mapper.fromRdfTerm(
-            IriTerm('http://example.org/rating-system/excellent-5-stars'),
+            const IriTerm('http://example.org/rating-system/excellent-5-stars'),
             context);
         expect(excellent, equals(UserRating.excellent));
 
         final good = mapper.fromRdfTerm(
-            IriTerm('http://example.org/rating-system/good-4-stars'), context);
+            const IriTerm('http://example.org/rating-system/good-4-stars'),
+            context);
         expect(good, equals(UserRating.good));
 
         final average = mapper.fromRdfTerm(
-            IriTerm('http://example.org/rating-system/average-3-stars'),
+            const IriTerm('http://example.org/rating-system/average-3-stars'),
             context);
         expect(average, equals(UserRating.average));
 
         final poor = mapper.fromRdfTerm(
-            IriTerm('http://example.org/rating-system/poor-2-stars'), context);
+            const IriTerm('http://example.org/rating-system/poor-2-stars'),
+            context);
         expect(poor, equals(UserRating.poor));
 
         final terrible = mapper.fromRdfTerm(
-            IriTerm('http://example.org/rating-system/terrible-1-star'),
+            const IriTerm('http://example.org/rating-system/terrible-1-star'),
             context);
         expect(terrible, equals(UserRating.terrible));
       });
@@ -379,12 +386,12 @@ void main() {
 
         final electronicsTerm =
             mapper.toRdfTerm(ProductCategory.electronics, context);
-        expect(electronicsTerm.iri,
+        expect(electronicsTerm.value,
             equals('http://test.example.org/vocab/categories/electronics'));
 
         final booksMediaTerm =
             mapper.toRdfTerm(ProductCategory.booksAndMedia, context);
-        expect(booksMediaTerm.iri,
+        expect(booksMediaTerm.value,
             equals('http://test.example.org/vocab/categories/books-media'));
       });
 
@@ -396,12 +403,12 @@ void main() {
         final context = createSerializationContext();
 
         final standardTerm = mapper.toRdfTerm(ShippingMethod.standard, context);
-        expect(standardTerm.iri,
+        expect(standardTerm.value,
             equals('https://api.test.org/v2/shipping-methods/standard'));
 
         final expressTerm = mapper.toRdfTerm(ShippingMethod.express, context);
         expect(
-            expressTerm.iri,
+            expressTerm.value,
             equals(
                 'https://api.test.org/v2/shipping-methods/express-overnight'));
       });
@@ -415,13 +422,13 @@ void main() {
 
         final managerTerm = mapper.toRdfTerm(EmployeeRole.manager, context);
         expect(
-            managerTerm.iri,
+            managerTerm.value,
             equals(
                 'https://company.com/ns/departments/engineering/roles/manager'));
 
         final developerTerm = mapper.toRdfTerm(EmployeeRole.developer, context);
         expect(
-            developerTerm.iri,
+            developerTerm.value,
             equals(
                 'https://company.com/ns/departments/engineering/roles/developer'));
       });
@@ -444,7 +451,7 @@ void main() {
 
         final (subject, triples) = mapper.toRdfResource(book, context);
 
-        expect(subject.iri, equals('http://example.org/books/TEST-123'));
+        expect(subject.value, equals('http://example.org/books/TEST-123'));
         expect(
             triples.length, greaterThanOrEqualTo(4)); // At least 4 properties
 
@@ -455,7 +462,7 @@ void main() {
 
         final conditionTriple =
             triples.firstWhere((t) => t.predicate == MyBookVocab.itemCondition);
-        expect((conditionTriple.object as IriTerm).iri,
+        expect((conditionTriple.object as IriTerm).value,
             equals('http://schema.org/NewCondition'));
 
         final priorityTriple =
@@ -471,22 +478,22 @@ void main() {
       test('deserializes Book from RDF triples', () {
         final triples = [
           Triple(
-            IriTerm('http://example.org/books/TEST-456'),
+            const IriTerm('http://example.org/books/TEST-456'),
             MyBookVocab.bookFormat,
             LiteralTerm('paperback'),
           ),
           Triple(
-            IriTerm('http://example.org/books/TEST-456'),
+            const IriTerm('http://example.org/books/TEST-456'),
             MyBookVocab.itemCondition,
-            IriTerm('http://schema.org/UsedCondition'),
+            const IriTerm('http://schema.org/UsedCondition'),
           ),
           Triple(
-            IriTerm('http://example.org/books/TEST-456'),
+            const IriTerm('http://example.org/books/TEST-456'),
             MyBookVocab.priority,
             LiteralTerm('medium'),
           ),
           Triple(
-            IriTerm('http://example.org/books/TEST-456'),
+            const IriTerm('http://example.org/books/TEST-456'),
             MyBookVocab.status,
             LiteralTerm('sold-out', language: 'en'),
           ),
@@ -503,7 +510,7 @@ void main() {
         );
 
         final book = bookMapper.fromRdfResource(
-          IriTerm('http://example.org/books/TEST-456'),
+          const IriTerm('http://example.org/books/TEST-456'),
           context,
         );
 

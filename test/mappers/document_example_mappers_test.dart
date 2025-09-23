@@ -49,7 +49,7 @@ void main() {
           register: (registry) => registry
             ..registerMapper(DocumentMapper<Person>(
               primaryTopic: SerializationProvider.iriContextual((IriTerm iri) =>
-                  PersonMapper(documentIriProvider: () => iri.iri)),
+                  PersonMapper(documentIriProvider: () => iri.value)),
             )));
       expect(graph, isNotNull);
       expect(graph, contains('Klas Kalass'));
@@ -366,6 +366,6 @@ pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 DocumentMapper<Person> createPersonDocumentMapper() {
   return DocumentMapper<Person>(
     primaryTopic: SerializationProvider.iriContextual(
-        (IriTerm iri) => PersonMapper(documentIriProvider: () => iri.iri)),
+        (IriTerm iri) => PersonMapper(documentIriProvider: () => iri.value)),
   );
 }

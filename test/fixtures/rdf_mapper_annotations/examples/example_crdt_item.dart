@@ -77,27 +77,27 @@ class SolidTask {
   static const String namespace = 'http://solidtask.org/ontology#';
 
   /// IRI for the Task class
-  static const Task = IriTerm.prevalidated('${namespace}Task');
+  static const Task = const IriTerm('${namespace}Task');
 
   /// IRI for VectorClockEntry class
-  static const VectorClockEntry = IriTerm.prevalidated(
+  static const VectorClockEntry = const IriTerm(
     '${namespace}VectorClockEntry',
   );
 
   /// IRI for task text property
-  static const text = IriTerm.prevalidated('${namespace}text');
+  static const text = const IriTerm('${namespace}text');
 
   /// IRI for task isDeleted property
-  static const isDeleted = IriTerm.prevalidated('${namespace}isDeleted');
+  static const isDeleted = const IriTerm('${namespace}isDeleted');
 
   /// IRI for task vectorClock property
-  static const vectorClock = IriTerm.prevalidated('${namespace}vectorClock');
+  static const vectorClock = const IriTerm('${namespace}vectorClock');
 
   /// IRI for clientId property in vector clock entries
-  static const clientId = IriTerm.prevalidated('${namespace}clientId');
+  static const clientId = const IriTerm('${namespace}clientId');
 
   /// IRI for clockValue property in vector clock entries
-  static const clockValue = IriTerm.prevalidated('${namespace}clockValue');
+  static const clockValue = const IriTerm('${namespace}clockValue');
 }
 
 class SolidTaskTask {

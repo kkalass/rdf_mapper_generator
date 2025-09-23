@@ -7,13 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] - TBD
 
-### Added
-
 ### Changed
+
+- **Updated Dependencies**: Updated RDF-related dependencies to latest versions
+  - Updated `rdf_mapper` from 0.10.1 to 0.10.2 for improved functionality
+  - Updated `rdf_core` from 0.9.14 to 0.9.15 for bug fixes and enhancements
+
+- **Improved IRI Handling**: Enhanced IRI creation and processing throughout generated code
+  - Changed from direct `IriTerm()` constructor to `context.createIriTerm()` for better context awareness
+  - Updated generated mappers to use `term.value` instead of `term.iri` for consistent IRI access
+  - Templates now generate more contextually aware IRI creation and processing
+
+- **Enhanced Code Generation**: Improved generated code quality and consistency
+  - Updated processor utilities to use `IriTerm.validated()` for safer IRI creation
+  - Fixed IRI field access in processor utils to use correct field name (`value` instead of `iri`)
+  - Improved enum mapper generation with consistent IRI handling patterns
+
+- **Documentation Updates**: Updated README and API documentation
+  - Updated dependency version examples in README to reflect current stable versions
+  - Fixed code examples to use proper `const IriTerm()` constructor calls
+  - Updated vocabulary constants to use `const` constructors for better performance
 
 ### Fixed
 
-## [0.10.4] - TBD
+- **IRI Term Processing**: Fixed inconsistent IRI field access patterns
+  - Corrected processor utilities to access IRI values using proper field names
+  - Fixed enum and resource mappers to use consistent IRI value extraction
+  - Resolved issues with IRI template processing and regex matching
+
+## [0.10.4] - 2025-09-17
 
 ### Fixed
 

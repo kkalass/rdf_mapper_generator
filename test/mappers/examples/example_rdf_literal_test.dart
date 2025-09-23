@@ -40,7 +40,7 @@ void main() {
 
         expect(literalTerm, isA<LiteralTerm>());
         expect(literalTerm.value, equals('4'));
-        expect(literalTerm.datatype.iri, contains('XMLSchema#int'));
+        expect(literalTerm.datatype.value, contains('XMLSchema#int'));
       });
 
       test('deserializes using @RdfValue property', () {
@@ -49,7 +49,8 @@ void main() {
 
         final rating = mapper.fromRdfTerm(
           LiteralTerm('5',
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
+              datatype:
+                  const IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           context,
         );
 
@@ -99,7 +100,7 @@ void main() {
 
         expect(literalTerm.value, equals('25.5°C'));
         expect(
-            literalTerm.datatype.iri, equals('http://example.org/temperature'));
+            literalTerm.datatype.value, equals('http://example.org/temperature'));
       });
 
       test('uses custom parse method for deserialization', () {
@@ -109,7 +110,7 @@ void main() {
         final temp = mapper.fromRdfTerm(
           LiteralTerm(
             '20.0°C',
-            datatype: IriTerm('http://example.org/temperature'),
+            datatype: const IriTerm('http://example.org/temperature'),
           ),
           context,
         );
@@ -323,7 +324,8 @@ void main() {
         expect(
           () => mapper.fromRdfTerm(
             LiteralTerm('Test without language',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#string')),
+                datatype:
+                    const IriTerm('http://www.w3.org/2001/XMLSchema#string')),
             context,
             bypassDatatypeCheck: false,
           ),
@@ -389,7 +391,7 @@ void main() {
         final literalTerm = mapper.toRdfTerm(temp, context);
 
         expect(
-            literalTerm.datatype.iri, equals('http://example.org/temperature'));
+            literalTerm.datatype.value, equals('http://example.org/temperature'));
         expect(literalTerm.value, equals('100.0°C'));
       });
 
@@ -430,7 +432,7 @@ void main() {
         for (final tempStr in precisionTests) {
           final temp = mapper.fromRdfTerm(
             LiteralTerm(tempStr,
-                datatype: IriTerm('http://example.org/temperature')),
+                datatype: const IriTerm('http://example.org/temperature')),
             deserContext,
           );
 
@@ -446,7 +448,7 @@ void main() {
         expect(
           () => mapper.fromRdfTerm(
             LiteralTerm('invalid temperature format',
-                datatype: IriTerm('http://example.org/temperature')),
+                datatype: const IriTerm('http://example.org/temperature')),
             context,
           ),
           throwsA(isA<FormatException>()),

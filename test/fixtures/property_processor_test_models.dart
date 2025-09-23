@@ -29,11 +29,11 @@ class SimplePropertyTest {
 }
 
 @RdfGlobalResource(
-  IriTerm.prevalidated('http://example.org/types/Book'),
+  const IriTerm('http://example.org/types/Book'),
   IriStrategy('http://example.org/books/{name}'),
 )
 class SimpleCustomPropertyTest {
-  @RdfProperty(IriTerm.prevalidated('http://example.org/types/Book/name'))
+  @RdfProperty(const IriTerm('http://example.org/types/Book/name'))
   @RdfIriPart()
   final String name;
 
@@ -216,7 +216,7 @@ class IriMapperImpl implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract authorId from IRI like 'http://example.org/authors/{authorId}'
-    final iriValue = term.iri;
+    final iriValue = term.value;
     const prefix = 'http://example.org/authors/';
 
     if (iriValue.startsWith(prefix)) {
@@ -232,7 +232,7 @@ class IriMapperImpl implements IriTermMapper<String> {
   IriTerm toRdfTerm(String value, SerializationContext context) {
     // Generate IRI from authorId using template
     final iriValue = 'http://example.org/authors/$value';
-    return IriTerm(iriValue);
+    return context.createIriTerm(iriValue);
   }
 }
 
@@ -261,7 +261,7 @@ class GlobalResourceMappingTest {
 @RdfLocalResource()
 class LiteralMappingTest {
   @RdfProperty(
-    IriTerm.prevalidated('http://example.org/book/price'),
+    const IriTerm('http://example.org/book/price'),
     literal: LiteralMapping.namedMapper('testLiteralPriceMapper'),
   )
   final double price;
@@ -272,7 +272,7 @@ class LiteralMappingTest {
 @RdfLocalResource()
 class LiteralMappingTestCustomDatatype {
   @RdfProperty(
-    IriTerm.prevalidated('http://example.org/book/price'),
+    const IriTerm('http://example.org/book/price'),
     literal: LiteralMapping.mapperInstance(DoubleMapper(Xsd.double)),
   )
   final double price;
@@ -383,7 +383,7 @@ enum BookFormatType { hardcover, paperback, ebook, audioBook }
 @RdfLocalResource()
 class ComplexDefaultValueTest {
   @RdfProperty(
-    IriTerm.prevalidated('http://example.org/test/complexValue'),
+    const IriTerm('http://example.org/test/complexValue'),
     defaultValue: const {'id': '1', 'name': 'Test'},
     collection: CollectionMapping.mapper(JsonLiteralMapMapper),
   )
@@ -546,7 +546,7 @@ class GlobalPublisherMapperImpl implements GlobalResourceMapper<Publisher> {
   @override
   Publisher fromRdfResource(IriTerm term, DeserializationContext context) {
     final reader = context.reader(term);
-    return Publisher(iri: term.iri, name: reader.require(SchemaPerson.name));
+    return Publisher(iri: term.value, name: reader.require(SchemaPerson.name));
   }
 
   @override
@@ -556,7 +556,7 @@ class GlobalPublisherMapperImpl implements GlobalResourceMapper<Publisher> {
     RdfSubject? parentSubject,
   }) {
     return context
-        .resourceBuilder(IriTerm(publisher.iri))
+        .resourceBuilder(context.createIriTerm(publisher.iri))
         .addValue(SchemaPerson.name, LiteralTerm(publisher.name))
         .build();
   }

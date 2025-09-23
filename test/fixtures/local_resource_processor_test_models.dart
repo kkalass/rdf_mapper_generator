@@ -117,7 +117,7 @@ class TestLocalResourceMapper
 
   @override
   IriTerm? get typeIri =>
-      IriTerm('http://example.org/l/ClassWithMapperStrategy');
+      const IriTerm('http://example.org/l/ClassWithMapperStrategy');
 }
 
 class TestLocalResourceMapper2
@@ -140,5 +140,5 @@ class TestLocalResourceMapper2
 
   @override
   IriTerm? get typeIri =>
-      IriTerm('http://example.org/l/ClassWithMapperInstanceStrategy');
+      const IriTerm('http://example.org/l/ClassWithMapperInstanceStrategy');
 }

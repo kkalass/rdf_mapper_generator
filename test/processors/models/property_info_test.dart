@@ -168,7 +168,7 @@ void main() {
     setUp(() {
       final predicate = IriTermInfo(
         code: Code.literal('http://example.com/predicate'),
-        value: IriTerm('http://example.com/predicate'),
+        value: const IriTerm('http://example.com/predicate'),
       );
 
       testInstance = RdfPropertyAnnotationInfo(
@@ -247,7 +247,7 @@ void main() {
     setUp(() {
       final predicate = IriTermInfo(
         code: Code.literal('http://example.com/predicate'),
-        value: IriTerm('http://example.com/predicate'),
+        value: const IriTerm('http://example.com/predicate'),
       );
       final annotation = RdfPropertyAnnotationInfo(
         predicate,

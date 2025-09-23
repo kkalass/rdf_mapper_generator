@@ -13,8 +13,8 @@ import 'init_test_rdf_mapper_util.dart';
 void main() {
   setupTestLogging();
 
-  const testSubject = IriTerm.prevalidated('https://example.org/subject');
-  const testPredicate = IriTerm.prevalidated('https://example.org/predicate');
+  const testSubject = const IriTerm('https://example.org/subject');
+  const testPredicate = const IriTerm('https://example.org/predicate');
 
   late RdfMapper mapper;
 

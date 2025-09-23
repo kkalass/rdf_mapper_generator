@@ -96,7 +96,7 @@ class DocumentTypeMapper implements IriTermMapper<DocumentType> {
 
   @override
   DocumentType fromRdfTerm(IriTerm term, DeserializationContext context) {
-    final enumValue = term.iri;
+    final enumValue = term.value;
 
     return switch (enumValue) {
       'https://www.iana.org/assignments/media-types/text/plain' =>
@@ -106,7 +106,7 @@ class DocumentTypeMapper implements IriTermMapper<DocumentType> {
       'https://www.iana.org/assignments/media-types/application/pdf' =>
         DocumentType.pdf,
       _ => throw DeserializationException(
-        'Unknown DocumentType IRI: ${term.iri}',
+        'Unknown DocumentType IRI: ${term.value}',
       ),
     };
   }
@@ -117,13 +117,13 @@ class DocumentTypeMapper implements IriTermMapper<DocumentType> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    DocumentType.plainText => IriTerm(
+    DocumentType.plainText => context.createIriTerm(
       'https://www.iana.org/assignments/media-types/text/plain',
     ),
-    DocumentType.html => IriTerm(
+    DocumentType.html => context.createIriTerm(
       'https://www.iana.org/assignments/media-types/text/html',
     ),
-    DocumentType.pdf => IriTerm(
+    DocumentType.pdf => context.createIriTerm(
       'https://www.iana.org/assignments/media-types/application/pdf',
     ),
   };
@@ -144,10 +144,10 @@ class CategoryTypeMapper implements IriTermMapper<CategoryType> {
   @override
   CategoryType fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown CategoryType IRI: ${term.iri}');
+      throw DeserializationException('Unknown CategoryType IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -160,7 +160,7 @@ class CategoryTypeMapper implements IriTermMapper<CategoryType> {
       'music' => CategoryType.music,
       'electronics' => CategoryType.electronics,
       _ => throw DeserializationException(
-        'Unknown CategoryType IRI: ${term.iri}',
+        'Unknown CategoryType IRI: ${term.value}',
       ),
     };
   }
@@ -171,9 +171,9 @@ class CategoryTypeMapper implements IriTermMapper<CategoryType> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    CategoryType.books => IriTerm(_buildIri('books')),
-    CategoryType.music => IriTerm(_buildIri('music')),
-    CategoryType.electronics => IriTerm(_buildIri('electronics')),
+    CategoryType.books => context.createIriTerm(_buildIri('books')),
+    CategoryType.music => context.createIriTerm(_buildIri('music')),
+    CategoryType.electronics => context.createIriTerm(_buildIri('electronics')),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -200,10 +200,10 @@ class FileFormatMapper implements IriTermMapper<FileFormat> {
   @override
   FileFormat fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown FileFormat IRI: ${term.iri}');
+      throw DeserializationException('Unknown FileFormat IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -216,7 +216,7 @@ class FileFormatMapper implements IriTermMapper<FileFormat> {
       'binary' => FileFormat.binary,
       'xml' => FileFormat.xml,
       _ => throw DeserializationException(
-        'Unknown FileFormat IRI: ${term.iri}',
+        'Unknown FileFormat IRI: ${term.value}',
       ),
     };
   }
@@ -227,9 +227,9 @@ class FileFormatMapper implements IriTermMapper<FileFormat> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    FileFormat.text => IriTerm(_buildIri('text')),
-    FileFormat.binary => IriTerm(_buildIri('binary')),
-    FileFormat.xml => IriTerm(_buildIri('xml')),
+    FileFormat.text => context.createIriTerm(_buildIri('text')),
+    FileFormat.binary => context.createIriTerm(_buildIri('binary')),
+    FileFormat.xml => context.createIriTerm(_buildIri('xml')),
   };
 
   /// Generates the complete IRI for a given enum value
@@ -261,10 +261,10 @@ class ItemTypeMapper implements IriTermMapper<ItemType> {
   @override
   ItemType fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown ItemType IRI: ${term.iri}');
+      throw DeserializationException('Unknown ItemType IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -276,7 +276,9 @@ class ItemTypeMapper implements IriTermMapper<ItemType> {
       'book' => ItemType.book,
       'magazine' => ItemType.magazine,
       'newspaper' => ItemType.newspaper,
-      _ => throw DeserializationException('Unknown ItemType IRI: ${term.iri}'),
+      _ => throw DeserializationException(
+        'Unknown ItemType IRI: ${term.value}',
+      ),
     };
   }
 
@@ -286,9 +288,9 @@ class ItemTypeMapper implements IriTermMapper<ItemType> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    ItemType.book => IriTerm(_buildIri('book')),
-    ItemType.magazine => IriTerm(_buildIri('magazine')),
-    ItemType.newspaper => IriTerm(_buildIri('newspaper')),
+    ItemType.book => context.createIriTerm(_buildIri('book')),
+    ItemType.magazine => context.createIriTerm(_buildIri('magazine')),
+    ItemType.newspaper => context.createIriTerm(_buildIri('newspaper')),
   };
 
   /// Generates the complete IRI for a given enum value

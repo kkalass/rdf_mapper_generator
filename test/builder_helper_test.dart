@@ -71,8 +71,9 @@ void main() {
         expect(result, contains('class ClassWithEmptyIriStrategyMapper'));
 
         // Should use simple implementation with direct IRI access
-        expect(result, contains('final iri = subject.iri;'));
-        expect(result, contains('final subject = IriTerm(resource.iri);'));
+        expect(result, contains('final iri = subject.value;'));
+        expect(result,
+            contains('final subject = context.createIriTerm(resource.iri);'));
 
         // Should NOT contain complex IRI processing methods
         expect(result, isNot(contains('_buildIri')));
@@ -98,8 +99,8 @@ void main() {
 
         // Should NOT use simple direct IRI access
         expect(result, isNot(contains('final iri = subject.iri;')));
-        expect(
-            result, isNot(contains('final subject = IriTerm(resource.iri);')));
+        expect(result,
+            isNot(contains('final subject = const IriTerm(resource.iri);')));
       });
 
       test(
@@ -738,17 +739,17 @@ void main() {
           BroaderImports.create(globalResourceLibrary));
 
       // Empty IRI strategy should be simple
-      expect(emptyIriResult, contains('final iri = subject.iri;'));
-      expect(
-          emptyIriResult, contains('final subject = IriTerm(resource.iri);'));
+      expect(emptyIriResult, contains('final iri = subject.value;'));
+      expect(emptyIriResult,
+          contains('final subject = context.createIriTerm(resource.iri);'));
       expect(emptyIriResult, isNot(contains('_buildIri')));
 
       // Template IRI strategy should be complex
       expect(templateIriResult, contains('_buildIri'));
       expect(templateIriResult, contains('RegExp'));
-      expect(templateIriResult, isNot(contains('final iri = subject.iri;')));
+      expect(templateIriResult, isNot(contains('final iri = subject.value;')));
       expect(templateIriResult,
-          isNot(contains('final subject = IriTerm(resource.iri);')));
+          isNot(contains('final subject = const IriTerm(resource.iri);')));
     });
     test('should generate correct method structure for empty IRI strategy',
         () async {
@@ -766,14 +767,15 @@ void main() {
       expect(
           result, contains('grptm.ClassWithEmptyIriStrategy fromRdfResource('));
       expect(result, contains('IriTerm subject,'));
-      expect(result, contains('final iri = subject.iri;'));
+      expect(result, contains('final iri = subject.value;'));
       expect(result,
           contains('return grptm.ClassWithEmptyIriStrategy(iri: iri);'));
 
       // Verify toRdfResource method uses direct IRI access
       expect(result, contains('(IriTerm, Iterable<Triple>) toRdfResource('));
       expect(result, contains('grptm.ClassWithEmptyIriStrategy resource,'));
-      expect(result, contains('final subject = IriTerm(resource.iri);'));
+      expect(result,
+          contains('final subject = context.createIriTerm(resource.iri);'));
       expect(
           result, contains('return context.resourceBuilder(subject).build();'));
 

@@ -30,7 +30,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -46,7 +46,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
     RdfSubject? parentSubject,
   }) {
     final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/authors/${authorId}');
+    return context.createIriTerm('http://example.org/authors/${authorId}');
   }
 }
 

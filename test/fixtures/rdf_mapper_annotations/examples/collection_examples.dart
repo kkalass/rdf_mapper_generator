@@ -25,17 +25,17 @@ import 'package:rdf_vocabularies_schema/schema.dart';
 class CollectionVocab {
   static const _base = 'http://example.org/vocab#';
 
-  static const Library = IriTerm.prevalidated(_base + 'Library');
-  static const Playlist = IriTerm.prevalidated(_base + 'Playlist');
-  static const Course = IriTerm.prevalidated(_base + 'Course');
+  static const Library = const IriTerm(_base + 'Library');
+  static const Playlist = const IriTerm(_base + 'Playlist');
+  static const Course = const IriTerm(_base + 'Course');
 
-  static const books = IriTerm.prevalidated(_base + 'books');
-  static const orderedTracks = IriTerm.prevalidated(_base + 'orderedTracks');
-  static const modules = IriTerm.prevalidated(_base + 'modules');
-  static const prerequisites = IriTerm.prevalidated(_base + 'prerequisites');
-  static const alternatives = IriTerm.prevalidated(_base + 'alternatives');
-  static const tags = IriTerm.prevalidated(_base + 'tags');
-  static const collaborators = IriTerm.prevalidated(_base + 'collaborators');
+  static const books = const IriTerm(_base + 'books');
+  static const orderedTracks = const IriTerm(_base + 'orderedTracks');
+  static const modules = const IriTerm(_base + 'modules');
+  static const prerequisites = const IriTerm(_base + 'prerequisites');
+  static const alternatives = const IriTerm(_base + 'alternatives');
+  static const tags = const IriTerm(_base + 'tags');
+  static const collaborators = const IriTerm(_base + 'collaborators');
 }
 
 /// Example 1: Default collection behavior (multiple triples)
@@ -134,7 +134,7 @@ class BookCollection {
     SchemaBook.datePublished,
     collection: rdfList,
     literal: LiteralMapping.withType(
-        IriTerm.prevalidated('http://www.w3.org/2001/XMLSchema#date')),
+        const IriTerm('http://www.w3.org/2001/XMLSchema#date')),
   )
   final List<DateTime> publicationDates;
 

@@ -31,7 +31,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -47,7 +47,7 @@ class BookAuthorIdMapper implements IriTermMapper<String> {
     RdfSubject? parentSubject,
   }) {
     final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/author/${authorId}');
+    return context.createIriTerm('http://example.org/author/${authorId}');
   }
 }
 
@@ -74,7 +74,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
   Book fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -115,7 +115,7 @@ class BookMapper implements GlobalResourceMapper<Book> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -200,7 +200,7 @@ class ISBNMapper implements IriTermMapper<ISBN> {
   @override
   ISBN fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -218,7 +218,7 @@ class ISBNMapper implements IriTermMapper<ISBN> {
     RdfSubject? parentSubject,
   }) {
     final value = iriTermValue.value;
-    return IriTerm('urn:isbn:${value}');
+    return context.createIriTerm('urn:isbn:${value}');
   }
 }
 
@@ -268,10 +268,10 @@ class BookFormatMapper implements IriTermMapper<BookFormat> {
   @override
   BookFormat fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     if (match == null) {
-      throw DeserializationException('Unknown BookFormat IRI: ${term.iri}');
+      throw DeserializationException('Unknown BookFormat IRI: ${term.value}');
     }
 
     final iriParts = {
@@ -286,7 +286,7 @@ class BookFormatMapper implements IriTermMapper<BookFormat> {
       'Ebook' => BookFormat.ebook,
       'GraphicNovel' => BookFormat.graphicNovel,
       _ => throw DeserializationException(
-        'Unknown BookFormat IRI: ${term.iri}',
+        'Unknown BookFormat IRI: ${term.value}',
       ),
     };
   }
@@ -297,11 +297,11 @@ class BookFormatMapper implements IriTermMapper<BookFormat> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) => switch (value) {
-    BookFormat.audiobook => IriTerm(_buildIri('AudiobookFormat')),
-    BookFormat.hardcover => IriTerm(_buildIri('Hardcover')),
-    BookFormat.paperback => IriTerm(_buildIri('Paperback')),
-    BookFormat.ebook => IriTerm(_buildIri('Ebook')),
-    BookFormat.graphicNovel => IriTerm(_buildIri('GraphicNovel')),
+    BookFormat.audiobook => context.createIriTerm(_buildIri('AudiobookFormat')),
+    BookFormat.hardcover => context.createIriTerm(_buildIri('Hardcover')),
+    BookFormat.paperback => context.createIriTerm(_buildIri('Paperback')),
+    BookFormat.ebook => context.createIriTerm(_buildIri('Ebook')),
+    BookFormat.graphicNovel => context.createIriTerm(_buildIri('GraphicNovel')),
   };
 
   /// Generates the complete IRI for a given enum value

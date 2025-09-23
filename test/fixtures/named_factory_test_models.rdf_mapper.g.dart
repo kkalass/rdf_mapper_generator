@@ -26,7 +26,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
     : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri => const IriTerm.prevalidated('http://example.com/Book');
+  IriTerm? get typeIri => const IriTerm('http://example.com/Book');
 
   @override
   SimpleBook fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -35,7 +35,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title = reader.require(
-      const IriTerm.prevalidated('http://example.com/title'),
+      const IriTerm('http://example.com/title'),
     );
 
     return SimpleBook(id: id, title: title);
@@ -51,10 +51,7 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          const IriTerm.prevalidated('http://example.com/title'),
-          resource.title,
-        )
+        .addValue(const IriTerm('http://example.com/title'), resource.title)
         .build();
   }
 }
@@ -71,8 +68,7 @@ class ConfigurableBookMapper implements GlobalResourceMapper<ConfigurableBook> {
     : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri =>
-      const IriTerm.prevalidated('http://example.com/ConfigurableBook');
+  IriTerm? get typeIri => const IriTerm('http://example.com/ConfigurableBook');
 
   @override
   ConfigurableBook fromRdfResource(
@@ -84,10 +80,10 @@ class ConfigurableBookMapper implements GlobalResourceMapper<ConfigurableBook> {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title = reader.require(
-      const IriTerm.prevalidated('http://example.com/title'),
+      const IriTerm('http://example.com/title'),
     );
     final String author = reader.require(
-      const IriTerm.prevalidated('http://example.com/author'),
+      const IriTerm('http://example.com/author'),
     );
 
     return ConfigurableBook(id: id, title: title, author: author);
@@ -103,14 +99,8 @@ class ConfigurableBookMapper implements GlobalResourceMapper<ConfigurableBook> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          const IriTerm.prevalidated('http://example.com/title'),
-          resource.title,
-        )
-        .addValue(
-          const IriTerm.prevalidated('http://example.com/author'),
-          resource.author,
-        )
+        .addValue(const IriTerm('http://example.com/title'), resource.title)
+        .addValue(const IriTerm('http://example.com/author'), resource.author)
         .build();
   }
 }
@@ -127,8 +117,7 @@ class LocalBookMapper implements GlobalResourceMapper<LocalBook> {
     : _iriMapper = iriMapper;
 
   @override
-  IriTerm? get typeIri =>
-      const IriTerm.prevalidated('http://example.com/LocalBook');
+  IriTerm? get typeIri => const IriTerm('http://example.com/LocalBook');
 
   @override
   LocalBook fromRdfResource(IriTerm subject, DeserializationContext context) {
@@ -137,7 +126,7 @@ class LocalBookMapper implements GlobalResourceMapper<LocalBook> {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title = reader.require(
-      const IriTerm.prevalidated('http://example.com/title'),
+      const IriTerm('http://example.com/title'),
     );
 
     return LocalBook(id: id, title: title);
@@ -153,10 +142,7 @@ class LocalBookMapper implements GlobalResourceMapper<LocalBook> {
 
     return context
         .resourceBuilder(subject)
-        .addValue(
-          const IriTerm.prevalidated('http://example.com/title'),
-          resource.title,
-        )
+        .addValue(const IriTerm('http://example.com/title'), resource.title)
         .build();
   }
 }
@@ -180,8 +166,7 @@ class ContextualBookMapper implements GlobalResourceMapper<ContextualBook> {
        _simpleVariantMapper = simpleVariantMapper;
 
   @override
-  IriTerm? get typeIri =>
-      const IriTerm.prevalidated('http://example.com/ContextualBook');
+  IriTerm? get typeIri => const IriTerm('http://example.com/ContextualBook');
 
   @override
   ContextualBook fromRdfResource(
@@ -193,14 +178,14 @@ class ContextualBookMapper implements GlobalResourceMapper<ContextualBook> {
     final (id,) = _iriMapper.fromRdfTerm(subject, context);
 
     final String title = reader.require(
-      const IriTerm.prevalidated('http://example.com/title'),
+      const IriTerm('http://example.com/title'),
     );
     final String simpleVariant = reader.require(
-      const IriTerm.prevalidated('http://example.com/simpleVariant'),
+      const IriTerm('http://example.com/simpleVariant'),
       deserializer: _simpleVariantMapper,
     );
     final String simpleVariant2 = reader.require(
-      const IriTerm.prevalidated('http://example.com/simpleVariant2'),
+      const IriTerm('http://example.com/simpleVariant2'),
       deserializer: _simpleVariant2Mapper,
     );
 
@@ -222,17 +207,14 @@ class ContextualBookMapper implements GlobalResourceMapper<ContextualBook> {
 
     return context
         .resourceBuilder(subject)
+        .addValue(const IriTerm('http://example.com/title'), resource.title)
         .addValue(
-          const IriTerm.prevalidated('http://example.com/title'),
-          resource.title,
-        )
-        .addValue(
-          const IriTerm.prevalidated('http://example.com/simpleVariant'),
+          const IriTerm('http://example.com/simpleVariant'),
           resource.simpleVariant,
           serializer: _simpleVariantMapper,
         )
         .addValue(
-          const IriTerm.prevalidated('http://example.com/simpleVariant2'),
+          const IriTerm('http://example.com/simpleVariant2'),
           resource.simpleVariant2,
           serializer: _simpleVariant2Mapper,
         )

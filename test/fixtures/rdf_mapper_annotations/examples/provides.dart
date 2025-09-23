@@ -7,19 +7,19 @@ class ExampleVocab {
   static const String _baseUri = 'http://example.org/vocab#';
 
   /// Term für Parent-Konzept
-  static const IriTerm Parent = IriTerm.prevalidated(_baseUri + 'Parent');
+  static const IriTerm Parent = const IriTerm(_baseUri + 'Parent');
 
   /// Term für Child-Konzept
-  static const IriTerm Child = IriTerm.prevalidated(_baseUri + 'Child');
+  static const IriTerm Child = const IriTerm(_baseUri + 'Child');
 
   /// Term für die child-Eigenschaft
-  static const IriTerm child = IriTerm.prevalidated(_baseUri + 'child');
+  static const IriTerm child = const IriTerm(_baseUri + 'child');
 
   /// Term für die childName-Eigenschaft
-  static const IriTerm childName = IriTerm.prevalidated(_baseUri + 'childName');
+  static const IriTerm childName = const IriTerm(_baseUri + 'childName');
 
   /// Term für die sibling-Eigenschaft
-  static const IriTerm sibling = IriTerm.prevalidated(_baseUri + 'sibling');
+  static const IriTerm sibling = const IriTerm(_baseUri + 'sibling');
 }
 
 @RdfGlobalResource(ExampleVocab.Parent, IriStrategy('{+baseUri}/{id}.ttl'))

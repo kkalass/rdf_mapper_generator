@@ -22,7 +22,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   @override
   {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -64,6 +64,6 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#contextVariables}}
     final {{value.variableName}} = {{value.code}};
     {{/contextVariables}}
-    return IriTerm('{{interpolatedTemplate}}');
+    return context.createIriTerm('{{interpolatedTemplate}}');
   }
 }

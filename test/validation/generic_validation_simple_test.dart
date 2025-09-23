@@ -36,7 +36,7 @@ class SimpleClass {
 
 @RdfLocalResource()
 class SimpleClass2 {
-  @RdfProperty(IriTerm.prevalidated("http://example.org/simple"))
+  @RdfProperty(const IriTerm("http://example.org/simple"))
   final String name;
   const SimpleClass2(this.name);
 }

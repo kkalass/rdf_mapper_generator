@@ -203,14 +203,14 @@ class TestGlobalResourceMapper
   }) {
     return context
         .resourceBuilder(
-          IriTerm('http://example.org/instance/ClassWithMapperStrategy'),
+          const IriTerm('http://example.org/instance/ClassWithMapperStrategy'),
         )
         .build();
   }
 
   @override
   IriTerm? get typeIri =>
-      IriTerm('http://example.org/g/ClassWithMapperStrategy');
+      const IriTerm('http://example.org/g/ClassWithMapperStrategy');
 }
 
 class TestGlobalResourceMapper2
@@ -230,7 +230,7 @@ class TestGlobalResourceMapper2
   }) {
     return context
         .resourceBuilder(
-          IriTerm(
+          const IriTerm(
             'http://example.org/instance/ClassWithMapperInstanceStrategy',
           ),
         )
@@ -239,7 +239,7 @@ class TestGlobalResourceMapper2
 
   @override
   IriTerm? get typeIri =>
-      IriTerm('http://example.org/g/ClassWithMapperInstanceStrategy');
+      const IriTerm('http://example.org/g/ClassWithMapperInstanceStrategy');
 }
 
 class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
@@ -258,7 +258,8 @@ class TestIriMapper implements IriTermMapper<ClassWithIriMapperStrategy> {
   @override
   IriTerm toRdfTerm(value, SerializationContext context) {
     // this of course is pretty nonsensical, but just for testing
-    return IriTerm('http://example.org/persons/${value.hashCode}');
+    return context
+        .createIriTerm('http://example.org/persons/${value.hashCode}');
   }
 }
 
@@ -276,7 +277,8 @@ class TestIriMapper2
   @override
   IriTerm toRdfTerm(value, SerializationContext context) {
     // this of course is pretty nonsensical, but just for testing
-    return IriTerm('http://example.org/persons2/${value.hashCode}');
+    return context
+        .createIriTerm('http://example.org/persons2/${value.hashCode}');
   }
 }
 

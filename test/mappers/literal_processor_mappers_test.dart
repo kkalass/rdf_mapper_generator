@@ -13,8 +13,8 @@ import 'init_test_rdf_mapper_util.dart';
 void main() {
   setupTestLogging();
 
-  const testSubject = IriTerm.prevalidated('https://example.org/subject');
-  const testPredicate = IriTerm.prevalidated('https://example.org/predicate');
+  const testSubject = const IriTerm('https://example.org/subject');
+  const testPredicate = const IriTerm('https://example.org/predicate');
 
   late RdfMapper mapper;
 
@@ -134,10 +134,8 @@ void main() {
       expect(term, isNotNull);
       expect(term.toString(),
           equals('"42"^^<http://www.w3.org/2001/XMLSchema#integer>'));
-      expect(
-          term.datatype,
-          equals(IriTerm.prevalidated(
-              'http://www.w3.org/2001/XMLSchema#integer')));
+      expect(term.datatype,
+          equals(const IriTerm('http://www.w3.org/2001/XMLSchema#integer')));
 
       // Test deserialization
       final deserialized = deserialize<LiteralInteger>(term);
@@ -198,7 +196,7 @@ void main() {
       expect(term.toString(),
           equals('"1234"^^<http://www.w3.org/2001/XMLSchema#int>'));
       expect(term.datatype,
-          equals(IriTerm.prevalidated('http://www.w3.org/2001/XMLSchema#int')));
+          equals(const IriTerm('http://www.w3.org/2001/XMLSchema#int')));
 
       // Test deserialization
       final deserialized = deserialize<DoubleAsMilliunit>(term);

@@ -39,7 +39,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#iriStrategy}}
     {{#hasTemplate}}
     {{#requiresIriParsing}}
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -59,7 +59,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{^value.isRdfProperty}}
     {{#value.isIriPart}}
     {{#iriStrategy.hasTemplate}}
-    final {{value.name}} = {{^iriStrategy.hasFullIriPartTemplate}}iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{/iriStrategy.hasFullIriPartTemplate}}{{#iriStrategy.hasFullIriPartTemplate}}subject.iri{{/iriStrategy.hasFullIriPartTemplate}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.name}} = {{^iriStrategy.hasFullIriPartTemplate}}iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{/iriStrategy.hasFullIriPartTemplate}}{{#iriStrategy.hasFullIriPartTemplate}}subject.value{{/iriStrategy.hasFullIriPartTemplate}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
     {{/iriStrategy.hasTemplate}}
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
@@ -103,7 +103,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#hasIriStrategy}}
     {{#iriStrategy}}
     {{#hasTemplate}}
-    final subject = IriTerm({{^hasFullIriPartTemplate}}_buildIri(resource){{/hasFullIriPartTemplate}}{{#hasFullIriPartTemplate}}resource.{{#template.propertyVariables}}{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}}{{/template.propertyVariables}}{{/hasFullIriPartTemplate}});
+    final subject = context.createIriTerm({{^hasFullIriPartTemplate}}_buildIri(resource){{/hasFullIriPartTemplate}}{{#hasFullIriPartTemplate}}resource.{{#template.propertyVariables}}{{value.variableName}}{{^value.isString}}.toString(){{/value.isString}}{{/template.propertyVariables}}{{/hasFullIriPartTemplate}});
     {{/hasTemplate}}
     {{#hasMapper}}
     {{#hasIriMapperParts}}

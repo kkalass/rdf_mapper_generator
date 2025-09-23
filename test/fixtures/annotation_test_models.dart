@@ -11,13 +11,13 @@ class TestMapper implements IriTermMapper<(String id,)> {
 
   @override
   IriTerm toRdfTerm((String id,) properties, SerializationContext context) {
-    return IriTerm('$prefix/${properties.$1}');
+    return context.createIriTerm('$prefix/${properties.$1}');
   }
 
   @override
   (String id,) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // This is a simplified implementation for testing
-    return (term.iri.split('/').last,);
+    return (term.value.split('/').last,);
   }
 }
 

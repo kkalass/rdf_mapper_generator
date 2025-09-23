@@ -84,12 +84,12 @@ class TestIriMapper implements IriTermMapper<IriWithMapper> {
 
   @override
   IriWithMapper fromRdfTerm(IriTerm term, DeserializationContext context) {
-    return IriWithMapper(term.iri);
+    return IriWithMapper(term.value);
   }
 
   @override
   IriTerm toRdfTerm(IriWithMapper value, SerializationContext context) {
-    return IriTerm(value.value);
+    return context.createIriTerm(value.value);
   }
 }
 
@@ -101,12 +101,12 @@ class TestIriMapper2 implements IriTermMapper<IriWithMapperInstance> {
     IriTerm term,
     DeserializationContext context,
   ) {
-    return IriWithMapperInstance(term.iri);
+    return IriWithMapperInstance(term.value);
   }
 
   @override
   IriTerm toRdfTerm(IriWithMapperInstance value, SerializationContext context) {
-    return IriTerm(value.value);
+    return context.createIriTerm(value.value);
   }
 }
 

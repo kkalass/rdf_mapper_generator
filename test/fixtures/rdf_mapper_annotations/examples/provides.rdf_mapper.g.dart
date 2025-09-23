@@ -40,7 +40,7 @@ class ChildMapper implements GlobalResourceMapper<Child> {
   Child fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -62,7 +62,7 @@ class ChildMapper implements GlobalResourceMapper<Child> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -101,7 +101,7 @@ class ParentSiblingIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -119,7 +119,9 @@ class ParentSiblingIdMapper implements IriTermMapper<String> {
     final siblingId = iriTermValue.toString();
     final baseUri = _baseUriProvider();
     final parentId = _parentIdProvider();
-    return IriTerm('${baseUri}/${parentId}/sibling/${siblingId}.ttl');
+    return context.createIriTerm(
+      '${baseUri}/${parentId}/sibling/${siblingId}.ttl',
+    );
   }
 }
 
@@ -143,7 +145,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
   Parent fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -181,7 +183,7 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)

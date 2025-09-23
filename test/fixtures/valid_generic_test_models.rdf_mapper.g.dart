@@ -35,7 +35,7 @@ class GenericDocumentMapper<T>
   ) {
     final reader = context.reader(subject);
 
-    final documentIri = subject.iri;
+    final documentIri = subject.value;
     final T primaryTopic = reader.require(FoafDocument.primaryTopic);
     final String title = reader.require(FoafDocument.title);
 
@@ -52,7 +52,7 @@ class GenericDocumentMapper<T>
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.documentIri);
+    final subject = context.createIriTerm(resource.documentIri);
 
     return context
         .resourceBuilder(subject)
@@ -81,7 +81,7 @@ class MultiGenericDocumentMapper<T, U, V>
   ) {
     final reader = context.reader(subject);
 
-    final documentIri = subject.iri;
+    final documentIri = subject.value;
     final T primaryTopic = reader.require(FoafDocument.primaryTopic);
     final U author = reader.require(SchemaCreativeWork.author);
     final V metadata = reader.require(SchemaCreativeWork.about);
@@ -100,7 +100,7 @@ class MultiGenericDocumentMapper<T, U, V>
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(resource.documentIri);
+    final subject = context.createIriTerm(resource.documentIri);
 
     return context
         .resourceBuilder(subject)
@@ -133,7 +133,7 @@ class NonGenericPersonMapper implements GlobalResourceMapper<NonGenericPerson> {
   ) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -152,7 +152,7 @@ class NonGenericPersonMapper implements GlobalResourceMapper<NonGenericPerson> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)

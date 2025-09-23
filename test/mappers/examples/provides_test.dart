@@ -40,7 +40,7 @@ void main() {
         final iriTerm = mapper.toRdfTerm('sibling456', context);
 
         expect(
-          iriTerm.iri,
+          iriTerm.value,
           equals('http://example.org/vocab/parent123/sibling/sibling456.ttl'),
         );
       });
@@ -53,7 +53,8 @@ void main() {
         final context = createDeserializationContext();
 
         final siblingId = mapper.fromRdfTerm(
-          IriTerm('http://example.org/vocab/parent789/sibling/siblingABC.ttl'),
+          const IriTerm(
+              'http://example.org/vocab/parent789/sibling/siblingABC.ttl'),
           context,
         );
 
@@ -86,7 +87,7 @@ void main() {
 
         for (int i = 0; i < mappers.length; i++) {
           final iriTerm = mappers[i].toRdfTerm('test', context);
-          expect(iriTerm.iri, equals(expectedIris[i]));
+          expect(iriTerm.value, equals(expectedIris[i]));
         }
       });
 
@@ -99,7 +100,7 @@ void main() {
 
         final iriTerm = mapper.toRdfTerm('sibling_with_underscores', context);
         expect(
-          iriTerm.iri,
+          iriTerm.value,
           equals(
               'http://example.org/parent-with-hyphens/sibling/sibling_with_underscores.ttl'),
         );
@@ -148,7 +149,7 @@ void main() {
         final (subject, triples) = mapper.toRdfResource(child, context);
 
         expect(
-          subject.iri,
+          subject.value,
           equals('http://example.org/vocab/parent123/child/child456.ttl'),
         );
 
@@ -161,7 +162,8 @@ void main() {
       test('deserializes child from hierarchical IRI', () {
         final triples = [
           Triple(
-            IriTerm('http://example.org/vocab/parent789/child/childABC.ttl'),
+            const IriTerm(
+                'http://example.org/vocab/parent789/child/childABC.ttl'),
             ExampleVocab.childName,
             LiteralTerm('Child Name'),
           ),
@@ -179,7 +181,8 @@ void main() {
         );
 
         final child = childMapper.fromRdfResource(
-          IriTerm('http://example.org/vocab/parent789/child/childABC.ttl'),
+          const IriTerm(
+              'http://example.org/vocab/parent789/child/childABC.ttl'),
           context,
         );
 
@@ -209,7 +212,7 @@ void main() {
           final (subject, triples) = mapper.toRdfResource(child, context);
 
           expect(
-            subject.iri,
+            subject.value,
             equals('$baseUri/$parentId/child/$childId.ttl'),
           );
 
@@ -265,7 +268,7 @@ void main() {
         final (subject, triples) = mapper.toRdfResource(parent, context);
 
         expect(
-          subject.iri,
+          subject.value,
           equals('http://example.org/vocab/parent456.ttl'),
         );
 
@@ -277,7 +280,7 @@ void main() {
           (t) => t.predicate == ExampleVocab.sibling,
         );
         expect(
-          (siblingTriple.object as IriTerm).iri,
+          (siblingTriple.object as IriTerm).value,
           equals('http://example.org/vocab/parent456/sibling/sibling789.ttl'),
         );
 
@@ -289,19 +292,20 @@ void main() {
       });
 
       test('deserializes parent with child and sibling relationships', () {
-        final childBn =
-            IriTerm('http://example.org/test/parentABC/child/child456.ttl');
+        final childBn = const IriTerm(
+            'http://example.org/test/parentABC/child/child456.ttl');
         final triples = [
           // Parent properties
           Triple(
-            IriTerm('http://example.org/test/parentABC.ttl'),
+            const IriTerm('http://example.org/test/parentABC.ttl'),
             ExampleVocab.child,
             childBn,
           ),
           Triple(
-            IriTerm('http://example.org/test/parentABC.ttl'),
+            const IriTerm('http://example.org/test/parentABC.ttl'),
             ExampleVocab.sibling,
-            IriTerm('http://example.org/test/parentABC/sibling/siblingXYZ.ttl'),
+            const IriTerm(
+                'http://example.org/test/parentABC/sibling/siblingXYZ.ttl'),
           ),
           // Child properties
           Triple(childBn, ExampleVocab.childName, LiteralTerm('Child Name')),
@@ -318,7 +322,7 @@ void main() {
         );
 
         final parent = parentMapper.fromRdfResource(
-          IriTerm('http://example.org/test/parentABC.ttl'),
+          const IriTerm('http://example.org/test/parentABC.ttl'),
           context,
         );
 
@@ -345,7 +349,7 @@ void main() {
         final (subject, triples) = mapper.toRdfResource(parent, context);
 
         expect(
-          subject.iri,
+          subject.value,
           equals('https://api.example.com/data/complex-parent-id-456.ttl'),
         );
 
@@ -353,7 +357,7 @@ void main() {
           (t) => t.predicate == ExampleVocab.sibling,
         );
         expect(
-          (siblingTriple.object as IriTerm).iri,
+          (siblingTriple.object as IriTerm).value,
           equals(
               'https://api.example.com/data/complex-parent-id-456/sibling/complex-sibling-id-789.ttl'),
         );
@@ -384,13 +388,13 @@ void main() {
 
           final (subject, triples) = mapper.toRdfResource(parent, context);
 
-          expect(subject.iri, equals('$baseUri/testParent.ttl'));
+          expect(subject.value, equals('$baseUri/testParent.ttl'));
 
           final siblingTriple = triples.firstWhere(
             (t) => t.predicate == ExampleVocab.sibling,
           );
           expect(
-            (siblingTriple.object as IriTerm).iri,
+            (siblingTriple.object as IriTerm).value,
             equals('$baseUri/testParent/sibling/testSibling.ttl'),
           );
         }
@@ -462,13 +466,13 @@ void main() {
 
           final (subject, triples) = mapper.toRdfResource(parent, context);
 
-          expect(subject.iri, equals('http://example.org/$parentId.ttl'));
+          expect(subject.value, equals('http://example.org/$parentId.ttl'));
 
           final siblingTriple = triples.firstWhere(
             (t) => t.predicate == ExampleVocab.sibling,
           );
           expect(
-            (siblingTriple.object as IriTerm).iri,
+            (siblingTriple.object as IriTerm).value,
             equals('http://example.org/$parentId/sibling/$siblingId.ttl'),
           );
         }
@@ -483,7 +487,7 @@ void main() {
 
         // Valid IRI format
         final validId = mapper.fromRdfTerm(
-          IriTerm('http://example.org/parent456/sibling/sibling789.ttl'),
+          const IriTerm('http://example.org/parent456/sibling/sibling789.ttl'),
           context,
         );
         expect(validId, equals('sibling789'));
@@ -496,7 +500,8 @@ void main() {
         ];
 
         for (final (iri, expectedId) in validFormats) {
-          final extractedId = mapper.fromRdfTerm(IriTerm(iri), context);
+          final extractedId =
+              mapper.fromRdfTerm(IriTerm.validated(iri), context);
           expect(extractedId, equals(expectedId));
         }
       });
@@ -518,13 +523,13 @@ void main() {
 
         final (subject, triples) = mapper.toRdfResource(parent, context);
 
-        expect(subject.iri, equals('http://example.org/parent日本語.ttl'));
+        expect(subject.value, equals('http://example.org/parent日本語.ttl'));
 
         final siblingTriple = triples.firstWhere(
           (t) => t.predicate == ExampleVocab.sibling,
         );
         expect(
-          (siblingTriple.object as IriTerm).iri,
+          (siblingTriple.object as IriTerm).value,
           equals('http://example.org/parent日本語/sibling/sibling日本語.ttl'),
         );
       });
@@ -545,7 +550,7 @@ void main() {
           final context = createSerializationContext();
 
           final iriTerm = mapper.toRdfTerm('testSibling', context);
-          expect(iriTerm.iri,
+          expect(iriTerm.value,
               equals('$baseUri/testParent/sibling/testSibling.ttl'));
         }
       });

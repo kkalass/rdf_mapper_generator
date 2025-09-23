@@ -27,7 +27,8 @@ class TestMapper
   IriTerm toRdfTerm(grptm.ClassWithIriNamedMapperStrategy value,
       SerializationContext context) {
     // this of course is pretty nonsensical, but just for testing
-    return IriTerm('http://example.org/persons3/${value.hashCode}');
+    return context
+        .createIriTerm('http://example.org/persons3/${value.hashCode}');
   }
 }
 
@@ -47,14 +48,14 @@ class NamedTestGlobalResourceMapper
       SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context
-        .resourceBuilder(IriTerm(
+        .resourceBuilder(const IriTerm(
             'http://example.org/instance/ClassWithMapperNamedMapperStrategy'))
         .build();
   }
 
   @override
   IriTerm? get typeIri =>
-      IriTerm('http://example.org/g/ClassWithMapperNamedMapperStrategy');
+      const IriTerm('http://example.org/g/ClassWithMapperNamedMapperStrategy');
 }
 
 class NamedTestLocalResourceMapper
@@ -77,7 +78,7 @@ class NamedTestLocalResourceMapper
 
   @override
   IriTerm? get typeIri =>
-      IriTerm('http://example.org/l/ClassWithMapperNamedMapperStrategy');
+      const IriTerm('http://example.org/l/ClassWithMapperNamedMapperStrategy');
 }
 
 class NamedTestIriMapper implements IriTermMapper<iptm.IriWithNamedMapper> {
@@ -86,14 +87,14 @@ class NamedTestIriMapper implements IriTermMapper<iptm.IriWithNamedMapper> {
   @override
   iptm.IriWithNamedMapper fromRdfTerm(
       IriTerm term, DeserializationContext context) {
-    return iptm.IriWithNamedMapper(term.iri);
+    return iptm.IriWithNamedMapper(term.value);
   }
 
   @override
   IriTerm toRdfTerm(
       iptm.IriWithNamedMapper value, SerializationContext context) {
     // this of course is pretty nonsensical, but just for testing
-    return IriTerm(value.value);
+    return context.createIriTerm(value.value);
   }
 }
 
@@ -126,7 +127,7 @@ class TestMapper3PartsWithProperties
   (String, String, int) fromRdfTerm(
       IriTerm term, DeserializationContext context) {
     // Extract ID, surname, and version from IRI like http://example.org/3parts/test-id/smith/42
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'http://example\.org/3parts/([^/]+)/([^/]+)/(\d+)$')
         .firstMatch(iri);
     if (match == null) {
@@ -137,7 +138,7 @@ class TestMapper3PartsWithProperties
 
   @override
   IriTerm toRdfTerm((String, String, int) value, SerializationContext context) {
-    return IriTerm(
+    return context.createIriTerm(
         'http://example.org/3parts/${value.$1}/${value.$2}/${value.$3}');
   }
 }
@@ -148,23 +149,21 @@ class TestIriMapper implements IriTermMapper<String> {
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    return term.iri;
+    return term.value;
   }
 
   @override
   IriTerm toRdfTerm(String value, SerializationContext context) {
-    return IriTerm(value);
+    return context.createIriTerm(value);
   }
 }
 
 /// Test local resource mapper for `Map<String, String>` values
 class TestMapEntryMapper
     implements LocalResourceMapper<MapEntry<String, String>> {
-  static const IriTerm _typeIri =
-      IriTerm.prevalidated('http://example.org/MapEntry');
-  static const IriTerm _key = IriTerm.prevalidated('http://example.org/key');
-  static const IriTerm _value =
-      IriTerm.prevalidated('http://example.org/value');
+  static const IriTerm _typeIri = const IriTerm('http://example.org/MapEntry');
+  static const IriTerm _key = const IriTerm('http://example.org/key');
+  static const IriTerm _value = const IriTerm('http://example.org/value');
   const TestMapEntryMapper();
 
   @override
@@ -220,13 +219,13 @@ class TestGlobalMapper implements GlobalResourceMapper<Object> {
       Object value, SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context
-        .resourceBuilder(
-            IriTerm('http://example.org/objects/${value.hashCode}'))
+        .resourceBuilder(context
+            .createIriTerm('http://example.org/objects/${value.hashCode}'))
         .build();
   }
 
   @override
-  IriTerm? get typeIri => IriTerm('http://example.org/Object');
+  IriTerm? get typeIri => const IriTerm('http://example.org/Object');
 }
 
 /// Test literal mapper for double values (price mapper)
@@ -263,7 +262,7 @@ class TestLocalMapper implements LocalResourceMapper<Object> {
   }
 
   @override
-  IriTerm? get typeIri => IriTerm('http://example.org/LocalObject');
+  IriTerm? get typeIri => const IriTerm('http://example.org/LocalObject');
 }
 
 /// Test global resource mapper for Object values (named mapper)
@@ -280,12 +279,13 @@ class TestNamedMapper implements GlobalResourceMapper<Object> {
       Object value, SerializationContext context,
       {RdfSubject? parentSubject}) {
     return context
-        .resourceBuilder(IriTerm('http://example.org/named/${value.hashCode}'))
+        .resourceBuilder(
+            context.createIriTerm('http://example.org/named/${value.hashCode}'))
         .build();
   }
 
   @override
-  IriTerm? get typeIri => IriTerm('http://example.org/NamedObject');
+  IriTerm? get typeIri => const IriTerm('http://example.org/NamedObject');
 }
 
 /// Test IRI mapper for chapter IDs (book ID, chapter number tuple)
@@ -295,7 +295,7 @@ class TestChapterIdMapper implements IriTermMapper<(String, int)> {
   @override
   (String, int) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract book ID and chapter number from IRI like http://example.org/books/book-123/chapters/42
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'http://example\.org/books/([^/]+)/chapters/(\d+)$')
         .firstMatch(iri);
     if (match == null) {
@@ -306,7 +306,8 @@ class TestChapterIdMapper implements IriTermMapper<(String, int)> {
 
   @override
   IriTerm toRdfTerm((String, int) value, SerializationContext context) {
-    return IriTerm('http://example.org/books/${value.$1}/chapters/${value.$2}');
+    return context.createIriTerm(
+        'http://example.org/books/${value.$1}/chapters/${value.$2}');
   }
 }
 
@@ -343,7 +344,7 @@ class TestUserReferenceMapper implements IriTermMapper<eis.UserReference> {
   @override
   eis.UserReference fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract user ID from IRI like http://example.org/users/user-123
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'http://example\.org/users/(.+)$').firstMatch(iri);
     if (match == null) {
       throw ArgumentError('Invalid user reference IRI format: $iri');
@@ -353,7 +354,7 @@ class TestUserReferenceMapper implements IriTermMapper<eis.UserReference> {
 
   @override
   IriTerm toRdfTerm(eis.UserReference value, SerializationContext context) {
-    return IriTerm('http://example.org/users/${value.username}');
+    return context.createIriTerm('http://example.org/users/${value.username}');
   }
 }
 
@@ -366,7 +367,7 @@ class TestComplexItemGlobalMapper
   cct.ComplexItem fromRdfResource(
       IriTerm term, DeserializationContext context) {
     // Simple test implementation - decode from IRI
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'http://example\.org/complex-items/([^/]+)/(\d+)$')
         .firstMatch(iri);
     if (match == null) {
@@ -380,13 +381,13 @@ class TestComplexItemGlobalMapper
   (IriTerm, Iterable<Triple>) toRdfResource(
       cct.ComplexItem value, SerializationContext context,
       {RdfSubject? parentSubject}) {
-    final iri =
-        IriTerm('http://example.org/complex-items/${value.name}/${value.id}');
+    final iri = context.createIriTerm(
+        'http://example.org/complex-items/${value.name}/${value.id}');
     return context.resourceBuilder(iri).build();
   }
 
   @override
-  IriTerm? get typeIri => IriTerm('http://example.org/ComplexItem');
+  IriTerm? get typeIri => const IriTerm('http://example.org/ComplexItem');
 }
 
 /// Test local resource mapper for ComplexItem
@@ -409,7 +410,7 @@ class TestComplexItemLocalMapper
   }
 
   @override
-  IriTerm? get typeIri => IriTerm('http://example.org/ComplexItem');
+  IriTerm? get typeIri => const IriTerm('http://example.org/ComplexItem');
 }
 
 /// Test custom collection mapper for `List<String>`
@@ -491,7 +492,7 @@ class TestPodIriMapper<T> implements IriTermMapper<(String,)> {
   @override
   (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract id from IRI like http://example.org/pod/test-id
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'http://example\.org/pod/(.+)$').firstMatch(iri);
     if (match == null) {
       throw ArgumentError('Invalid pod IRI format: $iri');
@@ -502,7 +503,7 @@ class TestPodIriMapper<T> implements IriTermMapper<(String,)> {
   @override
   IriTerm toRdfTerm((String,) value, SerializationContext context) {
     final paddedId = value.$1.padLeft(config.digits, '0');
-    return IriTerm('http://example.org/pod/$paddedId');
+    return context.createIriTerm('http://example.org/pod/$paddedId');
   }
 }
 
@@ -514,9 +515,10 @@ class TestConfigurableBookIriMapper<T> implements IriTermMapper<(String,)> {
   @override
   (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract id from IRI using config baseUri
-    final iri = term.iri;
+    final iri = term.value;
     final baseUri = config.baseUri;
-    final match = RegExp('$baseUri/books/(.+)\\?format=${config.format}').firstMatch(iri);
+    final match =
+        RegExp('$baseUri/books/(.+)\\?format=${config.format}').firstMatch(iri);
     if (match == null) {
       throw ArgumentError('Invalid configurable book IRI format: $iri');
     }
@@ -525,7 +527,8 @@ class TestConfigurableBookIriMapper<T> implements IriTermMapper<(String,)> {
 
   @override
   IriTerm toRdfTerm((String,) value, SerializationContext context) {
-    return IriTerm('${config.baseUri}/books/${value.$1}?format=${config.format}');
+    return context.createIriTerm(
+        '${config.baseUri}/books/${value.$1}?format=${config.format}');
   }
 }
 
@@ -536,7 +539,7 @@ class TestSimpleBookIriMapper<T> implements IriTermMapper<(String,)> {
   @override
   (String,) fromRdfTerm(IriTerm term, DeserializationContext context) {
     // Extract id from IRI like https://example.com/books/test-id
-    final iri = term.iri;
+    final iri = term.value;
     final match = RegExp(r'https://example\.com/books/(.+)$').firstMatch(iri);
     if (match == null) {
       throw ArgumentError('Invalid simple book IRI format: $iri');
@@ -546,7 +549,7 @@ class TestSimpleBookIriMapper<T> implements IriTermMapper<(String,)> {
 
   @override
   IriTerm toRdfTerm((String,) value, SerializationContext context) {
-    return IriTerm('https://example.com/books/${value.$1}');
+    return context.createIriTerm('https://example.com/books/${value.$1}');
   }
 }
 
@@ -560,7 +563,8 @@ IriTermMapper<(String,)> Function<T>(astm.PodConfig) get _defaultPodIriFactory {
 }
 
 /// Default configurable book IRI factory for test purposes
-IriTermMapper<(String,)> Function<T>(nftm.IriMapperConfig) get _defaultConfigurableBookIriFactory {
+IriTermMapper<(String,)> Function<T>(nftm.IriMapperConfig)
+    get _defaultConfigurableBookIriFactory {
   return <T>(nftm.IriMapperConfig config) {
     return TestConfigurableBookIriMapper<T>(config);
   };
@@ -621,7 +625,8 @@ RdfMapper defaultInitTestRdfMapper(
     Mapper<List<String>>? customCollectionMapper,
     // Factory function parameters
     IriTermMapper<(String id,)> Function<T>(astm.PodConfig)? podIriFactory,
-    IriTermMapper<(String id,)> Function<T>(nftm.IriMapperConfig)? configurableBookIriFactory,
+    IriTermMapper<(String id,)> Function<T>(nftm.IriMapperConfig)?
+        configurableBookIriFactory,
     IriTermMapper<(String id,)> Function<T>()? simpleBookIriFactory,
     IriTermMapper<String> Function<T>(Type)? simpleVariantRefFactory}) {
   return initTestRdfMapper(
@@ -666,8 +671,10 @@ RdfMapper defaultInitTestRdfMapper(
         customCollectionMapper ?? const TestCustomCollectionMapper(),
     // Factory function parameters
     $podIri$Factory: podIriFactory ?? _defaultPodIriFactory,
-    configurableBookIriFactory: configurableBookIriFactory ?? _defaultConfigurableBookIriFactory,
+    configurableBookIriFactory:
+        configurableBookIriFactory ?? _defaultConfigurableBookIriFactory,
     simpleBookIriFactory: simpleBookIriFactory ?? _defaultSimpleBookIriFactory,
-    simpleVariantRefFactory: simpleVariantRefFactory ?? _defaultSimpleVariantRefFactory,
+    simpleVariantRefFactory:
+        simpleVariantRefFactory ?? _defaultSimpleVariantRefFactory,
   );
 }

@@ -23,42 +23,32 @@ import 'package:rdf_vocabularies_core/xsd.dart';
 class TestVocab {
   static const _base = 'http://test.example.org/vocab#';
 
-  static const TestEntity = IriTerm.prevalidated(_base + 'TestEntity');
-  static const ComplexItem = IriTerm.prevalidated(_base + 'ComplexItem');
+  static const TestEntity = const IriTerm(_base + 'TestEntity');
+  static const ComplexItem = const IriTerm(_base + 'ComplexItem');
 
-  static const registryCollection =
-      IriTerm.prevalidated(_base + 'registryCollection');
+  static const registryCollection = const IriTerm(_base + 'registryCollection');
   static const namedMapperCollection =
-      IriTerm.prevalidated(_base + 'namedMapperCollection');
+      const IriTerm(_base + 'namedMapperCollection');
   static const selfContainedCollection =
-      IriTerm.prevalidated(_base + 'selfContainedCollection');
+      const IriTerm(_base + 'selfContainedCollection');
   static const instanceManagedCollection =
-      IriTerm.prevalidated(_base + 'instanceManagedCollection');
-  static const bagCollection = IriTerm.prevalidated(_base + 'bagCollection');
-  static const orderedCollection =
-      IriTerm.prevalidated(_base + 'orderedCollection');
-  static const defaultIterable =
-      IriTerm.prevalidated(_base + 'defaultIterable');
-  static const sequenceIterable =
-      IriTerm.prevalidated(_base + 'sequenceIterable');
-  static const complexCollection =
-      IriTerm.prevalidated(_base + 'complexCollection');
-  static const iriItemsList = IriTerm.prevalidated(_base + 'iriItemsList');
-  static const resourceItemsSeq =
-      IriTerm.prevalidated(_base + 'resourceItemsSeq');
-  static const languageTaggedBag =
-      IriTerm.prevalidated(_base + 'languageTaggedBag');
-  static const emptyList = IriTerm.prevalidated(_base + 'emptyList');
-  static const nullableList = IriTerm.prevalidated(_base + 'nullableList');
-  static const defaultMap = IriTerm.prevalidated(_base + 'defaultMap');
-  static const customMap = IriTerm.prevalidated(_base + 'customMap');
-  static const defaultHandledList =
-      IriTerm.prevalidated(_base + 'defaultHandledList');
-  static const mixedTypeList = IriTerm.prevalidated(_base + 'mixedTypeList');
-  static const nestedCollections =
-      IriTerm.prevalidated(_base + 'nestedCollections');
-  static const performanceList =
-      IriTerm.prevalidated(_base + 'performanceList');
+      const IriTerm(_base + 'instanceManagedCollection');
+  static const bagCollection = const IriTerm(_base + 'bagCollection');
+  static const orderedCollection = const IriTerm(_base + 'orderedCollection');
+  static const defaultIterable = const IriTerm(_base + 'defaultIterable');
+  static const sequenceIterable = const IriTerm(_base + 'sequenceIterable');
+  static const complexCollection = const IriTerm(_base + 'complexCollection');
+  static const iriItemsList = const IriTerm(_base + 'iriItemsList');
+  static const resourceItemsSeq = const IriTerm(_base + 'resourceItemsSeq');
+  static const languageTaggedBag = const IriTerm(_base + 'languageTaggedBag');
+  static const emptyList = const IriTerm(_base + 'emptyList');
+  static const nullableList = const IriTerm(_base + 'nullableList');
+  static const defaultMap = const IriTerm(_base + 'defaultMap');
+  static const customMap = const IriTerm(_base + 'customMap');
+  static const defaultHandledList = const IriTerm(_base + 'defaultHandledList');
+  static const mixedTypeList = const IriTerm(_base + 'mixedTypeList');
+  static const nestedCollections = const IriTerm(_base + 'nestedCollections');
+  static const performanceList = const IriTerm(_base + 'performanceList');
 }
 
 // =============================================================================

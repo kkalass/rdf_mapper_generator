@@ -1355,7 +1355,7 @@ class CustomTestStringIriMapper implements IriTermMapper<String> {
 
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
-    final iri = term.iri;
+    final iri = term.value;
     if (iri.startsWith('http://example.org/custom-prefix/')) {
       return iri.substring('http://example.org/custom-prefix/'.length);
     }
@@ -1367,8 +1367,8 @@ class CustomTestStringIriMapper implements IriTermMapper<String> {
     // Add custom prefix to demonstrate this mapper is being used
     if (value.startsWith('http://') || value.startsWith('https://')) {
       // Don't modify full IRIs - this tests whether our mapper is bypassed
-      return IriTerm(value);
+      return context.createIriTerm(value);
     }
-    return IriTerm('http://example.org/custom-prefix/$value');
+    return context.createIriTerm('http://example.org/custom-prefix/$value');
   }
 }

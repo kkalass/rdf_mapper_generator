@@ -21,13 +21,13 @@ void main() {
           author: 'Test Author',
           unmappedTriples: RdfGraph(triples: [
             Triple(
-              IriTerm('https://example.org/books/test-book-123'),
-              IriTerm('https://example.org/publisher'),
+              const IriTerm('https://example.org/books/test-book-123'),
+              const IriTerm('https://example.org/publisher'),
               LiteralTerm('Test Publisher'),
             ),
             Triple(
-              IriTerm('https://example.org/books/test-book-123'),
-              IriTerm('https://example.org/isbn'),
+              const IriTerm('https://example.org/books/test-book-123'),
+              const IriTerm('https://example.org/isbn'),
               LiteralTerm('978-1234567890'),
             ),
           ]),
@@ -57,12 +57,12 @@ void main() {
             deserializedBook.unmappedTriples.triples.toList();
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/publisher') &&
+                t.predicate == const IriTerm('https://example.org/publisher') &&
                 t.object == LiteralTerm('Test Publisher')),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/isbn') &&
+                t.predicate == const IriTerm('https://example.org/isbn') &&
                 t.object == LiteralTerm('978-1234567890')),
             isTrue);
       });
@@ -94,13 +94,13 @@ void main() {
           ..author = 'Test Author Late'
           ..unmappedTriples = RdfGraph(triples: [
             Triple(
-              IriTerm('https://example.org/books/test-book-456'),
-              IriTerm('https://example.org/series'),
+              const IriTerm('https://example.org/books/test-book-456'),
+              const IriTerm('https://example.org/series'),
               LiteralTerm('Test Series'),
             ),
             Triple(
-              IriTerm('https://example.org/books/test-book-456'),
-              IriTerm('https://example.org/edition'),
+              const IriTerm('https://example.org/books/test-book-456'),
+              const IriTerm('https://example.org/edition'),
               LiteralTerm('First Edition'),
             ),
           ]);
@@ -129,12 +129,12 @@ void main() {
             deserializedBook.unmappedTriples.triples.toList();
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/series') &&
+                t.predicate == const IriTerm('https://example.org/series') &&
                 t.object == LiteralTerm('Test Series')),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/edition') &&
+                t.predicate == const IriTerm('https://example.org/edition') &&
                 t.object == LiteralTerm('First Edition')),
             isTrue);
       });
@@ -180,12 +180,14 @@ void main() {
         final unmappedTriples = book.unmappedTriples.triples.toList();
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/customProperty') &&
+                t.predicate ==
+                    const IriTerm('https://example.org/customProperty') &&
                 t.object == LiteralTerm('Custom Value')),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/anotherProperty') &&
+                t.predicate ==
+                    const IriTerm('https://example.org/anotherProperty') &&
                 t.object == LiteralTerm('Another Value')),
             isTrue);
       });
@@ -226,17 +228,17 @@ void main() {
         final unmappedTriples = finalBook.unmappedTriples.triples.toList();
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/publisher') &&
+                t.predicate == const IriTerm('https://example.org/publisher') &&
                 t.object == LiteralTerm('Round Trip Publisher')),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/year') &&
+                t.predicate == const IriTerm('https://example.org/year') &&
                 t.object == LiteralTerm('2023')),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/genre') &&
+                t.predicate == const IriTerm('https://example.org/genre') &&
                 t.object == LiteralTerm('Technical')),
             isTrue);
       });
@@ -274,17 +276,17 @@ void main() {
         final unmappedTriples = finalBook.unmappedTriples.triples.toList();
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/language') &&
+                t.predicate == const IriTerm('https://example.org/language') &&
                 t.object == LiteralTerm('English')),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/pages') &&
+                t.predicate == const IriTerm('https://example.org/pages') &&
                 t.object == LiteralTerm.integer(200)),
             isTrue);
         expect(
             unmappedTriples.any((t) =>
-                t.predicate == IriTerm('https://example.org/format') &&
+                t.predicate == const IriTerm('https://example.org/format') &&
                 t.object == LiteralTerm('Paperback')),
             isTrue);
       });

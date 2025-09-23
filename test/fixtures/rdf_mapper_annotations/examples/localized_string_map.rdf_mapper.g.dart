@@ -35,7 +35,7 @@ class BookMapper implements LocalResourceMapper<Book> {
     final reader = context.reader(subject);
 
     final Map<String, String> translations = reader.getMap<String, String>(
-      const IriTerm.prevalidated('http://example.org/book/title'),
+      const IriTerm('http://example.org/book/title'),
       deserializer: _translationsMapper,
     );
 
@@ -53,7 +53,7 @@ class BookMapper implements LocalResourceMapper<Book> {
     return context
         .resourceBuilder(subject)
         .addMap<String, String>(
-          const IriTerm.prevalidated('http://example.org/book/title'),
+          const IriTerm('http://example.org/book/title'),
           resource.translations,
           serializer: _translationsMapper,
         )

@@ -40,7 +40,7 @@ void main() {
         final iriTerm = mapper.toRdfTerm(isbn, context);
 
         expect(iriTerm, isA<IriTerm>());
-        expect(iriTerm.iri, equals('urn:isbn:9780261102217'));
+        expect(iriTerm.value, equals('urn:isbn:9780261102217'));
       });
 
       test('deserializes from URN ISBN format', () {
@@ -48,7 +48,7 @@ void main() {
         final context = createDeserializationContext();
 
         final isbn = mapper.fromRdfTerm(
-          IriTerm('urn:isbn:9780141184821'),
+          const IriTerm('urn:isbn:9780141184821'),
           context,
         );
 
@@ -62,7 +62,7 @@ void main() {
         final isbn = ISBN('0261102214');
         final iriTerm = mapper.toRdfTerm(isbn, context);
 
-        expect(iriTerm.iri, equals('urn:isbn:0261102214'));
+        expect(iriTerm.value, equals('urn:isbn:0261102214'));
       });
 
       test('handles ISBN with X check digit', () {
@@ -72,7 +72,7 @@ void main() {
         final isbn = ISBN('026110221X');
         final iriTerm = mapper.toRdfTerm(isbn, context);
 
-        expect(iriTerm.iri, equals('urn:isbn:026110221X'));
+        expect(iriTerm.value, equals('urn:isbn:026110221X'));
       });
     });
 
@@ -86,7 +86,7 @@ void main() {
 
         expect(literalTerm, isA<LiteralTerm>());
         expect(literalTerm.value, equals('5'));
-        expect(literalTerm.datatype.iri, contains('XMLSchema'));
+        expect(literalTerm.datatype.value, contains('XMLSchema'));
       });
 
       test('deserializes rating from literal', () {
@@ -95,7 +95,8 @@ void main() {
 
         final rating = mapper.fromRdfTerm(
           LiteralTerm('4',
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
+              datatype:
+                  const IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           context,
         );
 
@@ -158,7 +159,8 @@ void main() {
             blankNode,
             SchemaChapter.position,
             LiteralTerm('5',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
+                datatype:
+                    const IriTerm('http://www.w3.org/2001/XMLSchema#integer')),
           ),
         ];
 
@@ -199,7 +201,7 @@ void main() {
 
         final authorIri = mapper.toRdfTerm('tolkien', context);
 
-        expect(authorIri.iri, equals('http://example.org/author/tolkien'));
+        expect(authorIri.value, equals('http://example.org/author/tolkien'));
       });
 
       test('deserializes author ID from IRI', () {
@@ -207,7 +209,7 @@ void main() {
         final context = createDeserializationContext();
 
         final authorId = mapper.fromRdfTerm(
-          IriTerm('http://example.org/author/rowling'),
+          const IriTerm('http://example.org/author/rowling'),
           context,
         );
 
@@ -219,7 +221,7 @@ void main() {
         final context = createSerializationContext();
 
         final authorIri = mapper.toRdfTerm('martin-george-r-r', context);
-        expect(authorIri.iri,
+        expect(authorIri.value,
             equals('http://example.org/author/martin-george-r-r'));
 
         final deserContext = createDeserializationContext();
@@ -252,7 +254,7 @@ void main() {
 
         final (subject, triples) = bookMapper.toRdfResource(book, context);
 
-        expect(subject.iri, equals('http://example.org/book/hobbit'));
+        expect(subject.value, equals('http://example.org/book/hobbit'));
         expect(triples.length, greaterThan(5));
 
         // Check title
@@ -266,7 +268,7 @@ void main() {
           (t) => t.predicate == SchemaBook.author,
         );
         expect(
-          (authorTriple.object as IriTerm).iri,
+          (authorTriple.object as IriTerm).value,
           equals('http://example.org/author/tolkien'),
         );
 
@@ -284,7 +286,7 @@ void main() {
           (t) => t.predicate == SchemaBook.isbn,
         );
         expect(
-          (isbnTriple.object as IriTerm).iri,
+          (isbnTriple.object as IriTerm).value,
           equals('urn:isbn:9780261102217'),
         );
 
@@ -313,46 +315,48 @@ void main() {
         final triples = [
           // Book properties
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.name,
             LiteralTerm('The Lord of the Rings'),
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.author,
-            IriTerm('http://example.org/author/tolkien'),
+            const IriTerm('http://example.org/author/tolkien'),
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.datePublished,
             LiteralTerm(
               '1954-07-29T00:00:00.000Z',
-              datatype: IriTerm('http://www.w3.org/2001/XMLSchema#dateTime'),
+              datatype:
+                  const IriTerm('http://www.w3.org/2001/XMLSchema#dateTime'),
             ),
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.isbn,
-            IriTerm('urn:isbn:9780261102385'),
+            const IriTerm('urn:isbn:9780261102385'),
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.aggregateRating,
             LiteralTerm('5',
-                datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int')),
+                datatype:
+                    const IriTerm('http://www.w3.org/2001/XMLSchema#int')),
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.hasPart,
             chapterBn1,
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.hasPart,
             chapterBn2,
           ),
           Triple(
-            IriTerm('http://example.org/book/lotr'),
+            const IriTerm('http://example.org/book/lotr'),
             SchemaBook.hasPart,
             chapterBn3,
           ),
@@ -363,7 +367,8 @@ void main() {
               chapterBn1,
               SchemaChapter.position,
               LiteralTerm('1',
-                  datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
+                  datatype:
+                      const IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
           // Chapter 2
           Triple(chapterBn2, SchemaChapter.name,
               LiteralTerm('The Shadow of the Past')),
@@ -371,7 +376,8 @@ void main() {
               chapterBn2,
               SchemaChapter.position,
               LiteralTerm('2',
-                  datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
+                  datatype:
+                      const IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
           // Chapter 3
           Triple(
               chapterBn3, SchemaChapter.name, LiteralTerm('Three is Company')),
@@ -379,7 +385,8 @@ void main() {
               chapterBn3,
               SchemaChapter.position,
               LiteralTerm('3',
-                  datatype: IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
+                  datatype:
+                      const IriTerm('http://www.w3.org/2001/XMLSchema#int'))),
         ];
         final myRegistry = mapper.registry.clone()
           ..registerMapper(IntMapper(Xsd.int));
@@ -391,7 +398,7 @@ void main() {
 
         const bookMapper = BookMapper();
         final book = bookMapper.fromRdfResource(
-          IriTerm('http://example.org/book/lotr'),
+          const IriTerm('http://example.org/book/lotr'),
           context,
         );
 
@@ -428,7 +435,7 @@ void main() {
 
         final (subject, triples) = bookMapper.toRdfResource(book, context);
 
-        expect(subject.iri, equals('http://example.org/book/empty-book'));
+        expect(subject.value, equals('http://example.org/book/empty-book'));
 
         final chapterTriples = triples.where(
           (t) => t.predicate == SchemaBook.hasPart,
@@ -525,7 +532,7 @@ void main() {
           (t) => t.predicate == SchemaBook.author,
         );
         expect(
-          (authorTriple.object as IriTerm).iri,
+          (authorTriple.object as IriTerm).value,
           equals('http://example.org/author/author-with-hyphens'),
         );
       });
@@ -536,7 +543,7 @@ void main() {
 
         // Should not throw - the regex will extract whatever is after 'urn:isbn:'
         final isbn = isbnMapper.fromRdfTerm(
-          IriTerm('urn:isbn:invalid-isbn'),
+          const IriTerm('urn:isbn:invalid-isbn'),
           context,
         );
         expect(isbn.value, equals('invalid-isbn'));

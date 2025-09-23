@@ -25,7 +25,7 @@ class EnhancedRating {
     // If you leave out the datatype, it will be `Xsd.string` by default.
     // Note that you may have compatibility issues with other RDF libraries
     // if you use a datatype that is not in the `Xsd` namespace.
-    datatype: IriTerm.prevalidated('http://example.org/temperature'))
+    datatype: const IriTerm('http://example.org/temperature'))
 class Temperature {
   final double celsius;
 

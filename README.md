@@ -27,13 +27,13 @@ A code generator for creating **type-safe, annotation-driven RDF mappers** in Da
 
 ```yaml
 dependencies:
-  rdf_mapper: ^0.8.6
-  rdf_mapper_annotations: ^0.2.1
-  rdf_vocabularies: ^0.3.0
+  rdf_mapper: ^0.10.2
+  rdf_mapper_annotations: ^0.10.2
+  rdf_vocabularies: ^0.4.0
 
 dev_dependencies:
   build_runner: '>2.5.3'
-  rdf_mapper_generator: ^0.2.1
+  rdf_mapper_generator: ^0.10.5
 ```
 
 ### 2. Annotate Your Classes
@@ -282,7 +282,7 @@ class Temperature {
   final double celsius;
 
   LiteralTerm formatCelsius() => 
-    LiteralTerm('${celsius}°C', datatype: IriTerm('https://units.org/Temperature'));
+    LiteralTerm('${celsius}°C', datatype: const IriTerm('https://units.org/Temperature'));
     
   static Temperature parse(LiteralTerm term) => 
     Temperature(double.parse(term.value.replaceAll('°C', '')));

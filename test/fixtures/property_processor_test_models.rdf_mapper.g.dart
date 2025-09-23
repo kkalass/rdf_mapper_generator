@@ -65,8 +65,7 @@ class SimpleCustomPropertyTestMapper
   const SimpleCustomPropertyTestMapper();
 
   @override
-  IriTerm? get typeIri =>
-      const IriTerm.prevalidated('http://example.org/types/Book');
+  IriTerm? get typeIri => const IriTerm('http://example.org/types/Book');
 
   @override
   SimpleCustomPropertyTest fromRdfResource(
@@ -76,7 +75,7 @@ class SimpleCustomPropertyTestMapper
     final reader = context.reader(subject);
 
     final String name = reader.require(
-      const IriTerm.prevalidated('http://example.org/types/Book/name'),
+      const IriTerm('http://example.org/types/Book/name'),
     );
 
     return SimpleCustomPropertyTest(name: name);
@@ -88,12 +87,12 @@ class SimpleCustomPropertyTestMapper
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
         .addValue(
-          const IriTerm.prevalidated('http://example.org/types/Book/name'),
+          const IriTerm('http://example.org/types/Book/name'),
           resource.name,
         )
         .build();
@@ -213,7 +212,7 @@ class DefaultValueTestMapper implements GlobalResourceMapper<DefaultValueTest> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -284,7 +283,7 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -300,7 +299,7 @@ class IriMappingTestAuthorIdMapper implements IriTermMapper<String> {
     RdfSubject? parentSubject,
   }) {
     final authorId = iriTermValue.toString();
-    return IriTerm('http://example.org/authors/${authorId}');
+    return context.createIriTerm('http://example.org/authors/${authorId}');
   }
 }
 
@@ -372,7 +371,7 @@ class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -389,7 +388,7 @@ class IriMappingWithBaseUriTestAuthorIdMapper implements IriTermMapper<String> {
   }) {
     final authorId = iriTermValue.toString();
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/authors/${authorId}');
+    return context.createIriTerm('${baseUri}/authors/${authorId}');
   }
 }
 
@@ -567,7 +566,7 @@ class IriMappingWithProviderTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -584,7 +583,7 @@ class IriMappingWithProviderTestAuthorIdMapper
   }) {
     final authorId = iriTermValue.toString();
     final category = _categoryProvider();
-    return IriTerm('http://example.org/${category}/${authorId}');
+    return context.createIriTerm('http://example.org/${category}/${authorId}');
   }
 }
 
@@ -657,7 +656,7 @@ class IriMappingWithBaseUriProviderTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -674,7 +673,7 @@ class IriMappingWithBaseUriProviderTestAuthorIdMapper
   }) {
     final authorId = iriTermValue.toString();
     final baseUri = _baseUriProvider();
-    return IriTerm('${baseUri}/${authorId}');
+    return context.createIriTerm('${baseUri}/${authorId}');
   }
 }
 
@@ -749,7 +748,7 @@ class IriMappingWithProviderPropertyTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -766,7 +765,7 @@ class IriMappingWithProviderPropertyTestAuthorIdMapper
   }) {
     final authorId = iriTermValue.toString();
     final genre = _genreProvider();
-    return IriTerm('http://example.org/${genre}/${authorId}');
+    return context.createIriTerm('http://example.org/${genre}/${authorId}');
   }
 }
 
@@ -849,7 +848,7 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -868,7 +867,7 @@ class IriMappingWithProvidersAndBaseUriPropertyTestAuthorIdMapper
     final baseUri = _baseUriProvider();
     final genre = _genreProvider();
     final version = _versionProvider();
-    return IriTerm('${baseUri}/${genre}/${version}/${authorId}');
+    return context.createIriTerm('${baseUri}/${genre}/${version}/${authorId}');
   }
 }
 
@@ -1212,7 +1211,7 @@ class LiteralMappingTestMapper
     final reader = context.reader(subject);
 
     final double price = reader.require(
-      const IriTerm.prevalidated('http://example.org/book/price'),
+      const IriTerm('http://example.org/book/price'),
       deserializer: _priceMapper,
     );
 
@@ -1230,7 +1229,7 @@ class LiteralMappingTestMapper
     return context
         .resourceBuilder(subject)
         .addValue(
-          const IriTerm.prevalidated('http://example.org/book/price'),
+          const IriTerm('http://example.org/book/price'),
           resource.price,
           serializer: _priceMapper,
         )
@@ -1262,7 +1261,7 @@ class LiteralMappingTestCustomDatatypeMapper
     final reader = context.reader(subject);
 
     final double price = reader.require(
-      const IriTerm.prevalidated('http://example.org/book/price'),
+      const IriTerm('http://example.org/book/price'),
       deserializer: _priceMapper,
     );
 
@@ -1280,7 +1279,7 @@ class LiteralMappingTestCustomDatatypeMapper
     return context
         .resourceBuilder(subject)
         .addValue(
-          const IriTerm.prevalidated('http://example.org/book/price'),
+          const IriTerm('http://example.org/book/price'),
           resource.price,
           serializer: _priceMapper,
         )
@@ -1679,7 +1678,7 @@ class ComplexDefaultValueTestMapper
 
     final Map<String, dynamic> complexValue =
         reader.optional(
-          const IriTerm.prevalidated('http://example.org/test/complexValue'),
+          const IriTerm('http://example.org/test/complexValue'),
           deserializer: _complexValueMapper,
         ) ??
         {'id': '1', 'name': 'Test'};
@@ -1700,7 +1699,7 @@ class ComplexDefaultValueTestMapper
         .when(
           resource.complexValue != {'id': '1', 'name': 'Test'},
           (b) => b.addValue(
-            const IriTerm.prevalidated('http://example.org/test/complexValue'),
+            const IriTerm('http://example.org/test/complexValue'),
             resource.complexValue,
             serializer: _complexValueMapper,
           ),

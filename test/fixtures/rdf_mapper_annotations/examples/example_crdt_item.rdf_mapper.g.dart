@@ -34,7 +34,7 @@ class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -51,7 +51,9 @@ class VectorClockEntryClientIdMapper implements IriTermMapper<String> {
   }) {
     final clientId = iriTermValue.toString();
     final storageRoot = _storageRootProvider();
-    return IriTerm('${storageRoot}/solidtask/appinstance/${clientId}.ttl');
+    return context.createIriTerm(
+      '${storageRoot}/solidtask/appinstance/${clientId}.ttl',
+    );
   }
 }
 
@@ -100,7 +102,7 @@ class VectorClockEntryMapper implements GlobalResourceMapper<VectorClockEntry> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
@@ -141,7 +143,7 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
   @override
   String fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
-    final RegExpMatch? match = _regex.firstMatch(term.iri);
+    final RegExpMatch? match = _regex.firstMatch(term.value);
 
     final iriParts = {
       for (var name in match?.groupNames ?? const <String>[])
@@ -158,7 +160,7 @@ class ItemLastModifiedByMapper implements IriTermMapper<String> {
   }) {
     final lastModifiedBy = iriTermValue.toString();
     final storageRoot = _storageRootProvider();
-    return IriTerm(
+    return context.createIriTerm(
       '${storageRoot}/solidtask/appinstance/${lastModifiedBy}.ttl',
     );
   }
@@ -191,7 +193,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
   Item fromRdfResource(IriTerm subject, DeserializationContext context) {
     final reader = context.reader(subject);
 
-    final RegExpMatch? match = _regex.firstMatch(subject.iri);
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
 
     final iriParts = {
       for (var name in (match?.groupNames ?? const <String>[]))
@@ -231,7 +233,7 @@ class ItemMapper implements GlobalResourceMapper<Item> {
     SerializationContext context, {
     RdfSubject? parentSubject,
   }) {
-    final subject = IriTerm(_buildIri(resource));
+    final subject = context.createIriTerm(_buildIri(resource));
 
     return context
         .resourceBuilder(subject)
