@@ -375,7 +375,7 @@ packages:
       path: "../rdf_mapper_annotations"
       relative: true
     source: path
-    version: "0.10.3-dev"
+    version: "0.10.4-dev"
   rdf_vocabularies_core:
     dependency: "direct main"
     description:
