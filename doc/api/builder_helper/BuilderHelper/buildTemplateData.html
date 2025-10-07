@@ -79,24 +79,35 @@
     BroaderImports broaderImports) async {
   final context = ValidationContext();
   &#47;&#47; Collect all resource info and element pairs (class or enum)
-  List&lt;(MappableClassInfo, Elem?)&gt; resourceInfosWithElements =
+  final (resourceInfosWithElements, nestedResourceInfos) =
       collectResourceInfos(classElements, context, enumElements);
   context.throwIfErrors();
 
   final fileModel = MapperModelBuilder.buildMapperModels(
       context, packageName, sourcePath, resourceInfosWithElements);
+  final nestedMappers = MapperModelBuilder.buildExternalMapperModels(
+      context, nestedResourceInfos);
 
-  final mappersSortedByDependcy = topologicalSort(fileModel.mappers);
+  final toplevelMappers = fileModel.mappers.toSet();
+  final mappersSortedByDependcy =
+      topologicalSort({...toplevelMappers, ...nestedMappers}.toList());
   final resolvedMappers = &lt;MapperRef, ResolvedMapperModel&gt;{};
+  final toplevelResolvedMappers = &lt;MapperRef, ResolvedMapperModel&gt;{};
   final resolveContext = context.withContext(&#39;resolve&#39;);
+  &#47;&#47; Resolve all mappers, but only keep the toplevel ones for output
+  &#47;&#47; The nested ones are needed internally to build up the correct dependencies
+  &#47;&#47; like instantiations of child mappers.
   for (var m in mappersSortedByDependcy) {
     final resolved =
         m.resolve(resolveContext.withContext(m.id.id), resolvedMappers);
     resolvedMappers[resolved.id] = resolved;
+    if (toplevelMappers.contains(m)) {
+      toplevelResolvedMappers[resolved.id] = resolved;
+    }
   }
 
   final templateContext = context.withContext(&#39;template&#39;);
-  final templateDatas = resolvedMappers.values
+  final templateDatas = toplevelResolvedMappers.values
       .map((r) =&gt; r.toTemplateData(templateContext.withContext(r.id.id),
           fileModel.mapperFileImportUri))
       .toList();
@@ -147,7 +158,7 @@
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.7
+      0.10.8
   </span>
   
 </footer>

@@ -54,11 +54,13 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">(<span class="field"><span class="type-annotation">MappableClassInfo<span class="signature">&lt;<wbr><span class="type-parameter">BaseMappingAnnotationInfo</span>&gt;</span></span>, </span><span class="field"><span class="type-annotation">Elem?</span></span>)</span>&gt;</span></span>
-<span class="name ">collectResourceInfos</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="collectResourceInfos-param-classElements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">ClassElem</span>&gt;</span></span> <span class="parameter-name">classElements</span>, </span></li>
+<span class="returntype">(<span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">(<span class="field"><span class="type-annotation">MappableClassInfo<span class="signature">&lt;<wbr><span class="type-parameter">BaseMappingAnnotationInfo</span>&gt;</span></span>, </span><span class="field"><span class="type-annotation">Elem?</span></span>)</span>&gt;</span></span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">(<span class="field"><span class="type-annotation">MappableClassInfo<span class="signature">&lt;<wbr><span class="type-parameter">BaseMappingAnnotationInfo</span>&gt;</span></span>, </span><span class="field"><span class="type-annotation">Elem?</span></span>)</span>&gt;</span></span></span>)</span>
+<span class="name ">collectResourceInfos</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="collectResourceInfos-param-classElements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">ClassElem</span>&gt;</span></span> <span class="parameter-name">classElements</span>, </span></li>
 <li><span class="parameter" id="collectResourceInfos-param-context"><span class="type-annotation">ValidationContext</span> <span class="parameter-name">context</span>, </span></li>
-<li><span class="parameter" id="collectResourceInfos-param-enumElements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">EnumElem</span>&gt;</span></span> <span class="parameter-name">enumElements</span></span></li>
-</ol>)
+<li><span class="parameter" id="collectResourceInfos-param-enumElements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">EnumElem</span>&gt;</span></span> <span class="parameter-name">enumElements</span>, {</span></li>
+<li><span class="parameter" id="collectResourceInfos-param-visited"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter">Elem</span>&gt;</span>?</span> <span class="parameter-name">visited</span>, </span></li>
+<li><span class="parameter" id="collectResourceInfos-param-toplevel"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">toplevel</span> = <span class="default-value">true</span>, </span></li>
+</ol>})
 
       
 
@@ -69,34 +71,68 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">List&lt;(MappableClassInfo, Elem?)&gt; collectResourceInfos(
-    Iterable&lt;ClassElem&gt; classElements,
-    ValidationContext context,
-    Iterable&lt;EnumElem&gt; enumElements) {
+  <pre class="language-dart"><code class="language-dart">(
+  List&lt;(MappableClassInfo, Elem?)&gt; toplevel,
+  List&lt;(MappableClassInfo, Elem?)&gt; nested
+) collectResourceInfos(Iterable&lt;ClassElem&gt; classElements,
+    ValidationContext context, Iterable&lt;EnumElem&gt; enumElements,
+    {Set&lt;Elem&gt;? visited, bool toplevel = true}) {
+  visited ??= &lt;Elem&gt;{};
   &#47;&#47; Collect all resource info and element pairs (class or enum)
   final resourceInfosWithElements = &lt;(MappableClassInfo, Elem?)&gt;[];
-
+  final allFieldTypes = &lt;DartType&gt;{};
   for (final classElement in classElements) {
+    visited.add(classElement);
     final MappableClassInfo? resourceInfo =
         processClass(context, classElement);
-
     if (resourceInfo != null) {
+      allFieldTypes.addAll(resourceInfo.properties
+          .map((p) =&gt; p.propertyInfo?.annotation.itemType)
+          .nonNulls);
       resourceInfosWithElements.add((resourceInfo, classElement));
     }
   }
 
   &#47;&#47; Process enums
   for (final enumElement in enumElements) {
+    visited.add(enumElement);
     final enumInfo = EnumProcessor.processEnum(
       context.withContext(enumElement.name),
       enumElement,
     );
 
     if (enumInfo != null) {
+      allFieldTypes.addAll(enumInfo.properties
+          .map((p) =&gt; p.propertyInfo?.annotation.itemType)
+          .nonNulls);
       resourceInfosWithElements.add((enumInfo, enumElement));
     }
   }
-  return resourceInfosWithElements;
+
+  final classesToProcess = allFieldTypes
+      .where((t) =&gt; t.isElementClass)
+      .map((t) =&gt; t.element)
+      .whereType&lt;ClassElem&gt;()
+      .where((elem) =&gt; !visited!.contains(elem))
+      .toSet();
+  final enumsToProcess = allFieldTypes
+      .where((t) =&gt; t.isElementEnum)
+      .map((t) =&gt; t.element)
+      .whereType&lt;EnumElem&gt;()
+      .where((elem) =&gt; !visited!.contains(elem))
+      .toSet();
+  final toplevelList =
+      toplevel ? resourceInfosWithElements : &lt;(MappableClassInfo, Elem?)&gt;[];
+  final nestedList =
+      toplevel ? &lt;(MappableClassInfo, Elem?)&gt;[] : resourceInfosWithElements;
+  if (classesToProcess.isNotEmpty || enumsToProcess.isNotEmpty) {
+    final (extraToplevel, extraNested) = collectResourceInfos(
+        classesToProcess, context, enumsToProcess,
+        visited: visited, toplevel: false);
+    toplevelList.addAll(extraToplevel);
+    nestedList.addAll(extraNested);
+  }
+  return (toplevelList, nestedList);
 }</code></pre>
 </section>
 
@@ -125,7 +161,7 @@
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.7
+      0.10.8
   </span>
   
 </footer>
