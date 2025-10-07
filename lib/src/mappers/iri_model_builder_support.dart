@@ -18,7 +18,8 @@ class IriModelBuilderSupport {
       List<IriPartInfo>? iriParts,
       IriTemplateInfo? templateInfo,
       List<PropertyInfo>? fields,
-      Code mappedClassName) {
+      Code mappedClassName,
+      {String? providedAs}) {
     final mapperRef = mapper == null || type == null
         ? null
         : mapperRefInfoToDependency(
@@ -44,6 +45,7 @@ class IriModelBuilderSupport {
       hasFullIriPartTemplate: hasFullIriPartTemplate(iriParts, template),
       mapper: mapperRef,
       iriMapperParts: iriMapperParts,
+      providedAs: providedAs,
     );
   }
 

@@ -1028,12 +1028,14 @@ class IriResolvedModel {
   final bool hasFullIriPartTemplate;
   final bool hasMapper;
   final List<IriPartResolvedModel> iriMapperParts;
+  final String? providedAs;
 
   const IriResolvedModel({
     required this.template,
     required this.hasFullIriPartTemplate,
     required this.hasMapper,
     required this.iriMapperParts,
+    this.providedAs,
   });
 
   bool get hasTemplate => template != null;
@@ -1203,26 +1205,32 @@ class FieldResolvedModel {
 final class ProvidesResolvedModel {
   final String name;
   final String dartPropertyName;
+  final bool isIriProvider;
 
-  const ProvidesResolvedModel(
-      {required this.name, required this.dartPropertyName});
+  const ProvidesResolvedModel({
+    required this.name,
+    required this.dartPropertyName,
+    this.isIriProvider = false,
+  });
 
   @override
-  int get hashCode => Object.hash(name, dartPropertyName);
+  int get hashCode => Object.hash(name, dartPropertyName, isIriProvider);
 
   String get providerName => '${name}Provider';
 
   @override
   bool operator ==(Object other) {
-    if (other is! ProvidesModel) {
+    if (other is! ProvidesResolvedModel) {
       return false;
     }
-    return name == other.name && dartPropertyName == other.dartPropertyName;
+    return name == other.name &&
+        dartPropertyName == other.dartPropertyName &&
+        isIriProvider == other.isIriProvider;
   }
 
   @override
   String toString() {
-    return 'ProvidesResolvedModel{name: $name, dartPropertyName: $dartPropertyName}';
+    return 'ProvidesResolvedModel{name: $name, dartPropertyName: $dartPropertyName, isIriProvider: $isIriProvider}';
   }
 }
 
@@ -1430,6 +1438,10 @@ Code _buildMapperSerializerCode(
       if (provides == null) {
         // context variable is not provided, so it will be injected as a field
         return Code.literal('${v}: _${v}');
+      }
+      // Check if this is an IRI provider (from providedAs)
+      if (provides.isIriProvider) {
+        return Code.literal('${v}: () => subject.value');
       }
       return Code.literal('${v}: () => resource.${provides.dartPropertyName}');
     })),

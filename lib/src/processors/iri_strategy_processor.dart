@@ -20,6 +20,7 @@ class IriStrategyProcessor {
       ValidationContext context, DartObject iriValue, ClassElem classElement) {
     // Check if we have an iri field (for the standard constructor)
     final templateFieldValue = getField(iriValue, 'template')?.toStringValue();
+    final providedAsFieldValue = getFieldStringValue(iriValue, 'providedAs');
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
     final (template, templateInfo, iriParts) = processIriPartsAndTemplate(
         context, classElement, templateFieldValue, mapper);
@@ -31,6 +32,7 @@ class IriStrategyProcessor {
       template: template,
       templateInfo: templateInfo,
       iriMapperType: iriMapperType,
+      providedAs: providedAsFieldValue,
     );
   }
 

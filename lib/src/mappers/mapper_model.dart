@@ -1001,12 +1001,14 @@ class IriModel {
   final bool hasFullIriPartTemplate;
   final DependencyModel? mapper;
   final List<IriPartModel> iriMapperParts;
+  final String? providedAs;
 
   const IriModel({
     required this.template,
     required this.hasFullIriPartTemplate,
     required this.mapper,
     required this.iriMapperParts,
+    this.providedAs,
   });
 
   bool get hasMapper => mapper != null;
@@ -1021,7 +1023,8 @@ class IriModel {
           hasMapper: hasMapper,
           iriMapperParts: iriMapperParts
               .map((part) => part.resolve(context))
-              .toList(growable: false));
+              .toList(growable: false),
+          providedAs: providedAs);
 }
 
 class LiteralEnumMapperModel extends LiteralMapperModel {
@@ -1160,29 +1163,37 @@ sealed class DependencyModel {
 final class ProvidesModel {
   final String name;
   final String dartPropertyName;
+  final bool isIriProvider;
   String get providerName => '${name}Provider';
-  const ProvidesModel({required this.name, required this.dartPropertyName});
+  const ProvidesModel({
+    required this.name,
+    required this.dartPropertyName,
+    this.isIriProvider = false,
+  });
 
   @override
-  int get hashCode => Object.hash(name, dartPropertyName);
+  int get hashCode => Object.hash(name, dartPropertyName, isIriProvider);
 
   @override
   bool operator ==(Object other) {
     if (other is! ProvidesModel) {
       return false;
     }
-    return name == other.name && dartPropertyName == other.dartPropertyName;
+    return name == other.name &&
+        dartPropertyName == other.dartPropertyName &&
+        isIriProvider == other.isIriProvider;
   }
 
   @override
   String toString() {
-    return 'ProvidesModel{name: $name, dartPropertyName: $dartPropertyName}';
+    return 'ProvidesModel{name: $name, dartPropertyName: $dartPropertyName, isIriProvider: $isIriProvider}';
   }
 
   ProvidesResolvedModel resolve(ResolveStep2Context context) {
     return ProvidesResolvedModel(
       name: name,
       dartPropertyName: dartPropertyName,
+      isIriProvider: isIriProvider,
     );
   }
 }

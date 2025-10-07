@@ -54,12 +54,19 @@ class ResourceModelBuilderSupport {
 
     final dependencies = _collectDependencies(iriStrategy, mappedClassModel,
         mapperImportUri, resourceInfo.typeParameters);
-    final provides = mappedClassModel.properties
-        .where((p) => p.isProvides)
-        .map((p) => ProvidesModel(
-            dartPropertyName: p.propertyName,
-            name: p.providesVariableName ?? p.propertyName))
-        .toList();
+    final provides = [
+      ...mappedClassModel.properties
+          .where((p) => p.isProvides)
+          .map((p) => ProvidesModel(
+              dartPropertyName: p.propertyName,
+              name: p.providesVariableName ?? p.propertyName)),
+      // Add IRI providedAs if specified
+      if (iriStrategy?.providedAs != null)
+        ProvidesModel(
+            dartPropertyName: '\$iri',
+            name: iriStrategy!.providedAs!,
+            isIriProvider: true),
+    ].toList();
 
     final resourceMapper = ResourceMapperModel(
         mappedClass: mappedClassName,
@@ -136,6 +143,7 @@ class ResourceModelBuilderSupport {
         iriStrategy.iriMapperType?.parts,
         iriStrategy.templateInfo,
         resourceInfo.properties,
-        resourceInfo.className);
+        resourceInfo.className,
+        providedAs: iriStrategy.providedAs);
   }
 }

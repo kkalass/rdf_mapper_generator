@@ -245,17 +245,19 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   final String? template;
   final IriTemplateInfo? templateInfo;
   final IriMapperType? iriMapperType;
+  final String? providedAs;
 
   IriStrategyInfo({
     required super.mapper,
     required this.template,
     this.templateInfo,
     this.iriMapperType,
+    this.providedAs,
   });
 
   @override
   int get hashCode =>
-      Object.hashAll([mapper, template, templateInfo, iriMapperType]);
+      Object.hashAll([mapper, template, templateInfo, iriMapperType, providedAs]);
 
   @override
   bool operator ==(Object other) {
@@ -265,7 +267,8 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
     return mapper == other.mapper &&
         template == other.template &&
         templateInfo == other.templateInfo &&
-        iriMapperType == other.iriMapperType;
+        iriMapperType == other.iriMapperType &&
+        providedAs == other.providedAs;
   }
 
   @override
@@ -274,7 +277,8 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
         'mapper: $mapper, '
         'template: $template, '
         'templateInfo: $templateInfo, '
-        'iriMapperType: $iriMapperType}';
+        'iriMapperType: $iriMapperType, '
+        'providedAs: $providedAs}';
   }
 }
 

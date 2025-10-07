@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **IRI Provider Feature**: Added support for `providedAs` parameter in `IriStrategy` constructors
+  - Parent resources can now provide their IRI to dependent child resources
+  - Child resources can reference parent IRIs in their own IRI templates using context variables
+  - Generated mappers automatically pass parent IRI via `() => subject.value` during serialization
+  - Enables hierarchical IRI patterns like `{+parentIri}/children/{childId}`
+  - Supports complex parent-child relationships with automatic IRI context propagation
+
 ## [0.10.6] - 2025-10-07
 
 ### Changed

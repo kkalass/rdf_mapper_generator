@@ -31,6 +31,8 @@ import 'fixtures/named_factory_test_models.dart' as nftm;
 import 'fixtures/named_factory_test_models.rdf_mapper.g.dart' as nftmrmg;
 import 'fixtures/property_processor_test_models.dart' as pptm;
 import 'fixtures/property_processor_test_models.rdf_mapper.g.dart' as pptmrmg;
+import 'fixtures/provided_as_test_models.dart' as patm;
+import 'fixtures/provided_as_test_models.rdf_mapper.g.dart' as patmrmg;
 import 'fixtures/rdf_mapper_annotations/examples/collection_examples.dart'
     as ce;
 import 'fixtures/rdf_mapper_annotations/examples/collection_examples.rdf_mapper.g.dart'
@@ -512,6 +514,9 @@ RdfMapper initTestRdfMapper({
     pptmrmg.LiteralInstanceMapperTestMapper(),
   );
   registry.registerMapper<pptm.BookFormatType>(pptmrmg.BookFormatTypeMapper());
+  registry.registerMapper<patm.Document>(
+    patmrmg.DocumentMapper(baseUriProvider: baseUriProvider),
+  );
   registry.registerMapper<ce.Library>(
     cermg.LibraryMapper(baseUriProvider: baseUriProvider),
   );
