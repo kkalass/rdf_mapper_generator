@@ -47,24 +47,35 @@ class BuilderHelper {
       BroaderImports broaderImports) async {
     final context = ValidationContext();
     // Collect all resource info and element pairs (class or enum)
-    List<(MappableClassInfo, Elem?)> resourceInfosWithElements =
+    final (resourceInfosWithElements, nestedResourceInfos) =
         collectResourceInfos(classElements, context, enumElements);
     context.throwIfErrors();
 
     final fileModel = MapperModelBuilder.buildMapperModels(
         context, packageName, sourcePath, resourceInfosWithElements);
+    final nestedMappers = MapperModelBuilder.buildExternalMapperModels(
+        context, nestedResourceInfos);
 
-    final mappersSortedByDependcy = topologicalSort(fileModel.mappers);
+    final toplevelMappers = fileModel.mappers.toSet();
+    final mappersSortedByDependcy =
+        topologicalSort({...toplevelMappers, ...nestedMappers}.toList());
     final resolvedMappers = <MapperRef, ResolvedMapperModel>{};
+    final toplevelResolvedMappers = <MapperRef, ResolvedMapperModel>{};
     final resolveContext = context.withContext('resolve');
+    // Resolve all mappers, but only keep the toplevel ones for output
+    // The nested ones are needed internally to build up the correct dependencies
+    // like instantiations of child mappers.
     for (var m in mappersSortedByDependcy) {
       final resolved =
           m.resolve(resolveContext.withContext(m.id.id), resolvedMappers);
       resolvedMappers[resolved.id] = resolved;
+      if (toplevelMappers.contains(m)) {
+        toplevelResolvedMappers[resolved.id] = resolved;
+      }
     }
 
     final templateContext = context.withContext('template');
-    final templateDatas = resolvedMappers.values
+    final templateDatas = toplevelResolvedMappers.values
         .map((r) => r.toTemplateData(templateContext.withContext(r.id.id),
             fileModel.mapperFileImportUri))
         .toList();
@@ -89,34 +100,68 @@ class BuilderHelper {
     return result;
   }
 
-  List<(MappableClassInfo, Elem?)> collectResourceInfos(
-      Iterable<ClassElem> classElements,
-      ValidationContext context,
-      Iterable<EnumElem> enumElements) {
+  (
+    List<(MappableClassInfo, Elem?)> toplevel,
+    List<(MappableClassInfo, Elem?)> nested
+  ) collectResourceInfos(Iterable<ClassElem> classElements,
+      ValidationContext context, Iterable<EnumElem> enumElements,
+      {Set<Elem>? visited, bool toplevel = true}) {
+    visited ??= <Elem>{};
     // Collect all resource info and element pairs (class or enum)
     final resourceInfosWithElements = <(MappableClassInfo, Elem?)>[];
-
+    final allFieldTypes = <DartType>{};
     for (final classElement in classElements) {
+      visited.add(classElement);
       final MappableClassInfo? resourceInfo =
           processClass(context, classElement);
-
       if (resourceInfo != null) {
+        allFieldTypes.addAll(resourceInfo.properties
+            .map((p) => p.propertyInfo?.annotation.itemType)
+            .nonNulls);
         resourceInfosWithElements.add((resourceInfo, classElement));
       }
     }
 
     // Process enums
     for (final enumElement in enumElements) {
+      visited.add(enumElement);
       final enumInfo = EnumProcessor.processEnum(
         context.withContext(enumElement.name),
         enumElement,
       );
 
       if (enumInfo != null) {
+        allFieldTypes.addAll(enumInfo.properties
+            .map((p) => p.propertyInfo?.annotation.itemType)
+            .nonNulls);
         resourceInfosWithElements.add((enumInfo, enumElement));
       }
     }
-    return resourceInfosWithElements;
+
+    final classesToProcess = allFieldTypes
+        .where((t) => t.isElementClass)
+        .map((t) => t.element)
+        .whereType<ClassElem>()
+        .where((elem) => !visited!.contains(elem))
+        .toSet();
+    final enumsToProcess = allFieldTypes
+        .where((t) => t.isElementEnum)
+        .map((t) => t.element)
+        .whereType<EnumElem>()
+        .where((elem) => !visited!.contains(elem))
+        .toSet();
+    final toplevelList =
+        toplevel ? resourceInfosWithElements : <(MappableClassInfo, Elem?)>[];
+    final nestedList =
+        toplevel ? <(MappableClassInfo, Elem?)>[] : resourceInfosWithElements;
+    if (classesToProcess.isNotEmpty || enumsToProcess.isNotEmpty) {
+      final (extraToplevel, extraNested) = collectResourceInfos(
+          classesToProcess, context, enumsToProcess,
+          visited: visited, toplevel: false);
+      toplevelList.addAll(extraToplevel);
+      nestedList.addAll(extraNested);
+    }
+    return (toplevelList, nestedList);
   }
 
   static MappableClassInfo<BaseMappingAnnotationInfo<dynamic>>? processClass(
@@ -146,7 +191,6 @@ class BuilderHelper {
     final mapperById = <MapperRef, MapperModel>{
       for (final mapper in mappers) mapper.id: mapper
     };
-
     final visited = <MapperRef>{};
     final visiting = <MapperRef>{};
     final result = <MapperModel>[];

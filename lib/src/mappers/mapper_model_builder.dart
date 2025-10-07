@@ -52,6 +52,17 @@ class MapperModelBuilder {
     );
   }
 
+  static List<MapperModel> buildExternalMapperModels(
+    ValidationContext context,
+    List<(MappableClassInfo, Elem?)> classInfosWithElement,
+  ) {
+    return classInfosWithElement.map((e) => e.$1).expand<MapperModel>((m) {
+      final import = m.className.imports.single;
+      return buildModel(
+          context, import.replaceAll('.dart', '.rdf_mapper.g.dart'), m);
+    }).toList();
+  }
+
   static List<MapperModel> _buildModels(
     ValidationContext context,
     String mapperImportUri,

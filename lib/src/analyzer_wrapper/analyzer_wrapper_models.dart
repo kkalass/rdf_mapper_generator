@@ -14,6 +14,8 @@ abstract class DartType {
   bool get isDartCoreNull;
   bool get isDartCoreIterable;
   Elem get element;
+  bool get isElementClass;
+  bool get isElementEnum;
   List<DartType> get typeArguments;
 
   /// Returns the supertypes of this type (superclass, mixins, interfaces).

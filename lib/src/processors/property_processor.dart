@@ -21,11 +21,15 @@ class _InferredMappings {
   final LiteralMappingInfo? literal;
   final IriMappingInfo? iri;
 
+  /// The DartType of the inferred dependency (for cross-file processing)
+  final DartType? dependencyType;
+
   const _InferredMappings({
     this.globalResource,
     this.localResource,
     this.literal,
     this.iri,
+    this.dependencyType,
   });
 }
 
@@ -233,7 +237,7 @@ class PropertyProcessor {
         contextual: contextual,
         iri: inferredMappings.iri ?? iri,
         collection: collection,
-        itemType: collectionItemType);
+        itemType: fieldMappedClassType);
   }
 
   static IriMappingInfo? _extractIriMapping(ValidationContext context,
@@ -367,6 +371,8 @@ class PropertyProcessor {
 
     // Analyze the field type for RDF annotations
     final rdfAnnotationInfo = analyzeTypeForRdfAnnotation(fieldType);
+    //log.warning(
+    //    'rdfAnnotationInfo for ${fieldType.toCode().codeWithoutAlias}: $rdfAnnotationInfo - ${rdfAnnotationInfo?.registerGlobally} - ${rdfAnnotationInfo?.mapperClassName}');
     if (rdfAnnotationInfo == null) {
       return const _InferredMappings();
     }
@@ -388,6 +394,7 @@ class PropertyProcessor {
         );
         return _InferredMappings(
           globalResource: GlobalResourceMappingInfo(mapper: mapperRef),
+          dependencyType: fieldType, // Pass the type for cross-file processing
         );
 
       case 'RdfLocalResource':
@@ -398,6 +405,7 @@ class PropertyProcessor {
         );
         return _InferredMappings(
           localResource: LocalResourceMappingInfo(mapper: mapperRef),
+          dependencyType: fieldType, // Pass the type for cross-file processing
         );
 
       case 'RdfLiteral':
@@ -412,6 +420,7 @@ class PropertyProcessor {
             datatype: null,
             mapper: mapperRef,
           ),
+          dependencyType: fieldType, // Pass the type for cross-file processing
         );
 
       case 'RdfIri':
@@ -425,6 +434,7 @@ class PropertyProcessor {
             template: null, // Default template will be handled elsewhere
             mapper: mapperRef,
           ),
+          dependencyType: fieldType, // Pass the type for cross-file processing
         );
 
       default:

@@ -26,6 +26,12 @@ class DartTypeV8 extends DartType {
 
   bool get isDartCoreIterable => dartType.isDartCoreIterable;
 
+  @override
+  bool get isElementClass => dartType.element is v8.ClassElement;
+
+  @override
+  bool get isElementEnum => dartType.element is v8.EnumElement;
+
   Elem get element {
     final elem = dartType.element!;
     if (elem is v8.ClassElement) {
@@ -273,6 +279,16 @@ abstract class ElemV8 implements Elem {
           .map((libImport) => LibraryImportV8(libImport));
 
   ElemV8(this.element);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ElemV8) return false;
+    return element == other.element;
+  }
+
+  @override
+  int get hashCode => element.hashCode;
 }
 
 class GetterElemV8 extends ElemV8 implements GetterElem {

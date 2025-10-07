@@ -69,6 +69,8 @@ import 'fixtures/rdf_mapper_annotations/examples/localized_string_map.rdf_mapper
 import 'fixtures/rdf_mapper_annotations/examples/provides.dart' as provides;
 import 'fixtures/rdf_mapper_annotations/examples/provides.rdf_mapper.g.dart'
     as prmg;
+import 'fixtures/root_document.dart' as rd;
+import 'fixtures/root_document.rdf_mapper.g.dart' as rdrmg;
 import 'fixtures/unmapped_triples_test_models.dart' as uttm;
 import 'fixtures/unmapped_triples_test_models.rdf_mapper.g.dart' as uttmrmg;
 import 'fixtures/valid_generic_test_models.dart' as vgtm;
@@ -591,6 +593,7 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<provides.Parent>(
     prmg.ParentMapper(baseUriProvider: baseUriProvider),
   );
+  registry.registerMapper<rd.RootDocument>(rdrmg.RootDocumentMapper());
   registry.registerMapper<uttm.BookWithUnmappedTriples>(
     uttmrmg.BookWithUnmappedTriplesMapper(),
   );
@@ -604,7 +607,6 @@ RdfMapper initTestRdfMapper({
     vgtmrmg.NonGenericPersonMapper(),
   );
   registry.registerMapper<wftm.Document>(wftmrmg.DocumentMapper());
-  registry.registerMapper<wftm.RootDocument>(wftmrmg.RootDocumentMapper());
   registry.registerMapper<wftm.Article>(wftmrmg.ArticleMapper());
   registry.registerMapper<wftm.Page>(
     wftmrmg.PageMapper(baseUriProvider: baseUriProvider),

@@ -624,7 +624,6 @@ RdfTypeAnnotationInfo? analyzeTypeForRdfAnnotation(DartType type) {
         // Fallback for package imports or other schemes
         mapperImportPath = 'generated_mappers.dart';
       }
-
       return RdfTypeAnnotationInfo(
         annotationType: annotationType,
         registerGlobally: registerGlobally,

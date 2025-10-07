@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.8] - 2025-10-07
+
+### Added
+
+- **Cross-File Mapper Dependencies**: Mapper generator now processes property field types across file boundaries
+  - Automatically detects and generates mappers for classes referenced in properties from other files
+  - Supports both `@RdfGlobalResource` and `@RdfLocalResource` annotated types used in properties
+  - Enables parent-child document patterns where child classes are defined in separate files
+  - Internal processing distinguishes between top-level mappers (output to generated file) and nested mappers (used for dependency resolution only)
+
 ## [0.10.7] - 2025-10-07
 
 ### Added

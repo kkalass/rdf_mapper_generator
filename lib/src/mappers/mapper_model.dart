@@ -1234,6 +1234,7 @@ class MapperDependency extends DependencyModel {
     final fieldName = '_${referenceName}${suffix}';
     final parameterName = '${referenceName}${suffix}';
     _log.fine('Resolve mapper dependency $id for $referenceName: $mapperRef');
+
     switch (mapperRef) {
       case _ImplementationMapperRef implRef:
         final resolvedMapperModel = context.getResolvedMapperModel(mapperRef);
