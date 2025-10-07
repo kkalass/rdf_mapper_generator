@@ -20,16 +20,20 @@ class IriStrategyProcessor {
       ValidationContext context, DartObject iriValue, ClassElem classElement) {
     // Check if we have an iri field (for the standard constructor)
     final templateFieldValue = getField(iriValue, 'template')?.toStringValue();
+    final fragmentTemplateFieldValue =
+        getField(iriValue, 'fragmentTemplate')?.toStringValue();
     final providedAsFieldValue = getFieldStringValue(iriValue, 'providedAs');
     final mapper = getMapperRefInfo<IriTermMapper>(iriValue);
-    final (template, templateInfo, iriParts) = processIriPartsAndTemplate(
-        context, classElement, templateFieldValue, mapper);
+    final (template, templateInfo, iriParts) =
+        processIriPartsAndTemplateWithFragment(context, classElement,
+            templateFieldValue, fragmentTemplateFieldValue, mapper);
     final (iriMapperType, typeWarnings) =
         _getIriMapperType(classToCode(classElement), iriParts);
     typeWarnings.forEach(context.addWarning);
     return IriStrategyInfo(
       mapper: mapper,
       template: template,
+      fragmentTemplate: fragmentTemplateFieldValue,
       templateInfo: templateInfo,
       iriMapperType: iriMapperType,
       providedAs: providedAsFieldValue,
@@ -37,8 +41,12 @@ class IriStrategyProcessor {
   }
 
   static (String?, IriTemplateInfo?, List<IriPartInfo>)
-      processIriPartsAndTemplate(ValidationContext context,
-          ClassElem classElement, String? template, MapperRefInfo? mapper) {
+      processIriPartsAndTemplateWithFragment(
+          ValidationContext context,
+          ClassElem classElement,
+          String? template,
+          String? fragmentTemplate,
+          MapperRefInfo? mapper) {
     final iriParts = findIriPartFields(classElement);
     if (mapper == null && (template == null || template.isEmpty)) {
       if (iriParts.length != 1) {
@@ -50,8 +58,11 @@ class IriStrategyProcessor {
     }
 
     // Process template if it exists
-    final templateInfo =
-        template != null ? processTemplate(context, template, iriParts) : null;
+    IriTemplateInfo? templateInfo = template == null
+        ? null
+        : processTemplate(context, template, iriParts,
+            fragmentTemplate: fragmentTemplate);
+
     if (templateInfo == null && mapper == null) {
       if (iriParts.length != 1) {
         context.addError(
@@ -61,19 +72,109 @@ class IriStrategyProcessor {
     return (template, templateInfo, iriParts);
   }
 
+  static void _warnAboutUnused(
+      Iterable<IriPartInfo> unusedIriParts, ValidationContext context) {
+    // Generate warning for unused @RdfIriPart annotation
+    for (final unused in unusedIriParts) {
+      context.addWarning(
+          'Property \'${unused.dartPropertyName}\' is annotated with @RdfIriPart(\'${unused.name}\') but \'${unused.name}\' is not used in the IRI template');
+    }
+  }
+
+  /// Processes IRI templates with fragment support.
+  ///
+  /// When a fragment template is provided, this function:
+  /// 1. Processes the base template to extract its variables
+  /// 2. Processes the fragment template to extract its variables
+  /// 3. Combines variables from both templates
+  /// 4. Returns a unified IriTemplateInfo with combined information
+  ///
+  /// The base template is stored in the IriTemplateInfo, and the fragment template
+  /// is passed separately through the annotation info for use in code generation.
+  static IriTemplateInfo? processTemplate(
+    ValidationContext context,
+    String baseTemplate,
+    List<IriPartInfo> iriParts, {
+    String? fragmentTemplate,
+  }) {
+    if (baseTemplate.isEmpty) {
+      context.addError('Base IRI template cannot be empty');
+      return null;
+    }
+    if (fragmentTemplate == null) {
+      final (r, unused) = _processTemplate(context, baseTemplate, iriParts);
+      _warnAboutUnused(unused, context);
+      return r;
+    }
+    if (fragmentTemplate.isEmpty) {
+      context.addError('Fragment template cannot be empty');
+      return null;
+    }
+
+    // Process both templates separately for validation
+    final (baseInfo, unused1) =
+        _processTemplate(context, baseTemplate, iriParts);
+    final (fragmentInfo, unused2) = _processTemplate(
+        context, fragmentTemplate, iriParts,
+        allowRelative: true);
+
+    if (baseInfo == null || fragmentInfo == null) {
+      return null;
+    }
+
+    // only iri parts that are unused in both templates are really unused
+    final unused = unused1.toSet().intersection(unused2.toSet());
+    _warnAboutUnused(unused, context);
+
+    // Combine variables from both templates for dependency tracking
+    final combinedVariables = {
+      ...baseInfo.variableNames,
+      ...fragmentInfo.variableNames
+    };
+    final combinedPropertyVariables = {
+      ...baseInfo.propertyVariables,
+      ...fragmentInfo.propertyVariables
+    };
+    final combinedContextVariables = {
+      ...baseInfo.contextVariableNames,
+      ...fragmentInfo.contextVariableNames
+    };
+    final combinedErrors = [
+      ...baseInfo.validationErrors,
+      ...fragmentInfo.validationErrors
+    ];
+    final combinedWarnings = [...baseInfo.warnings, ...fragmentInfo.warnings];
+
+    // Store only the base template - fragment will be handled in code generation
+    // This avoids validation issues with the synthetic combined template
+    return IriTemplateInfo(
+      template: baseTemplate,
+      fragmentTemplate: fragmentTemplate,
+      variables: combinedVariables,
+      propertyVariables: combinedPropertyVariables,
+      contextVariables: combinedContextVariables,
+      isValid: baseInfo.isValid && fragmentInfo.isValid,
+      validationErrors: combinedErrors,
+      warnings: combinedWarnings,
+      iriParts: iriParts,
+    );
+  }
+
   /// Processes an IRI template and extracts information about variables and validation.
   ///
   /// Returns an [IriTemplateInfo] containing parsed template data, or null if the
   /// template is invalid or empty.
-  static IriTemplateInfo? processTemplate(
-      ValidationContext context, String template, List<IriPartInfo> iriParts) {
+  static (IriTemplateInfo?, List<IriPartInfo> unusedIriParts) _processTemplate(
+      ValidationContext context, String template, List<IriPartInfo> iriParts,
+      {bool allowRelative = false}) {
     try {
       if (template.isEmpty) {
         context.addError('IRI template cannot be empty');
-        return null;
+        return (null, iriParts);
       }
       final variables = _extractVariables(template);
-      final propertyResult = _findPropertyVariables(variables, iriParts);
+      final (propertyResult, unusedIriParts) =
+          _findPropertyVariables(variables, iriParts);
 
       final propertyNames =
           propertyResult.propertyVariables.map((pn) => pn.name).toSet();
@@ -81,32 +182,42 @@ class IriStrategyProcessor {
           .where((entry) => !propertyNames.contains(entry.key))
           .map((entry) => entry.value)
           .toSet());
-      final validationResult = _validateTemplate(template, variables);
+      final validationResult =
+          _validateTemplate(template, variables, allowRelative: allowRelative);
       validationResult.errors.forEach(context.addError);
+      validationResult.warnings.forEach(context.addWarning);
       propertyResult.warnings.forEach(context.addWarning);
 
-      return IriTemplateInfo(
-        template: template,
-        iriParts: iriParts,
-        variables: Set.unmodifiable(
-            {...propertyResult.propertyVariables, ...contextVariables}),
-        propertyVariables: propertyResult.propertyVariables,
-        contextVariables: contextVariables,
-        isValid: validationResult.isValid,
-        validationErrors: validationResult.errors,
-        warnings: propertyResult.warnings,
+      return (
+        IriTemplateInfo(
+          template: template,
+          fragmentTemplate: null,
+          iriParts: iriParts,
+          variables: Set.unmodifiable(
+              {...propertyResult.propertyVariables, ...contextVariables}),
+          propertyVariables: propertyResult.propertyVariables,
+          contextVariables: contextVariables,
+          isValid: validationResult.isValid,
+          validationErrors: validationResult.errors,
+          warnings: propertyResult.warnings,
+        ),
+        unusedIriParts
       );
     } catch (e) {
       context.addError('Failed to process template: $e');
-      return IriTemplateInfo(
-        template: template,
-        iriParts: iriParts,
-        variables: Set.unmodifiable(<VariableName>{}),
-        propertyVariables: Set.unmodifiable(<VariableName>{}),
-        contextVariables: Set.unmodifiable(<VariableName>{}),
-        isValid: false,
-        validationErrors: ['Failed to process template: $e'],
-        warnings: [],
+      return (
+        IriTemplateInfo(
+          template: template,
+          fragmentTemplate: null,
+          iriParts: iriParts,
+          variables: Set.unmodifiable(<VariableName>{}),
+          propertyVariables: Set.unmodifiable(<VariableName>{}),
+          contextVariables: Set.unmodifiable(<VariableName>{}),
+          isValid: false,
+          validationErrors: ['Failed to process template: $e'],
+          warnings: [],
+        ),
+        iriParts
       );
     }
   }
@@ -143,11 +254,12 @@ class IriStrategyProcessor {
   /// Scans the class element for fields with @RdfIriPart annotations and matches
   /// them against the extracted variables. Also detects unused @RdfIriPart annotations
   /// that don't correspond to any template variable.
-  static _PropertyVariablesResult _findPropertyVariables(
-      Map<String, VariableName> variables, List<IriPartInfo> iriParts) {
+  static (_PropertyVariablesResult, List<IriPartInfo> unusedIriParts)
+      _findPropertyVariables(
+          Map<String, VariableName> variables, List<IriPartInfo> iriParts) {
     final propertyVariables = <VariableName>{};
     final warnings = <String>[];
-
+    final unusedIriParts = <IriPartInfo>[];
     for (final iriPart in iriParts) {
       final name = iriPart.name;
       if (variables.containsKey(name)) {
@@ -158,15 +270,16 @@ class IriStrategyProcessor {
             canBeUri: variable.canBeUri,
             isMappedValue: iriPart.isMappedValue));
       } else {
-        // Generate warning for unused @RdfIriPart annotation
-        warnings.add(
-            'Property \'${iriPart.dartPropertyName}\' is annotated with @RdfIriPart(\'$name\') but \'$name\' is not used in the IRI template');
+        unusedIriParts.add(iriPart);
       }
     }
 
-    return _PropertyVariablesResult(
-      propertyVariables: Set.unmodifiable(propertyVariables),
-      warnings: warnings,
+    return (
+      _PropertyVariablesResult(
+        propertyVariables: Set.unmodifiable(propertyVariables),
+        warnings: warnings,
+      ),
+      unusedIriParts
     );
   }
 
@@ -200,8 +313,10 @@ class IriStrategyProcessor {
   /// - No unescaped special characters
   /// - Reasonable URI structure
   static _TemplateValidationResult _validateTemplate(
-      String template, Map<String, VariableName> variables) {
+      String template, Map<String, VariableName> variables,
+      {bool allowRelative = false}) {
     final errors = <String>[];
+    final warnings = <String>[];
 
     // Check for basic template syntax issues
     if (!_hasValidVariableSyntax(template)) {
@@ -216,7 +331,7 @@ class IriStrategyProcessor {
 
     // Validate as URI template by substituting variables with dummy values
     final testUri = _createTestUri(template, variables);
-    if (!_isValidUriStructure(testUri)) {
+    if (!_isValidUriStructure(testUri, allowRelative: allowRelative)) {
       errors.add('Template does not produce valid URI structure');
     }
 
@@ -227,22 +342,27 @@ class IriStrategyProcessor {
             'Invalid variable name: ${variable.name}. Variable names must be valid identifiers');
       }
     }
+    if (!allowRelative) {
+      // Warn about relative URIs (might be intentional)
+      // Templates starting with {+variable} are valid if the variable contains a complete URI
+      final startsWithReservedExpansion =
+          RegExp(r'^\{\+\w+\}').hasMatch(template);
 
-    // Warn about relative URIs (might be intentional)
-    // Templates starting with {+variable} are valid if the variable contains a complete URI
-    final startsWithReservedExpansion =
-        RegExp(r'^\{\+\w+\}').hasMatch(template);
-    if (!template.contains('://') &&
-        !template.startsWith('/') &&
-        !template.startsWith('urn:') &&
-        !startsWithReservedExpansion) {
-      errors.add(
-          'Template appears to be a relative URI. Consider using absolute URIs for global resources');
+      // allow arbitrary schemes like mailto:, urn:, tag: etc.
+      final startsWithScheme = RegExp(r'^\w+:').hasMatch(template);
+      if (!template.contains('://') &&
+          !template.startsWith('/') &&
+          !startsWithScheme &&
+          !startsWithReservedExpansion) {
+        warnings.add(
+            'Template "$template" appears to be a relative URI. Consider using absolute URIs for global resources');
+      }
     }
 
     return _TemplateValidationResult(
       isValid: errors.isEmpty,
       errors: errors,
+      warnings: warnings,
     );
   }
 
@@ -302,10 +422,14 @@ class IriStrategyProcessor {
   }
 
   /// Validates that the test URI has a reasonable structure.
-  static bool _isValidUriStructure(String testUri) {
+  static bool _isValidUriStructure(String testUri,
+      {bool allowRelative = false}) {
     try {
       final uri = Uri.parse(testUri);
-
+      if (allowRelative) {
+        // it parses - that is good enough for relative URI or fragment-only templates
+        return true;
+      }
       // Basic validation - should have scheme or be absolute path
       if (uri.scheme.isEmpty && !testUri.startsWith('/')) {
         return false;
@@ -390,10 +514,12 @@ class IriStrategyProcessor {
 class _TemplateValidationResult {
   final bool isValid;
   final List<String> errors;
+  final List<String> warnings;
 
   const _TemplateValidationResult({
     required this.isValid,
     required this.errors,
+    required this.warnings,
   });
 }
 

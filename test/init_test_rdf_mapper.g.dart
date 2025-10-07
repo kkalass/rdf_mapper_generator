@@ -73,6 +73,8 @@ import 'fixtures/unmapped_triples_test_models.dart' as uttm;
 import 'fixtures/unmapped_triples_test_models.rdf_mapper.g.dart' as uttmrmg;
 import 'fixtures/valid_generic_test_models.dart' as vgtm;
 import 'fixtures/valid_generic_test_models.rdf_mapper.g.dart' as vgtmrmg;
+import 'fixtures/with_fragment_test_models.dart' as wftm;
+import 'fixtures/with_fragment_test_models.rdf_mapper.g.dart' as wftmrmg;
 
 /// Initializes and returns an RdfMapper with test mappers registered.
 ///
@@ -600,6 +602,11 @@ RdfMapper initTestRdfMapper({
   );
   registry.registerMapper<vgtm.NonGenericPerson>(
     vgtmrmg.NonGenericPersonMapper(),
+  );
+  registry.registerMapper<wftm.Document>(wftmrmg.DocumentMapper());
+  registry.registerMapper<wftm.Article>(wftmrmg.ArticleMapper());
+  registry.registerMapper<wftm.Page>(
+    wftmrmg.PageMapper(baseUriProvider: baseUriProvider),
   );
 
   return rdfMapper;

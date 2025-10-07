@@ -41,7 +41,12 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final ImmutableList<String> collaborators = reader
         .requireCollection<ImmutableList<String>, String>(
           CollectionVocab.collaborators,

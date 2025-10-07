@@ -140,7 +140,12 @@ class NonGenericPersonMapper implements GlobalResourceMapper<NonGenericPerson> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String name = reader.require(SchemaPerson.name);
 
     return NonGenericPerson(id: id, name: name);

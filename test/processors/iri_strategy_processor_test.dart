@@ -28,8 +28,61 @@ void main() {
         expect(result, isNull);
         expect(validationContext.isValid, isFalse);
         expect(validationContext.errors, isNotEmpty);
+        expect(validationContext.errors,
+            contains('Base IRI template cannot be empty'));
+      });
+
+      test('should process IriStrategy with tag template', () {
+        //IriStrategy('tag:example.org,2025:document-{id}', 'documentIri'),
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext,
+            'tag:example.org,2025:document-{isbn}',
+            IriStrategyProcessor.findIriPartFields(bookClass));
+
+        validationContext.throwIfErrors();
+
+        expect(result, isNotNull);
+        expect(validationContext.isValid, isTrue);
+        expect(validationContext.errors, isEmpty);
         expect(
-            validationContext.errors, contains('IRI template cannot be empty'));
+            result!.template, equals('tag:example.org,2025:document-{isbn}'));
+        expect(result.fragmentTemplate, isNull);
+        expect(result.variables, contains('isbn'));
+        expect(result.variables, hasLength(1));
+        expect(result.propertyVariables.map((pn) => pn.name), contains('isbn'));
+        expect(result.contextVariables, isEmpty);
+        expect(result.isValid, isTrue);
+        expect(result.validationErrors, isEmpty);
+        expect(result.warnings, isA<List<String>>());
+      });
+
+      test('should process IriStrategy with tag template and fragment', () {
+        //IriStrategy.withFragment('tag:example.org,2025:document-{id}', 'section-{sectionId}'),
+        final validationContext = ValidationContext();
+        final result = IriStrategyProcessor.processTemplate(
+            validationContext,
+            'tag:example.org,2025:document-{isbn}#it',
+            IriStrategyProcessor.findIriPartFields(bookClass),
+            fragmentTemplate: 'section-{sectionId}');
+
+        validationContext.throwIfErrors();
+
+        expect(result, isNotNull);
+        expect(validationContext.isValid, isTrue);
+        expect(validationContext.errors, isEmpty);
+        expect(result!.template,
+            equals('tag:example.org,2025:document-{isbn}#it'));
+        expect(result.fragmentTemplate, equals('section-{sectionId}'));
+        expect(result.variables, contains('isbn'));
+        expect(result.variables, contains('sectionId'));
+        expect(result.variables, hasLength(2));
+        expect(result.propertyVariables.map((pn) => pn.name), contains('isbn'));
+        expect(result.contextVariables, hasLength(1));
+        expect(result.contextVariables, contains('sectionId'));
+        expect(result.isValid, isTrue);
+        expect(result.validationErrors, isEmpty);
+        expect(result.warnings, isA<List<String>>());
       });
 
       test('should process simple template with single variable', () {
@@ -189,8 +242,20 @@ void main() {
 
         expect(result, isNotNull);
         expect(result!.isValid, isFalse);
-        expect(result.validationErrors, anyElement(contains('relative URI')));
+        expect(
+            result.validationErrors,
+            anyElement(
+                contains('Template does not produce valid URI structure')));
+        expect(
+            result.validationErrors,
+            anyElement(
+                contains('Template does not produce valid URI structure')));
         expect(validationContext.isValid, isFalse);
+        expect(validationContext.warnings, isNotEmpty);
+        expect(
+            validationContext.warnings,
+            contains(
+                'Template "books/{isbn}" appears to be a relative URI. Consider using absolute URIs for global resources'));
         expect(validationContext.errors, isNotEmpty);
         expect(validationContext.errors,
             contains('Template does not produce valid URI structure'));
@@ -372,9 +437,9 @@ void main() {
         validationContext.throwIfErrors();
 
         expect(result, isNotNull);
-        expect(result!.warnings, isNotEmpty);
+        expect(validationContext.warnings, isNotEmpty);
         expect(
-            result.warnings,
+            validationContext.warnings,
             anyElement(contains(
                 'Property \'isbn\' is annotated with @RdfIriPart(\'isbn\') but \'isbn\' is not used in the IRI template')));
       });
@@ -404,7 +469,7 @@ void main() {
 
         // If there are warnings about unused annotations, they should be present
         expect(
-            result!.warnings,
+            validationContext.warnings,
             contains(
                 "Property 'isbn' is annotated with @RdfIriPart('isbn') but 'isbn' is not used in the IRI template"));
       });
@@ -419,8 +484,8 @@ void main() {
 
         expect(result, isNotNull);
         // Should warn for all annotated fields that aren't used
-        expect(result!.warnings, isNotEmpty);
-        expect(result.warnings.length, greaterThan(0));
+        expect(validationContext.warnings, isNotEmpty);
+        expect(validationContext.warnings.length, greaterThan(0));
       });
 
       test('should provide clear warning messages', () {

@@ -88,6 +88,7 @@ class IriModelBuilderSupport {
             variable, isStringByFieldName[variable.dartPropertyName] ?? false);
     var propertyVariables =
         iriTemplateInfo.propertyVariables.map(buildVariableNameData).toSet();
+    final tar = buildTemplatesAndRegex(iriTemplateInfo);
     return IriTemplateModel(
       template: iriTemplateInfo.template,
       propertyVariables: propertyVariables,
@@ -100,9 +101,30 @@ class IriModelBuilderSupport {
           .toSet(),
       variables:
           iriTemplateInfo.variableNames.map(buildVariableNameData).toSet(),
-      regexPattern:
-          '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.variableNames)}\$',
-      interpolatedTemplate: buildInterpolatedTemplate(iriTemplateInfo),
+      regexPattern: tar.regexPattern,
+      interpolatedTemplate: tar.interpolatedTemplate,
+      interpolatedFragmentTemplate: tar.interpolatedFragmentTemplate,
+    );
+  }
+
+  static ({
+    String? interpolatedFragmentTemplate,
+    String interpolatedTemplate,
+    String regexPattern
+  }) buildTemplatesAndRegex(IriTemplateInfo iriTemplateInfo) {
+    final interpolatedTemplate = buildInterpolatedTemplate(
+        iriTemplateInfo.template, iriTemplateInfo.variableNames);
+    final interpolatedFragmentTemplate = iriTemplateInfo.fragmentTemplate ==
+            null
+        ? null
+        : buildInterpolatedTemplate(
+            iriTemplateInfo.fragmentTemplate!, iriTemplateInfo.variableNames);
+    final regexPattern =
+        '^${buildRegexPattern(iriTemplateInfo.template, iriTemplateInfo.fragmentTemplate, iriTemplateInfo.variableNames)}\$';
+    return (
+      interpolatedFragmentTemplate: interpolatedFragmentTemplate,
+      interpolatedTemplate: interpolatedTemplate,
+      regexPattern: regexPattern
     );
   }
 
@@ -128,11 +150,10 @@ class IriModelBuilderSupport {
     );
   }
 
-  static String buildInterpolatedTemplate(IriTemplateInfo iriTemplateInfo) {
-    String interpolatedTemplate = iriTemplateInfo.template;
-
+  static String buildInterpolatedTemplate(
+      String interpolatedTemplate, Set<VariableName> variableNames) {
     // Replace variables with Dart string interpolation syntax
-    for (final variable in iriTemplateInfo.variableNames) {
+    for (final variable in variableNames) {
       final placeholder =
           variable.canBeUri ? '{+${variable.name}}' : '{${variable.name}}';
       interpolatedTemplate = interpolatedTemplate.replaceAll(
@@ -202,10 +223,7 @@ class IriModelBuilderSupport {
 
     final propertyVariables =
         IriModelBuilderSupport.buildPropertyVariables(templateInfo, properties);
-    final regexPattern =
-        '^${buildRegexPattern(templateInfo.template, templateInfo.variableNames)}\$';
-    final interpolatedTemplate =
-        IriModelBuilderSupport.buildInterpolatedTemplate(templateInfo);
+    final tar = buildTemplatesAndRegex(templateInfo);
     final contextVariables = templateInfo.contextVariableNames.map((variable) {
       final dependency = DependencyModel.external(
           Code.literal('String Function()'), variable.name + 'Provider',
@@ -227,9 +245,10 @@ class IriModelBuilderSupport {
         mapperClassName,
         registerGlobally,
         dependencies,
-        interpolatedTemplate,
+        tar.interpolatedTemplate,
+        tar.interpolatedFragmentTemplate,
         propertyVariables,
-        regexPattern,
+        tar.regexPattern,
         contextVariables,
         singleMappedValue,
         enumValues,
@@ -245,9 +264,10 @@ class IriModelBuilderSupport {
         mapperClassName,
         registerGlobally,
         dependencies,
-        interpolatedTemplate,
+        tar.interpolatedTemplate,
+        tar.interpolatedFragmentTemplate,
         propertyVariables,
-        regexPattern,
+        tar.regexPattern,
         contextVariables,
         singleMappedValue);
   }
@@ -263,6 +283,7 @@ class IriModelBuilderSupport {
       bool registerGlobally,
       List<DependencyModel> dependencies,
       String interpolatedTemplate,
+      String? interpolatedFragmentTemplate,
       Set<VariableNameModel> propertyVariables,
       String regexPattern,
       Set<DependencyUsingVariableModel> contextVariables,
@@ -277,6 +298,7 @@ class IriModelBuilderSupport {
           registerGlobally: registerGlobally,
           dependencies: dependencies,
           interpolatedTemplate: interpolatedTemplate,
+          interpolatedFragmentTemplate: interpolatedFragmentTemplate,
           propertyVariables: propertyVariables,
           regexPattern: regexPattern,
           contextVariables: contextVariables,
@@ -297,6 +319,7 @@ class IriModelBuilderSupport {
       bool registerGlobally,
       List<DependencyModel> dependencies,
       String interpolatedTemplate,
+      String? interpolatedFragmentTemplate,
       Set<VariableNameModel> propertyVariables,
       String regexPattern,
       Set<DependencyUsingVariableModel> contextVariables,
@@ -327,6 +350,7 @@ class IriModelBuilderSupport {
           registerGlobally: registerGlobally,
           dependencies: dependencies,
           interpolatedTemplate: interpolatedTemplate,
+          interpolatedFragmentTemplate: interpolatedFragmentTemplate,
           propertyVariables: propertyVariables,
           regexPattern: regexPattern,
           contextVariables: contextVariables,

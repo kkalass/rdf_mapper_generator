@@ -205,7 +205,12 @@ class ItemMapper implements GlobalResourceMapper<Item> {
       Dcterms.creator,
       deserializer: _lastModifiedByMapper,
     );
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final DateTime createdAt = reader.require(Dcterms.created);
     final Map<String, int> vectorClock = reader
         .collect<VectorClockEntry, Map<String, int>>(

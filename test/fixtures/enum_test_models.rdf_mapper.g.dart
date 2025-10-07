@@ -153,7 +153,12 @@ class CategoryTypeMapper implements IriTermMapper<CategoryType> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'books' => CategoryType.books,
@@ -209,7 +214,12 @@ class FileFormatMapper implements IriTermMapper<FileFormat> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'text' => FileFormat.text,
@@ -270,7 +280,12 @@ class ItemTypeMapper implements IriTermMapper<ItemType> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'book' => ItemType.book,

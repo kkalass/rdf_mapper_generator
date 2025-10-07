@@ -184,7 +184,12 @@ class BookWithTemplateMapper implements GlobalResourceMapper<BookWithTemplate> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
 
     return BookWithTemplate(id);
   }

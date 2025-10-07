@@ -243,6 +243,7 @@ class ResourceInfo extends MappableClassInfo<RdfResourceInfo> {
 
 class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   final String? template;
+  final String? fragmentTemplate;
   final IriTemplateInfo? templateInfo;
   final IriMapperType? iriMapperType;
   final String? providedAs;
@@ -250,14 +251,21 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
   IriStrategyInfo({
     required super.mapper,
     required this.template,
+    this.fragmentTemplate,
     this.templateInfo,
     this.iriMapperType,
     this.providedAs,
   });
 
   @override
-  int get hashCode =>
-      Object.hashAll([mapper, template, templateInfo, iriMapperType, providedAs]);
+  int get hashCode => Object.hashAll([
+        mapper,
+        template,
+        fragmentTemplate,
+        templateInfo,
+        iriMapperType,
+        providedAs
+      ]);
 
   @override
   bool operator ==(Object other) {
@@ -266,6 +274,7 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
     }
     return mapper == other.mapper &&
         template == other.template &&
+        fragmentTemplate == other.fragmentTemplate &&
         templateInfo == other.templateInfo &&
         iriMapperType == other.iriMapperType &&
         providedAs == other.providedAs;
@@ -276,6 +285,7 @@ class IriStrategyInfo extends BaseMappingInfo<IriTermMapper> {
     return 'IriStrategyInfo{'
         'mapper: $mapper, '
         'template: $template, '
+        'fragmentTemplate: $fragmentTemplate, '
         'templateInfo: $templateInfo, '
         'iriMapperType: $iriMapperType, '
         'providedAs: $providedAs}';
@@ -393,6 +403,7 @@ class IriMapperType {
 class IriTemplateInfo {
   /// The original template string.
   final String template;
+  final String? fragmentTemplate;
 
   /// All variables found in the template.
   final Set<VariableName> variableNames;
@@ -418,6 +429,7 @@ class IriTemplateInfo {
 
   const IriTemplateInfo({
     required this.template,
+    this.fragmentTemplate,
     required Set<VariableName> variables,
     required this.propertyVariables,
     required Set<VariableName> contextVariables,
@@ -434,6 +446,7 @@ class IriTemplateInfo {
     if (other is! IriTemplateInfo) return false;
 
     return template == other.template &&
+        fragmentTemplate == other.fragmentTemplate &&
         variables.length == other.variables.length &&
         variables.difference(other.variables).isEmpty &&
         propertyVariables.length == other.propertyVariables.length &&
@@ -451,6 +464,7 @@ class IriTemplateInfo {
   int get hashCode {
     return Object.hash(
       template,
+      fragmentTemplate,
       variables.length,
       propertyVariables.length,
       contextVariables.length,
@@ -464,6 +478,7 @@ class IriTemplateInfo {
   String toString() {
     return 'IriTemplateInfo('
         'template: $template, '
+        'fragmentTemplate: $fragmentTemplate, '
         'variables: $variables, '
         'propertyVariables: $propertyVariables, '
         'contextVariables: $contextVariables, '

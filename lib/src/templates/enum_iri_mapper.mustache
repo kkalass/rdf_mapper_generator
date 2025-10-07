@@ -38,7 +38,12 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
       for (var name in match.groupNames)
         name: match.namedGroup(name) ?? ''
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
     {{/requiresIriParsing}}
     {{^requiresIriParsing}}
     final enumValue = term.value;
@@ -73,7 +78,16 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#contextVariables}}
     final {{value.variableName}} = {{value.code}};
     {{/contextVariables}}
+    {{#hasInterpolatedFragmentTemplate}}
+    var interpolatedTemplate = '{{template.interpolatedTemplate}}';
+    if (interpolatedTemplate.contains('#')) {
+      interpolatedTemplate = interpolatedTemplate.substring(0, interpolatedTemplate.indexOf('#'));
+    }
+    return '$interpolatedTemplate#{{interpolatedFragmentTemplate}}';
+    {{/hasInterpolatedFragmentTemplate}}
+    {{^hasInterpolatedFragmentTemplate}}
     return '{{interpolatedTemplate}}';
+    {{/hasInterpolatedFragmentTemplate}}
   }
   {{/requiresIriParsing}}
 }

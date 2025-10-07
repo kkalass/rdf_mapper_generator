@@ -6,7 +6,15 @@ library iri_parser;
 
 import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 
-String buildRegexPattern(String template, Iterable<VariableName> variables) {
+String buildRegexPattern(String template, String? fragmentTemplate,
+    Iterable<VariableName> variables) {
+  // incorporate fragmentTemplate into the regex pattern if needed
+  if (fragmentTemplate != null && fragmentTemplate.isNotEmpty) {
+    if (template.contains('#')) {
+      template = template.substring(0, template.indexOf('#'));
+    }
+    template = '$template#$fragmentTemplate';
+  }
   // Convert template to regex pattern by escaping special regex characters
   String regexPattern = RegExp.escape(template);
 
@@ -65,7 +73,7 @@ String buildRegexPattern(String template, Iterable<VariableName> variables) {
 Map<String, String> parseIriParts(
     String iri, String template, List<String> variables) {
   final regex = RegExp(
-      '^${buildRegexPattern(template, variables.map((v) => VariableName(name: v, dartPropertyName: v, canBeUri: false)))}\$');
+      '^${buildRegexPattern(template, null, variables.map((v) => VariableName(name: v, dartPropertyName: v, canBeUri: false)))}\$');
   final match = regex.firstMatch(iri);
 
   // Extract all named groups if match is found

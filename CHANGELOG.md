@@ -5,9 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.10.7] - 2025-10-07
 
 ### Added
+
+- **IRI Fragment Template Support**: Added `fragmentTemplate` parameter to `IriStrategy` for IRI fragment handling
+  - Allows separate template for URI fragment component (the part after `#`)
+  - Both base and fragment templates can use the same IRI part variables
+  - Variables unused in one template but used in the other won't generate warnings
+  - Generated mappers combine base and fragment templates at runtime
 
 - **IRI Provider Feature**: Added support for `providedAs` parameter in `IriStrategy` constructors
   - Parent resources can now provide their IRI to dependent child resources

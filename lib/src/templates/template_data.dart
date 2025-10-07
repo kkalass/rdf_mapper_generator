@@ -386,6 +386,7 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
 
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
+  final String? interpolatedFragmentTemplate;
 
   /// List of parameters for this constructor
   final List<PropertyData> constructorParameters;
@@ -405,6 +406,7 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
     required super.mapperConstructor,
     required super.mapperFields,
     required this.interpolatedTemplate,
+    required this.interpolatedFragmentTemplate,
     required this.propertyVariables,
     required this.regexPattern,
     required this.constructorParameters,
@@ -422,6 +424,8 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
       'mapperInterfaceName': mapperInterfaceName.toMap(),
       'regexPattern': regexPattern,
       'interpolatedTemplate': interpolatedTemplate,
+      'hasInterpolatedFragmentTemplate': interpolatedFragmentTemplate != null,
+      'interpolatedFragmentTemplate': interpolatedFragmentTemplate,
       'propertyVariables':
           toMustacheList(propertyVariables.map((e) => e.toMap()).toList()),
       'constructorParameters':
@@ -629,6 +633,12 @@ class IriTemplateData {
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
 
+  /// The fragment template converted to Dart string interpolation syntax (optional).
+  final String? interpolatedFragmentTemplate;
+
+  /// Whether this template has a fragment component.
+  bool get hasFragment => interpolatedFragmentTemplate != null;
+
   const IriTemplateData({
     required this.template,
     required this.variables,
@@ -636,6 +646,7 @@ class IriTemplateData {
     required this.contextVariables,
     required this.regexPattern,
     required this.interpolatedTemplate,
+    this.interpolatedFragmentTemplate,
   });
 
   Map<String, dynamic> toMap() {
@@ -648,6 +659,9 @@ class IriTemplateData {
           toMustacheList(contextVariables.map((c) => c.toMap()).toList()),
       'regexPattern': regexPattern,
       'interpolatedTemplate': interpolatedTemplate,
+      'hasInterpolatedFragmentTemplate': interpolatedFragmentTemplate != null,
+      'interpolatedFragmentTemplate': interpolatedFragmentTemplate,
+      'hasFragment': hasFragment,
     };
   }
 }
@@ -879,6 +893,7 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
 
   /// Interpolated template for serialization
   final String? interpolatedTemplate;
+  final String? interpolatedFragmentTemplate;
 
   /// List of enum values with their serialization mappings
   final List<Map<String, dynamic>> enumValues;
@@ -899,6 +914,7 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
     required super.mapperFields,
     required this.regexPattern,
     required this.interpolatedTemplate,
+    required this.interpolatedFragmentTemplate,
     required this.enumValues,
     required this.registerGlobally,
     required this.requiresIriParsing,
@@ -913,6 +929,8 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
       'mapperInterfaceName': mapperInterfaceName.toMap(),
       'regexPattern': regexPattern,
       'interpolatedTemplate': interpolatedTemplate,
+      'hasInterpolatedFragmentTemplate': interpolatedFragmentTemplate != null,
+      'interpolatedFragmentTemplate': interpolatedFragmentTemplate,
       'enumValues': toMustacheList(enumValues),
       'contextVariables':
           toMustacheList(contextVariables.map((c) => c.toMap()).toList()),

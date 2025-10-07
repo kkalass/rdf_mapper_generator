@@ -45,7 +45,12 @@ class TestGlobalResourceMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
 
     return TestGlobalResource(id: id, title: title);
@@ -132,7 +137,12 @@ class TestIriMapper implements IriTermMapper<TestIri> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${term.value}',
+      );
+    }
 
     return TestIri(id: id);
   }

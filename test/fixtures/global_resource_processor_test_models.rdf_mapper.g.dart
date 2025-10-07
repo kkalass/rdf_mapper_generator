@@ -80,7 +80,12 @@ class BookMapper implements GlobalResourceMapper<Book> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final isbn = iriParts['isbn']!;
+    final isbn = iriParts['isbn'];
+    if (isbn == null) {
+      throw DeserializationException(
+        'Missing required IRI part: isbn in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
     final String authorId = reader.require(
       SchemaBook.author,
@@ -260,7 +265,12 @@ class ClassWithIriTemplateStrategyMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
 
     return ClassWithIriTemplateStrategy(id: id);
   }
@@ -316,7 +326,12 @@ class ClassWithIriTemplateAndContextVariableStrategyMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['thisId']!;
+    final id = iriParts['thisId'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: thisId in IRI ${subject.value}',
+      );
+    }
 
     return ClassWithIriTemplateAndContextVariableStrategy(id: id);
   }
@@ -372,7 +387,12 @@ class ClassWithOtherBaseUriNonGlobalMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['thisId']!;
+    final id = iriParts['thisId'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: thisId in IRI ${subject.value}',
+      );
+    }
 
     return ClassWithOtherBaseUriNonGlobal(id: id);
   }

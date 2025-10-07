@@ -47,7 +47,12 @@ class ChildMapper implements GlobalResourceMapper<Child> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String name = reader.require(ExampleVocab.childName);
 
     final retval = Child();
@@ -152,7 +157,12 @@ class ParentMapper implements GlobalResourceMapper<Parent> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final Child child = reader.require(
       ExampleVocab.child,
       deserializer: ChildMapper(

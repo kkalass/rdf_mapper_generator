@@ -42,7 +42,12 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final List<Book> books = reader.requireCollection<List<Book>, Book>(
       CollectionVocab.books,
       UnorderedItemsListMapper.new,
@@ -116,7 +121,12 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final List<Track> orderedTracks = reader
         .requireCollection<List<Track>, Track>(
           CollectionVocab.orderedTracks,
@@ -179,7 +189,12 @@ class CourseMapper implements GlobalResourceMapper<Course> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final List<Module> modules = reader.requireCollection<List<Module>, Module>(
       CollectionVocab.modules,
       RdfSeqMapper.new,

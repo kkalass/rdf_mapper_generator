@@ -59,7 +59,10 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{^value.isRdfProperty}}
     {{#value.isIriPart}}
     {{#iriStrategy.hasTemplate}}
-    final {{value.name}} = {{^iriStrategy.hasFullIriPartTemplate}}iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{/iriStrategy.hasFullIriPartTemplate}}{{#iriStrategy.hasFullIriPartTemplate}}subject.value{{/iriStrategy.hasFullIriPartTemplate}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.name}} = {{^iriStrategy.hasFullIriPartTemplate}}iriParts['{{value.iriPartName}}']{{/iriStrategy.hasFullIriPartTemplate}}{{#iriStrategy.hasFullIriPartTemplate}}subject.value{{/iriStrategy.hasFullIriPartTemplate}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    {{^iriStrategy.hasFullIriPartTemplate}}
+    {{#value.isRequired}}if ({{value.name}} == null) {throw DeserializationException('Missing required IRI part: {{value.iriPartName}} in IRI ${subject.value}');}{{/value.isRequired}}
+    {{/iriStrategy.hasFullIriPartTemplate}}
     {{/iriStrategy.hasTemplate}}
     {{/value.isIriPart}}
     {{/value.isRdfProperty}}
@@ -151,7 +154,16 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#template.contextVariables}}
     final {{value.variableName}} = {{value.code}};
     {{/template.contextVariables}}
+    {{#template.hasInterpolatedFragmentTemplate}}
+    var interpolatedTemplate = '{{template.interpolatedTemplate}}';
+    if (interpolatedTemplate.contains('#')) {
+      interpolatedTemplate = interpolatedTemplate.substring(0, interpolatedTemplate.indexOf('#'));
+    }
+    return '$interpolatedTemplate#{{template.interpolatedFragmentTemplate}}';
+    {{/template.hasInterpolatedFragmentTemplate}}
+    {{^template.hasInterpolatedFragmentTemplate}}
     return '{{template.interpolatedTemplate}}';
+    {{/template.hasInterpolatedFragmentTemplate}}
   }
   {{/hasFullIriPartTemplate}}
   {{/hasTemplate}}

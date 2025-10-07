@@ -43,7 +43,12 @@ class BookWithCustomAnnotationMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
     final String author = reader.require(SchemaBook.author);
 
@@ -102,7 +107,12 @@ class PersonWithPodResourceMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String name = reader.require(SchemaPerson.name);
 
     return PersonWithPodResource(id: id, name: name);
@@ -204,7 +214,12 @@ class ArticleWithRegularAnnotationMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaArticle.name);
 
     return ArticleWithRegularAnnotation(id: id, title: title);

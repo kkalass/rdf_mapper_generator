@@ -617,6 +617,7 @@ sealed class IriResolvedMapperModel extends GeneratedResolvedMapperModel {
 
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
+  final String? interpolatedFragmentTemplate;
 
   final VariableNameResolvedModel? singleMappedValue;
 
@@ -630,6 +631,7 @@ sealed class IriResolvedMapperModel extends GeneratedResolvedMapperModel {
     required this.propertyVariables,
     required this.contextVariables,
     required this.interpolatedTemplate,
+    required this.interpolatedFragmentTemplate,
     required this.regexPattern,
     required this.singleMappedValue,
     required this.dependencies,
@@ -648,6 +650,7 @@ class IriClassResolvedMapperModel extends IriResolvedMapperModel {
     required super.propertyVariables,
     required super.contextVariables,
     required super.interpolatedTemplate,
+    required super.interpolatedFragmentTemplate,
     required super.regexPattern,
     required super.singleMappedValue,
     required super.dependencies,
@@ -671,6 +674,7 @@ class IriClassResolvedMapperModel extends IriResolvedMapperModel {
         contextVariables:
             contextVariables.map((v) => v.toTemplateData(context)).toSet(),
         interpolatedTemplate: interpolatedTemplate,
+        interpolatedFragmentTemplate: interpolatedFragmentTemplate,
         regexPattern: regexPattern,
         constructorParameters: mappedClassData.constructorParameters,
         nonConstructorFields: mappedClassData.nonConstructorRdfFields,
@@ -753,6 +757,7 @@ class IriEnumResolvedMapperModel extends IriResolvedMapperModel {
     required super.propertyVariables,
     required super.contextVariables,
     required super.interpolatedTemplate,
+    required super.interpolatedFragmentTemplate,
     required super.regexPattern,
     required super.singleMappedValue,
     required super.dependencies,
@@ -769,6 +774,7 @@ class IriEnumResolvedMapperModel extends IriResolvedMapperModel {
         mapperInterfaceName: interfaceClass,
         enumValues: enumValues.map((e) => e.toTemplateData(context)).toList(),
         interpolatedTemplate: interpolatedTemplate,
+        interpolatedFragmentTemplate: interpolatedFragmentTemplate,
         regexPattern: regexPattern,
         registerGlobally: registerGlobally,
         contextVariables:
@@ -1000,6 +1006,12 @@ class IriTemplateResolvedModel {
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
 
+  /// The fragment template converted to Dart string interpolation syntax (optional).
+  final String? interpolatedFragmentTemplate;
+
+  /// Whether this template has a fragment component.
+  bool get hasFragment => interpolatedFragmentTemplate != null;
+
   const IriTemplateResolvedModel({
     required this.template,
     required this.variables,
@@ -1007,6 +1019,7 @@ class IriTemplateResolvedModel {
     required this.contextVariables,
     required this.regexPattern,
     required this.interpolatedTemplate,
+    this.interpolatedFragmentTemplate,
   });
 
   IriTemplateData toTemplateData(ValidationContext context) {
@@ -1019,6 +1032,7 @@ class IriTemplateResolvedModel {
           contextVariables.map((e) => e.toTemplateData(context)).toSet(),
       regexPattern: regexPattern,
       interpolatedTemplate: interpolatedTemplate,
+      interpolatedFragmentTemplate: interpolatedFragmentTemplate,
     );
   }
 }

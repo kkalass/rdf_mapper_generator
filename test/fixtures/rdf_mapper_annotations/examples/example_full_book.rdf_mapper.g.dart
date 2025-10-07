@@ -81,7 +81,12 @@ class BookMapper implements GlobalResourceMapper<Book> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
     final String authorId = reader.require(
       SchemaBook.author,
@@ -206,7 +211,12 @@ class ISBNMapper implements IriTermMapper<ISBN> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final value = iriParts['value']!;
+    final value = iriParts['value'];
+    if (value == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return ISBN(value);
   }
@@ -277,7 +287,12 @@ class BookFormatMapper implements IriTermMapper<BookFormat> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'AudiobookFormat' => BookFormat.audiobook,

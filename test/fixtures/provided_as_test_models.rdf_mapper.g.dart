@@ -43,7 +43,12 @@ class SectionMapper implements GlobalResourceMapper<Section> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final sectionId = iriParts['sectionId']!;
+    final sectionId = iriParts['sectionId'];
+    if (sectionId == null) {
+      throw DeserializationException(
+        'Missing required IRI part: sectionId in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(ProvidedAsVocab.sectionTitle);
 
     final retval = Section();
@@ -103,7 +108,12 @@ class DocumentMapper implements GlobalResourceMapper<Document> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final docId = iriParts['docId']!;
+    final docId = iriParts['docId'];
+    if (docId == null) {
+      throw DeserializationException(
+        'Missing required IRI part: docId in IRI ${subject.value}',
+      );
+    }
     final List<Section> sections = reader
         .requireCollection<List<Section>, Section>(
           ProvidedAsVocab.hasSection,

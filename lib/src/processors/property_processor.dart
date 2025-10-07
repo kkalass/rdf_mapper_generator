@@ -245,26 +245,36 @@ class PropertyProcessor {
     }
     // Check if it's an IriMapping
     final template = iriMapping!.getField('template')?.toStringValue();
+    final fragmentTemplateFieldValue =
+        getField(iriMapping, 'fragmentTemplate')?.toStringValue();
     final mapper = getMapperRefInfo<IriTermMapper>(iriMapping);
 
     final templateInfo = template == null && mapper == null
-        ? IriStrategyProcessor.processTemplate(context, '{+${fieldName}}', [
-            IriPartInfo(
-                name: fieldName,
-                dartPropertyName: fieldName,
-                type: typeToCode(fieldType),
-                pos: 1,
-                isMappedValue: true)
-          ])!
+        ? IriStrategyProcessor.processTemplate(
+            context,
+            '{+${fieldName}}',
+            [
+              IriPartInfo(
+                  name: fieldName,
+                  dartPropertyName: fieldName,
+                  type: typeToCode(fieldType),
+                  pos: 1,
+                  isMappedValue: true)
+            ],
+            fragmentTemplate: fragmentTemplateFieldValue)!
         : template != null
-            ? IriStrategyProcessor.processTemplate(context, template, [
-                IriPartInfo(
-                    name: fieldName,
-                    dartPropertyName: fieldName,
-                    type: typeToCode(fieldType),
-                    pos: 1,
-                    isMappedValue: true)
-              ])!
+            ? IriStrategyProcessor.processTemplate(
+                context,
+                template,
+                [
+                  IriPartInfo(
+                      name: fieldName,
+                      dartPropertyName: fieldName,
+                      type: typeToCode(fieldType),
+                      pos: 1,
+                      isMappedValue: true)
+                ],
+                fragmentTemplate: fragmentTemplateFieldValue)!
             : null;
     return IriMappingInfo(template: templateInfo, mapper: mapper);
   }

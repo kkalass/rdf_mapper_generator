@@ -86,11 +86,17 @@ class IriProcessor {
       // Get the iriStrategy from the annotation
       final templateFieldValue =
           getField(annotation, 'template')?.toStringValue();
+      final fragmentTemplateFieldValue =
+          getField(annotation, 'fragmentTemplate')?.toStringValue();
 
       if (element is ClassElem) {
         final (template, templateInfo, iriParts) =
-            IriStrategyProcessor.processIriPartsAndTemplate(
-                context, element, templateFieldValue, mapper);
+            IriStrategyProcessor.processIriPartsAndTemplateWithFragment(
+                context,
+                element,
+                templateFieldValue,
+                fragmentTemplateFieldValue,
+                mapper);
 
         return RdfIriInfo(
             registerGlobally: registerGlobally,
@@ -111,7 +117,8 @@ class IriProcessor {
               isMappedValue: true)
         ];
         final templateInfo = IriStrategyProcessor.processTemplate(
-            context, template, fakeIriParts);
+            context, template, fakeIriParts,
+            fragmentTemplate: fragmentTemplateFieldValue);
         return RdfIriInfo(
             registerGlobally: registerGlobally,
             mapper: mapper,

@@ -33,7 +33,8 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/hasSingleMappedValue}}
     {{^hasSingleMappedValue}}
     {{#constructorParametersOrOtherFields}}
-    final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.isRequired}}!{{/value.isRequired}}{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    final {{value.name}} = iriParts['{{value.iriPartName}}']{{#value.hasDefaultValue}} ?? {{value.defaultValue}}{{/value.hasDefaultValue}};
+    {{#value.isRequired}}if ({{value.name}} == null) {throw DeserializationException('Missing required IRI part: {{value.iriPartName}} in IRI ${term.value}');}{{/value.isRequired}}
     {{/constructorParametersOrOtherFields}}
 
     {{#hasNonConstructorFields}}final retval = {{/hasNonConstructorFields}}{{^hasNonConstructorFields}}return {{/hasNonConstructorFields}}{{className}}(
@@ -64,6 +65,15 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#contextVariables}}
     final {{value.variableName}} = {{value.code}};
     {{/contextVariables}}
+    {{#hasInterpolatedFragmentTemplate}}
+    var interpolatedTemplate = '{{interpolatedTemplate}}';
+    if (interpolatedTemplate.contains('#')) {
+      interpolatedTemplate = interpolatedTemplate.substring(0, interpolatedTemplate.indexOf('#'));
+    }
+    return context.createIriTerm('$interpolatedTemplate#{{interpolatedFragmentTemplate}}');
+    {{/hasInterpolatedFragmentTemplate}}
+    {{^hasInterpolatedFragmentTemplate}}
     return context.createIriTerm('{{interpolatedTemplate}}');
+    {{/hasInterpolatedFragmentTemplate}}
   }
 }

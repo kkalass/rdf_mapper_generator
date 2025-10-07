@@ -34,7 +34,12 @@ class StandardIsbnMapper implements IriTermMapper<StandardIsbn> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final value = iriParts['value']!;
+    final value = iriParts['value'];
+    if (value == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return StandardIsbn(value);
   }
@@ -69,7 +74,12 @@ class AbsoluteUriMapper implements IriTermMapper<AbsoluteUri> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final uri = iriParts['uri']!;
+    final uri = iriParts['uri'];
+    if (uri == null) {
+      throw DeserializationException(
+        'Missing required IRI part: uri in IRI ${term.value}',
+      );
+    }
 
     return AbsoluteUri(uri);
   }
@@ -111,7 +121,12 @@ class SimpleBookMapper implements GlobalResourceMapper<SimpleBook> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
 
     return SimpleBook(id, title);

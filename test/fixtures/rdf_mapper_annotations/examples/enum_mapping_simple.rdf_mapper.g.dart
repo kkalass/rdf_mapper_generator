@@ -48,7 +48,12 @@ class BookMapper implements GlobalResourceMapper<Book> {
         name: match?.namedGroup(name) ?? '',
     };
 
-    final sku = iriParts['sku']!;
+    final sku = iriParts['sku'];
+    if (sku == null) {
+      throw DeserializationException(
+        'Missing required IRI part: sku in IRI ${subject.value}',
+      );
+    }
     final BookFormat format = reader.require(MyBookVocab.bookFormat);
     final ItemCondition condition = reader.require(MyBookVocab.itemCondition);
     final Priority priority = reader.require(
@@ -230,7 +235,12 @@ class ItemConditionMapper implements IriTermMapper<ItemCondition> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'NewCondition' => ItemCondition.brandNew,
@@ -285,7 +295,12 @@ class OrderStatusMapper implements IriTermMapper<OrderStatus> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'pending' => OrderStatus.pending,
@@ -381,7 +396,12 @@ class BusinessEntityTypeMapper implements IriTermMapper<BusinessEntityType> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'Business' => BusinessEntityType.business,
@@ -438,7 +458,12 @@ class UserRatingMapper implements IriTermMapper<UserRating> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'excellent-5-stars' => UserRating.excellent,
@@ -502,7 +527,12 @@ class ProductCategoryMapper implements IriTermMapper<ProductCategory> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'electronics' => ProductCategory.electronics,
@@ -573,7 +603,12 @@ class ShippingMethodMapper implements IriTermMapper<ShippingMethod> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'standard' => ShippingMethod.standard,
@@ -643,7 +678,12 @@ class EmployeeRoleMapper implements IriTermMapper<EmployeeRole> {
     final iriParts = {
       for (var name in match.groupNames) name: match.namedGroup(name) ?? '',
     };
-    final enumValue = iriParts['value']!;
+    final enumValue = iriParts['value'];
+    if (enumValue == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
 
     return switch (enumValue) {
       'manager' => EmployeeRole.manager,

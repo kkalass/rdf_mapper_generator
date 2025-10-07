@@ -45,7 +45,12 @@ class BookWithUnmappedTriplesMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
     final String author = reader.require(SchemaBook.author);
 
@@ -113,7 +118,12 @@ class BookWithUnmappedTriplesLateFieldsMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
     final String author = reader.require(SchemaBook.author);
 
@@ -181,7 +191,12 @@ class BookWithInvalidUnmappedTriplesTypeMapper
         name: match?.namedGroup(name) ?? '',
     };
 
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
     final String title = reader.require(SchemaBook.name);
 
     // Get unmapped triples as the last reader operation for lossless mapping

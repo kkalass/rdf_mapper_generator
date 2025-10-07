@@ -704,6 +704,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
 
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
+  final String? interpolatedFragmentTemplate;
 
   final VariableNameModel? singleMappedValue;
 
@@ -715,6 +716,7 @@ sealed class IriMapperModel extends GeneratedMapperModel {
       required this.dependencies,
       required this.propertyVariables,
       required this.interpolatedTemplate,
+      required this.interpolatedFragmentTemplate,
       required this.regexPattern,
       required this.singleMappedValue,
       required this.contextVariables});
@@ -733,6 +735,7 @@ class IriClassMapperModel extends IriMapperModel {
       required super.dependencies,
       required super.propertyVariables,
       required super.interpolatedTemplate,
+      required super.interpolatedFragmentTemplate,
       required super.regexPattern,
       required super.singleMappedValue,
       required super.contextVariables});
@@ -750,6 +753,7 @@ class IriClassMapperModel extends IriMapperModel {
       propertyVariables:
           propertyVariables.map((v) => v.resolve(context)).toSet(),
       interpolatedTemplate: interpolatedTemplate,
+      interpolatedFragmentTemplate: interpolatedFragmentTemplate,
       regexPattern: regexPattern,
       singleMappedValue: singleMappedValue?.resolve(context),
       contextVariables: contextVariables.map((v) => v.resolve(context)).toSet(),
@@ -771,6 +775,7 @@ class IriEnumMapperModel extends IriMapperModel {
       required super.dependencies,
       required super.propertyVariables,
       required super.interpolatedTemplate,
+      required super.interpolatedFragmentTemplate,
       required super.regexPattern,
       required super.singleMappedValue,
       required super.contextVariables,
@@ -789,6 +794,7 @@ class IriEnumMapperModel extends IriMapperModel {
         propertyVariables:
             propertyVariables.map((p) => p.resolve(context)).toSet(),
         interpolatedTemplate: interpolatedTemplate,
+        interpolatedFragmentTemplate: interpolatedFragmentTemplate,
         regexPattern: regexPattern,
         singleMappedValue: singleMappedValue?.resolve(context),
         dependencies: context.resolvedDependencies,
@@ -972,6 +978,12 @@ class IriTemplateModel {
   /// The template converted to Dart string interpolation syntax.
   final String interpolatedTemplate;
 
+  /// The fragment template converted to Dart string interpolation syntax (optional).
+  final String? interpolatedFragmentTemplate;
+
+  /// Whether this template has a fragment component.
+  bool get hasFragment => interpolatedFragmentTemplate != null;
+
   const IriTemplateModel({
     required this.template,
     required this.variables,
@@ -979,6 +991,7 @@ class IriTemplateModel {
     required this.contextVariables,
     required this.regexPattern,
     required this.interpolatedTemplate,
+    this.interpolatedFragmentTemplate,
   });
 
   IriTemplateResolvedModel resolve(
@@ -992,6 +1005,7 @@ class IriTemplateModel {
       contextVariables: contextVariables.map((v) => v.resolve(context)).toSet(),
       regexPattern: regexPattern,
       interpolatedTemplate: interpolatedTemplate,
+      interpolatedFragmentTemplate: interpolatedFragmentTemplate,
     );
   }
 }

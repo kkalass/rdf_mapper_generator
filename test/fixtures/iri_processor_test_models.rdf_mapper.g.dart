@@ -35,7 +35,12 @@ class IriWithOnePartMapper implements IriTermMapper<IriWithOnePart> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final isbn = iriParts['isbn']!;
+    final isbn = iriParts['isbn'];
+    if (isbn == null) {
+      throw DeserializationException(
+        'Missing required IRI part: isbn in IRI ${term.value}',
+      );
+    }
 
     return IriWithOnePart(isbn: isbn);
   }
@@ -76,7 +81,12 @@ class IriWithOnePartExplicitlyGlobalMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final isbn = iriParts['isbn']!;
+    final isbn = iriParts['isbn'];
+    if (isbn == null) {
+      throw DeserializationException(
+        'Missing required IRI part: isbn in IRI ${term.value}',
+      );
+    }
 
     return IriWithOnePartExplicitlyGlobal(isbn: isbn);
   }
@@ -116,7 +126,12 @@ class IriWithOnePartNamedMapper implements IriTermMapper<IriWithOnePartNamed> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final value = iriParts['isbn']!;
+    final value = iriParts['isbn'];
+    if (value == null) {
+      throw DeserializationException(
+        'Missing required IRI part: isbn in IRI ${term.value}',
+      );
+    }
 
     return IriWithOnePartNamed(value: value);
   }
@@ -153,8 +168,18 @@ class IriWithTwoPartsMapper implements IriTermMapper<IriWithTwoParts> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final value = iriParts['value']!;
-    final type = iriParts['type']!;
+    final value = iriParts['value'];
+    if (value == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
+    final type = iriParts['type'];
+    if (type == null) {
+      throw DeserializationException(
+        'Missing required IRI part: type in IRI ${term.value}',
+      );
+    }
 
     return IriWithTwoParts(value: value, type: type);
   }
@@ -200,8 +225,18 @@ class IriWithBaseUriAndTwoPartsMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final value = iriParts['value']!;
-    final otherPart = iriParts['type']!;
+    final value = iriParts['value'];
+    if (value == null) {
+      throw DeserializationException(
+        'Missing required IRI part: value in IRI ${term.value}',
+      );
+    }
+    final otherPart = iriParts['type'];
+    if (otherPart == null) {
+      throw DeserializationException(
+        'Missing required IRI part: type in IRI ${term.value}',
+      );
+    }
 
     return IriWithBaseUriAndTwoParts(value: value, otherPart: otherPart);
   }
@@ -241,7 +276,12 @@ class IriWithBaseUriMapper implements IriTermMapper<IriWithBaseUri> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final isbn = iriParts['isbn']!;
+    final isbn = iriParts['isbn'];
+    if (isbn == null) {
+      throw DeserializationException(
+        'Missing required IRI part: isbn in IRI ${term.value}',
+      );
+    }
 
     return IriWithBaseUri(isbn: isbn);
   }
@@ -285,7 +325,12 @@ class IriWithBaseUriNoGlobalMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final isbn = iriParts['isbn']!;
+    final isbn = iriParts['isbn'];
+    if (isbn == null) {
+      throw DeserializationException(
+        'Missing required IRI part: isbn in IRI ${term.value}',
+      );
+    }
 
     return IriWithBaseUriNoGlobal(isbn: isbn);
   }
@@ -327,7 +372,12 @@ class IriWithNonConstructorFieldsMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${term.value}',
+      );
+    }
 
     final retval = IriWithNonConstructorFields();
     retval.id = id;
@@ -372,7 +422,12 @@ class IriWithNonConstructorFieldsAndBaseUriNonGlobalMapper
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final id = iriParts['id']!;
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${term.value}',
+      );
+    }
 
     final retval = IriWithNonConstructorFieldsAndBaseUriNonGlobal();
     retval.id = id;
@@ -412,9 +467,24 @@ class IriWithMixedFieldsMapper implements IriTermMapper<IriWithMixedFields> {
       for (var name in match?.groupNames ?? const <String>[])
         name: match?.namedGroup(name) ?? '',
     };
-    final brand = iriParts['brand']!;
-    final id = iriParts['id']!;
-    final productCategory = iriParts['category']!;
+    final brand = iriParts['brand'];
+    if (brand == null) {
+      throw DeserializationException(
+        'Missing required IRI part: brand in IRI ${term.value}',
+      );
+    }
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${term.value}',
+      );
+    }
+    final productCategory = iriParts['category'];
+    if (productCategory == null) {
+      throw DeserializationException(
+        'Missing required IRI part: category in IRI ${term.value}',
+      );
+    }
 
     final retval = IriWithMixedFields(brand: brand, id: id);
     retval.productCategory = productCategory;
