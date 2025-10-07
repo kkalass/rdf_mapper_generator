@@ -55,9 +55,8 @@ class ResourceModelBuilderSupport {
     final dependencies = _collectDependencies(iriStrategy, mappedClassModel,
         mapperImportUri, resourceInfo.typeParameters);
     final provides = [
-      ...mappedClassModel.properties
-          .where((p) => p.isProvides)
-          .map((p) => ProvidesModel(
+      ...mappedClassModel.properties.where((p) => p.isProvides).map((p) =>
+          ProvidesModel(
               dartPropertyName: p.propertyName,
               name: p.providesVariableName ?? p.propertyName)),
       // Add IRI providedAs if specified

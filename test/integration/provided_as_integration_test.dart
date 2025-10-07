@@ -75,7 +75,8 @@ void main() {
       expect(content, contains('() => subject.value'));
     });
 
-    test('generated Section mapper constructor requires documentIriProvider', () {
+    test('generated Section mapper constructor requires documentIriProvider',
+        () {
       final generatedFile = File(path.join(
         testFixturesPath,
         'provided_as_test_models.rdf_mapper.g.dart',
@@ -84,7 +85,8 @@ void main() {
       final content = generatedFile.readAsStringSync();
 
       // Section mapper constructor should require documentIriProvider parameter
-      expect(content, contains('required String Function() documentIriProvider'));
+      expect(
+          content, contains('required String Function() documentIriProvider'));
     });
 
     test('generated Section mapper has registerGlobally: false behavior', () {
@@ -97,7 +99,8 @@ void main() {
 
       // With registerGlobally: false, Section mapper should not be in init function
       // or should be conditionally registered
-      expect(content, isNot(contains('registry.registerGlobalResourceMapper<Section>')));
+      expect(content,
+          isNot(contains('registry.registerGlobalResourceMapper<Section>')));
     });
 
     test('generated code compiles without errors', () {
@@ -158,7 +161,8 @@ void main() {
       // Standard header and imports
       expect(content, contains('// GENERATED CODE - DO NOT MODIFY BY HAND'));
       expect(content, contains('import \'package:rdf_core/rdf_core.dart\';'));
-      expect(content, contains('import \'package:rdf_mapper/rdf_mapper.dart\';'));
+      expect(
+          content, contains('import \'package:rdf_mapper/rdf_mapper.dart\';'));
 
       // Standard ignore directives
       expect(content, contains('// ignore_for_file:'));

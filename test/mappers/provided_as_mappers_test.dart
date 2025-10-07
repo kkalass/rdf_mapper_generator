@@ -19,8 +19,7 @@ void main() {
   }
 
   /// Helper to create deserialization context from triples
-  DeserializationContext createDeserializationContext(
-      List<Triple> triples) {
+  DeserializationContext createDeserializationContext(List<Triple> triples) {
     final graph = RdfGraph.fromTriples(triples);
     return DeserializationContextImpl(graph: graph, registry: mapper.registry);
   }
@@ -50,15 +49,19 @@ void main() {
           ..sections = [section1, section2]
           ..relatedDocRef = null;
 
-        final (subject, triples) = documentMapper.toRdfResource(document, context);
+        final (subject, triples) =
+            documentMapper.toRdfResource(document, context);
 
         // Verify document IRI
-        expect(subject.value, equals('http://example.org/data/documents/doc123'));
+        expect(
+            subject.value, equals('http://example.org/data/documents/doc123'));
 
         // Verify sections are serialized with parent IRI as base
-        final sectionTriples = triples.where(
-          (t) => t.predicate == ProvidedAsVocab.hasSection,
-        ).toList();
+        final sectionTriples = triples
+            .where(
+              (t) => t.predicate == ProvidedAsVocab.hasSection,
+            )
+            .toList();
 
         expect(sectionTriples, hasLength(2));
 
@@ -69,7 +72,8 @@ void main() {
 
         expect(
           sectionIris[0],
-          equals('http://example.org/data/documents/doc123/sections/conclusion'),
+          equals(
+              'http://example.org/data/documents/doc123/sections/conclusion'),
         );
         expect(
           sectionIris[1],
@@ -77,17 +81,22 @@ void main() {
         );
 
         // Verify section titles are included
-        final titleTriples = triples.where(
-          (t) => t.predicate == ProvidedAsVocab.sectionTitle,
-        ).toList();
+        final titleTriples = triples
+            .where(
+              (t) => t.predicate == ProvidedAsVocab.sectionTitle,
+            )
+            .toList();
 
         expect(titleTriples, hasLength(2));
       });
 
       test('deserializes document with hierarchical sections', () {
-        final documentIri = const IriTerm('http://example.org/data/documents/doc456');
-        final section1Iri = const IriTerm('http://example.org/data/documents/doc456/sections/chapter1');
-        final section2Iri = const IriTerm('http://example.org/data/documents/doc456/sections/chapter2');
+        final documentIri =
+            const IriTerm('http://example.org/data/documents/doc456');
+        final section1Iri = const IriTerm(
+            'http://example.org/data/documents/doc456/sections/chapter1');
+        final section2Iri = const IriTerm(
+            'http://example.org/data/documents/doc456/sections/chapter2');
 
         final triples = [
           // Document sections
@@ -95,10 +104,12 @@ void main() {
           Triple(documentIri, ProvidedAsVocab.hasSection, section2Iri),
 
           // Section 1 data
-          Triple(section1Iri, ProvidedAsVocab.sectionTitle, LiteralTerm('Chapter 1')),
+          Triple(section1Iri, ProvidedAsVocab.sectionTitle,
+              LiteralTerm('Chapter 1')),
 
           // Section 2 data
-          Triple(section2Iri, ProvidedAsVocab.sectionTitle, LiteralTerm('Chapter 2')),
+          Triple(section2Iri, ProvidedAsVocab.sectionTitle,
+              LiteralTerm('Chapter 2')),
         ];
 
         final context = createDeserializationContext(triples);
@@ -112,7 +123,8 @@ void main() {
         expect(document.sections, hasLength(2));
 
         // Sort sections by ID for predictable testing
-        final sortedSections = document.sections..sort((a, b) => a.sectionId.compareTo(b.sectionId));
+        final sortedSections = document.sections
+          ..sort((a, b) => a.sectionId.compareTo(b.sectionId));
 
         expect(sortedSections[0].sectionId, equals('chapter1'));
         expect(sortedSections[0].title, equals('Chapter 1'));
@@ -141,21 +153,27 @@ void main() {
           ..relatedDocRef = null;
 
         // Serialize
-        final (subject, triples) = documentMapper.toRdfResource(originalDocument, serContext);
+        final (subject, triples) =
+            documentMapper.toRdfResource(originalDocument, serContext);
 
         // Deserialize
         final deserContext = createDeserializationContext(triples.toList());
-        final deserializedDocument = documentMapper.fromRdfResource(subject, deserContext);
+        final deserializedDocument =
+            documentMapper.fromRdfResource(subject, deserContext);
 
         // Verify
         expect(deserializedDocument.docId, equals(originalDocument.docId));
-        expect(deserializedDocument.sections, hasLength(originalDocument.sections.length));
+        expect(deserializedDocument.sections,
+            hasLength(originalDocument.sections.length));
 
-        final sortedOriginal = [...originalDocument.sections]..sort((a, b) => a.sectionId.compareTo(b.sectionId));
-        final sortedDeserialized = [...deserializedDocument.sections]..sort((a, b) => a.sectionId.compareTo(b.sectionId));
+        final sortedOriginal = [...originalDocument.sections]
+          ..sort((a, b) => a.sectionId.compareTo(b.sectionId));
+        final sortedDeserialized = [...deserializedDocument.sections]
+          ..sort((a, b) => a.sectionId.compareTo(b.sectionId));
 
         for (int i = 0; i < sortedOriginal.length; i++) {
-          expect(sortedDeserialized[i].sectionId, equals(sortedOriginal[i].sectionId));
+          expect(sortedDeserialized[i].sectionId,
+              equals(sortedOriginal[i].sectionId));
           expect(sortedDeserialized[i].title, equals(sortedOriginal[i].title));
         }
       });
@@ -183,7 +201,8 @@ void main() {
             ..sections = [section]
             ..relatedDocRef = null;
 
-          final (subject, triples) = documentMapper.toRdfResource(document, context);
+          final (subject, triples) =
+              documentMapper.toRdfResource(document, context);
 
           // Verify document IRI uses base URI
           expect(subject.value, equals('$baseUri/documents/testdoc'));
@@ -214,7 +233,8 @@ void main() {
           ..sections = [section]
           ..relatedDocRef = null;
 
-        final (subject, triples) = documentMapper.toRdfResource(document, context);
+        final (subject, triples) =
+            documentMapper.toRdfResource(document, context);
 
         expect(
           subject.value,
@@ -226,7 +246,8 @@ void main() {
         );
         expect(
           (sectionTriple.object as IriTerm).value,
-          equals('http://example.org/documents/doc-with_special.chars/sections/section_with-special.chars'),
+          equals(
+              'http://example.org/documents/doc-with_special.chars/sections/section_with-special.chars'),
         );
       });
 
@@ -241,7 +262,8 @@ void main() {
           ..sections = []
           ..relatedDocRef = null;
 
-        final (subject, triples) = documentMapper.toRdfResource(document, context);
+        final (subject, triples) =
+            documentMapper.toRdfResource(document, context);
 
         expect(subject.value, equals('http://example.org/documents/emptydoc'));
 
@@ -267,7 +289,8 @@ void main() {
           ..sections = [section]
           ..relatedDocRef = null;
 
-        final (subject, triples) = documentMapper.toRdfResource(document, context);
+        final (subject, triples) =
+            documentMapper.toRdfResource(document, context);
 
         expect(subject.value, equals('http://example.org/documents/doc日本語'));
 
@@ -283,11 +306,13 @@ void main() {
 
     group('SectionMapper (child with providedAs dependency)', () {
       test('is not registered globally', () {
-        final isRegistered = mapper.registry.hasGlobalResourceDeserializerFor<Section>();
+        final isRegistered =
+            mapper.registry.hasGlobalResourceDeserializerFor<Section>();
         expect(
           isRegistered,
           isFalse,
-          reason: 'Section should not be registered globally due to registerGlobally: false',
+          reason:
+              'Section should not be registered globally due to registerGlobally: false',
         );
       });
 
@@ -324,7 +349,8 @@ void main() {
             ..sections = [section]
             ..relatedDocRef = null;
 
-          final (subject, triples) = documentMapper.toRdfResource(document, context);
+          final (subject, triples) =
+              documentMapper.toRdfResource(document, context);
 
           final expectedDocIri = 'http://api.example.com/v2/documents/$docId';
           final expectedSecIri = '$expectedDocIri/sections/$secId';
@@ -359,17 +385,19 @@ void main() {
           ..sections = sections
           ..relatedDocRef = null;
 
-        final (subject, triples) = documentMapper.toRdfResource(document, context);
+        final (subject, triples) =
+            documentMapper.toRdfResource(document, context);
 
-        final sectionTriples = triples.where(
-          (t) => t.predicate == ProvidedAsVocab.hasSection,
-        ).toList();
+        final sectionTriples = triples
+            .where(
+              (t) => t.predicate == ProvidedAsVocab.hasSection,
+            )
+            .toList();
 
         expect(sectionTriples, hasLength(5));
 
-        final sectionIris = sectionTriples
-            .map((t) => (t.object as IriTerm).value)
-            .toSet();
+        final sectionIris =
+            sectionTriples.map((t) => (t.object as IriTerm).value).toSet();
 
         // All section IRIs should be unique
         expect(sectionIris, hasLength(5));

@@ -51,15 +51,15 @@ class RootDocumentMapper implements GlobalResourceMapper<RootDocument> {
         'Missing required IRI part: id in IRI ${subject.value}',
       );
     }
-    final Set<DocumentChild> children = reader
-        .requireCollection<Set<DocumentChild>, DocumentChild>(
-          const IriTerm('http://example.org/hasChild'),
-          UnorderedItemsSetMapper.new,
-          itemDeserializer: rdcrmg.DocumentChildMapper(
-            documentIriProvider: () =>
-                throw Exception('Must not call provider for deserialization'),
-          ),
-        );
+    final Set<DocumentChild> children =
+        reader.requireCollection<Set<DocumentChild>, DocumentChild>(
+      const IriTerm('http://example.org/hasChild'),
+      UnorderedItemsSetMapper.new,
+      itemDeserializer: rdcrmg.DocumentChildMapper(
+        documentIriProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+      ),
+    );
 
     return RootDocument(id, children);
   }

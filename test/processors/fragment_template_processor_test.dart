@@ -44,8 +44,7 @@ void main() {
 
         // Check that variables from both templates are combined
         expect(result.variableNames.length, equals(2));
-        final variableNames =
-            result.variableNames.map((v) => v.name).toSet();
+        final variableNames = result.variableNames.map((v) => v.name).toSet();
         expect(variableNames, containsAll(['documentIri', 'sectionId']));
 
         // Check property variables (only sectionId should be a property)
@@ -76,8 +75,8 @@ void main() {
         // Should have warnings about relative URI in base template
         expect(validationContext.warnings, isNotEmpty);
         expect(
-            validationContext.warnings.any(
-                (w) => w.contains('relative URI') || w.contains('relative/path')),
+            validationContext.warnings.any((w) =>
+                w.contains('relative URI') || w.contains('relative/path')),
             isTrue);
       });
 
@@ -135,12 +134,12 @@ void main() {
         expect(result, isNotNull);
 
         // Both variables should be present
-        final variableNames =
-            result!.variableNames.map((v) => v.name).toSet();
+        final variableNames = result!.variableNames.map((v) => v.name).toSet();
         expect(variableNames, containsAll(['docId', 'sectionId']));
       });
 
-      test('should only warn about unused @RdfIriPart if unused in both templates',
+      test(
+          'should only warn about unused @RdfIriPart if unused in both templates',
           () {
         final validationContext = ValidationContext();
         // Create fake IRI parts including one that's not used
@@ -201,8 +200,7 @@ void main() {
         validationContext.throwIfErrors();
 
         // No warning about sectionId since it's used in fragment template
-        expect(
-            validationContext.warnings.any((w) => w.contains('sectionId')),
+        expect(validationContext.warnings.any((w) => w.contains('sectionId')),
             isFalse);
       });
 
@@ -229,8 +227,7 @@ void main() {
         validationContext.throwIfErrors();
 
         // No warning about docId since it's used in base template
-        expect(
-            validationContext.warnings.any((w) => w.contains('docId')),
+        expect(validationContext.warnings.any((w) => w.contains('docId')),
             isFalse);
       });
 
@@ -267,8 +264,7 @@ void main() {
             equals('chapter-{chapterId}-section-{sectionId}'));
 
         // Both fragment variables should be present
-        final variableNames =
-            result.variableNames.map((v) => v.name).toSet();
+        final variableNames = result.variableNames.map((v) => v.name).toSet();
         expect(variableNames, containsAll(['chapterId', 'sectionId']));
       });
 
@@ -296,8 +292,8 @@ void main() {
         expect(result, isNotNull);
 
         // Check that the reserved expansion variable is recognized
-        final fragmentVar = result!.variableNames
-            .firstWhere((v) => v.name == 'fragmentPath');
+        final fragmentVar =
+            result!.variableNames.firstWhere((v) => v.name == 'fragmentPath');
         expect(fragmentVar.canBeUri, isTrue);
       });
     });
@@ -360,7 +356,8 @@ void main() {
         validationContext.throwIfErrors();
 
         expect(result, isNotNull);
-        expect(result!.fragmentTemplate, equals('section_{sectionId}_overview'));
+        expect(
+            result!.fragmentTemplate, equals('section_{sectionId}_overview'));
       });
 
       test('should handle fragment template with URL-encoded characters', () {

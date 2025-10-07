@@ -40,7 +40,8 @@ void main() {
 
         expect(iriStrategyInfo, isNotNull);
         expect(iriStrategyInfo!.providedAs, equals('documentIri'));
-        expect(iriStrategyInfo.template, equals('{+baseUri}/documents/{docId}'));
+        expect(
+            iriStrategyInfo.template, equals('{+baseUri}/documents/{docId}'));
       });
 
       test('should handle IriStrategy without providedAs', () {
@@ -108,12 +109,13 @@ void main() {
 
         expect(result, isNotNull);
         expect(result!.contextVariables, contains('documentIri'));
-        expect(result.propertyVariables.map((v) => v.name),
-            contains('sectionId'));
+        expect(
+            result.propertyVariables.map((v) => v.name), contains('sectionId'));
         expect(result.isValid, isTrue);
       });
 
-      test('should handle complex hierarchy with multiple providedAs levels', () {
+      test('should handle complex hierarchy with multiple providedAs levels',
+          () {
         // Even though we only have two levels in our test models,
         // the template processor should handle the variables correctly
         const template = '{+documentIri}/subsections/{subId}';
