@@ -108,7 +108,7 @@ import 'fixtures/valid_generic_test_models.rdf_mapper.g.dart' as vgtmrmg;
 RdfMapper initTestRdfMapper({
   RdfMapper? rdfMapper,
   required IriTermMapper<(String id,)> Function<T>(astm.PodConfig)
-      $podIri$Factory,
+  $podIri$Factory,
   required String Function() apiBaseProvider,
   required String Function() baseUriProvider,
   required String Function() baseVocabProvider,
@@ -116,7 +116,7 @@ RdfMapper initTestRdfMapper({
   required GlobalResourceMapper<cct.ComplexItem> complexItemMapperGlobal,
   required LocalResourceMapper<cct.ComplexItem> complexItemMapperLocal,
   required IriTermMapper<(String id,)> Function<T>(nftm.IriMapperConfig)
-      configurableBookIriFactory,
+  configurableBookIriFactory,
   required Mapper<List<String>> customCollectionMapper,
   required LiteralTermMapper<ems.Priority> customPriorityMapper,
   required String Function() departmentProvider,
@@ -129,13 +129,13 @@ RdfMapper initTestRdfMapper({
   required LiteralTermMapper<String> testCustomMapper,
   required GlobalResourceMapper<Object> testGlobalMapper,
   required GlobalResourceMapper<grptm.ClassWithMapperNamedMapperStrategy>
-      testGlobalResourceMapper,
+  testGlobalResourceMapper,
   required IriTermMapper<iptm.IriWithNamedMapper> testIriMapper,
   required LiteralTermMapper<lptm.LiteralWithNamedMapper> testLiteralMapper,
   required LiteralTermMapper<double> testLiteralPriceMapper,
   required LocalResourceMapper<Object> testLocalMapper,
   required LocalResourceMapper<lrptm.ClassWithMapperNamedMapperStrategy>
-      testLocalResourceMapper,
+  testLocalResourceMapper,
   required IriTermMapper<grptm.ClassWithIriNamedMapperStrategy> testMapper,
   required IriTermMapper<(String id, String surname, int version)> testMapper3,
   required GlobalResourceMapper<Object> testNamedMapper,
@@ -239,7 +239,8 @@ RdfMapper initTestRdfMapper({
     grptmrmg.ClassWithIriNamedMapperStrategyMapper(testMapper: testMapper),
   );
   registry.registerMapper<
-      grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties>(
+    grptm.ClassWithIriNamedMapperStrategy2PartsWithProperties
+  >(
     grptmrmg.ClassWithIriNamedMapperStrategy2PartsWithPropertiesMapper(
       testMapper3: testMapper3,
     ),

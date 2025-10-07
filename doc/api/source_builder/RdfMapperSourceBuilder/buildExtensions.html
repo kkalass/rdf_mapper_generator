@@ -73,19 +73,18 @@
     
 <section class="desc markdown">
   <p>Mapping from input file extension to output file extensions.</p>
-<p>All input sources matching any key in this map will be passed as build
+<p>All input sources matching any key in this map will be passed as a build
 step to this builder. Only files with the same basename and an extension
 from the values in this map are expected as outputs.</p>
 <ul>
 <li>If an empty key exists, all inputs are considered matching.</li>
 <li>An instance of a builder must always return the same configuration.
 Typically, a builder will return a <code>const</code> map. Builders may also choose
-extensions based on <a href="https://pub.dev/documentation/build/3.0.1/build/BuilderOptions-class.html">BuilderOptions</a>.</li>
+extensions based on <a href="https://pub.dev/documentation/build/4.0.1/build/BuilderOptions-class.html">BuilderOptions</a>.</li>
 <li>Most builders will use a single input extension and one or more output
 extensions.</li>
-<li>For more information on build extensions, see
-<a href="https://github.com/dart-lang/build/blob/master/docs/writing_a_builder.md#configuring-outputs">https://github.com/dart-lang/build/blob/master/docs/writing_a_builder.md#configuring-outputs</a></li>
 </ul>
+<p>TODO(davidmorgan): add examples.</p>
 </section>
 
     
@@ -124,7 +123,7 @@ Map&lt;String, List&lt;String&gt;&gt; get buildExtensions =&gt; const {
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.5
+      0.10.6
   </span>
   
 </footer>

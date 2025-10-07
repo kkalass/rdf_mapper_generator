@@ -73,9 +73,8 @@
   final allInitFunctionParameters = all
       .fold&lt;Map&lt;String, _InitFunctionParameter&gt;&gt;(
           {}, (acc, c) =&gt; {...acc, ...c.$2});
-  final allBroaderImports = all
-      .fold&lt;Map&lt;String, String&gt;&gt;(
-          {}, (acc, c) =&gt; {...acc, ...c.$3});
+  final allBroaderImports =
+      all.fold&lt;Map&lt;String, String&gt;&gt;({}, (acc, c) =&gt; {...acc, ...c.$3});
   return (mappers, allInitFunctionParameters, allBroaderImports);
 }</code></pre>
 </section>
@@ -105,7 +104,7 @@
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.5
+      0.10.6
   </span>
   
 </footer>

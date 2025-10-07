@@ -26,7 +26,7 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
 
   /// Constructor
   const LibraryMapper({required String Function() baseUriProvider})
-      : _baseUriProvider = baseUriProvider;
+    : _baseUriProvider = baseUriProvider;
 
   @override
   IriTerm? get typeIri => CollectionVocab.Library;
@@ -47,11 +47,11 @@ class LibraryMapper implements GlobalResourceMapper<Library> {
       CollectionVocab.books,
       UnorderedItemsListMapper.new,
     );
-    final Iterable<String> collaborators =
-        reader.requireCollection<Iterable<String>, String>(
-      CollectionVocab.collaborators,
-      UnorderedItemsMapper.new,
-    );
+    final Iterable<String> collaborators = reader
+        .requireCollection<Iterable<String>, String>(
+          CollectionVocab.collaborators,
+          UnorderedItemsMapper.new,
+        );
 
     return Library(id: id, books: books, collaborators: collaborators);
   }
@@ -100,7 +100,7 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
 
   /// Constructor
   const PlaylistMapper({required String Function() baseUriProvider})
-      : _baseUriProvider = baseUriProvider;
+    : _baseUriProvider = baseUriProvider;
 
   @override
   IriTerm? get typeIri => CollectionVocab.Playlist;
@@ -117,11 +117,11 @@ class PlaylistMapper implements GlobalResourceMapper<Playlist> {
     };
 
     final id = iriParts['id']!;
-    final List<Track> orderedTracks =
-        reader.requireCollection<List<Track>, Track>(
-      CollectionVocab.orderedTracks,
-      RdfListMapper.new,
-    );
+    final List<Track> orderedTracks = reader
+        .requireCollection<List<Track>, Track>(
+          CollectionVocab.orderedTracks,
+          RdfListMapper.new,
+        );
 
     return Playlist(id: id, orderedTracks: orderedTracks);
   }
@@ -163,7 +163,7 @@ class CourseMapper implements GlobalResourceMapper<Course> {
 
   /// Constructor
   const CourseMapper({required String Function() baseUriProvider})
-      : _baseUriProvider = baseUriProvider;
+    : _baseUriProvider = baseUriProvider;
 
   @override
   IriTerm? get typeIri => CollectionVocab.Course;
@@ -184,16 +184,16 @@ class CourseMapper implements GlobalResourceMapper<Course> {
       CollectionVocab.modules,
       RdfSeqMapper.new,
     );
-    final List<String> prerequisites =
-        reader.requireCollection<List<String>, String>(
-      CollectionVocab.prerequisites,
-      RdfBagMapper.new,
-    );
-    final List<String> alternatives =
-        reader.requireCollection<List<String>, String>(
-      CollectionVocab.alternatives,
-      RdfAltMapper.new,
-    );
+    final List<String> prerequisites = reader
+        .requireCollection<List<String>, String>(
+          CollectionVocab.prerequisites,
+          RdfBagMapper.new,
+        );
+    final List<String> alternatives = reader
+        .requireCollection<List<String>, String>(
+          CollectionVocab.alternatives,
+          RdfAltMapper.new,
+        );
 
     return Course(
       id: id,
@@ -296,11 +296,11 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
         const LanguageOverrideMapper<String>('en'),
     LiteralTermMapper<DateTime> publicationDatesMapper =
         const DatatypeOverrideMapper<DateTime>(
-      const IriTerm('http://www.w3.org/2001/XMLSchema#date'),
-    ),
-  })  : _baseUriProvider = baseUriProvider,
-        _keywordsMapper = keywordsMapper,
-        _publicationDatesMapper = publicationDatesMapper {
+          const IriTerm('http://www.w3.org/2001/XMLSchema#date'),
+        ),
+  }) : _baseUriProvider = baseUriProvider,
+       _keywordsMapper = keywordsMapper,
+       _publicationDatesMapper = publicationDatesMapper {
     _authorIdsMapper = BookCollectionAuthorIdsMapper(
       baseUriProvider: baseUriProvider,
     );
@@ -316,24 +316,24 @@ class BookCollectionMapper implements LocalResourceMapper<BookCollection> {
   ) {
     final reader = context.reader(subject);
 
-    final List<String> authorIds =
-        reader.requireCollection<List<String>, String>(
-      SchemaBook.author,
-      UnorderedItemsListMapper.new,
-      itemDeserializer: _authorIdsMapper,
-    );
-    final List<String> keywords =
-        reader.requireCollection<List<String>, String>(
-      SchemaBook.keywords,
-      UnorderedItemsListMapper.new,
-      itemDeserializer: _keywordsMapper,
-    );
-    final List<DateTime> publicationDates =
-        reader.requireCollection<List<DateTime>, DateTime>(
-      SchemaBook.datePublished,
-      RdfListMapper.new,
-      itemDeserializer: _publicationDatesMapper,
-    );
+    final List<String> authorIds = reader
+        .requireCollection<List<String>, String>(
+          SchemaBook.author,
+          UnorderedItemsListMapper.new,
+          itemDeserializer: _authorIdsMapper,
+        );
+    final List<String> keywords = reader
+        .requireCollection<List<String>, String>(
+          SchemaBook.keywords,
+          UnorderedItemsListMapper.new,
+          itemDeserializer: _keywordsMapper,
+        );
+    final List<DateTime> publicationDates = reader
+        .requireCollection<List<DateTime>, DateTime>(
+          SchemaBook.datePublished,
+          RdfListMapper.new,
+          itemDeserializer: _publicationDatesMapper,
+        );
 
     return BookCollection(
       authorIds: authorIds,
