@@ -26,6 +26,45 @@ class Document {
   Document(this.id, this.section);
 }
 
+final class RootResource extends RdfGlobalResource {
+  const RootResource()
+      : super(
+          const IriTerm('http://example.org/RootDocument'),
+          const IriStrategy(
+              'tag:example.org,2025:document-{id}', 'documentIri'),
+        );
+}
+
+final class ChildResource extends RdfGlobalResource {
+  const ChildResource()
+      : super(
+            const IriTerm('http://example.org/Section'),
+            const IriStrategy.withFragment(
+                '{+documentIri}', 'section-{sectionId}'),
+            registerGlobally: false);
+}
+
+/// Test class for child document that uses documentIri using annotation subclassing
+@ChildResource()
+class DocumentChild {
+  @RdfIriPart()
+  final String sectionId;
+
+  DocumentChild(this.sectionId);
+}
+
+/// Test class for parent document that provides documentIri using annotation subclassing
+@RootResource()
+class RootDocument {
+  @RdfIriPart()
+  final String id;
+
+  @RdfProperty(IriTerm('http://example.org/currentSection'))
+  final DocumentChild section;
+
+  RootDocument(this.id, this.section);
+}
+
 /// Test class for withFragment on IriMapping at property level
 @RdfGlobalResource(
   IriTerm('http://example.org/Article'),

@@ -604,6 +604,7 @@ RdfMapper initTestRdfMapper({
     vgtmrmg.NonGenericPersonMapper(),
   );
   registry.registerMapper<wftm.Document>(wftmrmg.DocumentMapper());
+  registry.registerMapper<wftm.RootDocument>(wftmrmg.RootDocumentMapper());
   registry.registerMapper<wftm.Article>(wftmrmg.ArticleMapper());
   registry.registerMapper<wftm.Page>(
     wftmrmg.PageMapper(baseUriProvider: baseUriProvider),

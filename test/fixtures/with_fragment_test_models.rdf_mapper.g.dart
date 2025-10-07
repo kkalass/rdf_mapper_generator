@@ -6,7 +6,7 @@
 // ignore_for_file: unused_import, unnecessary_cast, prefer_const_constructors
 // ignore_for_file: unnecessary_brace_in_string_interps, prefer_conditional_assignment
 // ignore_for_file: lines_longer_than_80_chars, avoid_redundant_argument_values
-// ignore_for_file: unused_field
+// ignore_for_file: unused_field, unnecessary_string_interpolations
 
 import 'package:rdf_core/rdf_core.dart';
 import 'package:rdf_mapper/rdf_mapper.dart';
@@ -132,6 +132,145 @@ class DocumentMapper implements GlobalResourceMapper<Document> {
 
   /// Builds the IRI for a resource instance using the IRI template.
   String _buildIri(Document resource) {
+    final id = resource.id;
+    return 'tag:example.org,2025:document-${id}';
+  }
+}
+
+/// Generated mapper for [DocumentChild] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type `DocumentChild`.
+class DocumentChildMapper implements GlobalResourceMapper<DocumentChild> {
+  static final RegExp _regex = RegExp(
+    r'^(?<documentIri>.*)#section-(?<sectionId>[^/]*)$',
+  );
+
+  final String Function() _documentIriProvider;
+
+  /// Constructor
+  const DocumentChildMapper({required String Function() documentIriProvider})
+    : _documentIriProvider = documentIriProvider;
+
+  @override
+  IriTerm? get typeIri => const IriTerm('http://example.org/Section');
+
+  @override
+  DocumentChild fromRdfResource(
+    IriTerm subject,
+    DeserializationContext context,
+  ) {
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
+
+    final sectionId = iriParts['sectionId'];
+    if (sectionId == null) {
+      throw DeserializationException(
+        'Missing required IRI part: sectionId in IRI ${subject.value}',
+      );
+    }
+
+    return DocumentChild(sectionId);
+  }
+
+  @override
+  (IriTerm, Iterable<Triple>) toRdfResource(
+    DocumentChild resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = context.createIriTerm(_buildIri(resource));
+
+    return context.resourceBuilder(subject).build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(DocumentChild resource) {
+    final sectionId = resource.sectionId;
+    final documentIri = _documentIriProvider();
+    var interpolatedTemplate = '${documentIri}';
+    if (interpolatedTemplate.contains('#')) {
+      interpolatedTemplate = interpolatedTemplate.substring(
+        0,
+        interpolatedTemplate.indexOf('#'),
+      );
+    }
+    return '$interpolatedTemplate#section-${sectionId}';
+  }
+}
+
+/// Generated mapper for [RootDocument] global resources.
+///
+/// This mapper handles serialization and deserialization between Dart objects
+/// and RDF triples for resources of type `RootDocument`.
+class RootDocumentMapper implements GlobalResourceMapper<RootDocument> {
+  static final RegExp _regex = RegExp(
+    r'^tag:example\.org,2025:document-(?<id>[^/]*)$',
+  );
+
+  /// Constructor
+  const RootDocumentMapper();
+
+  @override
+  IriTerm? get typeIri => const IriTerm('http://example.org/RootDocument');
+
+  @override
+  RootDocument fromRdfResource(
+    IriTerm subject,
+    DeserializationContext context,
+  ) {
+    final reader = context.reader(subject);
+
+    final RegExpMatch? match = _regex.firstMatch(subject.value);
+
+    final iriParts = {
+      for (var name in (match?.groupNames ?? const <String>[]))
+        name: match?.namedGroup(name) ?? '',
+    };
+
+    final id = iriParts['id'];
+    if (id == null) {
+      throw DeserializationException(
+        'Missing required IRI part: id in IRI ${subject.value}',
+      );
+    }
+    final DocumentChild section = reader.require(
+      const IriTerm('http://example.org/currentSection'),
+      deserializer: DocumentChildMapper(
+        documentIriProvider: () =>
+            throw Exception('Must not call provider for deserialization'),
+      ),
+    );
+
+    return RootDocument(id, section);
+  }
+
+  @override
+  (IriTerm, Iterable<Triple>) toRdfResource(
+    RootDocument resource,
+    SerializationContext context, {
+    RdfSubject? parentSubject,
+  }) {
+    final subject = context.createIriTerm(_buildIri(resource));
+
+    return context
+        .resourceBuilder(subject)
+        .addValue(
+          const IriTerm('http://example.org/currentSection'),
+          resource.section,
+          serializer: DocumentChildMapper(
+            documentIriProvider: () => subject.value,
+          ),
+        )
+        .build();
+  }
+
+  /// Builds the IRI for a resource instance using the IRI template.
+  String _buildIri(RootDocument resource) {
     final id = resource.id;
     return 'tag:example.org,2025:document-${id}';
   }
