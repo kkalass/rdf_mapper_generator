@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.6] - 2025-10-07
+
+### Changed
+
+- **BREAKING**: Dropped support for `analyzer` versions below 7.4.0
+  - Updated `analyzer` constraint from `>=6.9.0 <8.0.0` to `>=7.4.0 <9.0.0`
+  - Switched active analyzer wrapper from v6 to v7_4
+  - Disabled v6 analyzer wrapper (now provides stub implementations only)
+  - Added v8_2 analyzer wrapper skeleton (prepared for future analyzer 8.x/9.x support)
+
+- **Updated Dependencies**: Upgraded build system and code generation dependencies
+  - Updated `build` constraint from `<4.0.0` to `<5.0.0`
+  - Updated `analyzer` to 8.2.0
+  - Updated `build` to 4.0.1
+  - Updated `build_runner` to 2.9.0
+  - Updated `dart_style` to 3.1.2
+
+### Fixed
+
+- **Code Generation Improvements**: Enhanced v7_4 analyzer wrapper
+  - Filter out synthetic fields, getters, and setters to prevent duplicate property generation
+  - Fixed `Code.paramsList` usage in DartObject-to-Code conversion for better readability
+  - Added linter suppressions for deprecated APIs to reduce noise in analyzer output
+
 ## [0.10.5] - 2025-09-23
 
 ### Changed
