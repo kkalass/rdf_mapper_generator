@@ -25,11 +25,11 @@ dependencies:
   dart_style: ">=2.3.7 <4.0.0"
   logging: '>=1.2.0 <2.0.0'
   mustache_template: '>=2.0.0 <3.0.0'
-  rdf_core: ^0.9.15
+  rdf_core: ^0.9.20
   rdf_mapper: ^0.10.2
   rdf_mapper_annotations: ^0.10.2
-  rdf_vocabularies_core: ^0.4.4
-  rdf_vocabularies_schema: ^0.4.4
+  rdf_vocabularies_core: ^0.4.5
+  rdf_vocabularies_schema: ^0.4.5
   path: '>=1.9.0 <2.0.0'
   glob: '>=2.0.0 <3.0.0'
   uuid: '>=3.0.0 <5.0.0'
