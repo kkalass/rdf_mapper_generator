@@ -19,7 +19,9 @@ void main() {
       mapper.registry.registerMapper(ArticleWithRegularAnnotationMapper());
     });
 
-    test('BookWithCustomAnnotation mapper works (custom annotation extends RdfGlobalResource)', () {
+    test(
+        'BookWithCustomAnnotation mapper works (custom annotation extends RdfGlobalResource)',
+        () {
       // Create a test instance
       final book = BookWithCustomAnnotation(
         id: 'test-book-123',
@@ -79,9 +81,18 @@ void main() {
 
     test('verify all mappers are properly registered', () {
       // Verify that all mappers were recognized and work correctly
-      expect(mapper.registry.hasGlobalResourceDeserializerFor<BookWithCustomAnnotation>(), isTrue);
-      expect(mapper.registry.hasGlobalResourceDeserializerFor<PersonWithPodResource>(), isTrue);
-      expect(mapper.registry.hasGlobalResourceDeserializerFor<ArticleWithRegularAnnotation>(), isTrue);
+      expect(
+          mapper.registry
+              .hasGlobalResourceDeserializerFor<BookWithCustomAnnotation>(),
+          isTrue);
+      expect(
+          mapper.registry
+              .hasGlobalResourceDeserializerFor<PersonWithPodResource>(),
+          isTrue);
+      expect(
+          mapper.registry
+              .hasGlobalResourceDeserializerFor<ArticleWithRegularAnnotation>(),
+          isTrue);
     });
   });
 }

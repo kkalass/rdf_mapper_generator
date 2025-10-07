@@ -198,7 +198,8 @@ class InitFileBuilderHelper {
                   return noInitFileContributions;
                 }()
             });
-    final (mappers, initFunctionParameters, _) = mergeInitFileContributions(all);
+    final (mappers, initFunctionParameters, _) =
+        mergeInitFileContributions(all);
 
     // Extract broader imports from this file
     final broaderImports = _safeCastToStringMap(jsonData['broaderImports']);
@@ -212,9 +213,8 @@ class InitFileBuilderHelper {
     final allInitFunctionParameters = all
         .fold<Map<String, _InitFunctionParameter>>(
             {}, (acc, c) => {...acc, ...c.$2});
-    final allBroaderImports = all
-        .fold<Map<String, String>>(
-            {}, (acc, c) => {...acc, ...c.$3});
+    final allBroaderImports =
+        all.fold<Map<String, String>>({}, (acc, c) => {...acc, ...c.$3});
     return (mappers, allInitFunctionParameters, allBroaderImports);
   }
 

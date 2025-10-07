@@ -139,16 +139,25 @@ class BookWithCustomProperty {
       // Verify that properties using both CustomProperty and RdfProperty were processed
       final properties = mapperData['properties'] as List<dynamic>;
       expect(properties.length, equals(3),
-          reason: 'Should have id (RdfIriPart), title (CustomProperty), and author (RdfProperty) properties');
+          reason:
+              'Should have id (RdfIriPart), title (CustomProperty), and author (RdfProperty) properties');
 
-      final titleProp = properties.cast<Map<String, dynamic>>().firstWhere((p) => p['name'] == 'title');
-      final authorProp = properties.cast<Map<String, dynamic>>().firstWhere((p) => p['name'] == 'author');
-      final idProp = properties.cast<Map<String, dynamic>>().firstWhere((p) => p['name'] == 'id');
+      final titleProp = properties
+          .cast<Map<String, dynamic>>()
+          .firstWhere((p) => p['name'] == 'title');
+      final authorProp = properties
+          .cast<Map<String, dynamic>>()
+          .firstWhere((p) => p['name'] == 'author');
+      final idProp = properties
+          .cast<Map<String, dynamic>>()
+          .firstWhere((p) => p['name'] == 'id');
 
       expect(titleProp, isNotNull,
-          reason: 'Title property with CustomProperty annotation should be found');
+          reason:
+              'Title property with CustomProperty annotation should be found');
       expect(authorProp, isNotNull,
-          reason: 'Author property with regular RdfProperty annotation should be found');
+          reason:
+              'Author property with regular RdfProperty annotation should be found');
       expect(idProp, isNotNull,
           reason: 'ID property with RdfIriPart annotation should be found');
     });

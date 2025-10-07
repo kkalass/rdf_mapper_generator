@@ -99,8 +99,8 @@ void main() {
         final literalTerm = mapper.toRdfTerm(temp, context);
 
         expect(literalTerm.value, equals('25.5°C'));
-        expect(
-            literalTerm.datatype.value, equals('http://example.org/temperature'));
+        expect(literalTerm.datatype.value,
+            equals('http://example.org/temperature'));
       });
 
       test('uses custom parse method for deserialization', () {
@@ -390,8 +390,8 @@ void main() {
         final temp = Temperature(100.0);
         final literalTerm = mapper.toRdfTerm(temp, context);
 
-        expect(
-            literalTerm.datatype.value, equals('http://example.org/temperature'));
+        expect(literalTerm.datatype.value,
+            equals('http://example.org/temperature'));
         expect(literalTerm.value, equals('100.0°C'));
       });
 
