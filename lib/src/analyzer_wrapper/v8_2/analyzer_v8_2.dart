@@ -1,8 +1,12 @@
-// Actually working with analyzer >= 6.9.0 < v8.0.0 - including v7.4.0
-//
-// NOT working with analyzer v8.2.0
-//
 // ignore_for_file: deprecated_member_use
+
+// Actually working with analyzer >= v8.2.0
+//
+// This is probably the future, but we want to stay as
+// compatible as possible so this is not yet used.
+//
+// NOT working with analyzer v7.4.0, and of course not with v6.x.x
+//
 /*
 export 'package:analyzer/dart/constant/value.dart' show DartObject;
 export 'package:analyzer/dart/analysis/utilities.dart' show parseString;
@@ -18,14 +22,15 @@ export 'package:analyzer/dart/element/element.dart'
         LibraryElement,
         FieldElement,
         ElementAnnotation,
-        LibraryExportElement,
-        LibraryImportElement,
+        LibraryExport,
+        LibraryImport,
         ConstructorElement,
-        ParameterElement,
+        FormalParameterElement,
         PrefixElement,
         PropertyAccessorElement,
         VariableElement;
 export 'package:analyzer/dart/element/type.dart' show DartType, InterfaceType;
+
 */
 
 // Dummy types for compatibility with analyzer v7.4.0 wrapper,
@@ -38,10 +43,10 @@ typedef EnumElement = dynamic;
 typedef LibraryElement = dynamic;
 typedef FieldElement = dynamic;
 typedef ElementAnnotation = dynamic;
-typedef LibraryExportElement = dynamic;
-typedef LibraryImportElement = dynamic;
+typedef LibraryExport = dynamic;
+typedef LibraryImport = dynamic;
 typedef ConstructorElement = dynamic;
-typedef ParameterElement = dynamic;
+typedef FormalParameterElement = dynamic;
 typedef GetterElement = dynamic;
 typedef SetterElement = dynamic;
 typedef VariableElement = dynamic;

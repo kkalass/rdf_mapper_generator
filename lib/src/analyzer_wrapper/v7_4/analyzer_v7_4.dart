@@ -1,6 +1,10 @@
-// Actually working with analyzer v7.4.0
+// Actually working with analyzer >= v7.4.0 < v9.0.0
 //
-/*
+// NOT working with analyzer v6.x.x, and deprecated but working in v8.2.0
+//
+
+// ignore_for_file: deprecated_member_use
+
 export 'package:analyzer/dart/constant/value.dart' show DartObject;
 export 'package:analyzer/dart/analysis/utilities.dart' show parseString;
 export 'package:analyzer/dart/analysis/analysis_context_collection.dart'
@@ -23,7 +27,7 @@ export 'package:analyzer/dart/element/element2.dart'
         SetterElement,
         VariableElement2;
 export 'package:analyzer/dart/element/type.dart' show DartType, InterfaceType;
-*/
+/*
 
 // Dummy types for compatibility with analyzer v7.4.0 wrapper,
 // this will not run though.
@@ -64,3 +68,4 @@ class AnalysisContextCollection {
         'contextFor is not implemented in this analyzer version');
   }
 }
+*/

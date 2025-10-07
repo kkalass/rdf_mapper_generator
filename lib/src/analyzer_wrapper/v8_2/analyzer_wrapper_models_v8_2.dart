@@ -1,49 +1,55 @@
 // ignore_for_file: unnecessary_type_check, unreachable_switch_case, dead_code
-// ignore_for_file: deprecated_member_use
-
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 
-import 'analyzer_v7_4.dart' as v7;
+import 'analyzer_v8_2.dart' as v8;
 
-class DartTypeV7 extends DartType {
-  final v7.DartType dartType;
+class DartTypeV8 extends DartType {
+  final v8.DartType dartType;
 
-  DartTypeV7(this.dartType);
+  DartTypeV8(this.dartType);
 
   bool get isNullable =>
       dartType.isDartCoreNull ||
-      (dartType is v7.InterfaceType && dartType.isDartCoreNull) ||
-      (dartType.element3?.library2?.typeSystem.isNullable(dartType) ?? false);
+      (dartType is v8.InterfaceType && dartType.isDartCoreNull) ||
+      (dartType.element?.library?.typeSystem.isNullable(dartType) ?? false);
 
-  get typeArguments => (dartType is v7.InterfaceType
-          ? (dartType as v7.InterfaceType).typeArguments
+  get typeArguments => (dartType is v8.InterfaceType
+          ? (dartType as v8.InterfaceType).typeArguments
           : [])
-      .map((t) => DartTypeV7(t))
+      .map((t) => DartTypeV8(t))
       .toList(growable: false);
 
-  bool get isInterfaceType => dartType is v7.InterfaceType;
+  bool get isInterfaceType => dartType is v8.InterfaceType;
 
   bool get isDartCoreNull => dartType.isDartCoreNull;
 
   bool get isDartCoreIterable => dartType.isDartCoreIterable;
 
-  Elem get element => switch (dartType.element3!) {
-        v7.ClassElement2 classElement2 => ClassElemV7(classElement2),
-        v7.EnumElement2 enumElement2 => EnumElemV7(enumElement2),
-        v7.LibraryElement2 libraryElement2 => LibraryElemV7(libraryElement2),
-        v7.FieldElement2 fieldElement2 => FieldElemV7(fieldElement2),
-        v7.ConstructorElement2 constructorElement2 =>
-          ConstructorElemV7(constructorElement2),
-        v7.FormalParameterElement formalParameterElement2 =>
-          FormalParameterElemV7(formalParameterElement2),
-        _ => throw ArgumentError(
-            'Unsupported DartType element: ${dartType.element3.runtimeType}'),
-      };
+  Elem get element {
+    final elem = dartType.element!;
+    if (elem is v8.ClassElement) {
+      return ClassElemV8(elem);
+    } else if (elem is v8.EnumElement) {
+      return EnumElemV8(elem);
+    } else if (elem is v8.LibraryElement) {
+      return LibraryElemV8(elem);
+    } else if (elem is v8.FieldElement) {
+      return FieldElemV8(elem);
+    } else if (elem is v8.ConstructorElement) {
+      return ConstructorElemV8(elem);
+    } else if (elem is v8.FormalParameterElement) {
+      return FormalParameterElemV8(elem);
+    } else {
+      throw ArgumentError(
+          'Unsupported DartType element: ${dartType.element.runtimeType}');
+    }
+  }
 
   @override
   String getDisplayString() {
-    return dartType.getDisplayString();
+    return dartType.getDisplayString(withNullability: false) +
+        (isNullable ? '?' : '');
   }
 
   @override
@@ -53,9 +59,9 @@ class DartTypeV7 extends DartType {
 
   @override
   DartType? get superclass {
-    if (dartType case final v7.InterfaceType interfaceType) {
+    if (dartType case final v8.InterfaceType interfaceType) {
       if (interfaceType.superclass != null) {
-        return DartTypeV7(interfaceType.superclass!);
+        return DartTypeV8(interfaceType.superclass!);
       }
     }
     return null;
@@ -63,9 +69,9 @@ class DartTypeV7 extends DartType {
 
   @override
   List<DartType> get mixins {
-    if (dartType case final v7.InterfaceType interfaceType) {
+    if (dartType case final v8.InterfaceType interfaceType) {
       return interfaceType.mixins
-          .map((mixin) => DartTypeV7(mixin))
+          .map((mixin) => DartTypeV8(mixin))
           .toList(growable: false);
     }
     return const [];
@@ -73,9 +79,9 @@ class DartTypeV7 extends DartType {
 
   @override
   List<DartType> get interfaces {
-    if (dartType case final v7.InterfaceType interfaceType) {
+    if (dartType case final v8.InterfaceType interfaceType) {
       return interfaceType.interfaces
-          .map((mixin) => DartTypeV7(mixin))
+          .map((mixin) => DartTypeV8(mixin))
           .toList(growable: false);
     }
     return const [];
@@ -87,10 +93,10 @@ class DartTypeV7 extends DartType {
   }
 }
 
-class FieldElemV7 extends ElemV7 implements FieldElem {
-  final v7.FieldElement2 fieldElement;
+class FieldElemV8 extends ElemV8 implements FieldElem {
+  final v8.FieldElement fieldElement;
 
-  FieldElemV7(this.fieldElement) : super(fieldElement);
+  FieldElemV8(this.fieldElement) : super(fieldElement);
 
   @override
   bool get isStatic => fieldElement.isStatic;
@@ -109,39 +115,39 @@ class FieldElemV7 extends ElemV7 implements FieldElem {
 
   @override
   DartType get type {
-    return DartTypeV7(fieldElement.type);
+    return DartTypeV8(fieldElement.type);
   }
 
   @override
-  String get name => fieldElement.name3!;
+  String get name => fieldElement.name!;
 
   @override
   Iterable<ElemAnnotation> get annotations =>
-      fieldElement.metadata2.annotations.map((a) => ElemAnnotationV7(a));
+      fieldElement.metadata.annotations.map((a) => ElemAnnotationV8(a));
 }
 
-class VariableElemV7 extends ElemV7 implements VariableElem {
-  final v7.VariableElement2 variableElement;
+class VariableElemV8 extends ElemV8 implements VariableElem {
+  final v8.VariableElement variableElement;
 
-  VariableElemV7(this.variableElement) : super(variableElement);
+  VariableElemV8(this.variableElement) : super(variableElement);
 
   @override
-  String get name => variableElement.name3!;
+  String get name => variableElement.name!;
 }
 
-class DartObjectV7 implements DartObject {
-  final v7.DartObject dartObject;
+class DartObjectV8 implements DartObject {
+  final v8.DartObject dartObject;
 
-  DartObjectV7(this.dartObject);
+  DartObjectV8(this.dartObject);
 
   DartType? get type {
     var typeValue = dartObject.type;
-    return typeValue == null ? null : DartTypeV7(typeValue);
+    return typeValue == null ? null : DartTypeV8(typeValue);
   }
 
   VariableElem? get variable {
-    var r = dartObject.variable2;
-    return r == null ? null : VariableElemV7(r);
+    var r = dartObject.variable;
+    return r == null ? null : VariableElemV8(r);
   }
 
   bool get hasKnownValue {
@@ -151,7 +157,7 @@ class DartObjectV7 implements DartObject {
   @override
   DartObject? getField(String name) {
     final r = dartObject.getField(name);
-    return r == null ? null : DartObjectV7(r);
+    return r == null ? null : DartObjectV8(r);
   }
 
   String? toStringValue() {
@@ -178,7 +184,7 @@ class DartObjectV7 implements DartObject {
 
   DartType? toTypeValue() {
     var typeValue = dartObject.toTypeValue();
-    return typeValue == null ? null : DartTypeV7(typeValue);
+    return typeValue == null ? null : DartTypeV8(typeValue);
   }
 
   String toString() {
@@ -186,23 +192,23 @@ class DartObjectV7 implements DartObject {
   }
 }
 
-class ElemAnnotationV7 implements ElemAnnotation {
-  final v7.ElementAnnotation annotation;
+class ElemAnnotationV8 implements ElemAnnotation {
+  final v8.ElementAnnotation annotation;
 
-  ElemAnnotationV7(this.annotation);
+  ElemAnnotationV8(this.annotation);
 
   DartObject? computeConstantValue() {
     final r = annotation.computeConstantValue();
-    return r == null ? null : DartObjectV7(r);
+    return r == null ? null : DartObjectV8(r);
   }
 }
 
-class LibraryElemV7 extends ElemV7 implements LibraryElem {
-  final v7.LibraryElement2 libraryElement;
+class LibraryElemV8 extends ElemV8 implements LibraryElem {
+  final v8.LibraryElement libraryElement;
 
-  LibraryElemV7(this.libraryElement) : super(libraryElement);
+  LibraryElemV8(this.libraryElement) : super(libraryElement);
 
-  String get name => libraryElement.name3!;
+  String get name => libraryElement.name!;
 
   String get identifier => libraryElement.identifier;
   Uri? get uri => libraryElement.uri;
@@ -211,137 +217,135 @@ class LibraryElemV7 extends ElemV7 implements LibraryElem {
       libraryElement.exportNamespace.definedNames2.keys;
 
   Iterable<LibraryImport> get libraryImports => libraryElement.fragments
-      .expand<v7.LibraryImport>((f) => f.libraryImports2)
-      .map((libImport) => LibraryImportV7(libImport))
+      .expand((f) => f.libraryImports)
+      .map((libImport) => LibraryImportV8(libImport))
       .toList(growable: false);
 
   Iterable<LibraryElem> get importedLibraries => libraryElement.fragments
-      .expand<v7.LibraryElement2>((f) => f.importedLibraries2)
-      .map((lib) => LibraryElemV7(lib))
+      .expand((f) => f.importedLibraries)
+      .map((lib) => LibraryElemV8(lib))
       .toList(growable: false);
 
-  Iterable<LibraryElem> get exportedLibraries => libraryElement.fragments
-      .expand<v7.LibraryExport>((f) => f.libraryExports2)
-      .map((exp) => exp.exportedLibrary2)
-      .nonNulls
-      .map((lib) => LibraryElemV7(lib))
-      .toList(growable: false);
+  Iterable<LibraryElem> get exportedLibraries =>
+      libraryElement.exportedLibraries
+          .map((lib) => LibraryElemV8(lib))
+          .toList(growable: false);
 
   Iterable<ClassElem> get classes => libraryElement.fragments
-      .expand((f) => f.classes2)
+      .expand((f) => f.classes)
       .map((c) => c.element)
-      .map(ClassElemV7.new)
+      .map((c) => ClassElemV8(c))
       .toList(growable: false);
 
   Iterable<EnumElem> get enums => libraryElement.fragments
-      .expand((f) => f.enums2)
+      .expand((f) => f.enums)
       .map((e) => e.element)
-      .map(EnumElemV7.new)
+      .map((e) => EnumElemV8(e))
       .toList(growable: false);
 
   ClassElem? getClass(String className) {
-    var r = libraryElement.getClass2(className);
-    return r == null ? null : ClassElemV7(r);
+    var r = libraryElement.getClass(className);
+    return r == null ? null : ClassElemV8(r);
   }
 }
 
-class LibraryImportV7 implements LibraryImport {
-  final v7.LibraryImport libraryImport;
+class LibraryImportV8 implements LibraryImport {
+  final v8.LibraryImport libraryImport;
 
-  String? get libraryIdentifier => libraryImport.importedLibrary2?.identifier;
-  Uri? get uri => libraryImport.importedLibrary2?.uri;
-  String? get prefix => libraryImport.prefix2?.name2;
+  String? get libraryIdentifier => libraryImport.importedLibrary?.identifier;
+  Uri? get uri => libraryImport.importedLibrary?.uri;
+  String? get prefix => libraryImport.prefix?.element.name;
 
-  LibraryImportV7(this.libraryImport);
+  LibraryImportV8(this.libraryImport);
 }
 
-abstract class ElemV7 implements Elem {
-  final v7.Element2 element;
+abstract class ElemV8 implements Elem {
+  final v8.Element element;
 
-  String get name => element.name3!;
+  String get name => element.name!;
 
-  String? get libraryIdentifier => element.library2?.identifier;
-  Uri? get libraryUri => element.library2?.uri;
+  String? get libraryIdentifier => element.library?.identifier;
+  Uri? get libraryUri => element.library?.uri;
 
   Iterable<LibraryImport> get libraryImports =>
-      (element.library2?.fragments ?? [])
-          .expand<v7.LibraryImport>((f) => f.libraryImports2)
-          .map((libImport) => LibraryImportV7(libImport));
+      (element.library?.fragments ?? [])
+          .expand<v8.LibraryImport>((f) => f.libraryImports)
+          .map((libImport) => LibraryImportV8(libImport));
 
-  ElemV7(this.element);
+  ElemV8(this.element);
 }
 
-class GetterElemV7 extends ElemV7 implements GetterElem {
-  final v7.GetterElement getterElement;
+class GetterElemV8 extends ElemV8 implements GetterElem {
+  final v8.PropertyAccessorElement getterElement;
 
-  GetterElemV7(this.getterElement) : super(getterElement);
+  GetterElemV8(this.getterElement) : super(getterElement);
 
   @override
-  String get name => getterElement.name3!;
+  String get name => getterElement.name!;
 
   @override
   bool get isStatic => getterElement.isStatic;
 
   @override
-  DartType get type => DartTypeV7(getterElement.type);
+  DartType get type => DartTypeV8(getterElement.type);
 
   Iterable<ElemAnnotation> get annotations =>
-      getterElement.metadata2.annotations.map((a) => ElemAnnotationV7(a));
+      getterElement.metadata.annotations.map((a) => ElemAnnotationV8(a));
 }
 
-class SetterElemV7 extends ElemV7 implements SetterElem {
-  final v7.SetterElement setterElement;
+class SetterElemV8 extends ElemV8 implements SetterElem {
+  final v8.PropertyAccessorElement setterElement;
 
-  SetterElemV7(this.setterElement) : super(setterElement);
+  SetterElemV8(this.setterElement) : super(setterElement);
 
   @override
-  String get name => setterElement.name3!;
+  String get name => setterElement.name!;
 
   @override
   bool get isStatic => setterElement.isStatic;
 
   @override
-  DartType get type => DartTypeV7(setterElement.type);
+  DartType get type => DartTypeV8(setterElement.type);
 
   Iterable<ElemAnnotation> get annotations =>
-      setterElement.metadata2.annotations.map((a) => ElemAnnotationV7(a));
+      setterElement.metadata.annotations.map((a) => ElemAnnotationV8(a));
 }
 
-class ClassElemV7 extends ElemV7 implements ClassElem {
-  final v7.ClassElement2 classElement;
+class ClassElemV8 extends ElemV8 implements ClassElem {
+  final v8.ClassElement classElement;
 
   Iterable<ConstructorElem> get constructors =>
-      classElement.constructors2.map((c) => ConstructorElemV7(c));
+      classElement.constructors.map((c) => ConstructorElemV8(c));
 
   Iterable<ElemAnnotation> get annotations =>
-      classElement.metadata2.annotations.map((a) => ElemAnnotationV7(a));
+      classElement.metadata.annotations.map((a) => ElemAnnotationV8(a));
 
-  Iterable<FieldElem> get fields => classElement.fields2
+  Iterable<FieldElem> get fields => classElement.fields
       .where((f) => !f.isSynthetic)
-      .map((f) => FieldElemV7(f));
+      .map((f) => FieldElemV8(f));
 
   FieldElem? getField(String fieldName) {
-    var r = classElement.getField2(fieldName);
-    return r == null ? null : FieldElemV7(r);
+    var r = classElement.getField(fieldName);
+    return r == null ? null : FieldElemV8(r);
   }
 
   @override
-  Iterable<GetterElem> get getters => classElement.getters2
-      .where((f) => !f.isSynthetic)
-      .map((g) => GetterElemV7(g));
+  Iterable<GetterElem> get getters => classElement.getters
+      .where((a) => !a.isSynthetic)
+      .map((g) => GetterElemV8(g));
 
-  Iterable<SetterElem> get setters => classElement.setters2
-      .where((f) => !f.isSynthetic)
-      .map((s) => SetterElemV7(s));
+  Iterable<SetterElem> get setters => classElement.setters
+      .where((a) => !a.isSynthetic)
+      .map((s) => SetterElemV8(s));
 
   @override
-  bool get hasTypeParameters => classElement.typeParameters2.isNotEmpty;
+  bool get hasTypeParameters => classElement.typeParameters.isNotEmpty;
 
   @override
   List<String> get typeParameterNames =>
-      classElement.typeParameters2.map((tp) => tp.name3!).toList();
+      classElement.typeParameters.map((tp) => tp.name!).toList();
 
-  ClassElemV7(this.classElement) : super(classElement);
+  ClassElemV8(this.classElement) : super(classElement);
 
   @override
   Code toCode() {
@@ -349,15 +353,16 @@ class ClassElemV7 extends ElemV7 implements ClassElem {
   }
 }
 
-class EnumElemV7 extends ElemV7 implements EnumElem {
-  final v7.EnumElement2 enumElement;
+class EnumElemV8 extends ElemV8 implements EnumElem {
+  final v8.EnumElement enumElement;
   Iterable<ElemAnnotation> get annotations =>
-      enumElement.metadata2.annotations.map((a) => ElemAnnotationV7(a));
+      enumElement.metadata.annotations.map((a) => ElemAnnotationV8(a));
 
-  EnumElemV7(this.enumElement) : super(enumElement);
+  EnumElemV8(this.enumElement) : super(enumElement);
 
-  Iterable<FieldElem> get constants =>
-      enumElement.constants2.map((c) => FieldElemV7(c));
+  Iterable<FieldElem> get constants => enumElement.fields
+      .where((f) => f.isEnumConstant)
+      .map((c) => FieldElemV8(c));
 
   @override
   Code toCode() {
@@ -365,13 +370,13 @@ class EnumElemV7 extends ElemV7 implements EnumElem {
   }
 }
 
-class FormalParameterElemV7 extends ElemV7 implements FormalParameterElem {
-  final v7.FormalParameterElement parameterElement;
+class FormalParameterElemV8 extends ElemV8 implements FormalParameterElem {
+  final v8.FormalParameterElement parameterElement;
 
-  FormalParameterElemV7(this.parameterElement) : super(parameterElement);
+  FormalParameterElemV8(this.parameterElement) : super(parameterElement);
 
   @override
-  String get name => parameterElement.name3!;
+  String get name => parameterElement.name!;
 
   @override
   bool get isNamed => parameterElement.isNamed;
@@ -386,15 +391,15 @@ class FormalParameterElemV7 extends ElemV7 implements FormalParameterElem {
   bool get isPositional => parameterElement.isPositional;
 
   @override
-  DartType get type => DartTypeV7(parameterElement.type);
+  DartType get type => DartTypeV8(parameterElement.type);
 }
 
-class ConstructorElemV7 extends ElemV7 implements ConstructorElem {
-  final v7.ConstructorElement2 constructorElement;
+class ConstructorElemV8 extends ElemV8 implements ConstructorElem {
+  final v8.ConstructorElement constructorElement;
 
-  ConstructorElemV7(this.constructorElement) : super(constructorElement);
+  ConstructorElemV8(this.constructorElement) : super(constructorElement);
 
-  String get name => constructorElement.name3!;
+  String get name => constructorElement.name!;
 
   @override
   bool get isConst => constructorElement.isConst;
@@ -407,31 +412,33 @@ class ConstructorElemV7 extends ElemV7 implements ConstructorElem {
 
   Iterable<FormalParameterElem> get formalParameters =>
       constructorElement.formalParameters
-          .map(FormalParameterElemV7.new)
+          .map((p) => FormalParameterElemV8(p))
           .toList(growable: false);
 }
 
-Code _typeToCode(v7.DartType type,
+Code _typeToCode(v8.DartType type,
     {bool enforceNonNull = false, bool raw = false}) {
   var typeName = raw ? type.name : null;
 
-  typeName ??= type.getDisplayString();
+  typeName ??= type.getDisplayString(withNullability: false);
 
-  if (enforceNonNull && typeName.endsWith('?')) {
-    typeName = typeName.substring(0, typeName.length - 1);
+  final isNullable =
+      type.element?.library?.typeSystem.isNullable(type) ?? false;
+  if (!enforceNonNull && isNullable) {
+    typeName += '?';
   }
-  final importUri = _getImportUriForType(type.element3);
+  final importUri = _getImportUriForType(type.element);
   return Code.type(typeName, importUri: importUri);
 }
 
-Code _enumToCode(v7.EnumElement2 type) {
-  final typeName = type.name3!;
+Code _enumToCode(v8.EnumElement type) {
+  final typeName = type.name!;
   final importUri = _getImportUriForType(type);
   return Code.type(typeName, importUri: importUri);
 }
 
-Code _classToCode(v7.ClassElement2 type) {
-  final typeName = type.name3!;
+Code _classToCode(v8.ClassElement type) {
+  final typeName = type.name!;
   final importUri = _getImportUriForType(type);
   return Code.type(typeName, importUri: importUri);
 }
@@ -440,13 +447,13 @@ Code _classToCode(v7.ClassElement2 type) {
 ///
 /// This function analyzes a compile-time constant value and generates the
 /// corresponding Dart code along with any necessary import dependencies.
-Code _toCode(v7.DartObject? value) {
+Code _toCode(v8.DartObject? value) {
   if (value == null || value.isNull) {
     return Code.value('null');
   }
 
   if (value.type?.isDartCoreType == true) {
-    return DartTypeV7(value.toTypeValue()!).toCode();
+    return DartTypeV8(value.toTypeValue()!).toCode();
   }
 
   // Handle primitive types (no imports needed)
@@ -468,9 +475,9 @@ Code _toCode(v7.DartObject? value) {
   // Handle enums - these need import tracking
   if (value.type?.isDartCoreEnum == true) {
     final enumValue = value.getField('_name')?.toStringValue();
-    final enumType = value.type!.getDisplayString();
+    final enumType = value.type!.getDisplayString(withNullability: false);
     if (enumValue != null) {
-      final importUri = _getImportUriForType(value.type!.element3);
+      final importUri = _getImportUriForType(value.type!.element);
       return Code.type('$enumType.$enumValue', importUri: importUri);
     }
   }
@@ -495,13 +502,13 @@ Code _toCode(v7.DartObject? value) {
     return Code.combine([Code.value('{'), combinedEntries, Code.value('}')]);
   }
 
-  if (value.variable2 != null) {
+  if (value.variable != null) {
     // Handle variables (e.g., const variables)
-    final variable = value.variable2!;
-    final variableName = variable.name3;
-    final enclosingElement = variable.enclosingElement2;
-    if (enclosingElement is v7.ClassElement2 &&
-        variableName != null &&
+    final variable = value.variable!;
+    final variableName = variable.name!;
+    final enclosingElement = variable.enclosingElement;
+    if (enclosingElement is v8.ClassElement &&
+        variableName.isNotEmpty &&
         variable.isStatic) {
       return Code.combine(
           [_classToCode(enclosingElement), Code.literal('.$variableName')]);
@@ -509,9 +516,9 @@ Code _toCode(v7.DartObject? value) {
   }
 
   // Handle objects with const constructors (like custom mappers)
-  var typeElement = value.type?.element3;
-  if (typeElement is v7.ClassElement2) {
-    for (final constructor in typeElement.constructors2) {
+  var typeElement = value.type?.element;
+  if (typeElement is v8.ClassElement) {
+    for (final constructor in typeElement.constructors) {
       final fields = constructor.formalParameters;
       if (constructor.isConst) {
         final constructorName = constructor.displayName;
@@ -520,14 +527,14 @@ Code _toCode(v7.DartObject? value) {
 
         // Separate positional and named parameters
         for (final field in fields) {
-          final fieldValue = value.getField(field.name3!);
+          final fieldValue = value.getField(field.name!);
           if (fieldValue != null) {
             final fieldCode = _toCode(fieldValue);
 
             if (field.isNamed) {
               // Named parameter: paramName: value
               namedArgCodes.add(
-                  Code.combine([Code.value('${field.name3!}: '), fieldCode]));
+                  Code.combine([Code.value('${field.name}: '), fieldCode]));
             } else {
               // Positional parameter: just the value
               positionalArgCodes.add(fieldCode);
@@ -545,7 +552,7 @@ Code _toCode(v7.DartObject? value) {
         return Code.combine([
           Code.literal('const '),
           Code.type(constructorName, importUri: importUri),
-          Code.paramsList(allArgCodes),
+          Code.paramsList(allArgCodes)
         ]);
       }
     }
@@ -556,12 +563,14 @@ Code _toCode(v7.DartObject? value) {
 }
 
 /// Determines the import URI for a given type element
-String? _getImportUriForType(v7.Element2? element) {
+String? _getImportUriForType(v8.Element? element) {
   if (element == null) return null;
 
-  final source = element.library2?.identifier;
-  final sourceUri = element.library2?.uri;
+  final source = element.library?.identifier;
+
+  // No uri on library in analyzer v8
+  final sourceUri = element.library?.uri;
   if (source == null || sourceUri == null) return null;
 
-  return source.toString();
+  return sourceUri.toString();
 }

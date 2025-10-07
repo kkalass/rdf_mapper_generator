@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, unnecessary_cast
 import 'analyzer_v7_4.dart' as v7;
 import 'package:build/build.dart';
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
@@ -8,10 +9,8 @@ class AnalyzerWrapperServiceV7 implements AnalyzerWrapperService {
   @override
   Future<LibraryElem> libraryFor(BuildStep buildStep, AssetId assetId,
       {bool allowSyntaxErrors = false}) async {
-    final libElem = (await buildStep.resolver
-            .libraryFor(assetId, allowSyntaxErrors: allowSyntaxErrors))
-        // The library element from build system is LibraryElement, cast to Elem
-        as v7.LibraryElement2;
+    final libElem = await buildStep.resolver.libraryFor(assetId,
+        allowSyntaxErrors: allowSyntaxErrors) as v7.LibraryElement2;
     return LibraryElemV7(libElem);
   }
 

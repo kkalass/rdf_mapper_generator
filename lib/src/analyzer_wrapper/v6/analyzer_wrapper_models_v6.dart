@@ -1,3 +1,4 @@
+// ignore_for_file: unnecessary_type_check, unreachable_switch_case, dead_code
 // ignore_for_file: deprecated_member_use
 
 import 'package:rdf_mapper_generator/src/analyzer_wrapper/analyzer_wrapper_models.dart';
