@@ -4,7 +4,9 @@
 /// and RDF terms for iri terms of type `{{className}}`.
 class {{mapperClassName}} implements {{mapperInterfaceName}} {
 
+  {{#needsDeserialization}}
   static final RegExp _regex = RegExp(r'{{regexPattern}}');
+  {{/needsDeserialization}}
 
   {{#mapperFields}}
   {{#value.isLate}}late {{/value.isLate}}{{#value.isFinal}}final{{/value.isFinal}} {{value.type}} {{value.name}};
@@ -19,6 +21,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{^mapperConstructor.hasBodyAssignments}};{{/mapperConstructor.hasBodyAssignments}}
   {{#mapperConstructor.hasBodyAssignments}}{ {{#mapperConstructor.bodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructor.bodyAssignments}}}{{/mapperConstructor.hasBodyAssignments}}
 
+  {{#needsDeserialization}}
   @override
   {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
     /// Parses IRI parts from a complete IRI using a template.
@@ -52,7 +55,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/hasNonConstructorFields}}
     {{/hasSingleMappedValue}}
   }
+  {{/needsDeserialization}}
 
+  {{#needsSerialization}}
   @override
   IriTerm toRdfTerm(
     {{className}} iriTermValue,
@@ -76,4 +81,5 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     return context.createIriTerm('{{interpolatedTemplate}}');
     {{/hasInterpolatedFragmentTemplate}}
   }
+  {{/needsSerialization}}
 }

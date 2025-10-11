@@ -7,6 +7,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   
   const {{mapperClassName}}();
 
+  {{#needsDeserialization}}
   @override
   {{className}} fromRdfTerm(LiteralTerm term, DeserializationContext context, {bool bypassDatatypeCheck = false}) 
     {{#hasDatatype}}
@@ -35,7 +36,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{#hasDatatype}}
   }
     {{/hasDatatype}}
+  {{/needsDeserialization}}
 
+  {{#needsSerialization}}
   @override
   LiteralTerm toRdfTerm(
     {{className}} value,
@@ -53,5 +56,5 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
         {{/hasDatatype}}
       {{/enumValues}}
     };
-  
+  {{/needsSerialization}}
 }

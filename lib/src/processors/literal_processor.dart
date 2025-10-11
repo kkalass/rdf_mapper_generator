@@ -86,6 +86,8 @@ class LiteralProcessor {
 
       final fromLiteralTermMethod =
           getField(annotation, 'fromLiteralTermMethod')?.toStringValue();
+// Get the mapper direction
+      final direction = getMapperDirection(annotation);
 
       // Create and return the RdfGlobalResource instance
       return RdfLiteralInfo(
@@ -94,6 +96,7 @@ class LiteralProcessor {
         toLiteralTermMethod: toLiteralTermMethod,
         fromLiteralTermMethod: fromLiteralTermMethod,
         datatype: datatype,
+        direction: direction,
       );
     } catch (e, stackTrace) {
       _log.severe('Error creating RdfLiteralInfo', e, stackTrace);

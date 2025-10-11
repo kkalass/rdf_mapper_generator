@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.9] - 2025-10-11
+
+### Added
+
+- **Directional Mappers**: Support for serialize-only and deserialize-only mappers
+  - Added `serializeOnly` and `deserializeOnly` named constructors to `@RdfGlobalResource` annotations and a direction parameter to most existing constructors
+  of `@RdfGlobalResource`, `@RdfLocalResource`, `@RdfIri` and `@RdfLiteral`
+  - Generated mappers implement specific interfaces: `GlobalResourceSerializer`/`GlobalResourceDeserializer`, `LocalResourceSerializer`/`LocalResourceDeserializer`, `IriTermSerializer`/`IriTermDeserializer`, `LiteralTermSerializer`/`LiteralTermDeserializer`
+  - Serialize-only mappers omit deserialization logic (no regex parsing, no `fromRdfResource` method)
+  - Deserialize-only mappers omit serialization logic (no `toRdfResource` method, IRI strategy optional for global resources)
+  - Registry automatically uses correct registration method: `registerSerializer()`, `registerDeserializer()`, or `registerMapper()`
+
 ## [0.10.8] - 2025-10-07
 
 ### Added

@@ -176,6 +176,8 @@ ResourceResolvedMapperModel _createTestResourceMapper({
     dependencies: const [],
     provides: const [],
     typeParameters: typeParameters,
+    type:
+        isGlobalResource ? MapperType.globalResource : MapperType.localResource,
   );
 }
 

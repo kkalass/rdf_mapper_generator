@@ -66,20 +66,31 @@ class ResourceModelBuilderSupport {
             name: iriStrategy!.providedAs!,
             isIriProvider: true),
     ].toList();
-
+    final MapperType mapperType = switch (annotation.direction) {
+      SerializationDirection.serializeOnly => isGlobalResource
+          ? MapperType.globalResourceSerializer
+          : MapperType.localResourceSerializer,
+      SerializationDirection.deserializeOnly => isGlobalResource
+          ? MapperType.globalResourceDeserializer
+          : MapperType.localResourceDeserializer,
+      null =>
+        isGlobalResource ? MapperType.globalResource : MapperType.localResource,
+    };
     final resourceMapper = ResourceMapperModel(
-        mappedClass: mappedClassName,
-        mappedClassModel: mappedClassModel,
-        id: MapperRef.fromImplementationClass(implementationClass),
-        implementationClass: implementationClass,
-        termClass: termClass,
-        typeIri: typeIri,
-        dependencies: dependencies,
-        iriStrategy: iriStrategy,
-        needsReader: resourceInfo.properties.any((p) => p.propertyInfo != null),
-        registerGlobally: resourceInfo.annotation.registerGlobally,
-        provides: provides,
-        typeParameters: resourceInfo.typeParameters);
+      mappedClass: mappedClassName,
+      mappedClassModel: mappedClassModel,
+      id: MapperRef.fromImplementationClass(implementationClass),
+      implementationClass: implementationClass,
+      termClass: termClass,
+      typeIri: typeIri,
+      dependencies: dependencies,
+      iriStrategy: iriStrategy,
+      needsReader: resourceInfo.properties.any((p) => p.propertyInfo != null),
+      registerGlobally: resourceInfo.annotation.registerGlobally,
+      provides: provides,
+      typeParameters: resourceInfo.typeParameters,
+      type: mapperType,
+    );
 
     return [
       resourceMapper,
@@ -130,6 +141,10 @@ class ResourceModelBuilderSupport {
     }
     final iriStrategy = annotation.iri;
     if (iriStrategy == null) {
+      // IRI strategy is optional for deserialize-only mappers
+      if (annotation.direction == SerializationDirection.deserializeOnly) {
+        return null;
+      }
       throw Exception(
         'Trying to generate a mapper for resource ${resourceInfo.className}, but iri strategy is not defined. This should not be possible.',
       );

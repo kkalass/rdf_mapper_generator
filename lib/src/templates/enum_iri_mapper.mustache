@@ -3,11 +3,13 @@
 /// This mapper handles serialization and deserialization between enum constants
 /// and RDF IRI terms for enum type {{className}}.
 class {{mapperClassName}} implements {{mapperInterfaceName}} {
+  {{#needsDeserialization}}
   {{#requiresIriParsing}}
   static final RegExp _regex = RegExp(
     r'{{{regexPattern}}}',
   );
   {{/requiresIriParsing}}
+  {{/needsDeserialization}}
 
   {{#mapperFields}}
   {{#value.isLate}}late {{/value.isLate}}{{#value.isFinal}}final{{/value.isFinal}} {{value.type}} {{value.name}};
@@ -22,6 +24,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{^mapperConstructor.hasBodyAssignments}};{{/mapperConstructor.hasBodyAssignments}}
   {{#mapperConstructor.hasBodyAssignments}}{ {{#mapperConstructor.bodyAssignments}}{{value.fieldName}} = {{value.defaultValue}};{{/mapperConstructor.bodyAssignments}}}{{/mapperConstructor.hasBodyAssignments}}
 
+  {{#needsDeserialization}}
   @override
   {{className}} fromRdfTerm(IriTerm term, DeserializationContext context) {
     {{#requiresIriParsing}}
@@ -58,7 +61,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
       ),
     };
   }
+  {{/needsDeserialization}}
 
+  {{#needsSerialization}}
   @override
   IriTerm toRdfTerm(
     {{className}} value,
@@ -90,4 +95,5 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/hasInterpolatedFragmentTemplate}}
   }
   {{/requiresIriParsing}}
+  {{/needsSerialization}}
 }

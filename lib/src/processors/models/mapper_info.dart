@@ -496,28 +496,56 @@ class IriTemplateInfo {
   }
 }
 
+enum SerializationDirection {
+  serializeOnly,
+  deserializeOnly;
+
+  /// Mapper direction: 'serializeOnly', 'deserializeOnly', or null for both
+  static SerializationDirection? fromString(String? value) {
+    if (value == null) return null;
+    switch (value) {
+      case 'serializeOnly':
+        return SerializationDirection.serializeOnly;
+      case 'deserializeOnly':
+        return SerializationDirection.deserializeOnly;
+      case 'both':
+        // Return null for 'both' as it's the default behavior
+        return null;
+      default:
+        return null;
+    }
+  }
+}
+
 sealed class BaseMappingAnnotationInfo<T> extends BaseMappingInfo<T> {
   final bool registerGlobally;
+  final SerializationDirection? direction;
+
   const BaseMappingAnnotationInfo({
     this.registerGlobally = true,
+    this.direction,
     super.mapper,
   });
 
   @override
-  int get hashCode => Object.hashAll([super.hashCode, registerGlobally]);
+  int get hashCode =>
+      Object.hashAll([super.hashCode, registerGlobally, direction]);
 
   @override
   bool operator ==(Object other) {
     if (other is! BaseMappingAnnotationInfo<T>) {
       return false;
     }
-    return super == other && registerGlobally == other.registerGlobally;
+    return super == other &&
+        registerGlobally == other.registerGlobally &&
+        direction == other.direction;
   }
 
   @override
   String toString() {
     return 'BaseMappingAnnotationInfo{'
         'registerGlobally: $registerGlobally, '
+        'direction: $direction, '
         'mapper: $mapper}';
   }
 }
@@ -528,10 +556,12 @@ sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
   const RdfResourceInfo(
       {required this.classIri,
       required super.registerGlobally,
+      super.direction,
       required super.mapper});
 
   @override
-  int get hashCode => Object.hashAll([classIri, registerGlobally, mapper]);
+  int get hashCode =>
+      Object.hashAll([classIri, registerGlobally, direction, mapper]);
 
   @override
   bool operator ==(Object other) {
@@ -540,6 +570,7 @@ sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
     }
     return classIri == other.classIri &&
         registerGlobally == other.registerGlobally &&
+        direction == other.direction &&
         mapper == other.mapper;
   }
 
@@ -548,6 +579,7 @@ sealed class RdfResourceInfo<T> extends BaseMappingAnnotationInfo<T> {
     return 'RdfResourceInfo{'
         'classIri: $classIri, '
         'registerGlobally: $registerGlobally, '
+        'direction: $direction, '
         'mapper: $mapper}';
   }
 }
@@ -558,6 +590,7 @@ class RdfIriInfo extends BaseMappingAnnotationInfo<IriTermMapper> {
   final List<IriPartInfo>? iriParts;
   const RdfIriInfo(
       {required super.registerGlobally,
+      super.direction,
       required super.mapper,
       required this.template,
       required this.iriParts,
@@ -595,6 +628,7 @@ class RdfLiteralInfo extends BaseMappingAnnotationInfo<LiteralTermMapper> {
 
   const RdfLiteralInfo(
       {required super.registerGlobally,
+      super.direction,
       required super.mapper,
       required this.fromLiteralTermMethod,
       required this.toLiteralTermMethod,
@@ -638,6 +672,7 @@ class RdfGlobalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
       {required super.classIri,
       required this.iri,
       required super.registerGlobally,
+      super.direction,
       required super.mapper});
 
   @override
@@ -657,6 +692,7 @@ class RdfGlobalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
         'classIri: $classIri, '
         'iri: $iri, '
         'registerGlobally: $registerGlobally, '
+        'direction: $direction, '
         'mapper: $mapper}';
   }
 }
@@ -665,6 +701,7 @@ class RdfLocalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
   const RdfLocalResourceInfo(
       {required super.classIri,
       required super.registerGlobally,
+      super.direction,
       required super.mapper});
 
   @override
@@ -684,6 +721,7 @@ class RdfLocalResourceInfo extends RdfResourceInfo<GlobalResourceMapper> {
     return 'RdfLocalResourceInfo{'
         'classIri: $classIri, '
         'registerGlobally: $registerGlobally, '
+        'direction: $direction, '
         'mapper: $mapper}';
   }
 }

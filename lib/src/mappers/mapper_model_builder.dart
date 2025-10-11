@@ -205,6 +205,12 @@ class MapperModelBuilder {
         toLiteralTermMethod: toLiteralTermMethod,
         mappedClassModel: mappedClassModel,
         registerGlobally: literalInfo.annotation.registerGlobally,
+        type: switch (literalInfo.annotation.direction) {
+          SerializationDirection.serializeOnly => MapperType.literalSerializer,
+          SerializationDirection.deserializeOnly =>
+            MapperType.literalDeserializer,
+          null => MapperType.literal,
+        },
       )
     ];
   }
@@ -227,6 +233,12 @@ class MapperModelBuilder {
         toLiteralTermMethod: toLiteralTermMethod,
         enumValues: literalInfo.enumValues.map(toEnumValueModel).toList(),
         registerGlobally: literalInfo.annotation.registerGlobally,
+        type: switch (literalInfo.annotation.direction) {
+          SerializationDirection.serializeOnly => MapperType.literalSerializer,
+          SerializationDirection.deserializeOnly =>
+            MapperType.literalDeserializer,
+          null => MapperType.literal,
+        },
       )
     ];
   }

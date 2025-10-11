@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:build/build.dart';
 import 'package:logging/logging.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/template_renderer.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
@@ -37,16 +38,23 @@ class _InitFileTemplateData {
 class _Mapper {
   final Code type;
   final Code code;
+  final SerializationDirection? direction;
 
   _Mapper({
     required this.type,
     required this.code,
+    this.direction,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'type': type.toMap(),
       'code': code.toMap(),
+      'registerMethod': switch (direction) {
+        SerializationDirection.serializeOnly => 'registerSerializer',
+        SerializationDirection.deserializeOnly => 'registerDeserializer',
+        null => 'registerMapper',
+      },
     };
   }
 }
@@ -235,6 +243,8 @@ class InitFileBuilderHelper {
 
     // Check if this mapper should be registered globally
     final registerGlobally = mapperData['registerGlobally'] as bool? ?? true;
+    final direction =
+        SerializationDirection.fromString(mapperData['direction'] as String?);
     final code = _buildCodeInstantiateMapperFromRequired(
         mapperClassName, requiredMapperParameters);
 
@@ -244,6 +254,7 @@ class InitFileBuilderHelper {
           _Mapper(
             code: code,
             type: className,
+            direction: direction,
           )
         ],
         parametersByName,

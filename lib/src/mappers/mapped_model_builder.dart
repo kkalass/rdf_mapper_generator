@@ -363,15 +363,16 @@ class MappedClassModelBuilder {
           mappedClassName, propertyName, mapperImportUri);
       mapperRef = MapperRef.fromImplementationClass(generatedMapperClassName);
       final generatedMapper = IriModelBuilderSupport.buildIriMapper(
-        context: context,
-        mappedClassName: dartTypeNonNull,
-        templateInfo: iri.template!,
-        iriParts: iri.template!.iriParts,
-        mapperClassName: generatedMapperClassName,
-        registerGlobally: false,
-        /* local to the resource mapper */
-        mapperImportUri: mapperImportUri,
-      );
+          context: context,
+          mappedClassName: dartTypeNonNull,
+          templateInfo: iri.template!,
+          iriParts: iri.template!.iriParts,
+          mapperClassName: generatedMapperClassName,
+          registerGlobally: false,
+          /* local to the resource mapper */
+          mapperImportUri: mapperImportUri,
+          // for property based IRI mappers, we do not do the Serializer/Deserializer/Mapper distinction for now
+          type: MapperType.iri);
       extraMappers.addAll(generatedMapper);
     } else if (iri.isFullIriTemplate) {
       mapperRef = MapperRef.fromInstantiationCode(Code.combine([

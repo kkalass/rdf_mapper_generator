@@ -1,4 +1,5 @@
 import 'package:rdf_mapper_generator/src/processors/broader_imports.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/templates/code.dart';
 import 'package:rdf_mapper_generator/src/templates/util.dart';
 
@@ -96,6 +97,9 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
   /// Whether to register this mapper globally
   final bool registerGlobally;
 
+  /// Mapper direction: 'serializeOnly', 'deserializeOnly', or null for both
+  final SerializationDirection? direction;
+
   ResourceMapperTemplateData({
     required super.className,
     required super.mapperClassName,
@@ -111,6 +115,7 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
     required bool registerGlobally,
     required List<PropertyData> propertiesToSerialize,
     required List<PropertyData> propertiesToDeserializeAsFields,
+    required this.direction,
   })  : typeIri = typeIri,
         iriStrategy = iriStrategy,
         propertiesToDeserializeAsConstructorParameters =
@@ -130,6 +135,11 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
         allProperties.any((p) => p.isRdfUnmappedTriples);
     final hasUnmappedTriplesProperties =
         propertiesToSerialize.any((p) => p.isRdfUnmappedTriples);
+
+    final needsDeserialization =
+        direction != SerializationDirection.serializeOnly;
+    final needsSerialization =
+        direction != SerializationDirection.deserializeOnly;
 
     return {
       'className': className.toMap(),
@@ -158,6 +168,10 @@ class ResourceMapperTemplateData extends GeneratedMapperTemplateData {
       'hasMapperFields': mapperFields.isNotEmpty,
       'needsReader': needsReader,
       'registerGlobally': registerGlobally,
+      'needsDeserialization': needsDeserialization,
+      'needsSerialization': needsSerialization,
+      // necessary for init file builder
+      'direction': direction?.name,
     };
   }
 }
@@ -316,6 +330,9 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
   final PropertyData? rdfValue;
   final PropertyData? rdfLanguageTag;
 
+  /// Mapper direction: 'serializeOnly', 'deserializeOnly', or null for both
+  final SerializationDirection? direction;
+
   LiteralMapperTemplateData({
     required super.className,
     required super.mapperClassName,
@@ -331,6 +348,7 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
     required List<PropertyData> nonConstructorFields,
     required bool registerGlobally,
     required List<PropertyData> properties,
+    required this.direction,
   })  : constructorParameters = constructorParameters,
         nonConstructorFields = nonConstructorFields,
         registerGlobally = registerGlobally,
@@ -339,6 +357,11 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
+    final needsDeserialization =
+        direction != SerializationDirection.serializeOnly;
+    final needsSerialization =
+        direction != SerializationDirection.deserializeOnly;
+
     return {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
@@ -370,6 +393,10 @@ class LiteralMapperTemplateData extends GeneratedMapperTemplateData {
       'hasRdfLanguageTag': rdfLanguageTag != null,
       'rdfLanguageDatatype': rdfLanguageDatatype,
       'hasCustomDatatype': datatype != null || rdfLanguageTag != null,
+      'needsDeserialization': needsDeserialization,
+      'needsSerialization': needsSerialization,
+      // necessary for init file builder
+      'direction': direction?.name,
     };
   }
 }
@@ -399,6 +426,9 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
 
   final VariableNameData? singleMappedValue;
 
+  /// Mapper direction: 'serializeOnly', 'deserializeOnly', or null for both
+  final SerializationDirection? direction;
+
   IriMapperTemplateData({
     required super.className,
     required super.mapperClassName,
@@ -414,10 +444,16 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
     required this.registerGlobally,
     required this.contextVariables,
     this.singleMappedValue,
+    required this.direction,
   });
 
   /// Converts this template data to a Map for mustache rendering
   Map<String, dynamic> toMap() {
+    final needsDeserialization =
+        direction != SerializationDirection.serializeOnly;
+    final needsSerialization =
+        direction != SerializationDirection.deserializeOnly;
+
     return {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
@@ -447,6 +483,10 @@ class IriMapperTemplateData extends GeneratedMapperTemplateData {
       'registerGlobally': registerGlobally,
       'singleMappedValue': singleMappedValue?.toMap(),
       'hasSingleMappedValue': singleMappedValue != null,
+      'needsDeserialization': needsDeserialization,
+      'needsSerialization': needsSerialization,
+      // necessary for init file builder
+      'direction': direction?.name,
     };
   }
 }
@@ -850,6 +890,9 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
   final String? fromLiteralTermMethod;
   final String? toLiteralTermMethod;
 
+  /// Mapper direction: 'serializeOnly', 'deserializeOnly', or null for both
+  final SerializationDirection? direction;
+
   EnumLiteralMapperTemplateData({
     required super.className,
     required super.mapperClassName,
@@ -861,10 +904,16 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
     required this.registerGlobally,
     required this.fromLiteralTermMethod,
     required this.toLiteralTermMethod,
+    required this.direction,
   }) : super();
 
   @override
   Map<String, dynamic> toMap() {
+    final needsDeserialization =
+        direction != SerializationDirection.serializeOnly;
+    final needsSerialization =
+        direction != SerializationDirection.deserializeOnly;
+
     return {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
@@ -879,6 +928,10 @@ class EnumLiteralMapperTemplateData extends GeneratedMapperTemplateData {
       'mapperFields':
           toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
       'hasMapperFields': mapperFields.isNotEmpty,
+      'needsDeserialization': needsDeserialization,
+      'needsSerialization': needsSerialization,
+      // necessary for init file builder
+      'direction': direction?.name,
     };
   }
 }
@@ -906,6 +959,9 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
 
   final Set<DependencyUsingVariableData> contextVariables;
 
+  /// Mapper direction: 'serializeOnly', 'deserializeOnly', or null for both
+  final SerializationDirection? direction;
+
   EnumIriMapperTemplateData({
     required super.className,
     required super.mapperClassName,
@@ -919,10 +975,16 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
     required this.registerGlobally,
     required this.requiresIriParsing,
     required this.contextVariables,
+    required this.direction,
   });
 
   @override
   Map<String, dynamic> toMap() {
+    final needsDeserialization =
+        direction != SerializationDirection.serializeOnly;
+    final needsSerialization =
+        direction != SerializationDirection.deserializeOnly;
+
     return {
       'className': className.toMap(),
       'mapperClassName': mapperClassName.toMap(),
@@ -941,6 +1003,10 @@ class EnumIriMapperTemplateData extends GeneratedMapperTemplateData {
       'mapperFields':
           toMustacheList(mapperFields.map((f) => f.toMap()).toList()),
       'hasMapperFields': mapperFields.isNotEmpty,
+      'needsDeserialization': needsDeserialization,
+      'needsSerialization': needsSerialization,
+      // necessary for init file builder
+      'direction': direction?.name,
     };
   }
 }

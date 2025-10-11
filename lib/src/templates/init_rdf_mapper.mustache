@@ -37,7 +37,7 @@ RdfMapper init{{#isTest}}Test{{/isTest}}RdfMapper({
   var registry = rdfMapper.registry;
 
   {{#mappers}}
-  registry.registerMapper<{{type}}>({{code}});
+  registry.{{registerMethod}}<{{type}}>({{code}});
   {{/mappers}}
   
   return rdfMapper;

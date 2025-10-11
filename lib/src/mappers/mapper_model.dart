@@ -7,6 +7,7 @@ library;
 
 import 'package:logging/logging.dart';
 import 'package:rdf_mapper_generator/src/mappers/resolved_mapper_model.dart';
+import 'package:rdf_mapper_generator/src/processors/models/mapper_info.dart';
 import 'package:rdf_mapper_generator/src/validation/validation_context.dart';
 import 'package:uuid/uuid.dart';
 
@@ -123,13 +124,30 @@ class _InstantiationMapperRef extends MapperRef {
 
 enum MapperType {
   globalResource('GlobalResourceMapper'),
+  globalResourceSerializer('GlobalResourceSerializer',
+      direction: SerializationDirection.serializeOnly),
+  globalResourceDeserializer('GlobalResourceDeserializer',
+      direction: SerializationDirection.deserializeOnly),
   localResource('LocalResourceMapper'),
+  localResourceSerializer('LocalResourceSerializer',
+      direction: SerializationDirection.serializeOnly),
+  localResourceDeserializer('LocalResourceDeserializer',
+      direction: SerializationDirection.deserializeOnly),
   iri('IriTermMapper'),
+  iriSerializer('IriTermSerializer',
+      direction: SerializationDirection.serializeOnly),
+  iriDeserializer('IriTermDeserializer',
+      direction: SerializationDirection.deserializeOnly),
   literal('LiteralTermMapper'),
+  literalSerializer('LiteralTermSerializer',
+      direction: SerializationDirection.serializeOnly),
+  literalDeserializer('LiteralTermDeserializer',
+      direction: SerializationDirection.deserializeOnly),
   ;
 
   final String dartInterfaceName;
-  const MapperType(this.dartInterfaceName);
+  final SerializationDirection? direction;
+  const MapperType(this.dartInterfaceName, {this.direction});
 }
 
 class IriMappingModel {
@@ -606,11 +624,6 @@ class ResourceMapperModel extends GeneratedMapperModel {
   final MapperRef id;
 
   @override
-  MapperType get type => iriStrategy == null
-      ? MapperType.localResource
-      : MapperType.globalResource;
-
-  @override
   final Code mappedClass;
 
   @override
@@ -638,19 +651,23 @@ class ResourceMapperModel extends GeneratedMapperModel {
 
   final List<String> typeParameters;
 
-  ResourceMapperModel(
-      {required this.id,
-      required this.mappedClass,
-      required this.mappedClassModel,
-      required this.implementationClass,
-      required this.dependencies,
-      required this.registerGlobally,
-      required this.typeIri,
-      required this.termClass,
-      required this.iriStrategy,
-      required this.needsReader,
-      required this.provides,
-      this.typeParameters = const []});
+  final MapperType type;
+
+  ResourceMapperModel({
+    required this.id,
+    required this.mappedClass,
+    required this.mappedClassModel,
+    required this.implementationClass,
+    required this.dependencies,
+    required this.registerGlobally,
+    required this.typeIri,
+    required this.termClass,
+    required this.iriStrategy,
+    required this.needsReader,
+    required this.provides,
+    this.typeParameters = const [],
+    required this.type,
+  });
 
   @override
   ResolvedMapperModel resolveInternal(
@@ -670,6 +687,7 @@ class ResourceMapperModel extends GeneratedMapperModel {
       needsReader: needsReader,
       provides: provides.map((p) => p.resolve(context)).toList(growable: false),
       typeParameters: typeParameters,
+      type: type,
     );
   }
 }
@@ -678,9 +696,6 @@ class ResourceMapperModel extends GeneratedMapperModel {
 sealed class IriMapperModel extends GeneratedMapperModel {
   @override
   final MapperRef id;
-
-  @override
-  final MapperType type = MapperType.iri;
 
   @override
   final Code mappedClass;
@@ -708,6 +723,8 @@ sealed class IriMapperModel extends GeneratedMapperModel {
 
   final VariableNameModel? singleMappedValue;
 
+  final MapperType type;
+
   IriMapperModel(
       {required this.id,
       required this.mappedClass,
@@ -719,7 +736,8 @@ sealed class IriMapperModel extends GeneratedMapperModel {
       required this.interpolatedFragmentTemplate,
       required this.regexPattern,
       required this.singleMappedValue,
-      required this.contextVariables});
+      required this.contextVariables,
+      required this.type});
 }
 
 class IriClassMapperModel extends IriMapperModel {
@@ -738,7 +756,8 @@ class IriClassMapperModel extends IriMapperModel {
       required super.interpolatedFragmentTemplate,
       required super.regexPattern,
       required super.singleMappedValue,
-      required super.contextVariables});
+      required super.contextVariables,
+      required super.type});
 
   @override
   ResolvedMapperModel resolveInternal(
@@ -758,6 +777,7 @@ class IriClassMapperModel extends IriMapperModel {
       singleMappedValue: singleMappedValue?.resolve(context),
       contextVariables: contextVariables.map((v) => v.resolve(context)).toSet(),
       dependencies: context.resolvedDependencies,
+      type: type,
     );
   }
 }
@@ -779,36 +799,35 @@ class IriEnumMapperModel extends IriMapperModel {
       required super.regexPattern,
       required super.singleMappedValue,
       required super.contextVariables,
-      required this.hasFullIriTemplate});
+      required this.hasFullIriTemplate,
+      required super.type});
 
   @override
   ResolvedMapperModel resolveInternal(
     ResolveStep2Context context,
   ) {
     return IriEnumResolvedMapperModel(
-        id: id,
-        mappedClass: mappedClass,
-        enumValues: enumValues,
-        implementationClass: implementationClass,
-        registerGlobally: registerGlobally,
-        propertyVariables:
-            propertyVariables.map((p) => p.resolve(context)).toSet(),
-        interpolatedTemplate: interpolatedTemplate,
-        interpolatedFragmentTemplate: interpolatedFragmentTemplate,
-        regexPattern: regexPattern,
-        singleMappedValue: singleMappedValue?.resolve(context),
-        dependencies: context.resolvedDependencies,
-        contextVariables:
-            contextVariables.map((v) => v.resolve(context)).toSet(),
-        hasFullIriTemplate: hasFullIriTemplate);
+      id: id,
+      mappedClass: mappedClass,
+      enumValues: enumValues,
+      implementationClass: implementationClass,
+      registerGlobally: registerGlobally,
+      propertyVariables:
+          propertyVariables.map((p) => p.resolve(context)).toSet(),
+      interpolatedTemplate: interpolatedTemplate,
+      interpolatedFragmentTemplate: interpolatedFragmentTemplate,
+      regexPattern: regexPattern,
+      singleMappedValue: singleMappedValue?.resolve(context),
+      dependencies: context.resolvedDependencies,
+      contextVariables: contextVariables.map((v) => v.resolve(context)).toSet(),
+      hasFullIriTemplate: hasFullIriTemplate,
+      type: type,
+    );
   }
 }
 
 /// A mapper for literal terms
 sealed class LiteralMapperModel extends GeneratedMapperModel {
-  @override
-  final MapperType type = MapperType.literal;
-
   @override
   final MapperRef id;
 
@@ -830,16 +849,18 @@ sealed class LiteralMapperModel extends GeneratedMapperModel {
 
   final String? toLiteralTermMethod;
 
-  LiteralMapperModel({
-    required this.id,
-    required this.mappedClass,
-    required this.implementationClass,
-    required this.dependencies,
-    required this.registerGlobally,
-    required this.datatype,
-    required this.fromLiteralTermMethod,
-    required this.toLiteralTermMethod,
-  });
+  final MapperType type;
+
+  LiteralMapperModel(
+      {required this.id,
+      required this.mappedClass,
+      required this.implementationClass,
+      required this.dependencies,
+      required this.registerGlobally,
+      required this.datatype,
+      required this.fromLiteralTermMethod,
+      required this.toLiteralTermMethod,
+      required this.type});
 
   bool get isMethodBased =>
       fromLiteralTermMethod != null && toLiteralTermMethod != null;
@@ -849,33 +870,35 @@ class LiteralClassMapperModel extends LiteralMapperModel {
   @override
   final MappedClassModel mappedClassModel;
 
-  LiteralClassMapperModel({
-    required super.id,
-    required super.mappedClass,
-    required super.implementationClass,
-    required super.dependencies,
-    required super.registerGlobally,
-    required super.datatype,
-    required this.mappedClassModel,
-    required super.fromLiteralTermMethod,
-    required super.toLiteralTermMethod,
-  });
+  LiteralClassMapperModel(
+      {required super.id,
+      required super.mappedClass,
+      required super.implementationClass,
+      required super.dependencies,
+      required super.registerGlobally,
+      required super.datatype,
+      required this.mappedClassModel,
+      required super.fromLiteralTermMethod,
+      required super.toLiteralTermMethod,
+      required super.type});
 
   @override
   ResolvedMapperModel resolveInternal(
     ResolveStep2Context context,
   ) {
     return LiteralClassResolvedMapperModel(
-        id: id,
-        mappedClass: mappedClass,
-        implementationClass: implementationClass,
-        registerGlobally: registerGlobally,
-        datatype: datatype,
-        dependencies: context.resolvedDependencies,
-        mappedClassModel: mappedClassModel.resolve(
-            context, (p) => p.isRdfValue || p.isRdfLanguageTag),
-        fromLiteralTermMethod: fromLiteralTermMethod,
-        toLiteralTermMethod: toLiteralTermMethod);
+      id: id,
+      mappedClass: mappedClass,
+      implementationClass: implementationClass,
+      registerGlobally: registerGlobally,
+      datatype: datatype,
+      dependencies: context.resolvedDependencies,
+      mappedClassModel: mappedClassModel.resolve(
+          context, (p) => p.isRdfValue || p.isRdfLanguageTag),
+      fromLiteralTermMethod: fromLiteralTermMethod,
+      toLiteralTermMethod: toLiteralTermMethod,
+      type: type,
+    );
   }
 }
 
@@ -1054,20 +1077,23 @@ class LiteralEnumMapperModel extends LiteralMapperModel {
     required super.fromLiteralTermMethod,
     required super.toLiteralTermMethod,
     required this.enumValues,
+    required super.type,
   });
 
   @override
   ResolvedMapperModel resolveInternal(ResolveStep2Context context) {
     return LiteralEnumResolvedMapperModel(
-        id: id,
-        mappedClass: mappedClass,
-        implementationClass: implementationClass,
-        registerGlobally: registerGlobally,
-        datatype: datatype,
-        dependencies: context.resolvedDependencies,
-        fromLiteralTermMethod: fromLiteralTermMethod,
-        toLiteralTermMethod: toLiteralTermMethod,
-        enumValues: enumValues);
+      id: id,
+      mappedClass: mappedClass,
+      implementationClass: implementationClass,
+      registerGlobally: registerGlobally,
+      datatype: datatype,
+      dependencies: context.resolvedDependencies,
+      fromLiteralTermMethod: fromLiteralTermMethod,
+      toLiteralTermMethod: toLiteralTermMethod,
+      enumValues: enumValues,
+      type: type,
+    );
   }
 }
 

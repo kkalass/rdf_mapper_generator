@@ -77,6 +77,9 @@ class ResourceProcessor {
       // Get the registerGlobally flag
       final registerGlobally = isRegisterGlobally(annotation);
 
+      // Get the mapper direction
+      final direction = getMapperDirection(annotation);
+
       // Check for generic type parameters and validate registerGlobally setting
       if (classElement.hasTypeParameters && registerGlobally) {
         context.addError(
@@ -96,6 +99,7 @@ class ResourceProcessor {
           classIri: classIri,
           iri: iriStrategy,
           registerGlobally: registerGlobally,
+          direction: direction,
           mapper: mapper,
         );
       }
@@ -103,6 +107,7 @@ class ResourceProcessor {
       return RdfLocalResourceInfo(
         classIri: classIri,
         registerGlobally: registerGlobally,
+        direction: direction,
         mapper: mapper,
       );
     } catch (e) {

@@ -15,6 +15,11 @@ import 'fixtures/annotation_test_models.dart' as atm;
 import 'fixtures/annotation_test_models.rdf_mapper.g.dart' as atmrmg;
 import 'fixtures/comprehensive_collection_tests.dart' as cct;
 import 'fixtures/comprehensive_collection_tests.rdf_mapper.g.dart' as cctrmg;
+import 'fixtures/directional_comprehensive_test_models.dart' as dctm;
+import 'fixtures/directional_comprehensive_test_models.rdf_mapper.g.dart'
+    as dctmrmg;
+import 'fixtures/directional_mapper_test_models.dart' as dmtm;
+import 'fixtures/directional_mapper_test_models.rdf_mapper.g.dart' as dmtmrmg;
 import 'fixtures/enum_test_models.dart' as etm;
 import 'fixtures/enum_test_models.rdf_mapper.g.dart' as etmrmg;
 import 'fixtures/global_resource_processor_test_models.dart' as grptm;
@@ -218,6 +223,69 @@ RdfMapper initTestRdfMapper({
   registry.registerMapper<cct.MixedTypeTests>(cctrmg.MixedTypeTestsMapper());
   registry.registerMapper<cct.ContextProviderTests>(
     cctrmg.ContextProviderTestsMapper(),
+  );
+  registry.registerDeserializer<dctm.DeserializeOnlyGlobalResource>(
+    dctmrmg.DeserializeOnlyGlobalResourceMapper(),
+  );
+  registry.registerSerializer<dctm.SerializeOnlyGlobalResource>(
+    dctmrmg.SerializeOnlyGlobalResourceMapper(),
+  );
+  registry.registerMapper<dctm.BidirectionalGlobalResource>(
+    dctmrmg.BidirectionalGlobalResourceMapper(),
+  );
+  registry.registerDeserializer<dctm.DeserializeOnlyLocalResource>(
+    dctmrmg.DeserializeOnlyLocalResourceMapper(),
+  );
+  registry.registerSerializer<dctm.SerializeOnlyLocalResource>(
+    dctmrmg.SerializeOnlyLocalResourceMapper(),
+  );
+  registry.registerMapper<dctm.BidirectionalLocalResource>(
+    dctmrmg.BidirectionalLocalResourceMapper(),
+  );
+  registry.registerDeserializer<dctm.DeserializeOnlyIriClass>(
+    dctmrmg.DeserializeOnlyIriClassMapper(),
+  );
+  registry.registerSerializer<dctm.SerializeOnlyIriClass>(
+    dctmrmg.SerializeOnlyIriClassMapper(),
+  );
+  registry.registerMapper<dctm.BidirectionalIriClass>(
+    dctmrmg.BidirectionalIriClassMapper(),
+  );
+  registry.registerDeserializer<dctm.DeserializeOnlyLiteralClass>(
+    dctmrmg.DeserializeOnlyLiteralClassMapper(),
+  );
+  registry.registerSerializer<dctm.SerializeOnlyLiteralClass>(
+    dctmrmg.SerializeOnlyLiteralClassMapper(),
+  );
+  registry.registerMapper<dctm.BidirectionalLiteralClass>(
+    dctmrmg.BidirectionalLiteralClassMapper(),
+  );
+  registry.registerDeserializer<dctm.DeserializeOnlyIriEnum>(
+    dctmrmg.DeserializeOnlyIriEnumMapper(),
+  );
+  registry.registerSerializer<dctm.SerializeOnlyIriEnum>(
+    dctmrmg.SerializeOnlyIriEnumMapper(),
+  );
+  registry.registerMapper<dctm.BidirectionalIriEnum>(
+    dctmrmg.BidirectionalIriEnumMapper(),
+  );
+  registry.registerDeserializer<dctm.DeserializeOnlyLiteralEnum>(
+    dctmrmg.DeserializeOnlyLiteralEnumMapper(),
+  );
+  registry.registerSerializer<dctm.SerializeOnlyLiteralEnum>(
+    dctmrmg.SerializeOnlyLiteralEnumMapper(),
+  );
+  registry.registerMapper<dctm.BidirectionalLiteralEnum>(
+    dctmrmg.BidirectionalLiteralEnumMapper(),
+  );
+  registry.registerDeserializer<dmtm.DeserializeOnlyClass>(
+    dmtmrmg.DeserializeOnlyClassMapper(),
+  );
+  registry.registerSerializer<dmtm.SerializeOnlyClass>(
+    dmtmrmg.SerializeOnlyClassMapper(),
+  );
+  registry.registerMapper<dmtm.BidirectionalClass>(
+    dmtmrmg.BidirectionalClassMapper(),
   );
   registry.registerMapper<etm.Priority>(etmrmg.PriorityMapper());
   registry.registerMapper<etm.Status>(etmrmg.StatusMapper());

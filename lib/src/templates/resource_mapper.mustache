@@ -7,7 +7,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{#iriStrategy}}
   {{#hasTemplate}}
   {{#requiresIriParsing}}
+  {{#needsDeserialization}}
   static final RegExp _regex = RegExp(r'{{template.regexPattern}}');
+  {{/needsDeserialization}}
   {{/requiresIriParsing}}
   {{/hasTemplate}}
   {{/iriStrategy}}
@@ -29,6 +31,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   @override
   IriTerm? get typeIri => {{#hasTypeIri}}{{typeIri}}{{/hasTypeIri}}{{^hasTypeIri}}null{{/hasTypeIri}};
 
+  {{#needsDeserialization}}
   @override
   {{className}} fromRdfResource({{termClass}} subject, DeserializationContext context) {
     {{#needsReader}}
@@ -96,7 +99,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     return retval;
     {{/hasNonConstructorFields}}
   }
+  {{/needsDeserialization}}
 
+  {{#needsSerialization}}
   @override
   ({{termClass}}, Iterable<Triple>) toRdfResource(
     {{className}} resource,
@@ -141,7 +146,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/hasUnmappedTriplesProperties}}
       .build();
   }
+  {{/needsSerialization}}
 
+  {{#needsSerialization}}
   {{#hasIriStrategy}}
   {{#iriStrategy}}
   {{#hasTemplate}}
@@ -169,4 +176,5 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
   {{/hasTemplate}}
   {{/iriStrategy}}
   {{/hasIriStrategy}}
+  {{/needsSerialization}}
 }

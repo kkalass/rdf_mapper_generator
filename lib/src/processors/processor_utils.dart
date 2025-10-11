@@ -228,6 +228,21 @@ bool isRegisterGlobally(DartObject annotation) {
   return field?.toBoolValue() ?? true;
 }
 
+/// Extracts the mapper direction from an annotation.
+/// Returns the string representation of the MapperDirection enum value,
+/// or null if not set or if it's set to 'both'.
+SerializationDirection? getMapperDirection(DartObject annotation) {
+  final directionField = getField(annotation, 'direction');
+  if (directionField == null || directionField.isNull) {
+    return null;
+  }
+  // The direction field is of type MapperDirection enum
+  // We need to extract the enum value name
+  final enumValue = directionField.getField('_name')?.toStringValue();
+  // Return null for 'both' as it's the default behavior
+  return SerializationDirection.fromString(enumValue);
+}
+
 /**
  * Gets the field - unlike obj.getField() we will go up the 
  * inheritance tree to find a parent with the field of the specified name

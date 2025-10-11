@@ -192,7 +192,12 @@ class IriModelBuilderSupport {
         annotations: iriInfo.annotations,
         registerGlobally: annotation.registerGlobally,
         mapperImportUri: mapperImportUri,
-        enumValues: iriInfo.enumValues);
+        enumValues: iriInfo.enumValues,
+        type: switch (iriInfo.annotation.direction) {
+          SerializationDirection.serializeOnly => MapperType.iriSerializer,
+          SerializationDirection.deserializeOnly => MapperType.iriDeserializer,
+          null => MapperType.iri,
+        });
   }
 
   static Code _toImplementationClass(Code mappedClass, String mapperImportUri) {
@@ -211,7 +216,8 @@ class IriModelBuilderSupport {
       List<AnnotationInfo> annotations = const [],
       bool registerGlobally = false,
       required String mapperImportUri,
-      List<EnumValueInfo> enumValues = const []}) {
+      List<EnumValueInfo> enumValues = const [],
+      required MapperType type}) {
     final singleMappedValue = templateInfo.propertyVariables
         .where((v) => v.isMappedValue)
         .map((v) => VariableNameModel(
@@ -234,6 +240,7 @@ class IriModelBuilderSupport {
       );
     }).toSet();
     final dependencies = contextVariables.map((v) => v.dependency).toList();
+
     if (enumValues.isNotEmpty) {
       return buildIriEnumMapper(
         templateInfo,
@@ -252,59 +259,66 @@ class IriModelBuilderSupport {
         contextVariables,
         singleMappedValue,
         enumValues,
+        type,
       );
     }
     return buildIriClassMapper(
-        mappedClassName,
-        mapperImportUri,
-        constructors,
-        properties,
-        annotations,
-        context,
-        mapperClassName,
-        registerGlobally,
-        dependencies,
-        tar.interpolatedTemplate,
-        tar.interpolatedFragmentTemplate,
-        propertyVariables,
-        tar.regexPattern,
-        contextVariables,
-        singleMappedValue);
+      mappedClassName,
+      mapperImportUri,
+      constructors,
+      properties,
+      annotations,
+      context,
+      mapperClassName,
+      registerGlobally,
+      dependencies,
+      tar.interpolatedTemplate,
+      tar.interpolatedFragmentTemplate,
+      propertyVariables,
+      tar.regexPattern,
+      contextVariables,
+      singleMappedValue,
+      type,
+    );
   }
 
   static List<MapperModel> buildIriEnumMapper(
-      IriTemplateInfo templateInfo,
-      Code mappedClassName,
-      String mapperImportUri,
-      List<ConstructorInfo> constructors,
-      List<PropertyInfo> fields,
-      ValidationContext context,
-      Code mapperClassName,
-      bool registerGlobally,
-      List<DependencyModel> dependencies,
-      String interpolatedTemplate,
-      String? interpolatedFragmentTemplate,
-      Set<VariableNameModel> propertyVariables,
-      String regexPattern,
-      Set<DependencyUsingVariableModel> contextVariables,
-      VariableNameModel? singleMappedValue,
-      List<EnumValueInfo> enumValues) {
+    IriTemplateInfo templateInfo,
+    Code mappedClassName,
+    String mapperImportUri,
+    List<ConstructorInfo> constructors,
+    List<PropertyInfo> fields,
+    ValidationContext context,
+    Code mapperClassName,
+    bool registerGlobally,
+    List<DependencyModel> dependencies,
+    String interpolatedTemplate,
+    String? interpolatedFragmentTemplate,
+    Set<VariableNameModel> propertyVariables,
+    String regexPattern,
+    Set<DependencyUsingVariableModel> contextVariables,
+    VariableNameModel? singleMappedValue,
+    List<EnumValueInfo> enumValues,
+    MapperType mapperType,
+  ) {
     return [
       IriEnumMapperModel(
-          id: MapperRef.fromImplementationClass(mapperClassName),
-          enumValues: enumValues.map(toEnumValueModel).toList(),
-          mappedClass: mappedClassName,
-          implementationClass: mapperClassName,
-          registerGlobally: registerGlobally,
-          dependencies: dependencies,
-          interpolatedTemplate: interpolatedTemplate,
-          interpolatedFragmentTemplate: interpolatedFragmentTemplate,
-          propertyVariables: propertyVariables,
-          regexPattern: regexPattern,
-          contextVariables: contextVariables,
-          singleMappedValue: singleMappedValue,
-          hasFullIriTemplate: IriModelBuilderSupport.hasFullIriPartTemplate(
-              templateInfo.iriParts, templateInfo.template)),
+        id: MapperRef.fromImplementationClass(mapperClassName),
+        enumValues: enumValues.map(toEnumValueModel).toList(),
+        mappedClass: mappedClassName,
+        implementationClass: mapperClassName,
+        registerGlobally: registerGlobally,
+        dependencies: dependencies,
+        interpolatedTemplate: interpolatedTemplate,
+        interpolatedFragmentTemplate: interpolatedFragmentTemplate,
+        propertyVariables: propertyVariables,
+        regexPattern: regexPattern,
+        contextVariables: contextVariables,
+        singleMappedValue: singleMappedValue,
+        hasFullIriTemplate: IriModelBuilderSupport.hasFullIriPartTemplate(
+            templateInfo.iriParts, templateInfo.template),
+        type: mapperType,
+      ),
     ];
   }
 
@@ -323,7 +337,8 @@ class IriModelBuilderSupport {
       Set<VariableNameModel> propertyVariables,
       String regexPattern,
       Set<DependencyUsingVariableModel> contextVariables,
-      VariableNameModel? singleMappedValue) {
+      VariableNameModel? singleMappedValue,
+      MapperType mapperType) {
     final mappedClassModel = MappedClassModelBuilder.buildMappedClassModel(
         context,
         mappedClassName,
@@ -343,18 +358,20 @@ class IriModelBuilderSupport {
     }
     return [
       IriClassMapperModel(
-          id: MapperRef.fromImplementationClass(mapperClassName),
-          mappedClass: mappedClassName,
-          mappedClassModel: mappedClassModel,
-          implementationClass: mapperClassName,
-          registerGlobally: registerGlobally,
-          dependencies: dependencies,
-          interpolatedTemplate: interpolatedTemplate,
-          interpolatedFragmentTemplate: interpolatedFragmentTemplate,
-          propertyVariables: propertyVariables,
-          regexPattern: regexPattern,
-          contextVariables: contextVariables,
-          singleMappedValue: singleMappedValue),
+        id: MapperRef.fromImplementationClass(mapperClassName),
+        mappedClass: mappedClassName,
+        mappedClassModel: mappedClassModel,
+        implementationClass: mapperClassName,
+        registerGlobally: registerGlobally,
+        dependencies: dependencies,
+        interpolatedTemplate: interpolatedTemplate,
+        interpolatedFragmentTemplate: interpolatedFragmentTemplate,
+        propertyVariables: propertyVariables,
+        regexPattern: regexPattern,
+        contextVariables: contextVariables,
+        singleMappedValue: singleMappedValue,
+        type: mapperType,
+      ),
     ];
   }
 }

@@ -89,6 +89,9 @@ class IriProcessor {
       final fragmentTemplateFieldValue =
           getField(annotation, 'fragmentTemplate')?.toStringValue();
 
+      // Get the mapper direction
+      final direction = getMapperDirection(annotation);
+
       if (element is ClassElem) {
         final (template, templateInfo, iriParts) =
             IriStrategyProcessor.processIriPartsAndTemplateWithFragment(
@@ -103,7 +106,8 @@ class IriProcessor {
             mapper: mapper,
             template: template,
             iriParts: iriParts,
-            templateInfo: templateInfo);
+            templateInfo: templateInfo,
+            direction: direction);
       } else {
         // For enums, we only need the template string
         // If no template is provided, use {+value} as default (like classes use {+fieldName})
@@ -124,6 +128,7 @@ class IriProcessor {
             mapper: mapper,
             template: template,
             iriParts: fakeIriParts,
+            direction: direction,
             templateInfo: templateInfo);
       }
     } catch (e, stackTrace) {

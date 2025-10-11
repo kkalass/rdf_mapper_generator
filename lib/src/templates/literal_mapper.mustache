@@ -7,6 +7,7 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
 
   const {{mapperClassName}}();
 
+  {{#needsDeserialization}}
   @override
   {{className}} fromRdfTerm(LiteralTerm term, DeserializationContext context,{bool bypassDatatypeCheck=false}) {
     {{#hasRdfLanguageTag}}
@@ -49,7 +50,9 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/hasNonConstructorFields}}
     {{/hasMethods}}
   }
+  {{/needsDeserialization}}
 
+  {{#needsSerialization}}
   @override
   LiteralTerm toRdfTerm(
     {{className}} value,
@@ -73,4 +76,5 @@ class {{mapperClassName}} implements {{mapperInterfaceName}} {
     {{/hasRdfLanguageTag}}
     {{/hasMethods}}
   }
+  {{/needsSerialization}}
 }
