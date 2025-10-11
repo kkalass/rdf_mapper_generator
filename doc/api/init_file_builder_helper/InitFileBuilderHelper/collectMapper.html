@@ -84,6 +84,8 @@
 
   &#47;&#47; Check if this mapper should be registered globally
   final registerGlobally = mapperData[&#39;registerGlobally&#39;] as bool? ?? true;
+  final direction =
+      SerializationDirection.fromString(mapperData[&#39;direction&#39;] as String?);
   final code = _buildCodeInstantiateMapperFromRequired(
       mapperClassName, requiredMapperParameters);
 
@@ -93,6 +95,7 @@
         _Mapper(
           code: code,
           type: className,
+          direction: direction,
         )
       ],
       parametersByName,
@@ -128,7 +131,7 @@
 <footer>
   <span class="no-break">
     rdf_mapper_generator
-      0.10.8
+      0.10.9
   </span>
   
 </footer>

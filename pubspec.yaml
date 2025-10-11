@@ -1,5 +1,5 @@
 name: rdf_mapper_generator
-version: 0.10.9-dev
+version: 0.10.9
 homepage: https://kkalass.github.io/rdf_mapper_generator/
 repository: https://github.com/kkalass/rdf_mapper_generator
 issue_tracker: https://github.com/kkalass/rdf_mapper_generator/issues
@@ -27,7 +27,7 @@ dependencies:
   mustache_template: '>=2.0.0 <3.0.0'
   rdf_core: ^0.9.20
   rdf_mapper: ^0.10.2
-  rdf_mapper_annotations: ^0.10.2
+  rdf_mapper_annotations: ^0.10.4
   rdf_vocabularies_core: ^0.4.5
   rdf_vocabularies_schema: ^0.4.5
   path: '>=1.9.0 <2.0.0'
@@ -41,7 +41,3 @@ dev_dependencies:
   lints: '>=0.1.0 <7.0.0'
   test: '>=1.25.0 <2.0.0'
   yaml: '>=3.0.0 <4.0.0'
-
-dependency_overrides:
-  rdf_mapper_annotations:
-    path: ../rdf_mapper_annotations
