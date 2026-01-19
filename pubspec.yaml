@@ -1,5 +1,5 @@
 name: rdf_mapper_generator
-version: 0.10.10-dev
+version: 0.10.10
 homepage: https://kkalass.github.io/rdf_mapper_generator/
 repository: https://github.com/kkalass/rdf_mapper_generator
 issue_tracker: https://github.com/kkalass/rdf_mapper_generator/issues
@@ -14,7 +14,7 @@ changelog: CHANGELOG.md
 license: LICENSE
 maintainers:
   - "Klas Kalaß <habbatical@gmail.com>"
-description: Generate type-safe RDF mappers from annotated Dart classes.
+description: "DEPRECATED: Moved to locorda_rdf_mapper_generator. This package is no longer maintained."
 
 environment:
   sdk: '^3.6.0'

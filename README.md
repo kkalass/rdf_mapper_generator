@@ -1,3 +1,15 @@
+> # ⚠️ DEPRECATED - This package has moved!
+> 
+> **This package is no longer maintained.** It has been integrated into the [locorda](https://github.com/locorda) project's monorepo and rebranded.
+> 
+> **Please migrate to:** [`locorda_rdf_mapper_generator`](https://pub.dev/packages/locorda_rdf_mapper_generator)
+> 
+> All future development and support will happen in the new package. This repository will be archived.
+> 
+> **Migration:** Simply replace `rdf_mapper_generator` with `locorda_rdf_mapper_generator` in your `pubspec.yaml` and update your imports.
+> 
+> **⚠️ Important:** This package depends on `rdf_core`, `rdf_mapper`, and `rdf_mapper_annotations`. You must migrate all of them to their locorda equivalents: [`locorda_rdf_core`](https://pub.dev/packages/locorda_rdf_core), [`locorda_rdf_mapper`](https://pub.dev/packages/locorda_rdf_mapper), and [`locorda_rdf_mapper_annotations`](https://pub.dev/packages/locorda_rdf_mapper_annotations).
+
 # RDF Mapper Generator for Dart
 
 [![pub package](https://img.shields.io/pub/v/rdf_mapper_generator.svg)](https://pub.dev/packages/rdf_mapper_generator)
